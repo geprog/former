@@ -1,23 +1,32 @@
 
 <template>
-  <div v-if="isEdit" class="flex gap-2 hover:border-red-600 border border-transparent p-2 rounded-lg">
-    <FormKit v-bind="$attrs" />
-    <FormKit
-      type="button"
-      label="Edit"
-      :onClick="edit"
-    />
-    <FormKit
-      type="button"
-      label="Delete"
-      :onClick="onDelete"
+  <div v-if="isEdit" class="group flex flex-col handle">
+    <div class="flex gap-2 group-hover:border-blue-600 border border-transparent p-2 rounded-lg bg-white">
+      <div>
+        <FormKit v-bind="$attrs" />
+      </div>
 
-    />
-    <FormKit
-      type="button"
-      label="Add after"
-      :onClick="addAfter"
-    />
+      <div class="flex ml-auto gap-4">
+        <FormKit
+        type="button"
+        label="Edit"
+        :onClick="edit"
+        />
+        <FormKit
+        type="button"
+        label="Delete"
+        :onClick="onDelete"
+        />
+      </div>
+    </div>
+
+    <div class="mx-auto mt-2 hidden group-hover:flex">
+      <FormKit
+        type="button"
+        label="Add component"
+        :onClick="addAfter"
+      />
+    </div>
   </div>
   <FormKit v-else v-bind="$attrs" />
 </template>

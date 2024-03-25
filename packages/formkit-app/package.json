@@ -11,8 +11,10 @@
   "dependencies": {
     "@formkit/icons": "latest",
     "@formkit/vue": "latest",
+    "@vueuse/integrations": "^10.9.0",
     "autoprefixer": "latest",
     "postcss": "latest",
+    "sortablejs": "^1.15.2",
     "tailwindcss": "latest",
     "vue": "^3.4.21"
   },
