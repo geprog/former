@@ -21,7 +21,7 @@ jobs:
       - run: pnpm format:check
 
   lint:
-    name: Check Lint
+    name: Lint
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
