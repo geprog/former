@@ -8,6 +8,11 @@
         height="50"
         class="mx-auto mb-8 w-48"
       >
+      <FormKit
+        type="button"
+        :label="isEdit ? 'Edit' : 'Preview'"
+        :onClick="() => isEdit = !isEdit"
+        />
       <div ref="el">
         <FormKitSchema :schema :library />
       </div>
@@ -36,23 +41,20 @@
 </template>
 
 <script setup lang="ts">
-import { FormKitSchema } from '@formkit/vue'
-import { ref } from 'vue';
+import { FormKitSchema, FormKit } from '@formkit/vue'
+import { ref,computed, provide  } from 'vue';
 import type { FormKitSchemaNode } from '@formkit/core';
 import { useSortable } from '@vueuse/integrations/useSortable';
 import { markRaw } from 'vue';
 import FormKitEdit from './components/FormKitEdit.vue';
-import { computed } from 'vue';
 import TextEditForm from './components/TextEditForm.vue';
 
-// async function submit() {
-//   await new Promise(r => setTimeout(r, 1000))
-//   alert('Submitted! 🎉')
-// }
+const isEdit = ref(true);
+provide('isEdit', isEdit);
 
 const library = markRaw({
   FormKit: FormKitEdit,
-})
+});
 
 const editingId = ref<number>();
 

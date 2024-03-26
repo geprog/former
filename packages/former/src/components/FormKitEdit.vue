@@ -6,7 +6,7 @@
         <FormKit v-bind="$attrs" />
       </div>
 
-      <div class="flex ml-auto gap-4">
+      <div class="ml-auto gap-4 hidden group-hover:flex">
         <FormKit
         type="button"
         label="Edit"
@@ -33,6 +33,9 @@
 
 <script setup lang="ts">
 import { FormKit } from '@formkit/vue';
+import { inject, type Ref } from 'vue';
 
-defineProps<{ isEdit?: boolean; onDelete?: () => void; addAfter?: () => void; edit?: () => void }>();
+const isEdit = inject<Ref<boolean>>('isEdit');
+
+defineProps<{ onDelete?: () => void; addAfter?: () => void; edit?: () => void }>();
 </script>
