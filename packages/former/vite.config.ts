@@ -1,8 +1,8 @@
-import { resolve } from 'node:path'
-import { defineConfig } from 'vite'
-import vue from '@vitejs/plugin-vue'
-import dts from 'vite-plugin-dts'
-import cssInjectedByJsPlugin from 'vite-plugin-css-injected-by-js'
+import { resolve } from 'node:path';
+import { defineConfig } from 'vite';
+import vue from '@vitejs/plugin-vue';
+import dts from 'vite-plugin-dts';
+import cssInjectedByJsPlugin from 'vite-plugin-css-injected-by-js';
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -37,11 +37,10 @@ export default defineConfig({
           vue: 'Vue',
         },
         assetFileNames: (chunkInfo) => {
-          if (chunkInfo.name === 'style.css')
-            return 'index.css'
-          return chunkInfo.name as string
+          if (chunkInfo.name === 'style.css') return 'index.css';
+          return chunkInfo.name as string;
         },
       },
     },
   },
-})
+});

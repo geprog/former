@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { DrawerContent, DrawerOverlay, DrawerPortal, DrawerRoot, DrawerTrigger } from 'vaul-vue'
+import { DrawerContent, DrawerOverlay, DrawerPortal, DrawerRoot, DrawerTrigger } from 'vaul-vue';
 </script>
 
 <template>
@@ -17,9 +17,7 @@ import { DrawerContent, DrawerOverlay, DrawerPortal, DrawerRoot, DrawerTrigger }
         <div class="p-4 bg-white rounded-t-[10px] flex-1">
           <div class="mx-auto w-12 h-1.5 flex-shrink-0 rounded-full bg-gray-300 mb-8" />
           <div class="max-w-md mx-auto">
-            <h2 id="radix-:R3emdaH1:" class="font-medium mb-4">
-              Drawer for Vue.
-            </h2>
+            <h2 id="radix-:R3emdaH1:" class="font-medium mb-4">Drawer for Vue.</h2>
             <p class="text-gray-600 mb-2">
               This component can be used as a Dialog replacement on mobile and tablet devices.
             </p>
@@ -29,17 +27,13 @@ import { DrawerContent, DrawerOverlay, DrawerPortal, DrawerRoot, DrawerTrigger }
             </p>
             <p class="text-gray-600 mb-8">
               It uses
-              <a
-                href="https://www.radix-ui.com/docs/primitives/components/dialog"
-                class="underline"
-                target="_blank"
-              >Radix's Dialog primitive</a>
+              <a href="https://www.radix-ui.com/docs/primitives/components/dialog" class="underline" target="_blank"
+                >Radix's Dialog primitive</a
+              >
               under the hood and is inspired by
-              <a
-                href="https://twitter.com/devongovett/status/1674470185783402496"
-                class="underline"
-                target="_blank"
-              >this tweet.</a>
+              <a href="https://twitter.com/devongovett/status/1674470185783402496" class="underline" target="_blank"
+                >this tweet.</a
+              >
             </p>
           </div>
         </div>

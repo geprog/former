@@ -1,4 +1,4 @@
-import { defineConfig, devices } from '@playwright/test'
+import { defineConfig, devices } from '@playwright/test';
 
 /**
  * Read environment variables from file.
@@ -109,4 +109,4 @@ export default defineConfig({
     port: 5173,
     reuseExistingServer: !process.env.CI,
   },
-})
+});

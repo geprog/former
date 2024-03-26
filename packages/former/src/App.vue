@@ -7,22 +7,13 @@
         width="244"
         height="50"
         class="mx-auto mb-8 w-48"
-      >
-      <FormKit
-        type="button"
-        :label="isEdit ? 'Edit' : 'Preview'"
-        :onClick="() => isEdit = !isEdit"
-        />
+      />
+      <FormKit type="button" :label="isEdit ? 'Edit' : 'Preview'" :onClick="() => (isEdit = !isEdit)" />
       <div ref="el">
         <FormKitSchema :schema :library />
       </div>
-      <div  class="mt-4 mx-auto">
-        <FormKit
-          v-if="schema.length === 1"
-          type="button"
-          label="Add component"
-          :onClick="addComponent"
-          />
+      <div class="mt-4 mx-auto">
+        <FormKit v-if="schema.length === 1" type="button" label="Add component" :onClick="addComponent" />
       </div>
     </main>
     <aside class="flex flex-col gap-4 max-w-[960px] w-1/3">
@@ -36,13 +27,13 @@
           <pre class="font-mono text-sm p-4 bg-slate-100 mb-4">{{ schema }}</pre>
         </details>
       </div>
-      </aside>
+    </aside>
   </div>
 </template>
 
 <script setup lang="ts">
-import { FormKitSchema, FormKit } from '@formkit/vue'
-import { ref,computed, provide  } from 'vue';
+import { FormKitSchema, FormKit } from '@formkit/vue';
+import { ref, computed, provide } from 'vue';
 import type { FormKitSchemaNode } from '@formkit/core';
 import { useSortable } from '@vueuse/integrations/useSortable';
 import { markRaw } from 'vue';
@@ -65,7 +56,7 @@ const editingComponentProps = computed({
   set(props) {
     const index = schema.value.findIndex((node) => typeof node === 'object' && node.props?.id === editingId.value);
     schema.value[index].props = props;
-  }
+  },
 });
 
 function addComponent(insertId?: number) {
@@ -149,7 +140,7 @@ const schema = ref<FormKitSchemaNode[]>([
   // },
 ]);
 
-const el = ref<HTMLElement | null>(null)
+const el = ref<HTMLElement | null>(null);
 useSortable(el, schema, {
   handle: '.handle',
   animation: 200,

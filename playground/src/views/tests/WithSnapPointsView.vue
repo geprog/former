@@ -1,29 +1,24 @@
 <script setup lang="ts">
-import { DrawerContent, DrawerOverlay, DrawerPortal, DrawerRoot, DrawerTrigger } from 'vaul-vue'
-import { computed, ref } from 'vue'
+import { DrawerContent, DrawerOverlay, DrawerPortal, DrawerRoot, DrawerTrigger } from 'vaul-vue';
+import { computed, ref } from 'vue';
 
-const snapPoints = [0, '148px', '355px', 1]
+const snapPoints = [0, '148px', '355px', 1];
 
-const snap = ref<number | string | null>(snapPoints[1])
+const snap = ref<number | string | null>(snapPoints[1]);
 
-const activeSnapPointIndex = computed(() => snapPoints.indexOf(snap.value as string))
+const activeSnapPointIndex = computed(() => snapPoints.indexOf(snap.value as string));
 
-const open = ref<boolean>(true)
+const open = ref<boolean>(true);
 </script>
 
 <template>
-  <div
-    class="w-screen h-screen bg-white p-8 flex justify-center items-center"
-    vaul-drawer-wrapper=""
-  >
+  <div class="w-screen h-screen bg-white p-8 flex justify-center items-center" vaul-drawer-wrapper="">
     <div data-testid="active-snap-index">
       {{ activeSnapPointIndex }}
     </div>
     <DrawerRoot v-model:open="open" :snap-points="snapPoints" :active-snap-point="snap">
       <DrawerTrigger as-child>
-        <button data-testid="trigger" class="text-2xl">
-          Open Drawer
-        </button>
+        <button data-testid="trigger" class="text-2xl">Open Drawer</button>
       </DrawerTrigger>
       <DrawerPortal>
         <DrawerOverlay data-testid="overlay" class="fixed inset-0 bg-black/40" />
@@ -98,26 +93,17 @@ const open = ref<boolean>(true)
               </svg>
             </div>
             {' '}
-            <h1 class="text-2xl mt-2 font-medium">
-              The Hidden Details
-            </h1>
-            <p class="text-sm mt-1 text-gray-600 mb-6">
-              2 modules, 27 hours of video
-            </p>
+            <h1 class="text-2xl mt-2 font-medium">The Hidden Details</h1>
+            <p class="text-sm mt-1 text-gray-600 mb-6">2 modules, 27 hours of video</p>
             <p class="text-gray-600">
-              The world of user interface design is an intricate landscape filled with hidden
-              details and nuance. In this course, you will learn something cool. To the untrained
-              eye, a beautifully designed UI.
+              The world of user interface design is an intricate landscape filled with hidden details and nuance. In
+              this course, you will learn something cool. To the untrained eye, a beautifully designed UI.
             </p>
-            <button
-              class="bg-black text-gray-50 mt-8 rounded-md h-[48px] flex-shrink-0 font-medium"
-            >
+            <button class="bg-black text-gray-50 mt-8 rounded-md h-[48px] flex-shrink-0 font-medium">
               Buy for $199
             </button>
             <div class="mt-12">
-              <h2 class="text-xl font-medium">
-                Module 01. The Details
-              </h2>
+              <h2 class="text-xl font-medium">Module 01. The Details</h2>
               <div class="space-y-4 mt-4">
                 <div>
                   <span class="block">Layers of UI</span>
@@ -136,8 +122,8 @@ const open = ref<boolean>(true)
             <div class="mt-12">
               <figure>
                 <blockquote class="font-serif">
-                  “I especially loved the hidden details video. That was so useful, learned a lot by
-                  just reading it. Can&rsquo;t wait for more course content!”
+                  “I especially loved the hidden details video. That was so useful, learned a lot by just reading it.
+                  Can&rsquo;t wait for more course content!”
                 </blockquote>
                 <figcaption>
                   <span class="text-sm text-gray-600 mt-2 block">Yvonne Ray, Frontend Developer</span>
@@ -145,9 +131,7 @@ const open = ref<boolean>(true)
               </figure>
             </div>
             <div class="mt-12">
-              <h2 class="text-xl font-medium">
-                Module 02. The Process
-              </h2>
+              <h2 class="text-xl font-medium">Module 02. The Process</h2>
               <div class="space-y-4 mt-4">
                 <div>
                   <span class="block">Build</span>

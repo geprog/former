@@ -23,12 +23,7 @@
         stroke-width="0"
       />
     </svg>
-    <rect
-      width="100%"
-      height="100%"
-      stroke-width="0"
-      fill="url(#83fd4e5a-9d52-42fc-97b6-718e5d7ee527)"
-    />
+    <rect width="100%" height="100%" stroke-width="0" fill="url(#83fd4e5a-9d52-42fc-97b6-718e5d7ee527)" />
   </svg>
 </template>
 

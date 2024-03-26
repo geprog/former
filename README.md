@@ -24,7 +24,7 @@ yarn add former-ui
 
 ```vue
 <script setup lang="ts">
-import { FormBuilder, FormBuilderOptions } from 'former-ui'
+import { FormBuilder, FormBuilderOptions } from 'former-ui';
 </script>
 
 <template>
