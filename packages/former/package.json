@@ -1,28 +1,65 @@
 {
-  "name": "formkit-app",
-  "private": true,
-  "version": "0.0.0",
+  "name": "former-ui",
   "type": "module",
+  "version": "0.0.1",
+  "repository": "https://github.com/geprog/former",
+  "keywords": [
+    "vue",
+    "vue3",
+    "formkit",
+    "formbuilder",
+    "forms"
+  ],
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.umd.cjs"
+    }
+  },
+  "main": "./dist/index.umd.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "README.md",
+    "dist"
+  ],
   "scripts": {
     "dev": "vite",
-    "build": "vue-tsc && vite build",
-    "preview": "vite preview"
+    "build": "run-p type-check \"build-only {@}\" --",
+    "preview": "vite preview",
+    "test:unit": "vitest",
+    "build-only": "vite build",
+    "type-check": "vue-tsc --build --force",
+    "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix --ignore-path .gitignore",
+    "format": "prettier --write src/",
+    "release": "pnpm run build-only"
   },
   "dependencies": {
-    "@formkit/icons": "latest",
-    "@formkit/vue": "latest",
     "@vueuse/integrations": "^10.9.0",
-    "autoprefixer": "latest",
-    "postcss": "latest",
-    "sortablejs": "^1.15.2",
-    "tailwindcss": "latest",
-    "vue": "^3.4.21"
+    "sortablejs": "^1.15.2"
   },
   "devDependencies": {
     "@formkit/core": "^1.6.0",
+    "@formkit/icons": "^1.6.0",
+    "@formkit/vue": "^1.6.0",
+    "@types/jsdom": "^21.1.6",
+    "@types/node": "^18.19.3",
     "@vitejs/plugin-vue": "^5.0.4",
+    "@vue/test-utils": "^2.4.3",
+    "@vue/tsconfig": "^0.5.0",
+    "autoprefixer": "^10.4.19",
+    "eslint": "^8.49.0",
+    "eslint-plugin-vue": "^9.17.0",
+    "jsdom": "^23.0.1",
+    "npm-run-all2": "^6.1.2",
+    "postcss": "^8.4.38",
+    "tailwindcss": "^3.4.1",
     "typescript": "^5.2.2",
     "vite": "^5.2.0",
-    "vue-tsc": "^2.0.6"
+    "vite-plugin-css-injected-by-js": "^3.3.1",
+    "vite-plugin-dts": "^3.7.3",
+    "vitest": "^1.4.0",
+    "vue": "^3.4.21",
+    "vue-tsc": "^2.0.7"
   }
 }
