@@ -35,6 +35,7 @@
     "release": "pnpm run build-only"
   },
   "dependencies": {
+    "@tsconfig/node20": "^20.1.3",
     "@vueuse/integrations": "^10.9.0",
     "sortablejs": "^1.15.2"
   },

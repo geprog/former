@@ -1,8 +1,5 @@
-import { createApp } from 'vue';
-import { plugin, defaultConfig } from '@formkit/vue';
-import App from './App.vue';
-import formKitConfig from '../formkit.config';
+import FormBuilder from './components/FormBuilder.vue';
+import FormContent from './components/FormContent.vue';
+import FormFieldOptions from './components/FormFieldOptions.vue';
 
-const app = createApp(App);
-app.use(plugin, defaultConfig(formKitConfig));
-app.mount('#app');
+export { FormBuilder, FormContent, FormFieldOptions };

@@ -7,5 +7,11 @@
 <script setup lang="ts">
 import { FormKit } from '@formkit/vue';
 
-const properties = defineModel<{ name: string; label: string; help: string }>('properties', { required: true });
+const properties = defineModel<{
+  name: string;
+  label: string;
+  help: string;
+}>('properties', {
+  required: true,
+});
 </script>

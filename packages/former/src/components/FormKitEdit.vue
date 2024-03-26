@@ -1,5 +1,5 @@
 <template>
-  <div v-if="isEdit" class="group flex flex-col handle">
+  <div v-if="mode === 'edit'" class="group flex flex-col handle">
     <div class="flex gap-2 group-hover:border-blue-600 border border-transparent p-2 rounded-lg bg-white">
       <div>
         <FormKit v-bind="$attrs" />
@@ -20,9 +20,13 @@
 
 <script setup lang="ts">
 import { FormKit } from '@formkit/vue';
-import { inject, type Ref } from 'vue';
+import { inject } from '../compositions/injectProvide';
 
-const isEdit = inject<Ref<boolean>>('isEdit');
+const mode = inject('mode');
 
-defineProps<{ onDelete?: () => void; addAfter?: () => void; edit?: () => void }>();
+defineProps<{
+  onDelete?: () => void;
+  addAfter?: () => void;
+  edit?: () => void;
+}>();
 </script>

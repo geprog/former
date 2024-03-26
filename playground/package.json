@@ -13,6 +13,9 @@
     "test": "pnpm run test:e2e"
   },
   "dependencies": {
+    "@formkit/core": "^1.6.0",
+    "@formkit/icons": "^1.6.0",
+    "@formkit/vue": "^1.6.0",
     "former-ui": "workspace:*",
     "vue": "^3.4.21",
     "vue-router": "^4.3.0"
