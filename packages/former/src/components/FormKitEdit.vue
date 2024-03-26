@@ -20,7 +20,7 @@
 
 <script setup lang="ts">
 import { FormKit } from '@formkit/vue';
-import { inject } from '../compositions/injectProvide';
+import { inject } from '~/compositions/injectProvide';
 
 const mode = inject('mode');
 

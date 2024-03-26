@@ -20,7 +20,7 @@ import { ref } from 'vue';
 import { useSortable } from '@vueuse/integrations/useSortable';
 import { markRaw } from 'vue';
 import FormKitEdit from './FormKitEdit.vue';
-import { inject } from '../compositions/injectProvide';
+import { inject } from '~/compositions/injectProvide';
 import type { FormKitSchemaComponent, FormKitSchemaNode } from '@formkit/core';
 
 const schema = inject('schema');

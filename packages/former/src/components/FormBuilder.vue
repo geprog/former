@@ -5,7 +5,7 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import type { FormKitSchemaNode } from '@formkit/core';
-import { provide } from '../compositions/injectProvide';
+import { provide } from '~/compositions/injectProvide';
 
 const schema = defineModel<FormKitSchemaNode[]>('schema', {
   required: true,
