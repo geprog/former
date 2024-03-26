@@ -2,29 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-html,
 body {
-  overflow: hidden;
-}
-
-body,
-main {
-  min-height: 100vh;
-  /* mobile viewport bug fix */
-  min-height: -webkit-fill-available;
-  overflow-x: hidden;
-}
-
-main {
-  min-height: 100vh;
-  background: white;
-}
-
-html {
-  height: -webkit-fill-available;
-}
-
-a {
-  text-decoration-thickness: 1px;
-  text-underline-offset: 2px;
+  @apply bg-gray-100;
 }
