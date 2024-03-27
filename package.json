@@ -4,13 +4,13 @@
   "private": true,
   "packageManager": "pnpm@8.14.1",
   "scripts": {
+    "dev": "pnpm -r dev",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "test": "pnpm -r test",
     "release": "pnpm -r release && changeset publish",
     "format:check": "prettier --check .",
-    "build:package": "pnpm --filter former-ui build-only",
-    "build:playground": "pnpm build:package && pnpm --filter playground build"
+    "build": "pnpm -r build"
   },
   "devDependencies": {
     "@antfu/eslint-config": "^2.9.0",
