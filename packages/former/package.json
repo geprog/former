@@ -30,11 +30,10 @@
     "build": "vite build",
     "prepack": "pnpm build",
     "lint": "eslint .",
-    "lint:fix": "eslint . --fix",
     "test:unit": "vitest",
     "test:format": "prettier --check .",
     "test:types": "vue-tsc --build --force",
-    "release": "pnpm -r release && changeset publish"
+    "release": "pnpm -r release && npm publish"
   },
   "dependencies": {
     "@vueuse/integrations": "^10.9.0",
@@ -43,23 +42,17 @@
     "vite-plugin-dts": "^3.8.0"
   },
   "devDependencies": {
-    "@antfu/eslint-config": "^2.9.0",
-    "@changesets/cli": "^2.27.1",
     "@formkit/core": "^1.6.0",
     "@formkit/icons": "^1.6.0",
     "@formkit/vue": "^1.6.0",
-    "@playwright/test": "^1.42.1",
-    "@rushstack/eslint-patch": "^1.8.0",
     "@tsconfig/node20": "^20.1.3",
     "@types/jsdom": "^21.1.6",
     "@types/node": "^18.19.3",
     "@vitejs/plugin-vue": "^5.0.4",
-    "@vue/eslint-config-typescript": "^13.0.0",
     "@vue/test-utils": "^2.4.3",
     "@vue/tsconfig": "^0.5.0",
     "autoprefixer": "^10.4.19",
     "eslint": "^8.49.0",
-    "eslint-plugin-vue": "^9.17.0",
     "jsdom": "^23.0.1",
     "postcss": "^8.4.38",
     "prettier": "^3.2.5",
