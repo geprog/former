@@ -2,13 +2,7 @@
   <div class="flex items-start gap-4 m-4 justify-center">
     <FormBuilder v-model:schema="schema">
       <main class="bg-white rounded-xl shadow-xl p-8 max-w-[960px] w-2/3 flex flex-col">
-        <img
-          src="https://pro.formkit.com/logo.svg"
-          alt="FormKit Logo"
-          width="244"
-          height="50"
-          class="mx-auto mb-8 w-48"
-        />
+        <h1 class="text-4xl font-bold mx-auto">👩🏾‍🌾 Former playground</h1>
         <FormContent />
       </main>
       <aside class="flex flex-col gap-4 max-w-[960px] w-1/3">
