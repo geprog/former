@@ -182,31 +182,6 @@ const schema = ref<FormKitSchemaNode[]>([
     },
     children: [
       {
-        $formkit: 'repeater',
-        children: [
-          {
-            $formkit: 'repeater',
-            items: {
-              $el: 'ul',
-              props: {
-                class: 'flex gap-4',
-              },
-            },
-            children: [
-              {
-                $formkit: 'text',
-                name: 'name',
-                prefixIcon: 'avatarMan',
-                label: '$: ($index + 1) + ". Full Name"',
-                validationLabel: 'Name',
-                help: "Please enter attendee's full name.",
-                validation: 'required',
-              },
-            ],
-          },
-        ],
-      },
-      {
         $formkit: 'radio',
         value: '2',
         label: 'Choose your ticket',
@@ -244,42 +219,6 @@ const schema = ref<FormKitSchemaNode[]>([
           },
         ],
       },
-    ],
-  },
-  {
-    $formkit: 'taglist',
-    label: 'Which tracks are you and your team most interested in?',
-    validationLabel: 'track',
-    validationMessages: {
-      min: 'You must select at least 1 track',
-    },
-    prefixIcon: 'tag',
-    validation: '+min:1',
-    placeholder: 'Please select an option',
-    options: [
-      'Forms',
-      'Form Architecture',
-      'Form Design',
-      'Styling Forms',
-      'Tailwind Forms',
-      'Validating Forms',
-      'Forms and Me',
-      'Inclusive Forms',
-      'Is FormKit a UI Library?',
-      'Forms at scale',
-    ],
-  },
-  {
-    $formkit: 'dropdown',
-    label: 'How did you hear about FormConf?',
-    placeholder: 'Be honest',
-    behavior: 'overscroll',
-    options: [
-      'Podcast advertising',
-      'Saw the banner on the side of a bus',
-      'A friend told me',
-      "I'm not sure how I got here",
-      'Other',
     ],
   },
   {
