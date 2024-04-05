@@ -23,13 +23,57 @@ yarn add former-ui
 ## Usage
 
 ```vue
-<script setup lang="ts">
-import { FormBuilder, FormBuilderOptions } from 'former-ui';
-</script>
-
 <template>
-  <!-- TODO -->
+  <FormBuilder v-model:schema="schema" :mode="mode">
+    <main id="form-panel">
+      <FormContent />
+    </main>
+
+    <aside id="form-element-options">
+      <FormElementOptions />
+    </aside>
+  </FormBuilder>
 </template>
+
+<script setup lang="ts">
+import type { FormKitSchemaNode } from '@formkit/core';
+import { FormBuilder, FormBuilderOptions } from 'former-ui';
+
+const schema = ref<FormKitSchemaNode[]>([
+  {
+    $el: 'h1',
+    children: 'Register',
+    attrs: {
+      class: 'text-2xl font-bold mb-4',
+    },
+  },
+  {
+    $formkit: 'text',
+    name: 'username',
+    label: 'Username',
+    help: 'This is your username.',
+  },
+  {
+    $formkit: 'text',
+    name: 'email',
+    label: 'Email',
+    help: 'This is your email.',
+  },
+  {
+    $formkit: 'password',
+    name: 'password',
+    label: 'Password',
+    help: 'This is your password.',
+  },
+  {
+    $formkit: 'checkbox',
+    name: 'terms',
+    label: 'I agree to the terms and conditions.',
+  }
+]);
+
+const mode = ref<'edit' | 'preview'>('edit');
+</script>
 ```
 
 ## Credits

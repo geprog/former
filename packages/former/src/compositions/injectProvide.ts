@@ -11,12 +11,14 @@ import {
 export type InjectKeys = {
   mode: Ref<'edit' | 'preview'>;
   schema: Ref<FormKitSchemaNode[]>;
-  // library: {
-  //   [key: string]: {
-  //     form: DefineComponent;
-  //     options: DefineComponent;
-  //   };
-  // };
+  data: Ref<Record<string, any>>;
+  selectedElement: Ref<FormKitSchemaNode | undefined>;
+  library: {
+    [key: string]: {
+      cmp: DefineComponent;
+      options: FormKitSchemaNode[];
+    };
+  };
 };
 
 export function inject<T extends keyof InjectKeys>(key: T): InjectKeys[T];

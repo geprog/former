@@ -1,8 +1,14 @@
 <template>
   <div class="flex items-start gap-4 m-4 justify-center">
-    <FormBuilder v-model:schema="schema">
+    <FormBuilder v-model:schema="schema" :mode="mode">
       <main class="bg-white rounded-xl shadow-xl p-8 max-w-[960px] w-2/3 flex flex-col">
         <h1 class="text-4xl font-bold mx-auto">👩🏾‍🌾 Former playground</h1>
+        <FormKit
+          type="button"
+          :label="mode === 'preview' ? 'Edit' : 'Preview'"
+          :onClick="() => (mode = mode === 'edit' ? 'preview' : 'edit')"
+        />
+
         <FormContent />
       </main>
       <aside class="flex flex-col gap-4 max-w-[960px] w-1/3">
@@ -14,6 +20,11 @@
           <details>
             <summary>Schema</summary>
             <pre class="font-mono text-sm p-4 bg-slate-100 mb-4">{{ schema }}</pre>
+          </details>
+
+          <details>
+            <summary>Data</summary>
+            <pre class="font-mono text-sm p-4 bg-slate-100 mb-4">{{ data }}</pre>
           </details>
         </div>
       </aside>
@@ -27,6 +38,8 @@ import type { FormKitSchemaNode } from '@formkit/core';
 // import { markRaw } from 'vue';
 import { FormBuilder, FormContent, FormFieldOptions } from 'former-ui';
 
+const mode = ref<'edit' | 'preview'>('edit');
+
 // const library = markRaw({
 //   // TODO: provide some custom components here
 // });
@@ -39,48 +52,245 @@ const schema = ref<FormKitSchemaNode[]>([
       class: 'text-2xl font-bold mb-4',
     },
   },
-  // {
-  //   $formkit: 'text',
-  //   name: 'email',
-  //   label: 'Email',
-  //   help: 'This will be used for your account.',
-  //   validation: 'required|email',
-  // },
-  // {
-  //   $formkit: 'password',
-  //   name: 'password',
-  //   label: 'Password',
-  //   help: 'Enter your new password.',
-  //   validation: 'required|length:5,16',
-  // },
-  // {
-  //   $formkit: 'password',
-  //   name: 'password_confirm',
-  //   label: 'Confirm password',
-  //   help: 'Enter your new password again to confirm it.',
-  //   validation: 'required|confirm',
-  //   validationLabel: 'password confirmation',
-  // },
-  // {
-  //   $cmp: 'FormKit',
-  //   props: {
-  //     name: 'eu_citizen',
-  //     type: 'checkbox',
-  //     id: 'eu',
-  //     label: 'Are you a european citizen?',
-  //   },
-  // },
-  // {
-  //   $formkit: 'select',
-  //   if: '$get(eu).value', // 👀 Oooo, conditionals!
-  //   name: 'cookie_notice',
-  //   label: 'Cookie notice frequency',
-  //   options: {
-  //     refresh: 'Every page load',
-  //     hourly: 'Ever hour',
-  //     daily: 'Every day',
-  //   },
-  //   help: 'How often should we display a cookie notice?',
-  // },
+  {
+    $formkit: 'text',
+    name: 'new_field',
+    label: 'New field1',
+    help: 'This is a new field.',
+    prefixIcon: 'arcticons:4g',
+  },
+  {
+    $formkit: 'text',
+    name: 'new_field_2',
+    label: 'New field2',
+    help: 'This is a new field.',
+  },
+  {
+    $formkit: 'group',
+    name: 'categoryAndZip',
+    children: [
+      {
+        $formkit: 'text',
+        label: 'Zip Code',
+        placeholder: '90210',
+        name: 'zip_code',
+        validation: 'required|matches:/^[0-9]{5}$/',
+      },
+      {
+        $formkit: 'select',
+        placeholder: 'Please Select',
+        validation: 'required',
+        validationMessages: {
+          required: 'Field is required',
+        },
+        label: 'Category',
+        name: 'category',
+        options: ['Fruits', 'Vegetables'],
+      },
+    ],
+  },
+  {
+    $el: 'h1',
+    children: 'Register',
+    attrs: {
+      class: 'text-2xl font-bold mb-4',
+    },
+  },
+  {
+    $formkit: 'text',
+    name: 'email',
+    label: 'Email',
+    help: 'This will be used for your account.',
+    validation: 'required|email',
+  },
+  {
+    $formkit: 'password',
+    name: 'password',
+    label: 'Password',
+    help: 'Enter your new password.',
+    validation: 'required|length:5,16',
+  },
+  {
+    $formkit: 'password',
+    name: 'password_confirm',
+    label: 'Confirm password',
+    help: 'Enter your new password again to confirm it.',
+    validation: 'required|confirm',
+    validationLabel: 'password confirmation',
+  },
+  {
+    $cmp: 'FormKit',
+    props: {
+      name: 'eu_citizen',
+      type: 'checkbox',
+      id: 'eu',
+      label: 'Are you a european citizen?',
+    },
+  },
+  {
+    $formkit: 'select',
+    if: '$get(eu).value', // 👀 Oooo, conditionals!
+    name: 'cookie_notice',
+    label: 'Cookie notice frequency',
+    options: {
+      refresh: 'Every page load',
+      hourly: 'Ever hour',
+      daily: 'Every day',
+    },
+    help: 'How often should we display a cookie notice?',
+  },
+  {
+    $formkit: 'number',
+    name: 'price',
+    label: 'Primary price',
+  },
+  {
+    $formkit: 'list',
+    name: 'prices',
+    children: [
+      {
+        $formkit: 'number',
+        label: 'List-nested price',
+      },
+    ],
+  },
+  {
+    $formkit: 'group',
+    name: 'cart',
+    key: 'cart',
+    children: [
+      {
+        $formkit: 'number',
+        name: 'price',
+        label: 'Group-nested price',
+      },
+      {
+        $formkit: 'text',
+        name: 'name',
+        label: 'Product name',
+      },
+    ],
+  },
+
+  {
+    $formkit: 'form',
+    submitLabel: 'Proceed to checkout',
+    onSubmit: '$formSubmitHandler',
+    submitAttrs: {
+      prefixIcon: 'dollar',
+      suffixIcon: 'submit',
+    },
+    children: [
+      {
+        $formkit: 'repeater',
+        children: [
+          {
+            $formkit: 'repeater',
+            items: {
+              $el: 'ul',
+              props: {
+                class: 'flex gap-4',
+              },
+            },
+            children: [
+              {
+                $formkit: 'text',
+                name: 'name',
+                prefixIcon: 'avatarMan',
+                label: '$: ($index + 1) + ". Full Name"',
+                validationLabel: 'Name',
+                help: "Please enter attendee's full name.",
+                validation: 'required',
+              },
+            ],
+          },
+        ],
+      },
+      {
+        $formkit: 'radio',
+        value: '2',
+        label: 'Choose your ticket',
+        validation: 'required',
+        validationLabel: 'Ticket',
+        help: "Don't be afraid to invest in yourself",
+        options: [
+          {
+            label: 'Quartz: $0',
+            value: '1',
+            help: 'Watch remotely and miss out on all the fun.',
+          },
+          {
+            label: 'Bronze: $299',
+            value: '2',
+            help: "Nose-bleed seats but at least you're attending in person.",
+          },
+          {
+            label: 'Silver: $399',
+            value: '3',
+            help: 'The every-day conference experience.',
+          },
+          {
+            label: 'Gold: $599',
+            value: '4',
+            help: 'SOLD OUT: VIP seating, personalized swag, and complimentary food and drink.',
+            attrs: {
+              disabled: true,
+            },
+          },
+          {
+            label: 'Platinum: $20,000',
+            value: '5',
+            help: 'You get to be a speaker. 🤫',
+          },
+        ],
+      },
+    ],
+  },
+  {
+    $formkit: 'taglist',
+    label: 'Which tracks are you and your team most interested in?',
+    validationLabel: 'track',
+    validationMessages: {
+      min: 'You must select at least 1 track',
+    },
+    prefixIcon: 'tag',
+    validation: '+min:1',
+    placeholder: 'Please select an option',
+    options: [
+      'Forms',
+      'Form Architecture',
+      'Form Design',
+      'Styling Forms',
+      'Tailwind Forms',
+      'Validating Forms',
+      'Forms and Me',
+      'Inclusive Forms',
+      'Is FormKit a UI Library?',
+      'Forms at scale',
+    ],
+  },
+  {
+    $formkit: 'dropdown',
+    label: 'How did you hear about FormConf?',
+    placeholder: 'Be honest',
+    behavior: 'overscroll',
+    options: [
+      'Podcast advertising',
+      'Saw the banner on the side of a bus',
+      'A friend told me',
+      "I'm not sure how I got here",
+      'Other',
+    ],
+  },
+  {
+    $formkit: 'textarea',
+    label: 'Special instructions / comments',
+    placeholder: 'Let us know if you need anything!',
+    help: 'FormConf aspires to provide a welcoming environment for all.',
+  },
 ]);
+
+const data = ref<Record<string, any>>({
+  email: '',
+});
 </script>

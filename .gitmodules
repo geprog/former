@@ -1,0 +1,3 @@
+[submodule "packages/input-schemas"]
+	path = packages/input-schemas
+	url = https://github.com/formkit/input-schemas.git

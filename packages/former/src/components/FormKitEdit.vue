@@ -1,23 +1,29 @@
 <template>
-  <div v-if="mode === 'edit'" class="group flex flex-col handle">
+  <div v-if="mode === 'edit'" class="group flex flex-col handle" @click="selectedElement = element">
     <div
-      class="flex gap-2 group-hover:border-blue-600 border border-transparent p-2 rounded-lg bg-white transition-colors duration-200 w-full"
+      class="flex gap-2 p-2 rounded-lg bg-white transition-colors group-hover:border-blue-600 border border-transparent duration-7600 w-full"
     >
-      <div class="w-full">
-        <FormKit v-bind="$attrs" />
-      </div>
+      <!-- <button type="button" class="opacity-0 group-hover:opacity-100 handle cursor-grab">
+        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 256 256">
+          <path
+            fill="currentColor"
+            d="M108 60a16 16 0 1 1-16-16a16 16 0 0 1 16 16m56 16a16 16 0 1 0-16-16a16 16 0 0 0 16 16m-72 36a16 16 0 1 0 16 16a16 16 0 0 0-16-16m72 0a16 16 0 1 0 16 16a16 16 0 0 0-16-16m-72 68a16 16 0 1 0 16 16a16 16 0 0 0-16-16m72 0a16 16 0 1 0 16 16a16 16 0 0 0-16-16"
+          />
+        </svg>
+      </button> -->
 
-      <div class="ml-auto gap-4 opacity-0 group-hover:opacity-100 duration-200 transition-all">
-        <FormKit type="button" label="Edit" :onClick="edit" />
-        <FormKit type="button" label="Delete" :onClick="onDelete" />
+      <div class="w-full">
+        <FormKit v-bind="$attrs">
+          <slot />
+        </FormKit>
       </div>
     </div>
 
     <div
       class="w-full flex justify-center items-center mt-2 opacity-0 gap-2 group-hover:opacity-100 duration-700 transition-all relative"
     >
-      <div class="flex-grow h-1 rounded-sm bg-blue-600" />
-      <button type="button" aria-details="Add component" @click="addAfter">
+      <div class="flex-grow h-0.5 rounded-sm bg-blue-600" />
+      <button type="button" aria-details="Add component" @click="addComponentAfterThisOne">
         <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" class="text-blue-600">
           <path
             fill="currentColor"
@@ -25,21 +31,40 @@
           />
         </svg>
       </button>
-      <div class="flex-grow h-1 rounded-sm bg-blue-600" />
+      <div class="flex-grow h-0.5 rounded-sm bg-blue-600" />
     </div>
   </div>
-  <FormKit v-else v-bind="$attrs" />
+  <FormKit v-else v-bind="$attrs">
+    <slot />
+  </FormKit>
 </template>
 
 <script setup lang="ts">
+import { type FormKitSchemaNode, getNode } from '@formkit/core';
 import { FormKit } from '@formkit/vue';
+import { computed } from 'vue';
+import { toRaw } from 'vue';
+import { useAttrs } from 'vue';
 import { inject } from '~/compositions/injectProvide';
 
-const mode = inject('mode');
+defineOptions({
+  inheritAttrs: false,
+});
 
-defineProps<{
-  onDelete?: () => void;
-  addAfter?: () => void;
-  edit?: () => void;
-}>();
+const element = useAttrs() as FormKitSchemaNode;
+const mode = inject('mode');
+const schema = inject('schema');
+const selectedElement = inject('selectedElement');
+
+// const id = computed(() => element.id || element.props.id);
+
+function addComponentAfterThisOne() {
+  // const node = getNode(id.value);
+  // schema.value.splice(insertId, 0, {
+  //   $formkit: 'text',
+  //   name: 'new_field',
+  //   label: 'New field' + schema.value.length,
+  //   help: 'This is a new field.',
+  // });
+}
 </script>
