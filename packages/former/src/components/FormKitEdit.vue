@@ -56,15 +56,22 @@ const mode = inject('mode');
 const schema = inject('schema');
 const selectedElement = inject('selectedElement');
 
-// const id = computed(() => element.id || element.props.id);
+const generateId = () => `former-${Math.random().toString(36).substring(7)}`;
+const getId = (element: any) => (element as { id?: string }).id;
+const id = computed(() => getId(element));
 
 function addComponentAfterThisOne() {
-  // const node = getNode(id.value);
-  // schema.value.splice(insertId, 0, {
-  //   $formkit: 'text',
-  //   name: 'new_field',
-  //   label: 'New field' + schema.value.length,
-  //   help: 'This is a new field.',
-  // });
+  if (!id.value) {
+    throw new Error('This element should not have an add button');
+  }
+
+  const index = schema.value.findIndex((e) => getId(e) === id.value);
+  schema.value.splice(index + 1, 0, {
+    $formkit: 'text',
+    id: generateId(),
+    name: 'new_field' + schema.value.length,
+    label: 'New field' + schema.value.length,
+    help: 'This is a new field.',
+  });
 }
 </script>

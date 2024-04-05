@@ -2,6 +2,10 @@
   <div class="flex flex-col items-start gap-4 m-4 justify-center">
     <div ref="el" class="w-full">
       <FormKitSchema :schema :library v-model:data="data" />
+
+      <details>
+        <pre>{{ schema }}</pre>
+      </details>
     </div>
     <div class="mt-4 mx-auto">
       <button v-if="schema.length < 1" type="button" aria-details="Add component" @click="addComponent">
@@ -23,8 +27,68 @@ import { useSortable } from '@vueuse/integrations/useSortable';
 import { markRaw } from 'vue';
 import FormKitEdit from './FormKitEdit.vue';
 import { inject } from '~/compositions/injectProvide';
+import { computed } from 'vue';
+import { type FormKitSchemaNode, isSugar, type FormKitSchemaComponent, type FormKitSchemaFormKit } from '@formkit/core';
 
-const schema = inject('schema');
+function getFormKitId(node: any): string | undefined {
+  return isFormKitSchemaNode(node) ? (node as unknown as { id: string }).id : undefined;
+}
+
+function isFormKitSchemaNode(node: any): node is FormKitSchemaComponent | FormKitSchemaFormKit {
+  return isSugar(node) || (node as FormKitSchemaComponent).$cmp === '$formkit';
+}
+
+const generateId = () => `former-${Math.random().toString(36).substring(7)}`;
+
+function addIdsToSchema(schema: FormKitSchemaNode[]) {
+  return schema.map((node, index) => {
+    // if (isFormKitSchemaNode(node) && node.children) {
+    //   node.children = addIdsToSchema(node.children as FormKitSchemaNode[]); // TODO: check children types
+    // }
+
+    if (isFormKitSchemaNode(node) && !getFormKitId(node)) {
+      if (isSugar(node)) {
+        node.id = generateId();
+      } else if (node.props) {
+        node.props.id = generateId();
+      }
+      node.key = generateId();
+    }
+
+    return node;
+  });
+}
+
+function removeGeneratedIds(schema: FormKitSchemaNode[]) {
+  return schema.map((node) => {
+    // if (isFormKitSchemaNode(node) && node.children) {
+    //   node.children = addIdsToSchema(node.children as FormKitSchemaNode[]); // TODO: check children types
+    // }
+
+    const id = getFormKitId(node);
+    if (isFormKitSchemaNode(node) && id && id.startsWith('former-')) {
+      if (isSugar(node)) {
+        delete node.id;
+      } else if (node.props) {
+        delete node.props.id;
+      }
+      delete node.key;
+    }
+
+    return node;
+  });
+}
+
+const originalSchema = inject('schema');
+const schema = computed({
+  get() {
+    return addIdsToSchema(originalSchema.value);
+  },
+  set(_schema) {
+    originalSchema.value = removeGeneratedIds(_schema);
+  },
+});
+
 const data = inject('data');
 const library = markRaw({
   FormKit: FormKitEdit,
