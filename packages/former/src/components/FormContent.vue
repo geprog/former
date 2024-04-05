@@ -42,6 +42,7 @@ const generateId = () => `former-${Math.random().toString(36).substring(7)}`;
 
 function addIdsToSchema(schema: FormKitSchemaNode[]) {
   return schema.map((node, index) => {
+    // TODO: support nested elements
     // if (isFormKitSchemaNode(node) && node.children) {
     //   node.children = addIdsToSchema(node.children as FormKitSchemaNode[]); // TODO: check children types
     // }
@@ -61,6 +62,7 @@ function addIdsToSchema(schema: FormKitSchemaNode[]) {
 
 function removeGeneratedIds(schema: FormKitSchemaNode[]) {
   return schema.map((node) => {
+    // TODO: support nested elements
     // if (isFormKitSchemaNode(node) && node.children) {
     //   node.children = addIdsToSchema(node.children as FormKitSchemaNode[]); // TODO: check children types
     // }

@@ -65,6 +65,7 @@ function addComponentAfterThisOne() {
     throw new Error('This element should not have an add button');
   }
 
+  // TODO: nested elements
   const index = schema.value.findIndex((e) => getId(e) === id.value);
   schema.value.splice(index + 1, 0, {
     $formkit: 'text',
