@@ -2,10 +2,6 @@
   <div class="flex flex-col items-start gap-4 m-4 justify-center">
     <div ref="el" class="w-full">
       <FormKitSchema :schema :library v-model:data="data" />
-
-      <details>
-        <pre>{{ schema }}</pre>
-      </details>
     </div>
     <div class="mt-4 mx-auto">
       <button v-if="schema.length < 1" type="button" aria-details="Add component" @click="addComponent">
