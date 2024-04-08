@@ -16,6 +16,6 @@ provide('data', data);
 const mode = defineModel<'edit' | 'preview'>('mode', { default: 'edit' as const });
 provide('mode', mode);
 
-const selectedElement = ref<FormKitSchemaNode>();
-provide('selectedElement', selectedElement);
+const selectedElementId = ref<string>();
+provide('selectedElementId', selectedElementId);
 </script>

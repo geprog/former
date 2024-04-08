@@ -1,17 +1,8 @@
 <template>
-  <div v-if="mode === 'edit'" class="group flex flex-col handle" @click="selectedElement = element">
+  <div v-if="mode === 'edit'" class="flex flex-col handle" @click="selectedElementId = id">
     <div
-      class="flex gap-2 p-2 rounded-lg bg-white transition-colors group-hover:border-blue-600 border border-transparent duration-7600 w-full"
+      class="flex gap-2 p-2 rounded-lg bg-white element transition-colors border border-transparent duration-7600 w-full"
     >
-      <!-- <button type="button" class="opacity-0 group-hover:opacity-100 handle cursor-grab">
-        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 256 256">
-          <path
-            fill="currentColor"
-            d="M108 60a16 16 0 1 1-16-16a16 16 0 0 1 16 16m56 16a16 16 0 1 0-16-16a16 16 0 0 0 16 16m-72 36a16 16 0 1 0 16 16a16 16 0 0 0-16-16m72 0a16 16 0 1 0 16 16a16 16 0 0 0-16-16m-72 68a16 16 0 1 0 16 16a16 16 0 0 0-16-16m72 0a16 16 0 1 0 16 16a16 16 0 0 0-16-16"
-          />
-        </svg>
-      </button> -->
-
       <div class="w-full">
         <FormKit v-bind="$attrs">
           <slot />
@@ -20,7 +11,7 @@
     </div>
 
     <div
-      class="w-full flex justify-center items-center mt-2 opacity-0 gap-2 group-hover:opacity-100 duration-700 transition-all relative"
+      class="w-full flex justify-center items-center mt-2 btn-add opacity-0 gap-2 duration-700 transition-all relative"
     >
       <div class="flex-grow h-0.5 rounded-sm bg-blue-600" />
       <button type="button" aria-details="Add component" @click="addComponentAfterThisOne">
@@ -40,7 +31,7 @@
 </template>
 
 <script setup lang="ts">
-import { type FormKitSchemaNode, getNode } from '@formkit/core';
+import { type FormKitSchemaNode } from '@formkit/core';
 import { FormKit } from '@formkit/vue';
 import { computed } from 'vue';
 import { toRaw } from 'vue';
@@ -54,7 +45,7 @@ defineOptions({
 const element = useAttrs() as FormKitSchemaNode;
 const mode = inject('mode');
 const schema = inject('schema');
-const selectedElement = inject('selectedElement');
+const selectedElementId = inject('selectedElementId');
 
 const generateId = () => `former-${Math.random().toString(36).substring(7)}`;
 const getId = (element: any) => (element as { id?: string }).id;
@@ -76,3 +67,13 @@ function addComponentAfterThisOne() {
   });
 }
 </script>
+
+<style>
+.handle:hover:not(:has(.handle:hover)) > .element {
+  @apply border-blue-600;
+}
+
+.handle:hover:not(:has(.handle:hover)) > .btn-add {
+  @apply opacity-100;
+}
+</style>
