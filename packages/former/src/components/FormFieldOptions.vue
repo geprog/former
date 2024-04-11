@@ -14,6 +14,7 @@
 import { computed } from 'vue';
 import { inject } from '~/compositions/injectProvide';
 import { formFieldOptionSchemas } from './formFieldOptions';
+import { FormKitSchema, FormKit } from '@formkit/vue';
 
 const schema = inject('schema');
 const selectedElementId = inject('selectedElementId');
