@@ -103,10 +103,13 @@ useSortable(
 );
 
 function addComponent() {
-  schema.value.push({
-    $formkit: 'text',
-    name: 'new_field',
-    label: 'New field',
-  });
+  schema.value = [
+    ...schema.value,
+    {
+      $formkit: 'text',
+      name: 'new_field',
+      label: 'New field',
+    },
+  ];
 }
 </script>
