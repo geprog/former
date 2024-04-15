@@ -1,7 +1,7 @@
 <template>
   <div class="flex flex-col items-start gap-4 m-4 justify-center">
     <div ref="el" class="w-full">
-      <FormKitSchema :schema :library v-model:data="data" />
+      <FormKitSchema :schema :library :data />
     </div>
     <div class="mt-4 mx-auto">
       <button v-if="schema.length < 1" type="button" aria-details="Add component" @click="addComponent">
@@ -77,17 +77,53 @@ function removeGeneratedIds(schema: FormKitSchemaNode[]) {
   });
 }
 
+function addModelValueToSchema(schema: FormKitSchemaNode[]) {
+  return schema.map((node) => {
+    if (isFormKitSchemaNode(node) && node.$formkit && !node.modelValue) {
+      node.modelValue = `$${node.name}`;
+      node['onUpdate:modelValue'] = `$update${node.name}`;
+    }
+
+    return node;
+  });
+}
+
+function removeModelValueFromSchema(schema: FormKitSchemaNode[]) {
+  return schema.map((node) => {
+    if (isFormKitSchemaNode(node) && node.$formkit && node.modelValue) {
+      delete node.modelValue;
+      delete node['onUpdate:modelValue'];
+    }
+
+    return node;
+  });
+}
+
 const originalSchema = inject('schema');
 const schema = computed({
   get() {
-    return addIdsToSchema(originalSchema.value);
+    return addModelValueToSchema(addIdsToSchema(originalSchema.value));
   },
   set(_schema) {
-    originalSchema.value = removeGeneratedIds(_schema);
+    originalSchema.value = removeModelValueFromSchema(removeGeneratedIds(_schema));
   },
 });
 
-const data = inject('data');
+const originalData = inject('data');
+const data = computed(() => {
+  const dataWithUpdaters = { ...originalData.value };
+  schema.value.forEach((node) => {
+    if (isFormKitSchemaNode(node) && node.modelValue) {
+      const id = node.modelValue.replace('$', '');
+      dataWithUpdaters[`update${id}`] = (value: any) => {
+        // TODO: get rid of side effects
+        originalData.value[id] = value;
+      };
+    }
+  });
+  return dataWithUpdaters;
+});
+
 const library = markRaw({
   FormKit: FormKitEdit,
 });
