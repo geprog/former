@@ -69,7 +69,7 @@ const schema = ref<FormKitSchemaNode[]>([
     $formkit: 'checkbox',
     name: 'terms',
     label: 'I agree to the terms and conditions.',
-  }
+  },
 ]);
 
 const mode = ref<'edit' | 'preview'>('edit');
