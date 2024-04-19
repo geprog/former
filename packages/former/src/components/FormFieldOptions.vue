@@ -1,6 +1,6 @@
 <template>
   <div v-if="selectedElement">
-    <FormKitSchema
+    <FormKitSchemaReactive
       v-if="selectedElementOptionsSchema"
       :schema="selectedElementOptionsSchema"
       v-model:data="selectedElement"
@@ -14,7 +14,8 @@
 import { computed } from 'vue';
 import { inject } from '~/compositions/injectProvide';
 import { formFieldOptionSchemas } from './formFieldOptions';
-import { FormKitSchema, FormKit } from '@formkit/vue';
+import { FormKit } from '@formkit/vue';
+import FormKitSchemaReactive from './FormKitSchemaReactive.vue';
 
 const schema = inject('schema');
 const selectedElementId = inject('selectedElementId');

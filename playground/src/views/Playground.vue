@@ -17,12 +17,12 @@
         </div>
 
         <div class="bg-white rounded-xl shadow-xl p-8">
-          <details>
+          <details open>
             <summary>Schema</summary>
             <pre class="font-mono text-sm p-4 bg-slate-100 mb-4">{{ schema }}</pre>
           </details>
 
-          <details>
+          <details open>
             <summary>Data</summary>
             <pre class="font-mono text-sm p-4 bg-slate-100 mb-4">{{ data }}</pre>
           </details>

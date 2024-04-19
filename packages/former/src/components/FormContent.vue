@@ -1,7 +1,7 @@
 <template>
   <div class="flex flex-col items-start gap-4 m-4 justify-center">
     <div ref="el" class="w-full">
-      <FormKitSchema :schema :library :data />
+      <FormKitSchemaReactive :schema :library v-model:data="data" />
     </div>
     <div class="mt-4 mx-auto">
       <button v-if="schema.length < 1" type="button" aria-details="Add component" @click="addComponent">
@@ -17,21 +17,18 @@
 </template>
 
 <script setup lang="ts">
-import { FormKitSchema } from '@formkit/vue';
 import { ref } from 'vue';
 import { useSortable } from '@vueuse/integrations/useSortable';
 import { markRaw } from 'vue';
 import FormKitEdit from './FormKitEdit.vue';
 import { inject } from '~/compositions/injectProvide';
 import { computed } from 'vue';
-import { type FormKitSchemaNode, isSugar, type FormKitSchemaComponent, type FormKitSchemaFormKit } from '@formkit/core';
+import { type FormKitSchemaNode, isSugar } from '@formkit/core';
+import { isFormKitSchemaNode } from '~/compositions/useFormKitUtils';
+import FormKitSchemaReactive from './FormKitSchemaReactive.vue';
 
 function getFormKitId(node: any): string | undefined {
   return isFormKitSchemaNode(node) ? (node as unknown as { id: string }).id : undefined;
-}
-
-function isFormKitSchemaNode(node: any): node is FormKitSchemaComponent | FormKitSchemaFormKit {
-  return isSugar(node) || (node as FormKitSchemaComponent).$cmp === '$formkit';
 }
 
 const generateId = () => `former-${Math.random().toString(36).substring(7)}`;
@@ -77,52 +74,17 @@ function removeGeneratedIds(schema: FormKitSchemaNode[]) {
   });
 }
 
-function addModelValueToSchema(schema: FormKitSchemaNode[]) {
-  return schema.map((node) => {
-    if (isFormKitSchemaNode(node) && node.$formkit && !node.modelValue) {
-      node.modelValue = `$${node.name}`;
-      node['onUpdate:modelValue'] = `$update${node.name}`;
-    }
-
-    return node;
-  });
-}
-
-function removeModelValueFromSchema(schema: FormKitSchemaNode[]) {
-  return schema.map((node) => {
-    if (isFormKitSchemaNode(node) && node.$formkit && node.modelValue) {
-      delete node.modelValue;
-      delete node['onUpdate:modelValue'];
-    }
-
-    return node;
-  });
-}
-
 const originalSchema = inject('schema');
 const schema = computed({
   get() {
-    return addModelValueToSchema(addIdsToSchema(originalSchema.value));
+    return addIdsToSchema(originalSchema.value);
   },
   set(_schema) {
-    originalSchema.value = removeModelValueFromSchema(removeGeneratedIds(_schema));
+    originalSchema.value = removeGeneratedIds(_schema);
   },
 });
 
-const originalData = inject('data');
-const data = computed(() => {
-  const dataWithUpdaters = { ...originalData.value };
-  schema.value.forEach((node) => {
-    if (isFormKitSchemaNode(node) && node.modelValue) {
-      const id = node.modelValue.replace('$', '');
-      dataWithUpdaters[`update${id}`] = (value: any) => {
-        // TODO: get rid of side effects
-        originalData.value[id] = value;
-      };
-    }
-  });
-  return dataWithUpdaters;
-});
+const data = inject('data');
 
 const library = markRaw({
   FormKit: FormKitEdit,
