@@ -1,15 +1,10 @@
 <template>
   <div class="flex flex-col items-start gap-4 m-4 justify-center">
-    <FormKit
-      type="button"
-      :label="mode === 'preview' ? 'Edit' : 'Preview'"
-      :onClick="() => (mode = mode === 'edit' ? 'preview' : 'edit')"
-    />
     <div ref="el" class="w-full">
-      <FormKitSchema :schema :library />
+      <FormKitSchemaReactive :schema :library v-model:data="data" />
     </div>
     <div class="mt-4 mx-auto">
-      <button v-if="schema.length === 1" type="button" aria-details="Add component" @click="addComponent()">
+      <button v-if="schema.length < 1" type="button" aria-details="Add component" @click="addComponent">
         <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" class="text-blue-600">
           <path
             fill="currentColor"
@@ -22,51 +17,78 @@
 </template>
 
 <script setup lang="ts">
-import { FormKitSchema, FormKit } from '@formkit/vue';
 import { ref } from 'vue';
 import { useSortable } from '@vueuse/integrations/useSortable';
 import { markRaw } from 'vue';
 import FormKitEdit from './FormKitEdit.vue';
 import { inject } from '~/compositions/injectProvide';
-import type { FormKitSchemaComponent, FormKitSchemaNode } from '@formkit/core';
+import { computed } from 'vue';
+import { type FormKitSchemaNode, isSugar } from '@formkit/core';
+import { isFormKitSchemaNode } from '~/compositions/useFormKitUtils';
+import FormKitSchemaReactive from './FormKitSchemaReactive.vue';
 
-const schema = inject('schema');
-const mode = inject('mode');
+function getFormKitId(node: any): string | undefined {
+  return isFormKitSchemaNode(node) ? (node as unknown as { id: string }).id : undefined;
+}
+
+const generateId = () => `former-${Math.random().toString(36).substring(7)}`;
+
+function addIdsToSchema(schema: FormKitSchemaNode[]) {
+  return schema.map((node, index) => {
+    // TODO: support nested elements
+    // if (isFormKitSchemaNode(node) && node.children) {
+    //   node.children = addIdsToSchema(node.children as FormKitSchemaNode[]); // TODO: check children types
+    // }
+
+    if (isFormKitSchemaNode(node) && !getFormKitId(node)) {
+      if (isSugar(node)) {
+        node.id = generateId();
+      } else if (node.props) {
+        node.props.id = generateId();
+      }
+      node.key = generateId();
+    }
+
+    return node;
+  });
+}
+
+function removeGeneratedIds(schema: FormKitSchemaNode[]) {
+  return schema.map((node) => {
+    // TODO: support nested elements
+    // if (isFormKitSchemaNode(node) && node.children) {
+    //   node.children = addIdsToSchema(node.children as FormKitSchemaNode[]); // TODO: check children types
+    // }
+
+    const id = getFormKitId(node);
+    if (isFormKitSchemaNode(node) && id && id.startsWith('former-')) {
+      if (isSugar(node)) {
+        delete node.id;
+      } else if (node.props) {
+        delete node.props.id;
+      }
+      delete node.key;
+    }
+
+    return node;
+  });
+}
+
+const originalSchema = inject('schema');
+const schema = computed({
+  get() {
+    return addIdsToSchema(originalSchema.value);
+  },
+  set(_schema) {
+    originalSchema.value = removeGeneratedIds(_schema);
+  },
+});
+
+const data = inject('data');
+
 const library = markRaw({
   FormKit: FormKitEdit,
 });
-
-function getComponentId(node: FormKitSchemaNode): number | undefined {
-  return typeof node === 'object' && (node as FormKitSchemaComponent)?.props?.id;
-}
-
-function addComponent(insertId?: number) {
-  const id = new Date().getTime();
-
-  const a = typeof insertId === 'number' ? insertId : schema.value.length;
-  schema.value.splice(a, 0, {
-    $cmp: 'FormKit',
-    props: {
-      id,
-      isEdit: true,
-      type: 'text',
-      name: 'new_field',
-      label: 'New field' + schema.value.length,
-      help: 'This is a new field.',
-      onDelete: () => {
-        console.log('Delete');
-        schema.value = schema.value.filter((node) => getComponentId(node) !== id);
-      },
-      addAfter: () => {
-        const index = schema.value.findIndex((node) => getComponentId(node) === id);
-        addComponent(index + 1);
-      },
-      edit: () => {
-        // editingId.value = id;
-      },
-    },
-  });
-}
 
 const el = ref<HTMLElement | null>(null);
 useSortable(
@@ -77,4 +99,15 @@ useSortable(
     animation: 200,
   },
 );
+
+function addComponent() {
+  schema.value = [
+    ...schema.value,
+    {
+      $formkit: 'text',
+      name: 'new_field',
+      label: 'New field',
+    },
+  ];
+}
 </script>

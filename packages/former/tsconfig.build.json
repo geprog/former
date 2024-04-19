@@ -4,11 +4,10 @@
     "target": "esnext",
     "jsx": "preserve",
     "lib": ["esnext", "dom"],
-    "baseUrl": ".",
     "module": "esnext",
     "moduleResolution": "node",
     "paths": {
-      "~/*": ["src/*"]
+      "~/*": ["./src/*"]
     },
     "resolveJsonModule": true,
     "strict": true,

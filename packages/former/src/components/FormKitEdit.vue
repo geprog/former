@@ -1,23 +1,20 @@
 <template>
-  <div v-if="mode === 'edit'" class="group flex flex-col handle">
+  <div v-if="mode === 'edit'" class="flex flex-col handle" @click="selectedElementId = id">
     <div
-      class="flex gap-2 group-hover:border-blue-600 border border-transparent p-2 rounded-lg bg-white transition-colors duration-200 w-full"
+      class="flex gap-2 p-2 rounded-lg bg-white element transition-colors border border-transparent duration-7600 w-full"
     >
       <div class="w-full">
-        <FormKit v-bind="$attrs" />
-      </div>
-
-      <div class="ml-auto gap-4 opacity-0 group-hover:opacity-100 duration-200 transition-all">
-        <FormKit type="button" label="Edit" :onClick="edit" />
-        <FormKit type="button" label="Delete" :onClick="onDelete" />
+        <FormKit v-bind="$attrs">
+          <slot />
+        </FormKit>
       </div>
     </div>
 
     <div
-      class="w-full flex justify-center items-center mt-2 opacity-0 gap-2 group-hover:opacity-100 duration-700 transition-all relative"
+      class="w-full flex justify-center items-center mt-2 btn-add opacity-0 gap-2 duration-700 transition-all relative"
     >
-      <div class="flex-grow h-1 rounded-sm bg-blue-600" />
-      <button type="button" aria-details="Add component" @click="addAfter">
+      <div class="flex-grow h-0.5 rounded-sm bg-blue-600" />
+      <button type="button" aria-details="Add component" @click="addComponentAfterThisOne">
         <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" class="text-blue-600">
           <path
             fill="currentColor"
@@ -25,21 +22,57 @@
           />
         </svg>
       </button>
-      <div class="flex-grow h-1 rounded-sm bg-blue-600" />
+      <div class="flex-grow h-0.5 rounded-sm bg-blue-600" />
     </div>
   </div>
-  <FormKit v-else v-bind="$attrs" />
+  <FormKit v-else v-bind="$attrs">
+    <slot />
+  </FormKit>
 </template>
 
 <script setup lang="ts">
+import { type FormKitSchemaNode } from '@formkit/core';
 import { FormKit } from '@formkit/vue';
+import { computed } from 'vue';
+import { useAttrs } from 'vue';
 import { inject } from '~/compositions/injectProvide';
 
-const mode = inject('mode');
+defineOptions({
+  inheritAttrs: false,
+});
 
-defineProps<{
-  onDelete?: () => void;
-  addAfter?: () => void;
-  edit?: () => void;
-}>();
+const element = useAttrs() as FormKitSchemaNode;
+const mode = inject('mode');
+const schema = inject('schema');
+const selectedElementId = inject('selectedElementId');
+
+const generateId = () => `former-${Math.random().toString(36).substring(7)}`;
+const getId = (element: any) => (element as { id?: string }).id;
+const id = computed(() => getId(element));
+
+function addComponentAfterThisOne() {
+  if (!id.value) {
+    throw new Error('This element should not have an add button');
+  }
+
+  // TODO: nested elements
+  const index = schema.value.findIndex((e) => getId(e) === id.value);
+  schema.value.splice(index + 1, 0, {
+    $formkit: 'text',
+    id: generateId(),
+    name: 'new_field' + schema.value.length,
+    label: 'New field' + schema.value.length,
+    help: 'This is a new field.',
+  });
+}
 </script>
+
+<style>
+.handle:hover:not(:has(.handle:hover)) > .element {
+  @apply border-blue-600;
+}
+
+.handle:hover:not(:has(.handle:hover)) > .btn-add {
+  @apply opacity-100;
+}
+</style>

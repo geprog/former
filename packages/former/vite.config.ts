@@ -35,6 +35,8 @@ export default defineConfig({
         // for externalized deps
         globals: {
           vue: 'Vue',
+          '@formkit/core': 'FormkitCore',
+          '@formkit/vue': 'FormkitVue',
         },
         assetFileNames: (chunkInfo) => {
           if (chunkInfo.name === 'style.css') return 'index.css';

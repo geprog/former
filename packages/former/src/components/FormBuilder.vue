@@ -3,24 +3,19 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from 'vue';
-import type { FormKitSchemaNode } from '@formkit/core';
+import { ref } from 'vue';
+import { type FormKitSchemaNode } from '@formkit/core';
 import { provide } from '~/compositions/injectProvide';
 
-const props = defineProps<{
-  schema: FormKitSchemaNode[];
-}>();
-
-const emit = defineEmits<{
-  (event: 'update:schema', schema: FormKitSchemaNode[]): void;
-}>();
-
-const schema = ref<FormKitSchemaNode[]>(props.schema);
-watch(schema, (newSchema) => {
-  emit('update:schema', newSchema);
-});
+const schema = defineModel<FormKitSchemaNode[]>('schema', { required: true });
 provide('schema', schema);
 
-const mode = ref<'edit' | 'preview'>('edit');
+const data = defineModel<Record<string, any>>('data', { default: {} });
+provide('data', data);
+
+const mode = defineModel<'edit' | 'preview'>('mode', { default: 'edit' as const });
 provide('mode', mode);
+
+const selectedElementId = ref<string>();
+provide('selectedElementId', selectedElementId);
 </script>
