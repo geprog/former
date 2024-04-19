@@ -50,5 +50,6 @@ const selectedElementOptionsSchema = computed(() =>
 function deleteComponent() {
   const index = schema.value.findIndex((node) => getId(node) === selectedElementId.value);
   schema.value.splice(index, 1);
+  selectedElementId.value = undefined;
 }
 </script>
