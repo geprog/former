@@ -16,19 +16,25 @@ import { inject } from '~/compositions/injectProvide';
 import { formFieldOptionSchemas } from './formFieldOptions';
 import { FormKit } from '@formkit/vue';
 import FormKitSchemaReactive from './FormKitSchemaReactive.vue';
+import { isFormKitSchemaNode } from '~/compositions/useFormKitUtils';
 
 const schema = inject('schema');
 const selectedElementId = inject('selectedElementId');
 const getId = (element: any) => (element as { id?: string }).id;
 const selectedElement = computed({
   get() {
-    return selectedElementId.value && schema.value.find((node) => getId(node) === selectedElementId.value);
+    if (!selectedElementId.value) {
+      return;
+    }
+    const node = schema.value.find((node) => getId(node) === selectedElementId.value);
+    if (!isFormKitSchemaNode(node)) {
+      throw new Error('Selected element is not a FormKit schema node');
+    }
+    return node;
   },
   set(_element) {
     if (!_element) return;
-    schema.value = schema.value.map((node) =>
-      getId(node) === selectedElementId.value ? _element : node,
-    );
+    schema.value = schema.value.map((node) => (getId(node) === selectedElementId.value ? _element : node));
   },
 });
 

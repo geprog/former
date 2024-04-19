@@ -9,7 +9,7 @@ import { computed } from 'vue';
 import { isFormKitSchemaNode } from '~/compositions/useFormKitUtils';
 
 defineProps<{
-  library: FormKitComponentLibrary;
+  library?: FormKitComponentLibrary;
 }>();
 
 const data = defineModel<Record<string, any>>('data', {
