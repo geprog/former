@@ -24,8 +24,11 @@ const selectedElement = computed({
   get() {
     return selectedElementId.value && schema.value.find((node) => getId(node) === selectedElementId.value);
   },
-  set() {
-    throw new Error('Cannot set element');
+  set(_element) {
+    if (!_element) return;
+    schema.value = schema.value.map((node) =>
+      getId(node) === selectedElementId.value ? _element : node,
+    );
   },
 });
 

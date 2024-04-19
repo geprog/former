@@ -230,5 +230,5 @@ const schema = ref<FormKitSchemaNode[]>([]);
 //   },
 // ]);
 
-const data = reactive<Record<string, any>>({});
+const data = ref<Record<string, any>>({});
 </script>

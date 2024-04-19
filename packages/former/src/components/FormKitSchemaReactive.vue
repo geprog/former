@@ -1,15 +1,15 @@
 <template>
-    <FormKitSchema :schema="schemaWithModelValue" :library :data="dataWithUpdateFunctions" />
+  <FormKitSchema :schema="schemaWithModelValue" :library :data="dataWithUpdateFunctions" />
 </template>
 
 <script setup lang="ts">
-import { FormKitSchema } from '@formkit/vue';
-import type { FormKitSchemaNode, FormKitLibrary } from '@formkit/core';
+import { FormKitSchema, type FormKitComponentLibrary } from '@formkit/vue';
+import { isSugar, type FormKitSchemaNode } from '@formkit/core';
 import { computed } from 'vue';
 import { isFormKitSchemaNode } from '~/compositions/useFormKitUtils';
 
 defineProps<{
-  library: FormKitLibrary;
+  library: FormKitComponentLibrary;
 }>();
 
 const data = defineModel<Record<string, any>>('data', {
@@ -22,9 +22,14 @@ const schema = defineModel<FormKitSchemaNode[]>('schema', {
 
 function addModelValueToSchema(schema: FormKitSchemaNode[]) {
   return schema.map((node) => {
-    if (isFormKitSchemaNode(node) && node.$formkit && !node.modelValue) {
-      node.modelValue = `$${node.name}`;
-      node['onUpdate:modelValue'] = `$update${node.name}`;
+    if (isFormKitSchemaNode(node)) {
+      if (isSugar(node) && !node.modelValue) {
+        node.modelValue = `$${node.name}`;
+        node['onUpdate:modelValue'] = `$update${node.name}`;
+      } else if (node.props && !node.props.modelValue) {
+        node.props.modelValue = `$${node.props.name}`;
+        node.props['onUpdate:modelValue'] = `$update${node.props.name}`;
+      }
     }
 
     return node;
@@ -33,9 +38,14 @@ function addModelValueToSchema(schema: FormKitSchemaNode[]) {
 
 function removeModelValueFromSchema(schema: FormKitSchemaNode[]) {
   return schema.map((node) => {
-    if (isFormKitSchemaNode(node) && node.$formkit && node.modelValue) {
-      delete node.modelValue;
-      delete node['onUpdate:modelValue'];
+    if (isFormKitSchemaNode(node)) {
+      if (isSugar(node) && node.modelValue) {
+        delete node.modelValue;
+        delete node['onUpdate:modelValue'];
+      } else if (node.props && node.props.modelValue) {
+        delete node.props.modelValue;
+        delete node.props['onUpdate:modelValue'];
+      }
     }
 
     return node;
@@ -43,8 +53,9 @@ function removeModelValueFromSchema(schema: FormKitSchemaNode[]) {
 }
 
 const schemaWithModelValue = computed({
-    get() {
-    return addModelValueToSchema(schema.value);
+  get() {
+    // TODO: clone with something better
+    return addModelValueToSchema(JSON.parse(JSON.stringify(schema.value)));
   },
   set(_schema) {
     schema.value = removeModelValueFromSchema(_schema);
@@ -54,12 +65,16 @@ const schemaWithModelValue = computed({
 const dataWithUpdateFunctions = computed(() => {
   const dataWithUpdaters = { ...data.value };
   schema.value.forEach((node) => {
-    if (isFormKitSchemaNode(node) && node.modelValue) {
-      const id = node.modelValue.replace('$', '');
-      dataWithUpdaters[`update${id}`] = (value: any) => {
-        // TODO: get rid of side effects
-        data.value[id] = value;
-      };
+    if (isFormKitSchemaNode(node)) {
+      if (isSugar(node)) {
+        dataWithUpdaters[`update${node.name}`] = (value: unknown) => {
+          data.value = { ...data.value, [node.name]: value };
+        };
+      } else if (node.props) {
+        dataWithUpdaters[`update${node.props.name}`] = (value: unknown) => {
+          data.value = { ...data.value, [node.props!.name]: value };
+        };
+      }
     }
   });
   return dataWithUpdaters;
