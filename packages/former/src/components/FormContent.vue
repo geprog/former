@@ -96,7 +96,7 @@ useSortable(
   schema,
   {
     handle: '.handle',
-    // animation: 200,
+    animation: 200,
   },
 );
 
