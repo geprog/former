@@ -21,6 +21,7 @@ const schema = defineModel<FormKitSchemaNode[]>('schema', {
 });
 
 function addModelValueToSchema(schema: FormKitSchemaNode[]) {
+  // TODO: support nested elements
   return schema.map((node) => {
     if (isFormKitSchemaNode(node)) {
       if (isSugar(node) && !node.modelValue) {
@@ -37,6 +38,7 @@ function addModelValueToSchema(schema: FormKitSchemaNode[]) {
 }
 
 function removeModelValueFromSchema(schema: FormKitSchemaNode[]) {
+  // TODO: support nested elements
   return schema.map((node) => {
     if (isFormKitSchemaNode(node)) {
       if (isSugar(node) && node.modelValue) {
@@ -64,6 +66,7 @@ const schemaWithModelValue = computed({
 
 const dataWithUpdateFunctions = computed(() => {
   const dataWithUpdaters = { ...data.value };
+  // TODO: support nested elements
   schema.value.forEach((node) => {
     if (isFormKitSchemaNode(node)) {
       if (isSugar(node)) {
