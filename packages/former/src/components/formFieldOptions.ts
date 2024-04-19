@@ -23,6 +23,6 @@ export const formFieldOptionSchemas: Record<string, FormKitSchemaNode[]> = {
       $formkit: 'text',
       label: 'Help Text',
       name: 'help',
-    }
+    },
   ],
 };
