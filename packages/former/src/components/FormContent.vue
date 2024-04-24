@@ -14,13 +14,29 @@
       </button>
     </div>
   </div>
+  <FormFieldSelector v-if="isFormFieldSelectorOpen" > 
+    <div class="flex flex-col">
+      <button
+        v-for="type in availableFieldTypes"
+        :key="type"
+        :label="`select ${type} as type for the new input field`"
+        class="relative m-2 flex flex-col items-center rounded-xl border border-gray-400 bg-gray-200 p-1 hover:bg-gray-300"
+        @click="confirm(type)"
+      > 
+        <span class="text-2xl">{{ type }}</span>
+      </button>
+    </div> 
+</FormFieldSelector>
 </template>
 
 <script setup lang="ts">
 import { ref } from 'vue';
 import { useSortable } from '@vueuse/integrations/useSortable';
+import { useConfirmDialog } from '@vueuse/core';
 import { markRaw } from 'vue';
 import FormKitEdit from './FormKitEdit.vue';
+import FormFieldSelector from './FormFieldSelector.vue';
+import { availableFieldTypes } from './formFieldOptions';
 import { inject } from '~/compositions/injectProvide';
 import { computed } from 'vue';
 import { type FormKitSchemaNode, isSugar } from '@formkit/core';
@@ -31,6 +47,7 @@ function getFormKitId(node: any): string | undefined {
   return isFormKitSchemaNode(node) ? (node as unknown as { id: string }).id : undefined;
 }
 
+const { reveal: openFormFieldSelector, isRevealed: isFormFieldSelectorOpen,  confirm } = useConfirmDialog<never, string, never>();
 const generateId = () => `former-${Math.random().toString(36).substring(7)}`;
 
 function addIdsToSchema(schema: FormKitSchemaNode[]) {
@@ -100,14 +117,17 @@ useSortable(
   },
 );
 
-function addComponent() {
-  schema.value = [
-    ...schema.value,
-    {
-      $formkit: 'text',
-      name: 'new_field',
-      label: 'New field',
-    },
-  ];
+async function addComponent() {
+  const {data: elementType, isCanceled } = await openFormFieldSelector();
+  if(elementType && !isCanceled) {
+    schema.value = [
+      ...schema.value,
+      {
+        $formkit: elementType,
+        name: 'new_field',
+        label: 'New field',
+      },
+    ];
+  }
 }
 </script>

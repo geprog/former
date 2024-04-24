@@ -28,10 +28,26 @@
   <FormKit v-else v-bind="$attrs">
     <slot />
   </FormKit>
+  <FormFieldSelector v-if="isFormFieldSelectorOpen" > 
+    <div class="flex flex-col">
+      <button
+        v-for="type in availableFieldTypes"
+        :key="type"
+        :label="`select ${type} as type for the new input field`"
+        class="relative m-2 flex flex-col items-center rounded-xl border border-gray-400 bg-gray-200 p-1 hover:bg-gray-300"
+        @click="confirm(type)"
+      > 
+        <span class="text-2xl">{{ type }}</span>
+      </button>
+    </div> 
+</FormFieldSelector>
 </template>
 
 <script setup lang="ts">
 import { type FormKitSchemaNode } from '@formkit/core';
+import { useConfirmDialog } from '@vueuse/core';
+import FormFieldSelector from './FormFieldSelector.vue';
+import { availableFieldTypes } from './formFieldOptions';
 import { FormKit } from '@formkit/vue';
 import { computed } from 'vue';
 import { useAttrs } from 'vue';
@@ -45,25 +61,29 @@ const element = useAttrs() as FormKitSchemaNode;
 const mode = inject('mode');
 const schema = inject('schema');
 const selectedElementId = inject('selectedElementId');
+const { reveal: openFormFieldSelector, isRevealed: isFormFieldSelectorOpen,  confirm } = useConfirmDialog<never, string, never>();
 
 const generateId = () => `former-${Math.random().toString(36).substring(7)}`;
 const getId = (element: any) => (element as { id?: string }).id;
 const id = computed(() => getId(element));
 
-function addComponentAfterThisOne() {
+async function addComponentAfterThisOne() {
+  const {data: elementType, isCanceled } = await openFormFieldSelector();
   if (!id.value) {
     throw new Error('This element should not have an add button');
   }
 
   // TODO: nested elements
   const index = schema.value.findIndex((e) => getId(e) === id.value);
-  schema.value.splice(index + 1, 0, {
-    $formkit: 'text',
-    id: generateId(),
-    name: 'new_field' + schema.value.length,
-    label: 'New field' + schema.value.length,
-    help: 'This is a new field.',
-  });
+  if (elementType && !isCanceled){
+    schema.value.splice(index + 1, 0, {
+      $formkit: elementType,
+      id: generateId(),
+      name: 'new_field' + schema.value.length,
+      label: 'New field' + schema.value.length,
+      help: 'This is a new field.',
+    });
+  }
 }
 </script>
 
