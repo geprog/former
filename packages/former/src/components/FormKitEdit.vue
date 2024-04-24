@@ -45,11 +45,11 @@
 
 <script setup lang="ts">
 import { type FormKitSchemaNode } from '@formkit/core';
-import { useConfirmDialog } from '@vueuse/core';
+import { useConfirmDialog, onClickOutside } from '@vueuse/core';
 import FormFieldSelector from './FormFieldSelector.vue';
 import { availableFieldTypes } from './formFieldOptions';
 import { FormKit } from '@formkit/vue';
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 import { useAttrs } from 'vue';
 import { inject } from '~/compositions/injectProvide';
 
@@ -65,7 +65,10 @@ const {
   reveal: openFormFieldSelector,
   isRevealed: isFormFieldSelectorOpen,
   confirm,
+  cancel: closeFormFieldSelector,
 } = useConfirmDialog<never, string, never>();
+const formFieldSelector = ref<HTMLElement | null>(null);
+onClickOutside(formFieldSelector, () => closeFormFieldSelector());
 
 const generateId = () => `former-${Math.random().toString(36).substring(7)}`;
 const getId = (element: any) => (element as { id?: string }).id;

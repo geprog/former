@@ -15,7 +15,7 @@
     </div>
   </div>
   <FormFieldSelector v-if="isFormFieldSelectorOpen">
-    <div class="flex flex-col">
+    <div ref="formFieldSelector" class="flex flex-col">
       <button
         v-for="type in availableFieldTypes"
         :key="type"
@@ -32,7 +32,7 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { useSortable } from '@vueuse/integrations/useSortable';
-import { useConfirmDialog } from '@vueuse/core';
+import { useConfirmDialog, onClickOutside } from '@vueuse/core';
 import { markRaw } from 'vue';
 import FormKitEdit from './FormKitEdit.vue';
 import FormFieldSelector from './FormFieldSelector.vue';
@@ -51,7 +51,11 @@ const {
   reveal: openFormFieldSelector,
   isRevealed: isFormFieldSelectorOpen,
   confirm,
+  cancel: closeFormFieldSelector,
 } = useConfirmDialog<never, string, never>();
+const formFieldSelector = ref<HTMLElement | null>(null);
+onClickOutside(formFieldSelector, () => closeFormFieldSelector());
+
 const generateId = () => `former-${Math.random().toString(36).substring(7)}`;
 
 function addIdsToSchema(schema: FormKitSchemaNode[]) {
