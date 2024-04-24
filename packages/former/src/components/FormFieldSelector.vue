@@ -12,5 +12,4 @@
 </template>
 <script setup lang="ts">
 import { UseFocusTrap } from '@vueuse/integrations/useFocusTrap/component';
-
 </script>

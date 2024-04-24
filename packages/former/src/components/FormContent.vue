@@ -6,17 +6,23 @@
     <div class="mt-4 mx-auto">
       <button v-if="schema.length < 1" type="button" aria-details="Add component" @click="addComponent">
         <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" class="text-blue-600">
-          <path fill="currentColor"
-            d="M11 17h2v-4h4v-2h-4V7h-2v4H7v2h4zm-6 4q-.825 0-1.412-.587T3 19V5q0-.825.588-1.412T5 3h14q.825 0 1.413.588T21 5v14q0 .825-.587 1.413T19 21zm0-2h14V5H5zM5 5v14z" />
+          <path
+            fill="currentColor"
+            d="M11 17h2v-4h4v-2h-4V7h-2v4H7v2h4zm-6 4q-.825 0-1.412-.587T3 19V5q0-.825.588-1.412T5 3h14q.825 0 1.413.588T21 5v14q0 .825-.587 1.413T19 21zm0-2h14V5H5zM5 5v14z"
+          />
         </svg>
       </button>
     </div>
   </div>
   <FormFieldSelector v-if="isFormFieldSelectorOpen">
     <div class="flex flex-col">
-      <button v-for="type in availableFieldTypes" :key="type" :label="`select ${type} as type for the new input field`"
+      <button
+        v-for="type in availableFieldTypes"
+        :key="type"
+        :label="`select ${type} as type for the new input field`"
         class="relative m-2 flex flex-col items-center rounded-xl border border-gray-400 bg-gray-200 p-1 hover:bg-gray-300"
-        @click="confirm(type)">
+        @click="confirm(type)"
+      >
         <span class="text-2xl">{{ type }}</span>
       </button>
     </div>
@@ -41,7 +47,11 @@ function getFormKitId(node: any): string | undefined {
   return isFormKitSchemaNode(node) ? (node as unknown as { id: string }).id : undefined;
 }
 
-const { reveal: openFormFieldSelector, isRevealed: isFormFieldSelectorOpen, confirm } = useConfirmDialog<never, string, never>();
+const {
+  reveal: openFormFieldSelector,
+  isRevealed: isFormFieldSelectorOpen,
+  confirm,
+} = useConfirmDialog<never, string, never>();
 const generateId = () => `former-${Math.random().toString(36).substring(7)}`;
 
 function addIdsToSchema(schema: FormKitSchemaNode[]) {
