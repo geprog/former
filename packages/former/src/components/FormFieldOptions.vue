@@ -1,10 +1,7 @@
 <template>
   <div v-if="selectedElement">
-    <FormKitSchemaReactive
-      v-if="selectedElementOptionsSchema"
-      :schema="selectedElementOptionsSchema"
-      v-model:data="selectedElement"
-    />
+    <FormKitSchemaReactive v-if="selectedElementOptionsSchema" :schema="selectedElementOptionsSchema"
+      v-model:data="selectedElement" />
     <pre v-else>{{ selectedElement }}</pre>
     <FormKit type="button" label="Delete" :onClick="deleteComponent" />
   </div>
