@@ -1,28 +1,57 @@
 import type { FormKitSchemaNode } from '@formkit/core';
 
+export const availableFieldTypes = ['text', 'number'];
+
+const baseOptions  = [    {
+  $formkit: 'text',
+  label: 'Name',
+  name: 'name',
+  required: true,
+},
+{
+  $formkit: 'text',
+  label: 'Label',
+  name: 'label',
+  required: true,
+},
+{
+  $formkit: 'text',
+  label: 'Placeholder',
+  name: 'placeholder',
+},
+{
+  $formkit: 'text',
+  label: 'Help Text',
+  name: 'help',
+}]
+
 export const formFieldOptionSchemas: Record<string, FormKitSchemaNode[]> = {
   text: [
+    ...baseOptions
+  ],  
+  number: [
+    ...baseOptions, 
     {
-      $formkit: 'text',
-      label: 'Name',
-      name: 'name',
-      required: true,
+      $formkit: 'number',
+      label: 'minimum value',
+      name: 'min',
     },
     {
-      $formkit: 'text',
-      label: 'Label',
-      name: 'label',
-      required: true,
+      $formkit: 'number',
+      label: 'maximum value',
+      name: 'max',
     },
     {
-      $formkit: 'text',
-      label: 'Placeholder',
-      name: 'placeholder',
+      $formkit: 'number',
+      label: 'step size',
+      name: 'step',
     },
     {
-      $formkit: 'text',
-      label: 'Help Text',
-      name: 'help',
+      $formkit: 'select',
+      label: 'number',
+      name: 'number',
+      options: {  float: 'float', integer: 'integer' }, 
     },
+
   ],
 };
