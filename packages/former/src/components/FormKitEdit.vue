@@ -28,26 +28,13 @@
   <FormKit v-else v-bind="$attrs">
     <slot />
   </FormKit>
-  <FormFieldSelector v-if="isFormFieldSelectorOpen">
-    <div class="flex flex-col">
-      <button
-        v-for="type in availableFieldTypes"
-        :key="type"
-        :label="`select ${type} as type for the new input field`"
-        class="relative m-2 flex flex-col items-center rounded-xl border border-gray-400 bg-gray-200 p-1 hover:bg-gray-300"
-        @click="confirm(type)"
-      >
-        <span class="text-2xl">{{ type }}</span>
-      </button>
-    </div>
-  </FormFieldSelector>
+  <FormFieldSelector :isSelectorOpen="isFormFieldSelectorOpen" />
 </template>
 
 <script setup lang="ts">
 import { type FormKitSchemaNode } from '@formkit/core';
 import { useConfirmDialog, onClickOutside } from '@vueuse/core';
 import FormFieldSelector from './FormFieldSelector.vue';
-import { availableFieldTypes } from './formFieldOptions';
 import { FormKit } from '@formkit/vue';
 import { computed, ref } from 'vue';
 import { useAttrs } from 'vue';
