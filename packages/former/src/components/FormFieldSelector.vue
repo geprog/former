@@ -40,7 +40,7 @@ const {
   confirm: selectType,
   cancel: closeFormFieldSelector,
 } = useConfirmDialog<never, string, never>();
-const formFieldSelector = ref<HTMLElement | null>(null);
+const formFieldSelector = ref<HTMLElement>();
 
 watch(isSelectorOpen, async () => {
   if (isSelectorOpen.value === true) {
