@@ -1,11 +1,10 @@
 <template>
   <div
-    ref="formFieldSelector"
     v-if="isFormFieldSelectorOpen"
     role="dialog"
     class="fixed inset-0 z-20 flex items-center justify-center bg-gray-900 bg-opacity-50"
   >
-    <div class="rounded bg-white p-8 shadow-md">
+    <div ref="formFieldSelector" class="rounded bg-white p-8 shadow-md">
       <div class="text-center">
         <p class="mb-10 text-4xl">Select the type of input field</p>
         <div class="flex flex-col items-center">
@@ -29,8 +28,10 @@ import { availableFieldTypes } from './formFieldOptions';
 import { useConfirmDialog, onClickOutside } from '@vueuse/core';
 import { ref, toRef, watch } from 'vue';
 
-const props = defineProps<{
-  isSelectorOpen: boolean;
+const isSelectorOpen = defineModel<boolean>('isSelectorOpen');
+
+const emits = defineEmits<{
+  selectedType: [value: string];
 }>();
 
 const {
@@ -38,17 +39,22 @@ const {
   isRevealed: isFormFieldSelectorOpen,
   confirm: selectType,
   cancel: closeFormFieldSelector,
-  onConfirm,
-} = useConfirmDialog();
-const formFieldSelector = ref<HTMLElement>();
-const open = toRef(props, 'isSelectorOpen');
-const selectedType = ref<'text' | 'number'>();
+} = useConfirmDialog<never, string, never>();
+const formFieldSelector = ref<HTMLElement | null>(null);
 
-watch(open, async () => {
-  if (open.value === true) {
+watch(isSelectorOpen, async () => {
+  if (isSelectorOpen.value === true) {
     const { data: elementType, isCanceled } = await openFormFieldSelector();
+    if (!elementType || isCanceled) {
+      closeFormFieldSelector();
+      return;
+    }
+    emits('selectedType', elementType);
   }
 });
 
-onClickOutside(formFieldSelector, () => closeFormFieldSelector());
+onClickOutside(formFieldSelector, () => {
+  closeFormFieldSelector();
+  isSelectorOpen.value = false;
+});
 </script>

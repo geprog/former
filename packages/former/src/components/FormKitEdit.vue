@@ -14,7 +14,7 @@
       class="w-full flex justify-center items-center mt-2 btn-add opacity-0 gap-2 duration-700 transition-all relative"
     >
       <div class="flex-grow h-0.5 rounded-sm bg-blue-600" />
-      <button type="button" aria-details="Add component" @click="addComponentAfterThisOne">
+      <button type="button" aria-details="Add component" @click="openFormFieldTypeSelector = true">
         <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" class="text-blue-600">
           <path
             fill="currentColor"
@@ -28,12 +28,11 @@
   <FormKit v-else v-bind="$attrs">
     <slot />
   </FormKit>
-  <FormFieldSelector :isSelectorOpen="isFormFieldSelectorOpen" />
+  <FormFieldSelector v-model:isSelectorOpen="openFormFieldTypeSelector" @selected-type="addComponentAfterThisOne" />
 </template>
 
 <script setup lang="ts">
 import { type FormKitSchemaNode } from '@formkit/core';
-import { useConfirmDialog, onClickOutside } from '@vueuse/core';
 import FormFieldSelector from './FormFieldSelector.vue';
 import { FormKit } from '@formkit/vue';
 import { computed, ref } from 'vue';
@@ -48,28 +47,20 @@ const element = useAttrs() as FormKitSchemaNode;
 const mode = inject('mode');
 const schema = inject('schema');
 const selectedElementId = inject('selectedElementId');
-const {
-  reveal: openFormFieldSelector,
-  isRevealed: isFormFieldSelectorOpen,
-  confirm,
-  cancel: closeFormFieldSelector,
-} = useConfirmDialog<never, string, never>();
-const formFieldSelector = ref<HTMLElement | null>(null);
-onClickOutside(formFieldSelector, () => closeFormFieldSelector());
+const openFormFieldTypeSelector = ref<boolean>();
 
 const generateId = () => `former-${Math.random().toString(36).substring(7)}`;
 const getId = (element: any) => (element as { id?: string }).id;
 const id = computed(() => getId(element));
 
-async function addComponentAfterThisOne() {
-  const { data: elementType, isCanceled } = await openFormFieldSelector();
+async function addComponentAfterThisOne(elementType: string) {
   if (!id.value) {
     throw new Error('This element should not have an add button');
   }
 
   // TODO: nested elements
   const index = schema.value.findIndex((e) => getId(e) === id.value);
-  if (elementType && !isCanceled) {
+  if (elementType) {
     schema.value.splice(index + 1, 0, {
       $formkit: elementType,
       id: generateId(),

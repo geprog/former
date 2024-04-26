@@ -4,7 +4,12 @@
       <FormKitSchemaReactive :schema :library v-model:data="data" />
     </div>
     <div class="mt-4 mx-auto">
-      <button v-if="schema.length < 1" type="button" aria-details="Add component" @click="addComponent">
+      <button
+        v-if="schema.length < 1"
+        type="button"
+        aria-details="Add component"
+        @click="openFormFieldTypeSelector = true"
+      >
         <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" class="text-blue-600">
           <path
             fill="currentColor"
@@ -14,17 +19,15 @@
       </button>
     </div>
   </div>
-  <FormFieldSelector :isSelectorOpen="isFormFieldSelectorOpen" />
+  <FormFieldSelector v-model:isSelectorOpen="openFormFieldTypeSelector" @selected-type="addComponent" />
 </template>
 
 <script setup lang="ts">
 import { ref } from 'vue';
 import { useSortable } from '@vueuse/integrations/useSortable';
-import { useConfirmDialog, onClickOutside } from '@vueuse/core';
 import { markRaw } from 'vue';
 import FormKitEdit from './FormKitEdit.vue';
 import FormFieldSelector from './FormFieldSelector.vue';
-import { availableFieldTypes } from './formFieldOptions';
 import { inject } from '~/compositions/injectProvide';
 import { computed } from 'vue';
 import { type FormKitSchemaNode, isSugar } from '@formkit/core';
@@ -35,16 +38,9 @@ function getFormKitId(node: any): string | undefined {
   return isFormKitSchemaNode(node) ? (node as unknown as { id: string }).id : undefined;
 }
 
-const {
-  reveal: openFormFieldSelector,
-  isRevealed: isFormFieldSelectorOpen,
-  confirm,
-  cancel: closeFormFieldSelector,
-} = useConfirmDialog<never, string, never>();
-const formFieldSelector = ref<HTMLElement | null>(null);
-onClickOutside(formFieldSelector, () => closeFormFieldSelector());
-
 const generateId = () => `former-${Math.random().toString(36).substring(7)}`;
+
+const openFormFieldTypeSelector = ref<boolean>();
 
 function addIdsToSchema(schema: FormKitSchemaNode[]) {
   return schema.map((node, index) => {
@@ -113,9 +109,8 @@ useSortable(
   },
 );
 
-async function addComponent() {
-  const { data: elementType, isCanceled } = await openFormFieldSelector();
-  if (elementType && !isCanceled) {
+async function addComponent(elementType: string) {
+  if (elementType) {
     schema.value = [
       ...schema.value,
       {
