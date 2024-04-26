@@ -26,7 +26,7 @@
 import { UseFocusTrap } from '@vueuse/integrations/useFocusTrap/component';
 import { availableFieldTypes } from './formFieldOptions';
 import { useConfirmDialog, onClickOutside } from '@vueuse/core';
-import { ref, toRef, watch } from 'vue';
+import { ref, watch } from 'vue';
 
 const isSelectorOpen = defineModel<boolean>('isSelectorOpen');
 
