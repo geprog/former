@@ -13,9 +13,5 @@
   },
   "devDependencies": {
     "prettier": "^3.2.5"
-  },
-  "dependencies": {
-    "@vueuse/core": "^10.9.0",
-    "focus-trap": "^7"
   }
 }
