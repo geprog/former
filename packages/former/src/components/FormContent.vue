@@ -4,12 +4,7 @@
       <FormKitSchemaReactive :schema :library v-model:data="data" />
     </div>
     <div class="mt-4 mx-auto">
-      <button
-        v-if="schema.length < 1"
-        type="button"
-        aria-details="Add component"
-        @click="openFormFieldTypeSelector = true"
-      >
+      <button v-if="schema.length < 1" type="button" aria-details="Add component" @click="openTypeSelector(-1)">
         <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" class="text-blue-600">
           <path
             fill="currentColor"
@@ -19,7 +14,6 @@
       </button>
     </div>
   </div>
-  <FormFieldSelector v-model:isSelectorOpen="openFormFieldTypeSelector" @selected-type="addComponent" />
 </template>
 
 <script setup lang="ts">
@@ -27,7 +21,7 @@ import { ref } from 'vue';
 import { useSortable } from '@vueuse/integrations/useSortable';
 import { markRaw } from 'vue';
 import FormKitEdit from './FormKitEdit.vue';
-import FormFieldSelector from './FormFieldSelector.vue';
+import FormFieldSelector from './FormFieldTypeSelector.vue';
 import { inject } from '~/compositions/injectProvide';
 import { computed } from 'vue';
 import { type FormKitSchemaNode, isSugar } from '@formkit/core';
@@ -41,6 +35,8 @@ function getFormKitId(node: any): string | undefined {
 const generateId = () => `former-${Math.random().toString(36).substring(7)}`;
 
 const openFormFieldTypeSelector = ref<boolean>();
+
+const { openTypeSelector } = inject('newElementHandler');
 
 function addIdsToSchema(schema: FormKitSchemaNode[]) {
   return schema.map((node, index) => {
@@ -108,17 +104,4 @@ useSortable(
     animation: 200,
   },
 );
-
-function addComponent(elementType: string) {
-  if (elementType) {
-    schema.value = [
-      ...schema.value,
-      {
-        $formkit: elementType,
-        name: 'new_field',
-        label: 'New field',
-      },
-    ];
-  }
-}
 </script>

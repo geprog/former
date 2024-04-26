@@ -14,7 +14,7 @@
       class="w-full flex justify-center items-center mt-2 btn-add opacity-0 gap-2 duration-700 transition-all relative"
     >
       <div class="flex-grow h-0.5 rounded-sm bg-blue-600" />
-      <button type="button" aria-details="Add component" @click="openFormFieldTypeSelector = true">
+      <button type="button" aria-details="Add component" @click="openTypeSelector(index)">
         <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" class="text-blue-600">
           <path
             fill="currentColor"
@@ -28,12 +28,10 @@
   <FormKit v-else v-bind="$attrs">
     <slot />
   </FormKit>
-  <FormFieldSelector v-model:isSelectorOpen="openFormFieldTypeSelector" @selected-type="addComponentAfterThisOne" />
 </template>
 
 <script setup lang="ts">
 import { type FormKitSchemaNode } from '@formkit/core';
-import FormFieldSelector from './FormFieldSelector.vue';
 import { FormKit } from '@formkit/vue';
 import { computed, ref } from 'vue';
 import { useAttrs } from 'vue';
@@ -48,28 +46,12 @@ const mode = inject('mode');
 const schema = inject('schema');
 const selectedElementId = inject('selectedElementId');
 const openFormFieldTypeSelector = ref<boolean>();
+const { openTypeSelector } = inject('newElementHandler');
 
 const generateId = () => `former-${Math.random().toString(36).substring(7)}`;
 const getId = (element: any) => (element as { id?: string }).id;
 const id = computed(() => getId(element));
-
-function addComponentAfterThisOne(elementType: string) {
-  if (!id.value) {
-    throw new Error('This element should not have an add button');
-  }
-
-  // TODO: nested elements
-  const index = schema.value.findIndex((e) => getId(e) === id.value);
-  if (elementType) {
-    schema.value.splice(index + 1, 0, {
-      $formkit: elementType,
-      id: generateId(),
-      name: 'new_field' + schema.value.length,
-      label: 'New field' + schema.value.length,
-      help: 'This is a new field.',
-    });
-  }
-}
+const index = computed(() => schema.value.findIndex((e) => getId(e) === id.value));
 </script>
 
 <style>

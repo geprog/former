@@ -34,6 +34,20 @@
           </details>
         </div>
       </aside>
+      <template v-slot:typeSelector="{ isOpen }">
+        <div
+          v-if="isOpen"
+          role="dialog"
+          class="fixed inset-0 z-20 flex items-center justify-center bg-gray-900 bg-opacity-50"
+        >
+          <div ref="formFieldSelector" class="rounded bg-white p-8 shadow-md">
+            <p class="mb-10 text-4xl">Select the type of input field</p>
+            <div class="flex flex-col items-center">
+              <FormFieldTypeSelector />
+            </div>
+          </div>
+        </div>
+      </template>
     </FormBuilder>
   </div>
 </template>
@@ -42,7 +56,7 @@
 import { ref } from 'vue';
 import type { FormKitSchemaNode } from '@formkit/core';
 // import { markRaw } from 'vue';
-import { FormBuilder, FormContent, FormFieldOptions } from 'former-ui';
+import { FormBuilder, FormContent, FormFieldOptions, FormFieldTypeSelector } from 'former-ui';
 import { computed } from 'vue';
 
 const mode = ref<'edit' | 'preview'>('edit');

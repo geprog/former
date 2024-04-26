@@ -1,6 +1,6 @@
 import type { FormKitSchemaNode } from '@formkit/core';
 
-export const availableFieldTypes = ['text', 'number'];
+export const availableFieldTypes = ['text', 'number', 'select', 'radio', 'checkbox'];
 
 const baseOptions = [
   {
