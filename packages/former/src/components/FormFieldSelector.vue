@@ -1,5 +1,5 @@
 <template>
-  <UseFocusTrap v-if="isFormFieldSelectorOpen" :options="{ immediate: true }">
+  <UseFocusTrap v-if="isSelectorOpen" :options="{ immediate: true }">
     <div role="dialog" class="fixed inset-0 z-20 flex items-center justify-center bg-gray-900 bg-opacity-50">
       <div ref="formFieldSelector" class="rounded bg-white p-8 shadow-md">
         <p class="mb-10 text-4xl">Select the type of input field</p>
@@ -32,14 +32,13 @@ const emits = defineEmits<{
 
 const {
   reveal: openFormFieldSelector,
-  isRevealed: isFormFieldSelectorOpen,
   confirm: selectType,
   cancel: closeFormFieldSelector,
 } = useConfirmDialog<never, string, never>();
 const formFieldSelector = ref<HTMLElement>();
 
 watch(isSelectorOpen, async () => {
-  if (isSelectorOpen.value === true) {
+  if (isSelectorOpen.value) {
     const { data: elementType, isCanceled } = await openFormFieldSelector();
     if (!elementType || isCanceled) {
       closeFormFieldSelector();
