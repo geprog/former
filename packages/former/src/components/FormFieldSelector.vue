@@ -20,7 +20,7 @@
 </template>
 <script setup lang="ts">
 import { UseFocusTrap } from '@vueuse/integrations/useFocusTrap/component';
-import { availableFieldTypes } from './formFieldSchema';
+import { availableFieldTypes } from './formFieldOptions';
 import { useConfirmDialog, onClickOutside } from '@vueuse/core';
 import { ref, watch } from 'vue';
 
