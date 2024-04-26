@@ -53,7 +53,7 @@ const generateId = () => `former-${Math.random().toString(36).substring(7)}`;
 const getId = (element: any) => (element as { id?: string }).id;
 const id = computed(() => getId(element));
 
-async function addComponentAfterThisOne(elementType: string) {
+function addComponentAfterThisOne(elementType: string) {
   if (!id.value) {
     throw new Error('This element should not have an add button');
   }

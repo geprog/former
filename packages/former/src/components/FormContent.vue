@@ -109,7 +109,7 @@ useSortable(
   },
 );
 
-async function addComponent(elementType: string) {
+function addComponent(elementType: string) {
   if (elementType) {
     schema.value = [
       ...schema.value,
