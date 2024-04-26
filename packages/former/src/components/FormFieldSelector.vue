@@ -4,22 +4,24 @@
     role="dialog"
     class="fixed inset-0 z-20 flex items-center justify-center bg-gray-900 bg-opacity-50"
   >
-    <div ref="formFieldSelector" class="rounded bg-white p-8 shadow-md">
-      <div class="text-center">
-        <p class="mb-10 text-4xl">Select the type of input field</p>
-        <div class="flex flex-col items-center">
-          <FormKit
-            type="button"
-            v-for="type in availableFieldTypes"
-            :key="type"
-            :label="`select ${type} as type for the new input field`"
-            @click="selectType(type)"
-          >
-            <span class="text-2xl">{{ type }}</span>
-          </FormKit>
+    <UseFocusTrap>
+      <div ref="formFieldSelector" class="rounded bg-white p-8 shadow-md">
+        <div class="text-center">
+          <p class="mb-10 text-4xl">Select the type of input field</p>
+          <div class="flex flex-col items-center">
+            <FormKit
+              type="button"
+              v-for="type in availableFieldTypes"
+              :key="type"
+              :label="`select ${type} as type for the new input field`"
+              @click="selectType(type)"
+            >
+              <span class="text-2xl">{{ type }}</span>
+            </FormKit>
+          </div>
         </div>
       </div>
-    </div>
+    </UseFocusTrap>
   </div>
 </template>
 <script setup lang="ts">
