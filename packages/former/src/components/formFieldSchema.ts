@@ -1,7 +1,5 @@
 import type { FormKitSchemaNode } from '@formkit/core';
 
-export const availableFieldTypes = ['text', 'number'];
-
 const baseOptions = [
   {
     $formkit: 'text',

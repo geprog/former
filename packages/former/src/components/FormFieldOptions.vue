@@ -13,7 +13,7 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import { inject } from '~/compositions/injectProvide';
-import { formFieldOptionSchemas } from './formFieldOptions';
+import { formFieldOptionSchemas } from './formFieldSchema';
 import { FormKit } from '@formkit/vue';
 import FormKitSchemaReactive from './FormKitSchemaReactive.vue';
 import { isFormKitSchemaNode } from '~/compositions/useFormKitUtils';

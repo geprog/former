@@ -10,8 +10,10 @@
   </FormKit>
 </template>
 <script setup lang="ts">
-import { availableFieldTypes } from './formFieldOptions';
+import { formFieldOptionSchemas } from './formFieldSchema';
 import { inject } from '~/compositions/injectProvide';
 
 const { addNewElement } = inject('newElementHandler');
+
+const availableFieldTypes = Object.keys(formFieldOptionSchemas);
 </script>
