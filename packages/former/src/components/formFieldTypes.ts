@@ -1,4 +1,5 @@
 import type { FormKitSchemaNode } from '@formkit/core';
+import { checkbox, radio, textarea } from '@formkit/icons';
 
 const baseOptions = [
   {
@@ -60,6 +61,98 @@ export const formFieldTypes = {
         label: 'Number',
         name: 'number',
         options: { float: 'float', integer: 'integer' },
+      },
+    ],
+  },
+  select: {
+    label: 'Select',
+    schema: [
+      ...baseOptions,
+      {
+        $formkit: 'select',
+        label: 'Options',
+        name: 'options',
+        options: {},
+      },
+      {
+        $formkit: 'checkbox',
+        label: 'Multiple',
+        name: 'multiple',
+      },
+    ],
+  },
+  checkbox: {
+    label: 'Checkbox',
+    icon: checkbox,
+    schema: [
+      ...baseOptions,
+      {
+        $formkit: 'options',
+        label: 'Options',
+        name: 'options',
+        options: {},
+      },
+    ],
+  },
+  radio: {
+    label: 'Radio',
+    icon: radio,
+    schema: [
+      ...baseOptions,
+      {
+        $formkit: 'options',
+        label: 'Options',
+        name: 'options',
+        options: {},
+      },
+    ],
+  },
+  textarea: {
+    label: 'Textarea',
+    icon: textarea,
+    schema: [
+      ...baseOptions,
+      {
+        $formkit: 'number',
+        label: 'Rows',
+        name: 'rows',
+      },
+      {
+        $formkit: 'number',
+        label: 'Columns',
+        name: 'cols',
+      },
+      {
+        $formkit: 'number',
+        label: 'Minimum length',
+        name: 'minLength',
+      },
+      {
+        $formkit: 'number',
+        label: 'Maximum length',
+        name: 'maxLength',
+      },
+    ],
+  },
+  date: {
+    label: 'Date',
+    schema: [
+      ...baseOptions,
+      {
+        $formkit: 'date',
+        label: 'Minimum date',
+        name: 'min',
+      },
+      {
+        $formkit: 'date',
+        label: 'Maximum date',
+        name: 'max',
+      },
+      {
+        $formkit: 'number',
+        label: 'Step size',
+        name: 'step',
+        help: 'https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input/date#step',
       },
     ],
   },
