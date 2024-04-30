@@ -33,8 +33,7 @@
 <script setup lang="ts">
 import { type FormKitSchemaNode } from '@formkit/core';
 import { FormKit } from '@formkit/vue';
-import { computed, ref } from 'vue';
-import { useAttrs } from 'vue';
+import { computed, useAttrs } from 'vue';
 import { inject } from '~/compositions/injectProvide';
 
 defineOptions({

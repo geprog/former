@@ -63,4 +63,4 @@ export const formFieldTypes = {
       },
     ],
   },
-};
+} satisfies { [key: string]: FormFieldType };
