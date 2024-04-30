@@ -42,22 +42,22 @@ export const formFieldTypes = {
       ...baseOptions,
       {
         $formkit: 'number',
-        label: 'minimum value',
+        label: 'Minimum value',
         name: 'min',
       },
       {
         $formkit: 'number',
-        label: 'maximum value',
+        label: 'Maximum value',
         name: 'max',
       },
       {
         $formkit: 'number',
-        label: 'step size',
+        label: 'Step size',
         name: 'step',
       },
       {
         $formkit: 'select',
-        label: 'number',
+        label: 'Number',
         name: 'number',
         options: { float: 'float', integer: 'integer' },
       },
