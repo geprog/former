@@ -1,19 +1,43 @@
 <template>
-  <FormKit
-    type="button"
-    v-for="type in availableFieldTypes"
-    :key="type"
-    :label="`select ${type} as type for the new input field`"
-    @click="addNewElement(type)"
-  >
-    <span class="text-2xl">{{ type }}</span>
-  </FormKit>
+  <div role="dialog" class="fixed inset-0 z-20 flex items-center justify-center bg-gray-900 bg-opacity-50">
+    <div class="rounded bg-white p-8 shadow-md flex flex-col">
+      <p class="mb-4 mx-auto text-xl">Select a form field</p>
+
+      <div class="flex flex-wrap gap-4 items-center">
+        <FormKit
+          type="button"
+          v-for="(formFieldType, key) in formFieldTypes"
+          :key="key"
+          :label="formFieldType.label"
+          @click="addNewElement(key)"
+        />
+      </div>
+    </div>
+  </div>
 </template>
+
 <script setup lang="ts">
-import { formFieldOptionSchemas } from './formFieldSchema';
 import { inject } from '~/compositions/injectProvide';
+import { formFieldTypes } from './formFieldTypes';
 
-const { addNewElement } = inject('newElementHandler');
+const generateId = () => `former-${Math.random().toString(36).substring(7)}`;
 
-const availableFieldTypes = Object.keys(formFieldOptionSchemas);
+const schema = inject('schema');
+const indexForNewElement = inject('indexForNewFormField');
+
+function addNewElement(formFieldType: keyof typeof formFieldTypes) {
+  if (indexForNewElement.value === undefined) {
+    return;
+  }
+
+  schema.value.splice(indexForNewElement.value + 1, 0, {
+    $formkit: formFieldType,
+    id: generateId(),
+    name: `new_${formFieldType}_field_${schema.value.length}`,
+    label: `New ${formFieldType} field ${schema.value.length}`,
+    help: `This is a new ${formFieldType} field.`,
+  });
+
+  indexForNewElement.value = undefined;
+}
 </script>

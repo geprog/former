@@ -21,7 +21,7 @@ importers:
         specifier: ^10.9.0
         version: 10.9.0(focus-trap@7.5.4)(sortablejs@1.15.2)(vue@3.4.21)
       focus-trap:
-        specifier: ^7
+        specifier: ^7.5.4
         version: 7.5.4
       sortablejs:
         specifier: ^1.15.2

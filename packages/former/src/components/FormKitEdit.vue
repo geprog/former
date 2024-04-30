@@ -1,5 +1,5 @@
 <template>
-  <div v-if="mode === 'edit'" class="flex flex-col handle" @click="selectedElementId = id">
+  <div v-if="mode === 'edit'" class="flex flex-col handle" @click="selectedFormFieldId = id">
     <div
       class="flex gap-2 p-2 rounded-lg bg-white element transition-colors border border-transparent duration-7600 w-full"
     >
@@ -14,7 +14,7 @@
       class="w-full flex justify-center items-center mt-2 btn-add opacity-0 gap-2 duration-700 transition-all relative"
     >
       <div class="flex-grow h-0.5 rounded-sm bg-blue-600" />
-      <button type="button" aria-details="Add component" @click="openTypeSelector(index)">
+      <button type="button" aria-details="Add component" @click="indexForNewFormField = index">
         <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" class="text-blue-600">
           <path
             fill="currentColor"
@@ -44,9 +44,8 @@ defineOptions({
 const element = useAttrs() as FormKitSchemaNode;
 const mode = inject('mode');
 const schema = inject('schema');
-const selectedElementId = inject('selectedElementId');
-const openFormFieldTypeSelector = ref<boolean>();
-const { openTypeSelector } = inject('newElementHandler');
+const selectedFormFieldId = inject('selectedFormFieldId');
+const indexForNewFormField = inject('indexForNewFormField');
 
 const generateId = () => `former-${Math.random().toString(36).substring(7)}`;
 const getId = (element: any) => (element as { id?: string }).id;
