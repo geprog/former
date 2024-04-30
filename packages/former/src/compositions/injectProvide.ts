@@ -12,7 +12,8 @@ export type InjectKeys = {
   mode: Ref<'edit' | 'preview'>;
   schema: Ref<FormKitSchemaNode[]>;
   data: Ref<Record<string, any>>;
-  selectedElementId: Ref<string | undefined>;
+  selectedFormFieldId: Ref<string | undefined>;
+  indexForNewFormField: Ref<number | undefined>;
   library: {
     [key: string]: {
       cmp: DefineComponent;

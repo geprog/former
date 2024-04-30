@@ -4,7 +4,7 @@
       <FormKitSchemaReactive :schema :library v-model:data="data" />
     </div>
     <div class="mt-4 mx-auto">
-      <button v-if="schema.length < 1" type="button" aria-details="Add component" @click="addComponent">
+      <button v-if="schema.length < 1" type="button" aria-details="Add component" @click="indexForNewFormField = -1">
         <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" class="text-blue-600">
           <path
             fill="currentColor"
@@ -32,6 +32,8 @@ function getFormKitId(node: any): string | undefined {
 }
 
 const generateId = () => `former-${Math.random().toString(36).substring(7)}`;
+
+const indexForNewFormField = inject('indexForNewFormField');
 
 function addIdsToSchema(schema: FormKitSchemaNode[]) {
   return schema.map((node, index) => {
@@ -99,15 +101,4 @@ useSortable(
     animation: 200,
   },
 );
-
-function addComponent() {
-  schema.value = [
-    ...schema.value,
-    {
-      $formkit: 'text',
-      name: 'new_field',
-      label: 'New field',
-    },
-  ];
-}
 </script>

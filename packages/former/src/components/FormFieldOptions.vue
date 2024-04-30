@@ -13,20 +13,20 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import { inject } from '~/compositions/injectProvide';
-import { formFieldOptionSchemas } from './formFieldOptions';
+import { formFieldTypes } from './formFieldTypes';
 import { FormKit } from '@formkit/vue';
 import FormKitSchemaReactive from './FormKitSchemaReactive.vue';
 import { isFormKitSchemaNode } from '~/compositions/useFormKitUtils';
 
 const schema = inject('schema');
-const selectedElementId = inject('selectedElementId');
+const selectedFormFieldId = inject('selectedFormFieldId');
 const getId = (element: any) => (element as { id?: string }).id;
 const selectedElement = computed({
   get() {
-    if (!selectedElementId.value) {
+    if (!selectedFormFieldId.value) {
       return;
     }
-    const node = schema.value.find((node) => getId(node) === selectedElementId.value);
+    const node = schema.value.find((node) => getId(node) === selectedFormFieldId.value);
     if (!isFormKitSchemaNode(node)) {
       throw new Error('Selected element is not a FormKit schema node');
     }
@@ -34,22 +34,22 @@ const selectedElement = computed({
   },
   set(_element) {
     if (!_element) return;
-    schema.value = schema.value.map((node) => (getId(node) === selectedElementId.value ? _element : node));
+    schema.value = schema.value.map((node) => (getId(node) === selectedFormFieldId.value ? _element : node));
   },
 });
 
 const selectedElementType = computed(() => {
   const node = selectedElement.value as { $formkit?: string; props?: { type: string } };
-  return (node?.$formkit || node?.props?.type) as keyof typeof formFieldOptionSchemas;
+  return (node?.$formkit || node?.props?.type) as keyof typeof formFieldTypes;
 });
 
 const selectedElementOptionsSchema = computed(() =>
-  selectedElementType.value ? formFieldOptionSchemas[selectedElementType.value] : undefined,
+  selectedElementType.value ? formFieldTypes[selectedElementType.value]?.schema : undefined,
 );
 
 function deleteComponent() {
-  const index = schema.value.findIndex((node) => getId(node) === selectedElementId.value);
+  const index = schema.value.findIndex((node) => getId(node) === selectedFormFieldId.value);
   schema.value.splice(index, 1);
-  selectedElementId.value = undefined;
+  selectedFormFieldId.value = undefined;
 }
 </script>

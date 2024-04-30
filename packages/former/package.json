@@ -42,7 +42,9 @@
     "@vueuse/integrations": "^10.9.0",
     "sortablejs": "^1.15.2",
     "vite-plugin-css-injected-by-js": "^3.5.0",
-    "vite-plugin-dts": "^3.8.0"
+    "vite-plugin-dts": "^3.8.0",
+    "@vueuse/core": "^10.9.0",
+    "focus-trap": "^7.5.4"
   },
   "devDependencies": {
     "@formkit/core": "^1.6.0",

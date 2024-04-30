@@ -24,13 +24,15 @@ yarn add former-ui
 
 ```vue
 <template>
-  <FormBuilder v-model:schema="schema" :mode="mode">
+  <FormBuilder v-model:schema="schema" :mode="mode" v-model:data="data">
     <main id="form-panel">
       <FormContent />
     </main>
 
-    <aside id="form-element-options">
-      <FormElementOptions />
+    <aside id="form-field-options">
+      <FormFieldOptions />
+
+      <pre>{{ data }}</pre>
     </aside>
   </FormBuilder>
 </template>
@@ -73,6 +75,8 @@ const schema = ref<FormKitSchemaNode[]>([
 ]);
 
 const mode = ref<'edit' | 'preview'>('edit');
+
+const data = ref<Record<string, any>>({});
 </script>
 ```
 
