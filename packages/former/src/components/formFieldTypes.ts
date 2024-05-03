@@ -1,17 +1,17 @@
-import type { FormKitSchemaNode } from '@formkit/core';
+import type { FormKitSchemaFormKit, FormKitSchemaNode } from '@formkit/core';
 import { checkbox, radio, textarea } from '@formkit/icons';
 
 const baseOptions = [
   {
     $formkit: 'text',
-    label: 'Name',
-    name: 'name',
+    label: 'Label',
+    name: 'label',
     required: true,
   },
   {
     $formkit: 'text',
-    label: 'Label',
-    name: 'label',
+    label: 'Name',
+    name: 'name',
     required: true,
   },
   {
@@ -30,6 +30,39 @@ export type FormFieldType = {
   label: string;
   icon?: string;
   schema: FormKitSchemaNode[];
+};
+
+const createList = ({
+  name,
+  value,
+  label,
+  children,
+}: {
+  name: string;
+  label?: string;
+  value?: string;
+  children: FormKitSchemaNode[];
+}): FormKitSchemaNode => {
+  return {
+    $formkit: 'list',
+    name,
+    value: value || [''], // 👈 Starts with an empty item
+    dynamic: true,
+    children: [
+      {
+        $cmp: 'div',
+        for: ['item', 'index', '$items'], // 👈 $items is in the slot’s scope
+        key: '$item', // 👈 Use $item as the key
+        index: '$index', // 👈 Pass the $index to the FormKit component
+        children,
+      },
+      {
+        $formkit: 'button',
+        onClick: '$addItem($node)', // 👈 Call $addItem from data
+        children: 'Add a link',
+      },
+    ],
+  };
 };
 
 export const formFieldTypes = {
@@ -68,12 +101,22 @@ export const formFieldTypes = {
     label: 'Select',
     schema: [
       ...baseOptions,
-      {
-        $formkit: 'select',
-        label: 'Options',
+      createList({
         name: 'options',
-        options: {},
-      },
+        label: 'Options',
+        children: [
+          {
+            $formkit: 'text',
+            label: 'Value',
+            name: 'value',
+          },
+          {
+            $formkit: 'text',
+            label: 'Label',
+            name: 'label',
+          },
+        ],
+      }),
       {
         $formkit: 'checkbox',
         label: 'Multiple',
