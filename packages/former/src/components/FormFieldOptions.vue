@@ -17,7 +17,6 @@ import { formFieldTypes } from './formFieldTypes';
 import { FormKit } from '@formkit/vue';
 import FormKitSchemaReactive from './FormKitSchemaReactive.vue';
 import { isFormKitSchemaNode } from '~/compositions/useFormKitUtils';
-import type { FormKitNode } from '@formkit/core';
 
 const schema = inject('schema');
 const selectedFormFieldId = inject('selectedFormFieldId');
@@ -31,11 +30,7 @@ const selectedElement = computed({
     if (!isFormKitSchemaNode(node)) {
       throw new Error('Selected element is not a FormKit schema node');
     }
-    return {
-      ...node,
-      addItem: (node: FormKitNode) => () => node.input(node._value.concat([''])),
-      stringify: JSON.stringify,
-    };
+    return node;
   },
   set(_element) {
     if (!_element) return;
