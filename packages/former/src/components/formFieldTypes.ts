@@ -58,6 +58,70 @@ export const formFieldTypes = {
         label: 'Maximum value',
         name: 'max',
       },
+      {
+        $formkit: 'number',
+        label: 'Step size',
+        name: 'step',
+      },
+      {
+        $formkit: 'select',
+        label: 'Number',
+        name: 'number',
+        options: { float: 'float', integer: 'integer' },
+      },
+    ],
+  },
+  checkbox: {
+    label: 'Checkbox',
+    icon: checkbox,
+    schema: [...baseOptions],
+  },
+  textarea: {
+    label: 'Textarea',
+    icon: textarea,
+    schema: [
+      ...baseOptions,
+      {
+        $formkit: 'text',
+        label: 'Placeholder',
+        name: 'placeholder',
+      },
+      {
+        $formkit: 'number',
+        label: 'Rows',
+        name: 'rows',
+      },
+      {
+        $formkit: 'number',
+        label: 'Columns',
+        name: 'cols',
+      },
+      {
+        $formkit: 'number',
+        label: 'Minimum length',
+        name: 'minLength',
+      },
+      {
+        $formkit: 'number',
+        label: 'Maximum length',
+        name: 'maxLength',
+      },
+    ],
+  },
+  date: {
+    label: 'Date',
+    schema: [
+      ...baseOptions,
+      {
+        $formkit: 'date',
+        label: 'Minimum date',
+        name: 'min',
+      },
+      {
+        $formkit: 'date',
+        label: 'Maximum date',
+        name: 'max',
+      },
     ],
   },
 } satisfies { [key: string]: FormFieldType };
