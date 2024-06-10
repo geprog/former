@@ -134,15 +134,7 @@ export const formFieldTypes = {
   checkbox: {
     label: 'Checkbox',
     icon: checkbox,
-    schema: [
-      ...baseOptions,
-      {
-        $formkit: 'options',
-        label: 'Options',
-        name: 'options',
-        options: {},
-      },
-    ],
+    schema: [...baseOptions],
   },
   radio: {
     label: 'Radio',
@@ -162,6 +154,11 @@ export const formFieldTypes = {
     icon: textarea,
     schema: [
       ...baseOptions,
+      {
+        $formkit: 'text',
+        label: 'Placeholder',
+        name: 'placeholder',
+      },
       {
         $formkit: 'number',
         label: 'Rows',
