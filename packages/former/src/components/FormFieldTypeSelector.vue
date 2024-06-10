@@ -21,6 +21,7 @@
 <script setup lang="ts">
 import { inject } from '~/compositions/injectProvide';
 import { formFieldTypes } from './formFieldTypes';
+import { FormKit } from '@formkit/vue';
 
 const generateId = () => `former-${Math.random().toString(36).substring(7)}`;
 

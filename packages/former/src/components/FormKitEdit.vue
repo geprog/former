@@ -1,7 +1,8 @@
 <template>
   <div v-if="mode === 'edit'" class="flex flex-col handle" @click="selectedFormFieldId = id">
     <div
-      class="flex gap-2 p-2 rounded-lg bg-white element transition-colors border border-transparent duration-7600 w-full"
+      class="flex gap-2 p-2 rounded-lg bg-white element transition-colors border-2 border-transparent duration-7600 w-full"
+      :class="{ '!border-blue-600': selectedFormFieldId === id }"
     >
       <FormKit v-bind="$attrs">
         <slot />
