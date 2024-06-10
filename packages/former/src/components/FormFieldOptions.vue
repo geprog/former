@@ -33,7 +33,7 @@ const selectedElement = computed({
     }
     return {
       ...node,
-      addItem: (node: FormKitNode) => () => node.input(node._value.concat([''])),
+      addItem: (node: FormKitNode) => () => node.input(node._value.concat([{}])),
       stringify: JSON.stringify,
     };
   },

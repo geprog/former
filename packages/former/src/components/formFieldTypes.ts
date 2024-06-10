@@ -38,26 +38,7 @@ const createList = ({
   value?: string;
   children: FormKitSchemaNode[];
 }): FormKitSchemaNode => {
-  return {
-    $formkit: 'list',
-    name,
-    value: value || [''], // 👈 Starts with an empty item
-    dynamic: true,
-    children: [
-      {
-        $cmp: 'div',
-        for: ['item', 'index', '$items'], // 👈 $items is in the slot’s scope
-        key: '$item', // 👈 Use $item as the key
-        index: '$index', // 👈 Pass the $index to the FormKit component
-        children,
-      },
-      {
-        $formkit: 'button',
-        onClick: '$addItem($node)', // 👈 Call $addItem from data
-        children: 'Add a link',
-      },
-    ],
-  };
+  // return ;
 };
 
 export const formFieldTypes = {
@@ -108,22 +89,38 @@ export const formFieldTypes = {
     label: 'Select',
     schema: [
       ...baseOptions,
-      createList({
+      {
+        $formkit: 'list',
         name: 'options',
         label: 'Options',
+        value: [{}], // 👈 Starts with an empty item
+        dynamic: true,
         children: [
           {
-            $formkit: 'text',
-            label: 'Value',
-            name: 'value',
+            $formkit: 'group',
+            for: ['item', 'index', '$items'], // 👈 $items is in the slot’s scope
+            key: '$item', // 👈 Use $item as the key
+            index: '$index', // 👈 Pass the $index to the FormKit component
+            children: [
+              {
+                $formkit: 'text',
+                label: 'Value',
+                name: 'value',
+              },
+              {
+                $formkit: 'text',
+                label: 'Label',
+                name: 'label',
+              },
+            ],
           },
           {
-            $formkit: 'text',
-            label: 'Label',
-            name: 'label',
+            $formkit: 'button',
+            onClick: '$addItem($node)', // 👈 Call $addItem from data
+            children: 'Add a link',
           },
         ],
-      }),
+      },
       {
         $formkit: 'checkbox',
         label: 'Multiple',
@@ -135,19 +132,6 @@ export const formFieldTypes = {
     label: 'Checkbox',
     icon: checkbox,
     schema: [...baseOptions],
-  },
-  radio: {
-    label: 'Radio',
-    icon: radio,
-    schema: [
-      ...baseOptions,
-      {
-        $formkit: 'options',
-        label: 'Options',
-        name: 'options',
-        options: {},
-      },
-    ],
   },
   textarea: {
     label: 'Textarea',
