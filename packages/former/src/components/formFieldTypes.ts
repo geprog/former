@@ -1,4 +1,4 @@
-import type { FormKitSchemaFormKit, FormKitSchemaNode } from '@formkit/core';
+import type { FormKitSchemaNode } from '@formkit/core';
 import { checkbox, radio, textarea } from '@formkit/icons';
 
 const baseOptions = [
@@ -13,11 +13,6 @@ const baseOptions = [
     label: 'Name',
     name: 'name',
     required: true,
-  },
-  {
-    $formkit: 'text',
-    label: 'Placeholder',
-    name: 'placeholder',
   },
   {
     $formkit: 'text',
@@ -68,12 +63,24 @@ const createList = ({
 export const formFieldTypes = {
   text: {
     label: 'Text',
-    schema: [...baseOptions],
+    schema: [
+      ...baseOptions,
+      {
+        $formkit: 'text',
+        label: 'Placeholder',
+        name: 'placeholder',
+      },
+    ],
   },
   number: {
     label: 'Number',
     schema: [
       ...baseOptions,
+      {
+        $formkit: 'text',
+        label: 'Placeholder',
+        name: 'placeholder',
+      },
       {
         $formkit: 'number',
         label: 'Minimum value',
@@ -190,12 +197,6 @@ export const formFieldTypes = {
         $formkit: 'date',
         label: 'Maximum date',
         name: 'max',
-      },
-      {
-        $formkit: 'number',
-        label: 'Step size',
-        name: 'step',
-        help: 'https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input/date#step',
       },
     ],
   },
