@@ -101,6 +101,26 @@ const complexSchema = ref<FormKitSchemaNode[]>([
     help: 'This is a new field.',
   },
   {
+    $formkit: 'select',
+    placeholder: 'Please Select',
+    validation: 'required',
+    validationMessages: {
+      required: 'Field is required',
+    },
+    label: 'Test',
+    name: 'test',
+    options: [
+      {
+        label: 'Option 1',
+        value: '1',
+      },
+      {
+        label: 'Option 2',
+        value: '2',
+      },
+    ],
+  },
+  {
     $formkit: 'group',
     name: 'categoryAndZip',
     children: [
@@ -120,7 +140,16 @@ const complexSchema = ref<FormKitSchemaNode[]>([
         },
         label: 'Category',
         name: 'category',
-        options: ['Fruits', 'Vegetables'],
+        options: [
+          {
+            label: 'Option 1',
+            value: '1',
+          },
+          {
+            label: 'Option 2',
+            value: '2',
+          },
+        ],
       },
     ],
   },
@@ -167,11 +196,16 @@ const complexSchema = ref<FormKitSchemaNode[]>([
     if: '$get(eu).value', // 👀 Oooo, conditionals!
     name: 'cookie_notice',
     label: 'Cookie notice frequency',
-    options: {
-      refresh: 'Every page load',
-      hourly: 'Ever hour',
-      daily: 'Every day',
-    },
+    options: [
+      {
+        label: 'Option 1',
+        value: '1',
+      },
+      {
+        label: 'Option 2',
+        value: '2',
+      },
+    ],
     help: 'How often should we display a cookie notice?',
   },
   {

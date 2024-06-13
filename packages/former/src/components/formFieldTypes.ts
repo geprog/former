@@ -1,5 +1,5 @@
 import type { FormKitSchemaNode } from '@formkit/core';
-import { checkbox, textarea } from '@formkit/icons';
+import { checkbox, radio, textarea } from '@formkit/icons';
 
 const baseOptions = [
   {
@@ -25,6 +25,20 @@ export type FormFieldType = {
   label: string;
   icon?: string;
   schema: FormKitSchemaNode[];
+};
+
+const createList = ({
+  name,
+  value,
+  label,
+  children,
+}: {
+  name: string;
+  label?: string;
+  value?: string;
+  children: FormKitSchemaNode[];
+}): FormKitSchemaNode => {
+  // return ;
 };
 
 export const formFieldTypes = {
@@ -68,6 +82,49 @@ export const formFieldTypes = {
         label: 'Number',
         name: 'number',
         options: { float: 'float', integer: 'integer' },
+      },
+    ],
+  },
+  select: {
+    label: 'Select',
+    schema: [
+      ...baseOptions,
+      {
+        $formkit: 'list',
+        name: 'options',
+        label: 'Options',
+        value: [{}], // 👈 Starts with an empty item
+        dynamic: true,
+        children: [
+          {
+            $formkit: 'group',
+            for: ['item', 'index', '$items'], // 👈 $items is in the slot’s scope
+            key: '$item', // 👈 Use $item as the key
+            index: '$index', // 👈 Pass the $index to the FormKit component
+            children: [
+              {
+                $formkit: 'text',
+                label: 'Value',
+                name: 'value',
+              },
+              {
+                $formkit: 'text',
+                label: 'Label',
+                name: 'label',
+              },
+            ],
+          },
+          {
+            $formkit: 'button',
+            onClick: '$addItem($node)', // 👈 Call $addItem from data
+            children: 'Add a link',
+          },
+        ],
+      },
+      {
+        $formkit: 'checkbox',
+        label: 'Multiple',
+        name: 'multiple',
       },
     ],
   },
