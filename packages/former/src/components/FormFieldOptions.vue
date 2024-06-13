@@ -1,7 +1,7 @@
 <template>
   <div v-if="selectedElement">
     <FormKitSchemaReactive
-      v-if="selectedElementOptionsSchema"
+      v-if="selectedElementOptionsSchema && selectedElement && forceSchemaRerenderToggle"
       :schema="selectedElementOptionsSchema"
       v-model:data="selectedElement"
     />
@@ -11,7 +11,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed, ref, watch } from 'vue';
 import { inject } from '~/compositions/injectProvide';
 import { formFieldTypes } from './formFieldTypes';
 import { FormKit } from '@formkit/vue';
@@ -51,6 +51,15 @@ const selectedElementType = computed(() => {
 const selectedElementOptionsSchema = computed(() =>
   selectedElementType.value ? formFieldTypes[selectedElementType.value]?.schema : undefined,
 );
+
+// TODO: workaround for Cannot set ${node.name} to non array value: undefined
+const forceSchemaRerenderToggle = ref(true);
+watch(selectedElement, (element) => {
+  console.log('selectedElement', element);
+
+  forceSchemaRerenderToggle.value = false;
+  forceSchemaRerenderToggle.value = true;
+});
 
 function deleteComponent() {
   const index = schema.value.findIndex((node) => getId(node) === selectedFormFieldId.value);
