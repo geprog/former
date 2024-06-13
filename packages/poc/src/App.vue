@@ -1,6 +1,10 @@
 <template>
   <main>
-    <FormSchema v-model="data" :schema="schema" :components="components" />
+    <form @submit.prevent="submit">
+      <FormSchema v-model="data" :schema="schema" :components="components" />
+
+      <button type="submit">Submit</button>
+    </form>
 
     <pre>{{ data }}</pre>
 
@@ -104,4 +108,9 @@ const components = markRaw({
   text: TextInput,
   group: Group,
 });
+
+function submit() {
+  console.log('submit', data.value);
+  alert('Submitted');
+}
 </script>
