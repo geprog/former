@@ -7,6 +7,7 @@ import {
   type Ref,
   type DefineComponent,
 } from 'vue';
+import type { FormFieldType } from '~/components/formFieldTypes';
 
 export type InjectKeys = {
   mode: Ref<'edit' | 'preview'>;
@@ -20,6 +21,7 @@ export type InjectKeys = {
       options: FormKitSchemaNode[];
     };
   };
+  formFieldTypes: Ref<Record<string, FormFieldType>>;
 };
 
 export function inject<T extends keyof InjectKeys>(key: T): InjectKeys[T];

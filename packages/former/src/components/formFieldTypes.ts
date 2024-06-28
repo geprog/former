@@ -1,7 +1,7 @@
 import type { FormKitSchemaNode } from '@formkit/core';
 import { checkbox, textarea } from '@formkit/icons';
 
-const baseOptions = [
+export const baseOptions = [
   {
     $formkit: 'text',
     label: 'Label',
@@ -27,7 +27,7 @@ export type FormFieldType = {
   schema: FormKitSchemaNode[];
 };
 
-export const formFieldTypes = {
+export const defaultFormFieldTypes = {
   text: {
     label: 'Text',
     schema: [

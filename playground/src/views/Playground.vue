@@ -1,6 +1,6 @@
 <template>
   <div class="flex items-start gap-4 m-4 justify-center">
-    <FormBuilder v-model:schema="schema" :mode="mode" v-model:data="data">
+    <FormBuilder v-model:schema="schema" :mode="mode" v-model:data="data" :form-field-types="formFieldTypes">
       <main class="bg-white rounded-xl shadow-xl gap-4 p-8 max-w-[960px] w-2/3 flex flex-col">
         <h1 class="text-4xl font-bold mx-auto">👩🏾‍🌾 Former playground</h1>
         <div class="flex self-center gap-4">
@@ -42,7 +42,7 @@
 import { ref } from 'vue';
 import type { FormKitSchemaNode } from '@formkit/core';
 // import { markRaw } from 'vue';
-import { FormBuilder, FormContent, FormFieldOptions } from 'former-ui';
+import { FormBuilder, FormContent, FormFieldOptions, type FormFieldType, formFieldBaseOptions } from 'former-ui';
 import { computed } from 'vue';
 
 const mode = ref<'edit' | 'preview'>('edit');
@@ -50,6 +50,20 @@ const mode = ref<'edit' | 'preview'>('edit');
 // const library = markRaw({
 //   // TODO: provide some custom components here
 // });
+
+const formFieldTypes = ref<Record<string, FormFieldType>>({
+  text: {
+    label: 'Custom Field Type (Text)',
+    schema: [
+      ...formFieldBaseOptions,
+      {
+        $formkit: 'text',
+        label: 'Custom placeholder',
+        name: 'placeholder',
+      },
+    ],
+  },
+});
 
 const data = ref<Record<string, any>>({});
 
