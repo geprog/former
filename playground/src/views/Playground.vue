@@ -1,6 +1,6 @@
 <template>
   <div class="flex items-start gap-4 m-4 justify-center">
-    <FormBuilder v-model:schema="schema" :mode="mode" v-model:data="data" v-model:form-field-types="formFieldTypes">
+    <FormBuilder v-model:schema="schema" :mode="mode" v-model:data="data" :form-field-types="formFieldTypes">
       <main class="bg-white rounded-xl shadow-xl gap-4 p-8 max-w-[960px] w-2/3 flex flex-col">
         <h1 class="text-4xl font-bold mx-auto">👩🏾‍🌾 Former playground</h1>
         <div class="flex self-center gap-4">

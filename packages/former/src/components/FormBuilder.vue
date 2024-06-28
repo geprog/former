@@ -13,6 +13,10 @@ import FormFieldTypeSelector from './FormFieldTypeSelector.vue';
 import { type FormFieldType, defaultFormFieldTypes } from './formFieldTypes';
 import { computed } from 'vue';
 
+const props = defineProps<{
+  formFieldTypes?: Record<string, FormFieldType>;
+}>();
+
 const schema = defineModel<FormKitSchemaNode[]>('schema', { required: true });
 provide('schema', schema);
 
@@ -28,9 +32,8 @@ provide('selectedFormFieldId', selectedFormFieldId);
 const indexForNewElement = ref<number>();
 provide('indexForNewFormField', indexForNewElement);
 
-const formFieldTypes = defineModel<Record<string, FormFieldType>>('formFieldTypes', { default: {} });
 provide(
   'formFieldTypes',
-  computed(() => ({ ...defaultFormFieldTypes, ...formFieldTypes.value })),
+  computed(() => ({ ...defaultFormFieldTypes, ...(props.formFieldTypes ?? {}) })),
 );
 </script>
