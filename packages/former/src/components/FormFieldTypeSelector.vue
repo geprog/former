@@ -20,15 +20,15 @@
 
 <script setup lang="ts">
 import { inject } from '~/compositions/injectProvide';
-import { formFieldTypes } from './formFieldTypes';
 import { FormKit } from '@formkit/vue';
 
 const generateId = () => `former-${Math.random().toString(36).substring(7)}`;
 
 const schema = inject('schema');
 const indexForNewElement = inject('indexForNewFormField');
+const formFieldTypes = inject('formFieldTypes');
 
-function addNewElement(formFieldType: keyof typeof formFieldTypes) {
+function addNewElement(formFieldType: string) {
   if (indexForNewElement.value === undefined) {
     return;
   }

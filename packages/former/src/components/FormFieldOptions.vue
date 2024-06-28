@@ -13,13 +13,13 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import { inject } from '~/compositions/injectProvide';
-import { formFieldTypes } from './formFieldTypes';
 import { FormKit } from '@formkit/vue';
 import FormKitSchemaReactive from './FormKitSchemaReactive.vue';
 import { isFormKitSchemaNode } from '~/compositions/useFormKitUtils';
 
 const schema = inject('schema');
 const selectedFormFieldId = inject('selectedFormFieldId');
+const formFieldTypes = inject('formFieldTypes');
 const getId = (element: any) => (element as { id?: string }).id;
 const selectedElement = computed({
   get() {
@@ -40,11 +40,11 @@ const selectedElement = computed({
 
 const selectedElementType = computed(() => {
   const node = selectedElement.value as { $formkit?: string; props?: { type: string } };
-  return (node?.$formkit || node?.props?.type) as keyof typeof formFieldTypes;
+  return node?.$formkit || node?.props?.type;
 });
 
 const selectedElementOptionsSchema = computed(() =>
-  selectedElementType.value ? formFieldTypes[selectedElementType.value]?.schema : undefined,
+  selectedElementType.value ? formFieldTypes.value[selectedElementType.value]?.schema : undefined,
 );
 
 function deleteComponent() {
