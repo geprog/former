@@ -1,6 +1,6 @@
 <template>
-  <div>
-    <input :type v-model="modelValue" :placeholder />
+  <div class="border border-gray-700 rounded">
+    <input :type v-model="modelValue" :placeholder class="w-full p-1 rounded" />
   </div>
 </template>
 

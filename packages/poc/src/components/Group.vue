@@ -1,16 +1,5 @@
 <template>
-  <div class="g1">
-    Hello from Group
-    <div class="group">
-      <slot />
-    </div>
+  <div class="flex flex-wrap gap-4">
+    <slot />
   </div>
 </template>
-
-<style scoped>
-.group {
-  display: flex;
-  flex-direction: row;
-  gap: 1rem;
-}
-</style>

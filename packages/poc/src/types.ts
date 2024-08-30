@@ -7,3 +7,5 @@ export type SchemaNode<Props = { [key: string]: any }> = {
   children?: SchemaNode<Props>[];
   if?: string;
 };
+
+export type FormData = Record<string, any>;

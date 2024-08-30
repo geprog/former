@@ -1,23 +1,27 @@
 <template>
-  <main>
+  <main class="p-4">
     <form @submit.prevent="submit">
-      <FormSchema v-model="data" :schema="schema" :components="components" />
+      <FormSchema v-model="data" :edit :schema="schema" :components="components" />
 
-      <button type="submit">Submit</button>
+      <button type="submit" class="border bg-gray-100 hover:bg-gray-300 py-1 px-2 rounded">Submit</button>
     </form>
 
-    <pre>{{ data }}</pre>
+    <hr class="border my-4" />
 
-    <input type="text" v-model="data.group.name" />
+    <pre class="border">{{ data }} - {{ edit }}</pre>
+
+    <input type="checkbox" v-model="edit" />
+
+    <TextInput v-model="data.group.name" label="Group Name" />
   </main>
 </template>
 
 <script setup lang="ts">
 import { markRaw, ref } from 'vue';
 import FormSchema from './components/FormSchema.vue';
-import TextInput from './components/TextInput.vue';
 import Group from './components/Group.vue';
 import type { SchemaNode } from './types';
+import TextInput from './components/TextInput.vue';
 
 type SchemaText = SchemaNode<{
   label: string;
@@ -30,6 +34,8 @@ type SchemaGroup = SchemaNode<{
 }>;
 
 type Schema = (SchemaText | SchemaGroup)[];
+
+const edit = ref(false);
 
 const schema = ref<Schema>([
   {
@@ -99,7 +105,7 @@ const data = ref<Record<string, any>>({
   password: '12345678',
   confirmPassword: '12345678',
   group: {
-    name: 'Group Name',
+    name: 'Wonderful',
     email: 'group@example.com',
   },
 });

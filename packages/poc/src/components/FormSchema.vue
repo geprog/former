@@ -1,10 +1,11 @@
 <template>
   <div v-for="node in schema" :key="node.name">
-    <label v-if="node.props?.label" :for="node.name">{{ node.props.label }} - {{ data[node.name] }}</label>
+    <label v-if="node.props?.label" :for="node.name">{{ node.props.label }}</label>
     <component
-      v-if="validateIf(node)"
-      :is="components[node.type]"
-      v-bind="node.props"
+      v-if="_showIf(node)"
+      :is="edit ? EditComponent : FormComponent"
+      :node
+      :components
       :model-value="data?.[node.name]"
       @update:model-value="(e: unknown) => setData(node.name, e)"
     >
@@ -20,26 +21,32 @@
 </template>
 
 <script setup lang="ts">
-import type { SchemaNode } from '@/types';
+import type { FormData, SchemaNode } from '~/types';
 import { ref, type DefineComponent } from 'vue';
-
-type Data = Record<string, any>;
+import FormComponent from './FormComponent.vue';
+import EditComponent from './EditComponent.vue';
 
 const props = defineProps<{
-  modelValue?: Data;
+  edit?: boolean;
+  modelValue?: FormData;
   schema: SchemaNode[];
   components: { [key: string]: DefineComponent };
+  showIf?: (node: SchemaNode) => boolean;
 }>();
 
 const emit = defineEmits<{
-  (event: 'update:model-value', e: Data): void;
+  (event: 'update:model-value', e: FormData): void;
 }>();
 
-const data = ref<Data>(props.modelValue || {});
+const data = ref<FormData>(props.modelValue || {});
 
 // TODO: watch props.data
 
-function validateIf(node: SchemaNode): boolean {
+function _showIf(node: SchemaNode): boolean {
+  if (props.showIf) {
+    return props.showIf(node);
+  }
+
   if (!node.if) {
     return true;
   }
