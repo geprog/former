@@ -1,17 +1,22 @@
 <template>
-  <main class="p-4">
-    <form @submit.prevent="submit">
-      <FormSchema v-model="data" :edit :schema="schema" :components="components" />
+  <main class="flex w-full h-screen gap-4">
+    <form @submit.prevent="submit" class="w-1/2 p-4">
+      <FormSchema v-model="data" :edit :schema :components />
 
       <button type="submit" class="border bg-gray-100 hover:bg-gray-300 py-1 px-2 rounded">Submit</button>
     </form>
 
-    <div class="border-t pt-4 my-4 gap-4">
-      <!-- <pre class="border">{{ data }} - {{ edit }}</pre> -->
+    <div class="border-l bg-gray-50 flex flex-col p-4 gap-4 w-1/2">
+      <div class="flex flex-col">
+        <span>Schema:</span>
+        <textarea v-model="jsonSchema" rows="20" class="border w-full p-1 rounded" />
+      </div>
 
-      <textarea v-model="jsonSchema" rows="20" class="border w-full p-1 rounded" />
-
-      <textarea v-model="jsonData" rows="20" class="border w-full p-1 rounded" />
+      <div class="flex flex-col">
+        <span>Data:</span>
+        <pre class="border bg-white">{{ data }} - {{ edit }}</pre>
+        <!-- <textarea v-model="jsonData" rows="20" class="border w-full p-1 rounded" /> -->
+      </div>
 
       <div class="flex gap-2">
         <input type="checkbox" v-model="edit" />
@@ -19,7 +24,7 @@
       </div>
 
       <div class="flex flex-col">
-        <span>Nested editing test</span>
+        <span>`group.name` (Nested editing test):</span>
         <TextInput v-model="data.group.name" label="Group Name" />
       </div>
     </div>

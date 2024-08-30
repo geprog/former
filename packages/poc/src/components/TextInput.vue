@@ -1,5 +1,5 @@
 <template>
-  <div class="border border-gray-700 rounded">
+  <div class="border rounded">
     <input :type v-model="modelValue" :placeholder class="w-full p-1 rounded" />
   </div>
 </template>
