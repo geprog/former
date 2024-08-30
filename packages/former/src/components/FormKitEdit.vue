@@ -1,13 +1,12 @@
 <template>
   <div v-if="mode === 'edit'" class="flex flex-col handle" @click="selectedFormFieldId = id">
     <div
-      class="flex gap-2 p-2 rounded-lg bg-white element transition-colors border border-transparent duration-7600 w-full"
+      class="flex gap-2 p-2 rounded-lg bg-white element transition-colors border-2 border-transparent duration-7600 w-full"
+      :class="{ '!border-blue-600': selectedFormFieldId === id }"
     >
-      <div class="w-full">
-        <FormKit v-bind="$attrs">
-          <slot />
-        </FormKit>
-      </div>
+      <FormKit v-bind="$attrs">
+        <slot />
+      </FormKit>
     </div>
 
     <div
@@ -46,7 +45,6 @@ const schema = inject('schema');
 const selectedFormFieldId = inject('selectedFormFieldId');
 const indexForNewFormField = inject('indexForNewFormField');
 
-const generateId = () => `former-${Math.random().toString(36).substring(7)}`;
 const getId = (element: any) => (element as { id?: string }).id;
 const id = computed(() => getId(element));
 const index = computed(() => schema.value.findIndex((e) => getId(e) === id.value));

@@ -1,12 +1,7 @@
 import type { FormKitSchemaNode } from '@formkit/core';
+import { checkbox, textarea } from '@formkit/icons';
 
-const baseOptions = [
-  {
-    $formkit: 'text',
-    label: 'Name',
-    name: 'name',
-    required: true,
-  },
+export const baseOptions = [
   {
     $formkit: 'text',
     label: 'Label',
@@ -15,8 +10,9 @@ const baseOptions = [
   },
   {
     $formkit: 'text',
-    label: 'Placeholder',
-    name: 'placeholder',
+    label: 'Name',
+    name: 'name',
+    required: true,
   },
   {
     $formkit: 'text',
@@ -31,15 +27,27 @@ export type FormFieldType = {
   schema: FormKitSchemaNode[];
 };
 
-export const formFieldTypes = {
+export const defaultFormFieldTypes = {
   text: {
     label: 'Text',
-    schema: [...baseOptions],
+    schema: [
+      ...baseOptions,
+      {
+        $formkit: 'text',
+        label: 'Placeholder',
+        name: 'placeholder',
+      },
+    ],
   },
   number: {
     label: 'Number',
     schema: [
       ...baseOptions,
+      {
+        $formkit: 'text',
+        label: 'Placeholder',
+        name: 'placeholder',
+      },
       {
         $formkit: 'number',
         label: 'Minimum value',
@@ -60,6 +68,59 @@ export const formFieldTypes = {
         label: 'Number',
         name: 'number',
         options: { float: 'float', integer: 'integer' },
+      },
+    ],
+  },
+  checkbox: {
+    label: 'Checkbox',
+    icon: checkbox,
+    schema: [...baseOptions],
+  },
+  textarea: {
+    label: 'Textarea',
+    icon: textarea,
+    schema: [
+      ...baseOptions,
+      {
+        $formkit: 'text',
+        label: 'Placeholder',
+        name: 'placeholder',
+      },
+      {
+        $formkit: 'number',
+        label: 'Rows',
+        name: 'rows',
+      },
+      {
+        $formkit: 'number',
+        label: 'Columns',
+        name: 'cols',
+      },
+      {
+        $formkit: 'number',
+        label: 'Minimum length',
+        name: 'minLength',
+      },
+      {
+        $formkit: 'number',
+        label: 'Maximum length',
+        name: 'maxLength',
+      },
+    ],
+  },
+  date: {
+    label: 'Date',
+    schema: [
+      ...baseOptions,
+      {
+        $formkit: 'date',
+        label: 'Minimum date',
+        name: 'min',
+      },
+      {
+        $formkit: 'date',
+        label: 'Maximum date',
+        name: 'max',
       },
     ],
   },

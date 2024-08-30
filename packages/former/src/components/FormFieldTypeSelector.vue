@@ -3,12 +3,14 @@
     <div class="rounded bg-white p-8 shadow-md flex flex-col">
       <p class="mb-4 mx-auto text-xl">Select a form field</p>
 
-      <div class="flex flex-wrap gap-4 items-center">
+      <div class="grid grid-cols-2 gap-4">
         <FormKit
           type="button"
           v-for="(formFieldType, key) in formFieldTypes"
           :key="key"
           :label="formFieldType.label"
+          outer-class="!mb-0"
+          input-class="flex-grow w-full text-center justify-center !mb-0"
           @click="addNewElement(key)"
         />
       </div>
@@ -18,14 +20,15 @@
 
 <script setup lang="ts">
 import { inject } from '~/compositions/injectProvide';
-import { formFieldTypes } from './formFieldTypes';
+import { FormKit } from '@formkit/vue';
 
 const generateId = () => `former-${Math.random().toString(36).substring(7)}`;
 
 const schema = inject('schema');
 const indexForNewElement = inject('indexForNewFormField');
+const formFieldTypes = inject('formFieldTypes');
 
-function addNewElement(formFieldType: keyof typeof formFieldTypes) {
+function addNewElement(formFieldType: string) {
   if (indexForNewElement.value === undefined) {
     return;
   }
