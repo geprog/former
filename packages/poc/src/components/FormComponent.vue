@@ -1,4 +1,5 @@
 <template>
+  <label v-if="node.props?.label" :for="node.name">{{ node.props.label }}</label>
   <component :is="components[node.type]" v-bind="node.props" v-model="modelValue">
     <slot />
   </component>

@@ -1,6 +1,5 @@
 <template>
   <div v-for="node in schema" :key="node.name">
-    <label v-if="node.props?.label" :for="node.name">{{ node.props.label }}</label>
     <component
       v-if="_showIf(node)"
       :is="edit ? EditComponent : FormComponent"
@@ -22,25 +21,26 @@
 
 <script setup lang="ts">
 import type { FormData, SchemaNode } from '~/types';
-import { ref, type DefineComponent } from 'vue';
+import { ref, watch, type DefineComponent } from 'vue';
 import FormComponent from './FormComponent.vue';
 import EditComponent from './EditComponent.vue';
 
 const props = defineProps<{
   edit?: boolean;
-  modelValue?: FormData;
   schema: SchemaNode[];
   components: { [key: string]: DefineComponent };
   showIf?: (node: SchemaNode) => boolean;
 }>();
 
-const emit = defineEmits<{
-  (event: 'update:model-value', e: FormData): void;
-}>();
+const modelValue = defineModel<FormData>();
 
-const data = ref<FormData>(props.modelValue || {});
+const data = ref<FormData>(modelValue.value || {});
 
-// TODO: watch props.data
+watch(modelValue, (value) => {
+  if (value) {
+    data.value = value;
+  }
+});
 
 function _showIf(node: SchemaNode): boolean {
   if (props.showIf) {
@@ -62,8 +62,6 @@ function setData(name: string | undefined, e: unknown) {
   const _data = { ...data.value };
   _data[name] = e;
   data.value = _data;
-  emit('update:model-value', _data);
-
-  console.log('data', name, e);
+  modelValue.value = _data;
 }
 </script>

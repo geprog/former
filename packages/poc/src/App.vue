@@ -6,18 +6,28 @@
       <button type="submit" class="border bg-gray-100 hover:bg-gray-300 py-1 px-2 rounded">Submit</button>
     </form>
 
-    <hr class="border my-4" />
+    <div class="border-t pt-4 my-4 gap-4">
+      <!-- <pre class="border">{{ data }} - {{ edit }}</pre> -->
 
-    <pre class="border">{{ data }} - {{ edit }}</pre>
+      <textarea v-model="jsonSchema" rows="20" class="border w-full p-1 rounded" />
 
-    <input type="checkbox" v-model="edit" />
+      <textarea v-model="jsonData" rows="20" class="border w-full p-1 rounded" />
 
-    <TextInput v-model="data.group.name" label="Group Name" />
+      <div class="flex gap-2">
+        <input type="checkbox" v-model="edit" />
+        <span>Edit: {{ edit }}</span>
+      </div>
+
+      <div class="flex flex-col">
+        <span>Nested editing test</span>
+        <TextInput v-model="data.group.name" label="Group Name" />
+      </div>
+    </div>
   </main>
 </template>
 
 <script setup lang="ts">
-import { markRaw, ref } from 'vue';
+import { computed, markRaw, ref } from 'vue';
 import FormSchema from './components/FormSchema.vue';
 import Group from './components/Group.vue';
 import type { SchemaNode } from './types';
@@ -99,6 +109,15 @@ const schema = ref<Schema>([
   },
 ]);
 
+const jsonSchema = computed<string>({
+  get() {
+    return JSON.stringify(schema.value, null, 2);
+  },
+  set(_schema: string) {
+    schema.value = JSON.parse(_schema);
+  },
+});
+
 const data = ref<Record<string, any>>({
   name: 'Anton',
   email: 'anton@example.com',
@@ -107,6 +126,16 @@ const data = ref<Record<string, any>>({
   group: {
     name: 'Wonderful',
     email: 'group@example.com',
+  },
+});
+
+const jsonData = computed<string>({
+  get() {
+    return JSON.stringify(data.value, null, 2);
+  },
+  set(_data: string) {
+    console.log('moin', JSON.parse(_data));
+    data.value = JSON.parse(_data);
   },
 });
 
