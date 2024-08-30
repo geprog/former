@@ -14,7 +14,7 @@
 
       <div class="flex flex-col">
         <span>Data:</span>
-        <pre class="border bg-white">{{ data }} - {{ edit }}</pre>
+        <pre class="border bg-white">{{ data }}</pre>
         <!-- <textarea v-model="jsonData" rows="20" class="border w-full p-1 rounded" /> -->
       </div>
 
