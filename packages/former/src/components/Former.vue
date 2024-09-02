@@ -2,47 +2,44 @@
   <div v-for="node in schema" :key="node.name">
     <component
       v-if="_showIf(node)"
-      :is="mode === 'edit' ? EditComponent : FormComponent"
+      :is="edit ? EditComponent : FormComponent"
       :node
-      :components
       :model-value="data?.[node.name]"
       @update:model-value="(e: unknown) => setData(node.name, e)"
     >
-      <FormSchema
+      <Former
         v-if="node.children"
         :schema="node.children"
-        :components="components"
-        :model-value="data?.[node.name]"
-        @update:model-value="(e: unknown) => setData(node.name, e)"
+        :data="data?.[node.name]"
+        @update:data="(e: unknown) => setData(node.name, e)"
       />
     </component>
   </div>
 </template>
 
 <script setup lang="ts">
-import type { FormData, SchemaNode } from '~/types';
-import { ref, watch } from 'vue';
+import type { FormData, SchemaNode, FormFieldType } from '~/types';
 import FormComponent from './FormComponent.vue';
 import EditComponent from './EditComponent.vue';
-import { inject } from '~/compositions/injectProvide';
+import { provide } from '~/compositions/injectProvide';
 
 const props = defineProps<{
+  components?: { [key: string]: FormFieldType };
   showIf?: (node: SchemaNode) => boolean;
 }>();
 
-const mode = inject('mode');
-const schema = inject('schema');
-const components = inject('components');
+const schema = defineModel<SchemaNode[]>('schema', { required: true });
+provide('schema', schema);
 
-const modelValue = defineModel<FormData>();
+const data = defineModel<FormData>('data', { default: () => {} });
+provide('data', data);
 
-const data = ref<FormData>(modelValue.value || {});
+const edit = defineModel<boolean>('edit', { default: false });
+provide('edit', edit);
 
-watch(modelValue, (value) => {
-  if (value) {
-    data.value = value;
-  }
-});
+if (props.components) {
+  provide('components', props.components);
+}
 
 function _showIf(node: SchemaNode): boolean {
   if (props.showIf) {
@@ -65,6 +62,6 @@ function setData(name: string | undefined, e: unknown) {
   const _data = { ...data.value };
   _data[name] = e;
   data.value = _data;
-  modelValue.value = _data;
+  // modelValue.value = _data;
 }
 </script>

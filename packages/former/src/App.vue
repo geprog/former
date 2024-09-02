@@ -3,13 +3,11 @@
     <main class="gap-4 m-4 max-w-[960px] w-2/3 flex flex-col">
       <h1 class="text-4xl font-bold mx-auto">👩🏾‍🌾 Former playground</h1>
 
-      <FormBuilder v-model="data" :schema :components :mode="edit ? 'edit' : 'preview'">
-        <form @submit.prevent="submit" class="bg-white rounded-xl shadow-xl p-4">
-          <FormContent />
+      <form @submit.prevent="submit" class="bg-white rounded-xl shadow-xl p-4">
+        <Former v-model="data" :schema :components :edit />
 
-          <button type="submit" class="border bg-gray-100 hover:bg-gray-300 py-1 px-2 rounded">Submit</button>
-        </form>
-      </FormBuilder>
+        <button type="submit" class="border bg-gray-100 hover:bg-gray-300 py-1 px-2 rounded">Submit</button>
+      </form>
     </main>
 
     <div class="border-l flex flex-col p-4 gap-4 w-1/2">
@@ -42,8 +40,7 @@ import { computed, markRaw, ref } from 'vue';
 import Group from '~/sample/Group.vue';
 import type { FormFieldType, SchemaNode } from '~/types';
 import TextInput from '~/sample/TextInput.vue';
-import FormBuilder from '~/components/FormBuilder.vue';
-import FormContent from '~/components/FormContent.vue';
+import Former from '~/components/Former.vue';
 
 type SchemaText = SchemaNode<{
   label: string;
@@ -119,6 +116,27 @@ const schema = ref<Schema>([
       },
     ],
   },
+  {
+    type: 'group',
+    name: 'level1',
+    children: [
+      {
+        type: 'group',
+        name: 'level2',
+        children: [
+          {
+            type: 'text',
+            name: 'name',
+            props: {
+              type: 'text',
+              label: 'Group Name',
+              placeholder: 'two levels deep',
+            },
+          },
+        ],
+      },
+    ],
+  },
 ]);
 
 const debouncedSchema = (() => {
@@ -153,6 +171,11 @@ const data = ref<Record<string, any>>({
   group: {
     name: 'Wonderful team',
     email: 'group@example.com',
+  },
+  level1: {
+    level2: {
+      name: 'Nested group',
+    },
   },
 });
 

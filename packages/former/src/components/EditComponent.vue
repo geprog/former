@@ -7,14 +7,12 @@
 </template>
 
 <script setup lang="ts">
-import type { FormData, SchemaNode } from '~/types';
+import type { SchemaNode } from '~/types';
 import FormComponent from './FormComponent.vue';
 
 defineProps<{
   node: SchemaNode;
 }>();
 
-const modelValue = defineModel<FormData>({
-  required: true,
-});
+const modelValue = defineModel();
 </script>

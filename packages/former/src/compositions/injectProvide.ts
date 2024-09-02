@@ -1,15 +1,8 @@
-import {
-  getCurrentInstance,
-  inject as vueInject,
-  type InjectionKey,
-  provide as vueProvide,
-  type Ref,
-  type DefineComponent,
-} from 'vue';
+import { getCurrentInstance, inject as vueInject, type InjectionKey, provide as vueProvide, type Ref } from 'vue';
 import type { FormFieldType, SchemaNode } from '~/types';
 
 export type InjectKeys = {
-  mode: Ref<'edit' | 'preview'>;
+  edit: Ref<boolean>;
   schema: Ref<SchemaNode[]>;
   data: FormData;
   components: { [key: string]: FormFieldType };
