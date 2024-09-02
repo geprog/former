@@ -28,7 +28,7 @@
     "dist"
   ],
   "scripts": {
-    "dev": "vite build --watch",
+    "dev": "vite",
     "build": "vite build",
     "prepack": "pnpm build",
     "lint": "eslint .",
