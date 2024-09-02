@@ -1,12 +1,23 @@
 <template>
-  <main class="flex w-full h-screen gap-4">
-    <form @submit.prevent="submit" class="w-1/2 p-4">
-      <FormSchema v-model="data" :edit :schema :components />
+  <div class="flex w-full h-screen bg-gray-100">
+    <main class="gap-4 m-4 max-w-[960px] w-2/3 flex flex-col">
+      <h1 class="text-4xl font-bold mx-auto">👩🏾‍🌾 Former playground</h1>
 
-      <button type="submit" class="border bg-gray-100 hover:bg-gray-300 py-1 px-2 rounded">Submit</button>
-    </form>
+      <FormBuilder v-model="data" :schema :components :mode="edit ? 'edit' : 'preview'">
+        <form @submit.prevent="submit" class="bg-white rounded-xl shadow-xl p-4">
+          <FormContent />
 
-    <div class="border-l bg-gray-50 flex flex-col p-4 gap-4 w-1/2">
+          <button type="submit" class="border bg-gray-100 hover:bg-gray-300 py-1 px-2 rounded">Submit</button>
+        </form>
+      </FormBuilder>
+    </main>
+
+    <div class="border-l flex flex-col p-4 gap-4 w-1/2">
+      <div class="flex gap-2">
+        <input type="checkbox" v-model="edit" />
+        <span>Edit: {{ edit }}</span>
+      </div>
+
       <div class="flex flex-col">
         <span>Schema:</span>
         <textarea v-model="jsonSchema" rows="20" class="border w-full p-1 rounded" />
@@ -18,25 +29,21 @@
         <!-- <textarea v-model="jsonData" rows="20" class="border w-full p-1 rounded" /> -->
       </div>
 
-      <div class="flex gap-2">
-        <input type="checkbox" v-model="edit" />
-        <span>Edit: {{ edit }}</span>
-      </div>
-
       <div class="flex flex-col">
         <span>`group.name` (Nested editing test):</span>
         <TextInput v-model="data.group.name" label="Group Name" />
       </div>
     </div>
-  </main>
+  </div>
 </template>
 
 <script setup lang="ts">
 import { computed, markRaw, ref } from 'vue';
-import FormSchema from './components/FormSchema.vue';
-import Group from './components/Group.vue';
-import type { SchemaNode } from './types';
-import TextInput from './components/TextInput.vue';
+import Group from '~/sample/Group.vue';
+import type { FormFieldType, SchemaNode } from '~/types';
+import TextInput from '~/sample/TextInput.vue';
+import FormBuilder from '~/components/FormBuilder.vue';
+import FormContent from '~/components/FormContent.vue';
 
 type SchemaText = SchemaNode<{
   label: string;
@@ -114,12 +121,27 @@ const schema = ref<Schema>([
   },
 ]);
 
+const debouncedSchema = (() => {
+  let timeout: number | null = null;
+
+  return (_schema: Schema) => {
+    if (timeout) {
+      clearTimeout(timeout);
+    }
+
+    timeout = setTimeout(() => {
+      timeout = null;
+      schema.value = _schema;
+    }, 500);
+  };
+})();
+
 const jsonSchema = computed<string>({
   get() {
     return JSON.stringify(schema.value, null, 2);
   },
   set(_schema: string) {
-    schema.value = JSON.parse(_schema);
+    debouncedSchema(JSON.parse(_schema));
   },
 });
 
@@ -129,25 +151,23 @@ const data = ref<Record<string, any>>({
   password: '12345678',
   confirmPassword: '12345678',
   group: {
-    name: 'Wonderful',
+    name: 'Wonderful team',
     email: 'group@example.com',
   },
 });
 
-const jsonData = computed<string>({
-  get() {
-    return JSON.stringify(data.value, null, 2);
+const components: { [k: string]: FormFieldType } = {
+  text: {
+    label: 'Text Input',
+    component: markRaw(TextInput),
+    propsSchema: [],
   },
-  set(_data: string) {
-    console.log('moin', JSON.parse(_data));
-    data.value = JSON.parse(_data);
+  group: {
+    label: 'Group',
+    component: markRaw(Group),
+    propsSchema: [],
   },
-});
-
-const components = markRaw({
-  text: TextInput,
-  group: Group,
-});
+};
 
 function submit() {
   console.log('submit', data.value);

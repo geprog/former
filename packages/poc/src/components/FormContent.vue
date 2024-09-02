@@ -2,7 +2,7 @@
   <div v-for="node in schema" :key="node.name">
     <component
       v-if="_showIf(node)"
-      :is="edit ? EditComponent : FormComponent"
+      :is="mode === 'edit' ? EditComponent : FormComponent"
       :node
       :components
       :model-value="data?.[node.name]"
@@ -21,16 +21,18 @@
 
 <script setup lang="ts">
 import type { FormData, SchemaNode } from '~/types';
-import { ref, watch, type DefineComponent } from 'vue';
+import { ref, watch } from 'vue';
 import FormComponent from './FormComponent.vue';
 import EditComponent from './EditComponent.vue';
+import { inject } from '~/compositions/injectProvide';
 
 const props = defineProps<{
-  edit?: boolean;
-  schema: SchemaNode[];
-  components: { [key: string]: DefineComponent };
   showIf?: (node: SchemaNode) => boolean;
 }>();
+
+const mode = inject('mode');
+const schema = inject('schema');
+const components = inject('components');
 
 const modelValue = defineModel<FormData>();
 
@@ -47,11 +49,12 @@ function _showIf(node: SchemaNode): boolean {
     return props.showIf(node);
   }
 
+  // TODO: Implement more complex logic
   if (!node.if) {
     return true;
   }
 
-  return !!node.if;
+  return true;
 }
 
 function setData(name: string | undefined, e: unknown) {
