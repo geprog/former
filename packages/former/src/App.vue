@@ -3,32 +3,33 @@
     <main class="gap-4 m-4 max-w-[960px] w-2/3 flex flex-col">
       <h1 class="text-4xl font-bold mx-auto">👩🏾‍🌾 Former playground</h1>
 
-      <form @submit.prevent="submit" class="bg-white rounded-xl shadow-xl p-4">
+      <form @submit.prevent="submit" class="bg-white rounded-xl shadow-xl p-4 flex flex-col gap-4">
         <Former v-model="data" :schema :components :edit />
 
-        <button type="submit" class="border bg-gray-100 hover:bg-gray-300 py-1 px-2 rounded">Submit</button>
+        <button type="submit" class="border bg-slate-100 hover:bg-slate-300 py-1 px-2 rounded">Submit</button>
       </form>
     </main>
 
-    <div class="border-l flex flex-col p-4 gap-4 w-1/2">
-      <div class="flex gap-2">
+    <div class="border-l flex flex-col p-4 gap-4 w-1/2 overflow-y-auto">
+      <div class="bg-white rounded-xl shadow-xl p-8 flex gap-2">
         <input type="checkbox" v-model="edit" />
         <span>Edit: {{ edit }}</span>
       </div>
 
-      <div class="flex flex-col">
-        <span>Schema:</span>
-        <textarea v-model="jsonSchema" rows="20" class="border w-full p-1 rounded" />
+      <div class="bg-white rounded-xl shadow-xl p-8">
+        <details open>
+          <summary>Schema</summary>
+          <textarea v-model="jsonSchema" rows="20" class="w-full border font-mono text-sm p-4 bg-slate-50 mb-4" />
+        </details>
+
+        <details open>
+          <summary>Data</summary>
+          <pre class="font-mono text-sm p-4 bg-slate-100 mb-4">{{ data }}</pre>
+        </details>
       </div>
 
-      <div class="flex flex-col">
-        <span>Data:</span>
-        <pre class="border bg-white">{{ data }}</pre>
-        <!-- <textarea v-model="jsonData" rows="20" class="border w-full p-1 rounded" /> -->
-      </div>
-
-      <div class="flex flex-col">
-        <span>`group.name` (Nested editing test):</span>
+      <div class="bg-white rounded-xl shadow-xl p-8 flex flex-col">
+        <span>`group.name` (Nested editing test)</span>
         <TextInput v-model="data.group.name" label="Group Name" />
       </div>
     </div>
