@@ -1,3 +1,4 @@
+import type { FormKitSchemaNode } from '@formkit/core';
 import {
   getCurrentInstance,
   inject as vueInject,
@@ -6,13 +7,21 @@ import {
   type Ref,
   type DefineComponent,
 } from 'vue';
-import type { FormFieldType, SchemaNode } from '~/types';
+import type { FormFieldType } from '~/components/formFieldTypes';
 
 export type InjectKeys = {
   mode: Ref<'edit' | 'preview'>;
-  schema: Ref<SchemaNode[]>;
-  data: FormData;
-  components: { [key: string]: FormFieldType };
+  schema: Ref<FormKitSchemaNode[]>;
+  data: Ref<Record<string, any>>;
+  selectedFormFieldId: Ref<string | undefined>;
+  indexForNewFormField: Ref<number | undefined>;
+  library: {
+    [key: string]: {
+      cmp: DefineComponent;
+      options: FormKitSchemaNode[];
+    };
+  };
+  formFieldTypes: Ref<Record<string, FormFieldType>>;
 };
 
 export function inject<T extends keyof InjectKeys>(key: T): InjectKeys[T];

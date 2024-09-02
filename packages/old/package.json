@@ -1,5 +1,5 @@
 {
-  "name": "former-ui",
+  "name": "former-ui-old",
   "version": "0.0.10",
   "repository": {
     "type": "git",
@@ -10,7 +10,8 @@
   "keywords": [
     "vue",
     "vue3",
-    "form-builder",
+    "formkit",
+    "formbuilder",
     "forms"
   ],
   "exports": {
@@ -37,21 +38,40 @@
     "test:types": "vue-tsc --build --force",
     "release": "pnpm build && npm publish"
   },
+  "dependencies": {
+    "@vueuse/integrations": "^10.9.0",
+    "sortablejs": "^1.15.2",
+    "vite-plugin-css-injected-by-js": "^3.5.0",
+    "vite-plugin-dts": "^3.8.0",
+    "@vueuse/core": "^10.9.0",
+    "focus-trap": "^7.5.4"
+  },
   "devDependencies": {
-    "@tsconfig/node20": "^20.1.4",
-    "@types/node": "^20.12.5",
+    "@formkit/core": "^1.6.0",
+    "@formkit/icons": "^1.6.0",
+    "@formkit/vue": "^1.6.0",
+    "@tsconfig/node20": "^20.1.3",
+    "@types/jsdom": "^21.1.6",
+    "@types/node": "^18.19.3",
     "@vitejs/plugin-vue": "^5.0.4",
-    "@vue/tsconfig": "^0.5.1",
+    "@vue/test-utils": "^2.4.3",
+    "@vue/tsconfig": "^0.5.0",
     "autoprefixer": "^10.4.19",
-    "npm-run-all2": "^6.1.2",
+    "eslint": "^8.49.0",
+    "jsdom": "^23.0.1",
     "postcss": "^8.4.38",
+    "prettier": "^3.2.5",
     "tailwindcss": "^3.4.1",
-    "typescript": "~5.4.0",
-    "vite": "^5.2.8",
+    "typescript": "^5.2.2",
+    "vite": "^5.2.6",
+    "vitest": "^1.4.0",
     "vue": "^3.4.21",
-    "vue-tsc": "^2.0.11"
+    "vue-tsc": "^2.0.7"
   },
   "peerDependencies": {
+    "@formkit/core": "^1.6.0",
+    "@formkit/icons": "^1.6.0",
+    "@formkit/vue": "^1.6.0",
     "vue": "^3.0.0"
   }
 }
