@@ -1,9 +1,5 @@
 <template>
-  <div v-if="selectedNode" class="flex flex-col gap-4">
-    <span class="text-green-500">{{ selectedNode._id }}</span>
-
-    <pre>{{ selectedNode }}</pre>
-
+  <div v-if="selectedNode" class="flex flex-col gap-4 w-full">
     <span class="text-lg">{{ selectedNodeType?.label }}</span>
     <FormRenderer v-if="selectedNodePropsSchema" v-model:data="data" :schema="selectedNodePropsSchema" />
     <pre v-else>{{ selectedNode }}</pre>

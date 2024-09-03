@@ -13,7 +13,7 @@
 
       <div class="border-l flex flex-col p-4 gap-4 w-1/2 overflow-y-auto">
         <div class="bg-white rounded-xl shadow-xl p-8 flex gap-2">
-          <FormFieldOptions />
+          <FormNodeProps />
         </div>
 
         <div class="bg-white rounded-xl shadow-xl p-8 flex gap-2">
@@ -47,9 +47,9 @@ import { computed, markRaw, ref } from 'vue';
 import Group from '~/sample/Group.vue';
 import type { FormFieldType, SchemaNode } from '~/types';
 import TextInput from '~/sample/TextInput.vue';
-import Former from '~/components/Former.vue';
 import FormContent from './components/FormContent.vue';
-import FormFieldOptions from './components/FormFieldOptions.vue';
+import FormNodeProps from './components/FormNodeProps.vue';
+import Former from './components/Former.vue';
 
 type SchemaText = SchemaNode<{
   label: string;

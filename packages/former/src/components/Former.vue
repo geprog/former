@@ -1,12 +1,15 @@
 <template>
-  <slot />
+  <slot>
+    <FormContent />
+  </slot>
 </template>
 
 <script setup lang="ts">
 import type { FormData, SchemaNode, FormFieldType, InternalSchemaNode } from '~/types';
 import { provide } from '~/compositions/injectProvide';
-import { computed, ref, watch } from 'vue';
-import { toInternalSchema, toSchema } from '~/utils';
+import { ref, watch } from 'vue';
+import { toInternalSchema } from '~/utils';
+import FormContent from './FormContent.vue';
 
 const props = defineProps<{
   components: { [key: string]: FormFieldType };
@@ -29,6 +32,14 @@ provide('schema', internalSchema);
 watch(schema, (value) => {
   internalSchema.value = toInternalSchema(value);
 });
+
+watch(
+  internalSchema,
+  (value) => {
+    schema.value = value;
+  },
+  { deep: true },
+);
 
 const data = defineModel<FormData>('data', { default: () => ({}) });
 provide('data', data);
