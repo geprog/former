@@ -13,8 +13,7 @@
 
       <div class="border-l flex flex-col p-4 gap-4 w-1/2 overflow-y-auto">
         <div class="bg-white rounded-xl shadow-xl p-8 flex gap-2">
-          <input type="checkbox" v-model="edit" />
-          <span>Edit: {{ edit }}</span>
+          <Button @click="edit = !edit">{{ edit ? 'Currently viewing' : 'Currently editing' }}</Button>
         </div>
 
         <div v-if="edit" class="bg-white rounded-xl shadow-xl p-8 flex gap-2">
