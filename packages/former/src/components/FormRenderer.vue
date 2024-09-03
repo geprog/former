@@ -19,21 +19,23 @@
 </template>
 
 <script setup lang="ts">
-import type { FormData, SchemaNode } from '~/types';
+import type { FormData, InternalSchemaNode, SchemaNode } from '~/types';
 import FormComponent from './FormComponent.vue';
 import EditComponent from './EditComponent.vue';
+import { inject } from '~/compositions/injectProvide';
 
-const props = defineProps<{
-  schema?: SchemaNode[];
+defineProps<{
+  schema?: InternalSchemaNode[];
   edit?: boolean;
-  showIf?: (node: SchemaNode) => boolean;
 }>();
 
 const data = defineModel<FormData>('data', { default: () => ({}) });
 
+const showIf = inject('showIf', false);
+
 function _showIf(node: SchemaNode): boolean {
-  if (props.showIf) {
-    return props.showIf(node);
+  if (showIf) {
+    return showIf(node, data.value);
   }
 
   // TODO: Implement more complex logic

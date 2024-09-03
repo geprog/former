@@ -14,7 +14,7 @@
 import { computed } from 'vue';
 import { inject } from '~/compositions/injectProvide';
 import FormRenderer from './FormRenderer.vue';
-import { deleteNode, replaceNode, toInternalSchema } from '~/utils';
+import { deleteNode, replaceNode } from '~/utils';
 import Button from '~/sample/Button.vue';
 
 const components = inject('components');
@@ -25,7 +25,7 @@ const selectedNode = inject('selectedNode');
 const selectedNodeType = computed(() => (selectedNode.value ? components[selectedNode.value.type] : undefined));
 
 const selectedNodePropsSchema = computed(() =>
-  selectedNodeType.value ? toInternalSchema(selectedNodeType.value?.propsSchema) : undefined,
+  selectedNodeType.value ? selectedNodeType.value?.propsSchema : undefined,
 );
 
 const data = computed({

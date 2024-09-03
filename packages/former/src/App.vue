@@ -13,7 +13,7 @@
 
       <div class="border-l flex flex-col p-4 gap-4 w-1/2 overflow-y-auto">
         <div class="bg-white rounded-xl shadow-xl p-8 flex gap-2">
-          <Button @click="edit = !edit">{{ edit ? 'Currently viewing' : 'Currently editing' }}</Button>
+          <Button @click="edit = !edit">{{ edit ? 'Currently editing' : 'Currently viewing' }}</Button>
         </div>
 
         <div v-if="edit" class="bg-white rounded-xl shadow-xl p-8 flex gap-2">
@@ -230,15 +230,17 @@ const components: { [k: string]: FormFieldType } = {
     propsSchema: [
       {
         type: 'text',
-        name: 'name',
+        name: 'label',
         props: {
-          placeholder: 'Enter a name',
+          label: 'Label',
+          placeholder: 'Enter a label',
         },
       },
       {
         type: 'text',
         name: 'placeholder',
         props: {
+          label: 'Placeholder',
           placeholder: 'Enter a placeholder',
         },
       },
@@ -247,15 +249,7 @@ const components: { [k: string]: FormFieldType } = {
   group: {
     label: 'Group',
     component: markRaw(Group),
-    propsSchema: [
-      {
-        type: 'text',
-        name: 'name',
-        props: {
-          placeholder: 'Enter a name',
-        },
-      },
-    ],
+    propsSchema: [],
   },
   repeater: {
     label: 'Repeater',
@@ -265,6 +259,7 @@ const components: { [k: string]: FormFieldType } = {
         type: 'text',
         name: 'label',
         props: {
+          label: 'Label',
           placeholder: 'Enter a label',
         },
       },
@@ -278,6 +273,7 @@ const components: { [k: string]: FormFieldType } = {
         type: 'text',
         name: 'label',
         props: {
+          label: 'Label',
           placeholder: 'Enter a label',
         },
       },
@@ -285,6 +281,7 @@ const components: { [k: string]: FormFieldType } = {
         type: 'repeater',
         name: 'options',
         props: {
+          label: 'Options',
           itemSchema: [
             {
               type: 'text',

@@ -1,7 +1,7 @@
 <template>
   <div class="handle cursor-pointer" @click.stop="selectedNode = node">
     <div
-      class="element transition-colors border-2 duration-0 w-full p-1 rounded"
+      class="element transition-colors border-2 duration-0 w-full py-2 px-2 rounded"
       :class="{
         'border-blue-600': selectedNode === node,
         'border-transparent': selectedNode !== node,
@@ -11,9 +11,9 @@
         <slot />
       </FormComponent>
     </div>
-    <div class="items-center btn-add opacity-0 flex gap-2 duration-1000 transition-all relative">
-      <div class="flex-grow h-0.5 rounded-sm bg-blue-300" />
-      <button @click.prevent="selectedNode = undefined" class="m-auto py-1 px-2 rounded">
+    <div v-if="selectedNode === node" class="items-center btn-add flex gap-2 duration-1000 transition-all relative">
+      <!-- <div class="flex-grow h-0.5 rounded-sm bg-blue-600" /> -->
+      <button @click.prevent="addNode" class="m-auto py-1 px-2 rounded">
         <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" class="text-blue-600">
           <path
             fill="currentColor"
@@ -21,23 +21,25 @@
           />
         </svg>
       </button>
-      <div class="flex-grow h-0.5 rounded-sm bg-blue-300" />
+      <!-- <div class="flex-grow h-0.5 rounded-sm bg-blue-600" /> -->
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import type { SchemaNode } from '~/types';
+import type { InternalSchemaNode } from '~/types';
 import FormComponent from './FormComponent.vue';
 import { inject } from '~/compositions/injectProvide';
 
 defineProps<{
-  node: SchemaNode;
+  node: InternalSchemaNode;
 }>();
 
 const modelValue = defineModel();
 
 const selectedNode = inject('selectedNode');
+
+function addNode() {}
 </script>
 
 <style>

@@ -1,12 +1,13 @@
 import { getCurrentInstance, inject as vueInject, type InjectionKey, provide as vueProvide, type Ref } from 'vue';
-import type { FormData, FormFieldType, SchemaNode } from '~/types';
+import type { FormData, FormFieldType, InternalSchemaNode, SchemaNode } from '~/types';
 
 export type InjectKeys = {
   edit: Ref<boolean>;
-  schema: Ref<SchemaNode[]>;
+  schema: Ref<InternalSchemaNode[]>;
   data: Ref<FormData>;
   components: { [key: string]: FormFieldType };
-  selectedNode: Ref<SchemaNode | undefined>;
+  selectedNode: Ref<InternalSchemaNode | undefined>;
+  showIf?: (node: SchemaNode, data: FormData) => boolean;
 };
 
 export function inject<T extends keyof InjectKeys>(key: T): InjectKeys[T];
