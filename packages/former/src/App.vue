@@ -1,24 +1,24 @@
 <template>
   <div class="flex w-full h-screen bg-gray-100">
     <Former v-model:data="data" v-model:schema="schema" :components :edit>
-      <main class="gap-4 m-4 max-w-[960px] w-2/3 flex flex-col">
+      <main class="gap-4 m-4 max-w-[960px] w-2/3 flex flex-col overflow-y-auto">
         <h1 class="text-4xl font-bold mx-auto">👩🏾‍🌾 Former playground</h1>
 
         <form @submit.prevent="submit" class="bg-white rounded-xl shadow-xl p-4 flex flex-col gap-4">
           <FormContent />
 
-          <button type="submit" class="border bg-slate-100 hover:bg-slate-300 py-1 px-2 rounded">Submit</button>
+          <Button type="submit">Submit</Button>
         </form>
       </main>
 
       <div class="border-l flex flex-col p-4 gap-4 w-1/2 overflow-y-auto">
         <div class="bg-white rounded-xl shadow-xl p-8 flex gap-2">
-          <FormNodeProps />
-        </div>
-
-        <div class="bg-white rounded-xl shadow-xl p-8 flex gap-2">
           <input type="checkbox" v-model="edit" />
           <span>Edit: {{ edit }}</span>
+        </div>
+
+        <div v-if="edit" class="bg-white rounded-xl shadow-xl p-8 flex gap-2">
+          <FormNodeProps />
         </div>
 
         <div class="bg-white rounded-xl shadow-xl p-8">
@@ -45,27 +45,19 @@
 <script setup lang="ts">
 import { computed, markRaw, ref } from 'vue';
 import Group from '~/sample/Group.vue';
+import Repeater from '~/sample/Repeater.vue';
 import type { FormFieldType, SchemaNode } from '~/types';
 import TextInput from '~/sample/TextInput.vue';
 import FormContent from './components/FormContent.vue';
 import FormNodeProps from './components/FormNodeProps.vue';
 import Former from './components/Former.vue';
+import Select from './sample/Select.vue';
+import Button from './sample/Button.vue';
+import { useStorage } from '@vueuse/core';
 
-type SchemaText = SchemaNode<{
-  label: string;
-  type?: 'text' | 'password' | 'email';
-  placeholder?: string;
-}>;
+const edit = useStorage('former:edit', false);
 
-type SchemaGroup = SchemaNode<{
-  children: SchemaNode[];
-}>;
-
-type Schema = (SchemaText | SchemaGroup)[];
-
-const edit = ref(true);
-
-const schema = ref<Schema>([
+const schema = useStorage<SchemaNode[]>('former:schema', [
   {
     type: 'text',
     name: 'name',
@@ -146,12 +138,50 @@ const schema = ref<Schema>([
       },
     ],
   },
+  {
+    type: 'select',
+    name: 'select',
+    props: {
+      label: 'Select',
+      options: [
+        { label: 'Option 1', value: 'option1' },
+        { label: 'Option 2', value: 'option2' },
+        { label: 'Option 3', value: 'option3' },
+      ],
+    },
+  },
+  {
+    type: 'repeater',
+    name: 'repeater',
+    props: {
+      itemSchema: [
+        {
+          type: 'text',
+          name: 'label',
+          props: {
+            type: 'text',
+            label: 'Label',
+            placeholder: 'Enter a label',
+          },
+        },
+        {
+          type: 'text',
+          name: 'value',
+          props: {
+            type: 'text',
+            label: 'Value',
+            placeholder: 'Enter a value',
+          },
+        },
+      ],
+    },
+  },
 ]);
 
 const debouncedSchema = (() => {
   let timeout: number | null = null;
 
-  return (_schema: Schema) => {
+  return (_schema: SchemaNode[]) => {
     if (timeout) {
       clearTimeout(timeout);
     }
@@ -172,7 +202,7 @@ const jsonSchema = computed<string>({
   },
 });
 
-const data = ref<Record<string, any>>({
+const data = useStorage<Record<string, any>>('former:data', {
   name: 'Anton',
   email: 'anton@example.com',
   password: '12345678',
@@ -186,11 +216,17 @@ const data = ref<Record<string, any>>({
       name: 'Nested group',
     },
   },
+  select: 'Option 2',
+  repeater: [
+    { label: 'Option 1', value: 'option1' },
+    { label: 'Option 2', value: 'option2' },
+    { label: 'Option 3', value: 'option3' },
+  ],
 });
 
 const components: { [k: string]: FormFieldType } = {
   text: {
-    label: 'Text Input',
+    label: 'Text',
     component: markRaw(TextInput),
     propsSchema: [
       {
@@ -218,6 +254,67 @@ const components: { [k: string]: FormFieldType } = {
         name: 'name',
         props: {
           placeholder: 'Enter a name',
+        },
+      },
+    ],
+  },
+  repeater: {
+    label: 'Repeater',
+    component: markRaw(Repeater),
+    propsSchema: [
+      {
+        type: 'text',
+        name: 'label',
+        props: {
+          placeholder: 'Enter a label',
+        },
+      },
+    ],
+  },
+  select: {
+    label: 'Select',
+    component: markRaw(Select),
+    propsSchema: [
+      {
+        type: 'text',
+        name: 'label',
+        props: {
+          placeholder: 'Enter a label',
+        },
+      },
+      {
+        type: 'repeater',
+        name: 'options',
+        props: {
+          itemSchema: [
+            {
+              type: 'text',
+              name: 'label',
+              props: {
+                type: 'text',
+                label: 'Label',
+                placeholder: 'Enter a label',
+              },
+            },
+            {
+              type: 'text',
+              name: 'avatarUrl',
+              props: {
+                type: 'text',
+                label: 'Label',
+                placeholder: 'Enter a avatar url',
+              },
+            },
+            {
+              type: 'text',
+              name: 'value',
+              props: {
+                type: 'text',
+                label: 'Value',
+                placeholder: 'Enter a value',
+              },
+            },
+          ],
         },
       },
     ],

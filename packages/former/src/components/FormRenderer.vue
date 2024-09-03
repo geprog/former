@@ -1,5 +1,5 @@
 <template>
-  <div v-for="node in schema" :key="node._id">
+  <div v-for="(node, i) in schema" :key="i">
     <component
       v-if="_showIf(node)"
       :is="edit ? EditComponent : FormComponent"
@@ -19,12 +19,12 @@
 </template>
 
 <script setup lang="ts">
-import type { FormData, InternalSchemaNode, SchemaNode } from '~/types';
+import type { FormData, SchemaNode } from '~/types';
 import FormComponent from './FormComponent.vue';
 import EditComponent from './EditComponent.vue';
 
 const props = defineProps<{
-  schema?: InternalSchemaNode[];
+  schema?: SchemaNode[];
   edit?: boolean;
   showIf?: (node: SchemaNode) => boolean;
 }>();

@@ -2,13 +2,11 @@
   <div v-if="selectedNode" class="flex flex-col gap-4 w-full">
     <div class="flex w-full justify-between">
       <span class="text-lg">{{ selectedNodeType?.label }}{{ selectedNode.name ? ` - ${selectedNode.name}` : '' }}</span>
-      <button @click="selectedNode = undefined" class="border bg-slate-100 hover:bg-slate-300 py-1 px-2 rounded">
-        x
-      </button>
+      <Button @click="selectedNode = undefined">x</Button>
     </div>
     <FormRenderer v-if="selectedNodePropsSchema" v-model:data="data" :schema="selectedNodePropsSchema" />
     <pre v-else>{{ selectedNode }}</pre>
-    <button @click="deleteComponent" class="border bg-slate-100 hover:bg-slate-300 py-1 px-2 rounded">Delete</button>
+    <Button @click="deleteComponent">Delete</Button>
   </div>
 </template>
 
@@ -17,6 +15,7 @@ import { computed } from 'vue';
 import { inject } from '~/compositions/injectProvide';
 import FormRenderer from './FormRenderer.vue';
 import { deleteNode, replaceNode, toInternalSchema } from '~/utils';
+import Button from '~/sample/Button.vue';
 
 const components = inject('components');
 const schema = inject('schema');
