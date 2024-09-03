@@ -5,10 +5,9 @@
 </template>
 
 <script setup lang="ts">
-import type { FormData, SchemaNode, FormFieldType, InternalSchemaNode } from '~/types';
+import type { FormData, SchemaNode, FormFieldType } from '~/types';
 import { provide } from '~/compositions/injectProvide';
-import { ref, watch } from 'vue';
-import { toInternalSchema } from '~/utils';
+import { ref } from 'vue';
 import FormContent from './FormContent.vue';
 
 const props = defineProps<{
@@ -17,29 +16,19 @@ const props = defineProps<{
 }>();
 
 const schema = defineModel<SchemaNode[]>('schema', { required: true });
+provide('schema', schema);
 
-// const internalSchema = computed<InternalSchemaNode[]>({
-//   get() {
-//     return toInternalSchema(schema.value);
-//   },
-//   set(_schema) {
-//     schema.value = toSchema(_schema);
-//   },
+// watch(schema, (value) => {
+//   internalSchema.value = toInternalSchema(value);
 // });
-const internalSchema = ref<InternalSchemaNode[]>(toInternalSchema(schema.value));
-provide('schema', internalSchema);
 
-watch(schema, (value) => {
-  internalSchema.value = toInternalSchema(value);
-});
-
-watch(
-  internalSchema,
-  (value) => {
-    schema.value = value;
-  },
-  { deep: true },
-);
+// watch(
+//   internalSchema,
+//   (value) => {
+//     schema.value = value;
+//   },
+//   { deep: true },
+// );
 
 const data = defineModel<FormData>('data', { default: () => ({}) });
 provide('data', data);
@@ -49,5 +38,5 @@ provide('edit', edit);
 
 provide('components', props.components);
 
-provide('selectedNode', ref<InternalSchemaNode | undefined>(undefined));
+provide('selectedNode', ref<SchemaNode | undefined>(undefined));
 </script>

@@ -1,6 +1,11 @@
 <template>
   <div v-if="selectedNode" class="flex flex-col gap-4 w-full">
-    <span class="text-lg">{{ selectedNodeType?.label }}</span>
+    <div class="flex w-full justify-between">
+      <span class="text-lg">{{ selectedNodeType?.label }}{{ selectedNode.name ? ` - ${selectedNode.name}` : '' }}</span>
+      <button @click="selectedNode = undefined" class="border bg-slate-100 hover:bg-slate-300 py-1 px-2 rounded">
+        x
+      </button>
+    </div>
     <FormRenderer v-if="selectedNodePropsSchema" v-model:data="data" :schema="selectedNodePropsSchema" />
     <pre v-else>{{ selectedNode }}</pre>
     <button @click="deleteComponent" class="border bg-slate-100 hover:bg-slate-300 py-1 px-2 rounded">Delete</button>

@@ -63,7 +63,7 @@ type SchemaGroup = SchemaNode<{
 
 type Schema = (SchemaText | SchemaGroup)[];
 
-const edit = ref(false);
+const edit = ref(true);
 
 const schema = ref<Schema>([
   {

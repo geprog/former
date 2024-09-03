@@ -11,7 +11,7 @@ export default defineConfig({
     vue(),
     cssInjectedByJsPlugin(),
     dts({
-      tsconfigPath: 'tsconfig.json',
+      tsconfigPath: 'tsconfig.app.json',
       cleanVueFileName: true,
     }),
   ],
@@ -30,14 +30,12 @@ export default defineConfig({
     rollupOptions: {
       // make sure to externalize deps that shouldn't be bundled
       // into your library (Vue)
-      external: ['vue', '@formkit/core', '@formkit/vue', '@formkit/icons'],
+      external: ['vue'],
       output: {
         // Provide global variables to use in the UMD build
         // for externalized deps
         globals: {
           vue: 'Vue',
-          '@formkit/core': 'FormkitCore',
-          '@formkit/vue': 'FormkitVue',
         },
         assetFileNames: (chunkInfo) => {
           if (chunkInfo.name === 'style.css') return 'index.css';
