@@ -1,6 +1,6 @@
 <template>
-  <div class="handle cursor-pointer">
-    <div class="element transition-colors border-2 border-transparent duration-7600 w-full p-4 rounded">
+  <div class="handle cursor-pointer" @click.stop="selectedNode = node">
+    <div class="element transition-colors border-2 border-transparent duration-7600 w-full p-2 rounded">
       <FormComponent :node v-model="modelValue">
         <slot />
       </FormComponent>
@@ -9,14 +9,18 @@
 </template>
 
 <script setup lang="ts">
-import type { SchemaNode } from '~/types';
+import type { InternalSchemaNode } from '~/types';
 import FormComponent from './FormComponent.vue';
+import { inject } from '~/compositions/injectProvide';
+import { toRef } from 'vue';
 
 defineProps<{
-  node: SchemaNode;
+  node: InternalSchemaNode;
 }>();
 
 const modelValue = defineModel();
+
+const selectedNode = inject('selectedNode');
 </script>
 
 <style>

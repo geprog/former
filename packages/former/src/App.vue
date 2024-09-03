@@ -1,38 +1,44 @@
 <template>
   <div class="flex w-full h-screen bg-gray-100">
-    <main class="gap-4 m-4 max-w-[960px] w-2/3 flex flex-col">
-      <h1 class="text-4xl font-bold mx-auto">👩🏾‍🌾 Former playground</h1>
+    <Former v-model:data="data" v-model:schema="schema" :components :edit>
+      <main class="gap-4 m-4 max-w-[960px] w-2/3 flex flex-col">
+        <h1 class="text-4xl font-bold mx-auto">👩🏾‍🌾 Former playground</h1>
 
-      <form @submit.prevent="submit" class="bg-white rounded-xl shadow-xl p-4 flex flex-col gap-4">
-        <Former v-model="data" :schema :components :edit />
+        <form @submit.prevent="submit" class="bg-white rounded-xl shadow-xl p-4 flex flex-col gap-4">
+          <FormContent />
 
-        <button type="submit" class="border bg-slate-100 hover:bg-slate-300 py-1 px-2 rounded">Submit</button>
-      </form>
-    </main>
+          <button type="submit" class="border bg-slate-100 hover:bg-slate-300 py-1 px-2 rounded">Submit</button>
+        </form>
+      </main>
 
-    <div class="border-l flex flex-col p-4 gap-4 w-1/2 overflow-y-auto">
-      <div class="bg-white rounded-xl shadow-xl p-8 flex gap-2">
-        <input type="checkbox" v-model="edit" />
-        <span>Edit: {{ edit }}</span>
+      <div class="border-l flex flex-col p-4 gap-4 w-1/2 overflow-y-auto">
+        <div class="bg-white rounded-xl shadow-xl p-8 flex gap-2">
+          <FormFieldOptions />
+        </div>
+
+        <div class="bg-white rounded-xl shadow-xl p-8 flex gap-2">
+          <input type="checkbox" v-model="edit" />
+          <span>Edit: {{ edit }}</span>
+        </div>
+
+        <div class="bg-white rounded-xl shadow-xl p-8">
+          <details open>
+            <summary>Schema</summary>
+            <textarea v-model="jsonSchema" rows="20" class="w-full border font-mono text-sm p-4 bg-slate-50 mb-4" />
+          </details>
+
+          <details open>
+            <summary>Data</summary>
+            <pre class="font-mono text-sm p-4 bg-slate-100 mb-4">{{ data }}</pre>
+          </details>
+        </div>
+
+        <div class="bg-white rounded-xl shadow-xl p-8 flex flex-col">
+          <span>`group.name` (Nested editing test)</span>
+          <TextInput v-model="data.group.name" label="Group Name" />
+        </div>
       </div>
-
-      <div class="bg-white rounded-xl shadow-xl p-8">
-        <details open>
-          <summary>Schema</summary>
-          <textarea v-model="jsonSchema" rows="20" class="w-full border font-mono text-sm p-4 bg-slate-50 mb-4" />
-        </details>
-
-        <details open>
-          <summary>Data</summary>
-          <pre class="font-mono text-sm p-4 bg-slate-100 mb-4">{{ data }}</pre>
-        </details>
-      </div>
-
-      <div class="bg-white rounded-xl shadow-xl p-8 flex flex-col">
-        <span>`group.name` (Nested editing test)</span>
-        <TextInput v-model="data.group.name" label="Group Name" />
-      </div>
-    </div>
+    </Former>
   </div>
 </template>
 
@@ -42,6 +48,8 @@ import Group from '~/sample/Group.vue';
 import type { FormFieldType, SchemaNode } from '~/types';
 import TextInput from '~/sample/TextInput.vue';
 import Former from '~/components/Former.vue';
+import FormContent from './components/FormContent.vue';
+import FormFieldOptions from './components/FormFieldOptions.vue';
 
 type SchemaText = SchemaNode<{
   label: string;
@@ -184,12 +192,35 @@ const components: { [k: string]: FormFieldType } = {
   text: {
     label: 'Text Input',
     component: markRaw(TextInput),
-    propsSchema: [],
+    propsSchema: [
+      {
+        type: 'text',
+        name: 'name',
+        props: {
+          placeholder: 'Enter a name',
+        },
+      },
+      {
+        type: 'text',
+        name: 'placeholder',
+        props: {
+          placeholder: 'Enter a placeholder',
+        },
+      },
+    ],
   },
   group: {
     label: 'Group',
     component: markRaw(Group),
-    propsSchema: [],
+    propsSchema: [
+      {
+        type: 'text',
+        name: 'name',
+        props: {
+          placeholder: 'Enter a name',
+        },
+      },
+    ],
   },
 };
 

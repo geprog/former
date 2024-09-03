@@ -6,17 +6,17 @@
 
 <script setup lang="ts">
 import { inject } from '~/compositions/injectProvide';
-import type { SchemaNode } from '~/types';
+import type { InternalSchemaNode } from '~/types';
 
 defineProps<{
-  node: SchemaNode;
+  node: InternalSchemaNode;
 }>();
 
 const components = inject('components');
 
 const modelValue = defineModel<unknown>();
 
-function getComponent(node: SchemaNode) {
+function getComponent(node: InternalSchemaNode) {
   const component = components[node.type];
 
   if (!component) {

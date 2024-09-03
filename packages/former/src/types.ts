@@ -8,6 +8,11 @@ export type SchemaNode<Props = { [key: string]: any }> = {
   if?: string;
 };
 
+export type InternalSchemaNode<Props = { [key: string]: any }> = Omit<SchemaNode<Props>, 'children'> & {
+  _id: string;
+  children?: InternalSchemaNode<Props>[];
+};
+
 export type FormData = Record<string, any>;
 
 export type FormFieldType = {

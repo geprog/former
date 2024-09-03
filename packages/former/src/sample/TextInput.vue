@@ -7,7 +7,7 @@
 <script setup lang="ts">
 withDefaults(
   defineProps<{
-    label: string;
+    label?: string;
     type?: 'text' | 'password' | 'email';
     placeholder?: string;
   }>(),
@@ -16,7 +16,5 @@ withDefaults(
   },
 );
 
-const modelValue = defineModel<string>({
-  required: true,
-});
+const modelValue = defineModel<string>();
 </script>
