@@ -25,12 +25,12 @@
         <div class="bg-white rounded-xl shadow-xl p-8">
           <details open>
             <summary>Schema</summary>
-            <textarea v-model="jsonSchema" rows="20" class="w-full border font-mono text-sm p-4 bg-slate-50 mb-4" />
+            <textarea v-model="jsonSchema" rows="20" class="w-full border font-mono text-sm p-4 bg-zinc-50 mb-4" />
           </details>
 
           <details open>
             <summary>Data</summary>
-            <pre class="font-mono text-sm p-4 bg-slate-100 mb-4">{{ data }}</pre>
+            <pre class="font-mono text-sm p-4 bg-zinc-100 mb-4">{{ data }}</pre>
           </details>
         </div>
 

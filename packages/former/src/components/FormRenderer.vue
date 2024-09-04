@@ -7,13 +7,15 @@
       :model-value="node.name ? data?.[node.name] : undefined"
       @update:model-value="(e: unknown) => setData(node.name, e)"
     >
-      <FormRenderer
-        v-if="node.children"
-        :schema="node.children"
-        :edit
-        :data="node.name ? data?.[node.name] : undefined"
-        @update:data="(e: unknown) => setData(node.name, e)"
-      />
+      <div class="former-drag-container">
+        <FormRenderer
+          v-if="node.children"
+          :schema="node.children"
+          :edit
+          :data="node.name ? data?.[node.name] : undefined"
+          @update:data="(e: unknown) => setData(node.name, e)"
+        />
+      </div>
     </component>
   </div>
 </template>
@@ -54,6 +56,5 @@ function setData(name: string | undefined, e: unknown) {
   const _data = { ...data.value };
   _data[name] = e;
   data.value = _data;
-  // modelValue.value = _data;
 }
 </script>

@@ -1,5 +1,5 @@
 import type { InternalSchemaNode, SchemaNode } from './types';
-import {} from 'vue';
+import { isRef, nextTick, toValue, type MaybeRef, type MaybeRefOrGetter } from 'vue';
 
 function addIdToNode(_node: InternalSchemaNode | SchemaNode): InternalSchemaNode {
   const node = { ..._node } as InternalSchemaNode;
@@ -71,4 +71,20 @@ export function nanoid(size = 21) {
   let i = size;
   while (i--) id += urlAlphabet[(Math.random() * 64) | 0];
   return id;
+}
+
+// from: https://github.com/vueuse/vueuse/blob/main/packages/integrations/useSortable/index.ts
+export function moveArrayElement<T>(list: MaybeRefOrGetter<T[]>, from: number, to: number): void {
+  const _valueIsRef = isRef(list);
+  // When the list is a ref, make a shallow copy of it to avoid repeatedly triggering side effects when moving elements
+  const array = _valueIsRef ? [...toValue(list)] : toValue(list);
+
+  if (to >= 0 && to < array.length) {
+    const element = array.splice(from, 1)[0];
+    nextTick(() => {
+      array.splice(to, 0, element);
+      // When list is ref, assign array to list.value
+      if (_valueIsRef) (list as MaybeRef).value = array;
+    });
+  }
 }

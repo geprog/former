@@ -14,6 +14,9 @@ importers:
 
   packages/former:
     devDependencies:
+      '@shopify/draggable':
+        specifier: ^1.1.3
+        version: 1.1.3
       '@tsconfig/node20':
         specifier: ^20.1.4
         version: 20.1.4
@@ -50,9 +53,6 @@ importers:
       prettier:
         specifier: ^3.3.3
         version: 3.3.3
-      sortablejs:
-        specifier: ^1.15.3
-        version: 1.15.3
       tailwindcss:
         specifier: ^3.4.1
         version: 3.4.1
@@ -673,6 +673,9 @@ packages:
 
   '@rushstack/ts-command-line@4.19.1':
     resolution: {integrity: sha512-J7H768dgcpG60d7skZ5uSSwyCZs/S2HrWP1Ds8d1qYAyaaeJmpmmLr9BVw97RjFzmQPOYnoXcKA4GkqDCkduQg==}
+
+  '@shopify/draggable@1.1.3':
+    resolution: {integrity: sha512-okZG6FTOX1HpfToN2uFVXTicum+NtHFGEY+0MFkZsdChP5qvLSlkffQormMxoDQVIDsK+jso3yz03tteIJ/A0w==}
 
   '@tsconfig/node20@20.1.3':
     resolution: {integrity: sha512-XeWn6Gms5MaQWdj+C4fuxuo/Icy8ckh+BwAIijhX2LKRHHt1OuctLLLlB0F4EPi55m2IUJNTnv8FH9kSBI7Ogw==}
@@ -1689,9 +1692,6 @@ packages:
     resolution: {integrity: sha512-bzyZ1e88w9O1iNJbKnOlvYTrWPDl46O1bG0D3XInv+9tkPrxrN8jUUTiFlDkkmKWgn1M6CfIA13SuGqOa9Korw==}
     engines: {node: '>=14'}
 
-  sortablejs@1.15.3:
-    resolution: {integrity: sha512-zdK3/kwwAK1cJgy1rwl1YtNTbRmc8qW/+vgXf75A7NHag5of4pyI6uK86ktmQETyWRH7IGaE73uZOOBcGxgqZg==}
-
   source-map-js@1.2.0:
     resolution: {integrity: sha512-itJW8lvSA0TXEphiRoawsCksnlf8SyvmFzIhltqAHluXd88pkCd+cXJVHTDwdCr0IzwptSm035IHQktUu1QUMg==}
     engines: {node: '>=0.10.0'}
@@ -2510,6 +2510,8 @@ snapshots:
       string-argv: 0.3.2
     transitivePeerDependencies:
       - '@types/node'
+
+  '@shopify/draggable@1.1.3': {}
 
   '@tsconfig/node20@20.1.3': {}
 
@@ -3585,8 +3587,6 @@ snapshots:
   siginfo@2.0.0: {}
 
   signal-exit@4.1.0: {}
-
-  sortablejs@1.15.3: {}
 
   source-map-js@1.2.0: {}
 
