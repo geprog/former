@@ -12,8 +12,10 @@
       </main>
 
       <div class="border-l flex flex-col p-4 gap-4 w-1/2 overflow-y-auto">
-        <div class="bg-white rounded-xl shadow-xl p-8 flex gap-2">
+        <div class="flex flex-col bg-white rounded-xl shadow-xl p-8 gap-4 items-start">
           <Button @click="edit = !edit">{{ edit ? 'Currently editing' : 'Currently viewing' }}</Button>
+
+          <FormAdd />
         </div>
 
         <div v-if="edit" class="bg-white rounded-xl shadow-xl p-8 flex gap-2">
@@ -53,6 +55,7 @@ import Former from './components/Former.vue';
 import Select from './sample/Select.vue';
 import Button from './sample/Button.vue';
 import { useStorage } from '@vueuse/core';
+import FormAdd from './components/FormAdd.vue';
 
 const edit = useStorage('former:edit', false);
 
@@ -290,15 +293,6 @@ const components: { [k: string]: FormFieldType } = {
                 type: 'text',
                 label: 'Label',
                 placeholder: 'Enter a label',
-              },
-            },
-            {
-              type: 'text',
-              name: 'avatarUrl',
-              props: {
-                type: 'text',
-                label: 'Label',
-                placeholder: 'Enter a avatar url',
               },
             },
             {

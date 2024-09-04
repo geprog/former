@@ -4,6 +4,16 @@ import Former from '~/components/Former.vue';
 import FormContent from '~/components/FormContent.vue';
 import FormNodeProps from '~/components/FormNodeProps.vue';
 import FormRenderer from '~/components/FormRenderer.vue';
+import FormAdd from '~/components/FormAdd.vue';
 import type { FormFieldType, FormData, SchemaNode } from '~/types';
 
-export { Former, FormContent, FormNodeProps, FormRenderer, type FormFieldType, type FormData, type SchemaNode };
+export {
+  Former,
+  FormContent,
+  FormAdd,
+  FormNodeProps,
+  FormRenderer,
+  type FormFieldType,
+  type FormData,
+  type SchemaNode,
+};

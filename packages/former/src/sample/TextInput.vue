@@ -1,7 +1,9 @@
 <template>
-  <label class="p-1" v-if="label">{{ label }}</label>
-  <div class="border rounded">
-    <input :type v-model="modelValue" :placeholder class="w-full p-1 rounded" />
+  <div class="flex flex-col">
+    <label class="p-1" v-if="label">{{ label }}</label>
+    <div class="border rounded">
+      <input :type v-model="modelValue" :placeholder class="w-full p-1 rounded" />
+    </div>
   </div>
 </template>
 

@@ -11,7 +11,7 @@ export default defineConfig({
     vue(),
     cssInjectedByJsPlugin(),
     dts({
-      tsconfigPath: 'tsconfig.app.json',
+      tsconfigPath: 'tsconfig.build.json',
       cleanVueFileName: true,
     }),
   ],

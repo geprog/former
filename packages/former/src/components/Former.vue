@@ -25,13 +25,13 @@ watch(schema, (value) => {
   internalSchema.value = toInternalSchema(value);
 });
 
-watch(
-  internalSchema,
-  (value) => {
-    schema.value = toSchema(value);
-  },
-  { deep: true },
-);
+// watch(
+//   internalSchema,
+//   (value) => {
+//     schema.value = toSchema(value);
+//   },
+//   { deep: true },
+// );
 
 const data = defineModel<FormData>('data', { default: () => ({}) });
 provide('data', data);

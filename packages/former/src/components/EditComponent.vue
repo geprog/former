@@ -1,18 +1,20 @@
 <template>
   <div class="handle cursor-pointer" @click.stop="selectedNode = node">
     <div
-      class="element transition-colors border-2 duration-0 w-full py-2 px-2 rounded"
+      class="element flex items-center border-2 duration-0 w-full py-2 px-2 rounded"
       :class="{
-        'border-blue-600': selectedNode === node,
-        'border-transparent': selectedNode !== node,
+        'border-blue-600': selectedNode?._id === node._id,
+        'border-transparent': selectedNode?._id !== node._id,
       }"
     >
-      <FormComponent :node v-model="modelValue">
-        <slot />
-      </FormComponent>
+      <span class="drag-handle cursor-move p-2">::</span>
+      <div>
+        <FormComponent :node v-model="modelValue">
+          <slot />
+        </FormComponent>
+      </div>
     </div>
-    <div v-if="selectedNode === node" class="items-center btn-add flex gap-2 duration-1000 transition-all relative">
-      <!-- <div class="flex-grow h-0.5 rounded-sm bg-blue-600" /> -->
+    <!-- <div v-if="selectedNode === node" class="items-center btn-add flex gap-2 duration-1000 transition-all relative">
       <button @click.prevent="addNode" class="m-auto py-1 px-2 rounded">
         <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" class="text-blue-600">
           <path
@@ -21,8 +23,10 @@
           />
         </svg>
       </button>
-      <!-- <div class="flex-grow h-0.5 rounded-sm bg-blue-600" /> -->
-    </div>
+    </div> -->
+    <!-- <div class="former-dropzone p-4">
+      <span class="">Drop here</span>
+    </div> -->
   </div>
 </template>
 
@@ -38,8 +42,6 @@ defineProps<{
 const modelValue = defineModel();
 
 const selectedNode = inject('selectedNode');
-
-function addNode() {}
 </script>
 
 <style>
