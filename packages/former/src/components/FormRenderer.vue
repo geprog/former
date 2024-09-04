@@ -1,5 +1,5 @@
 <template>
-  <div v-for="(node, i) in schema" :key="i" class="former-draggable" :data-node="node._id">
+  <div v-for="(node, i) in schema" :key="node._id" class="former-draggable" :data-node="node._id">
     <component
       v-if="_showIf(node)"
       :is="edit ? EditComponent : FormComponent"

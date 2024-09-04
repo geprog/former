@@ -25,7 +25,7 @@
 
 <script lang="ts" setup>
 import { inject } from '~/compositions/injectProvide';
-import { Sortable } from '@shopify/draggable';
+import { type Sortable } from '@shopify/draggable';
 import { nextTick, onBeforeUnmount, onMounted, toValue, watch } from 'vue';
 import FormComponent from './FormComponent.vue';
 import { addNode, deleteNode, getNode, nanoid } from '~/utils';
@@ -36,9 +36,10 @@ const schema = inject('schema');
 const edit = inject('edit');
 
 let sortable: Sortable | null = null;
+let _Sortable: typeof Sortable | null = null;
 
-function applyDraggable() {
-  if (!window) {
+async function applyDraggable() {
+  if (!globalThis.window || globalThis.process?.server) {
     return;
   }
 
@@ -48,7 +49,12 @@ function applyDraggable() {
     return;
   }
 
-  sortable = new Sortable(droppableContainers, {
+  if (!_Sortable) {
+    _Sortable = (await import('@shopify/draggable')).Sortable;
+    return applyDraggable();
+  }
+
+  sortable = new _Sortable(droppableContainers, {
     draggable: '.former-draggable',
     distance: 10,
     mirror: {
@@ -63,7 +69,6 @@ function applyDraggable() {
       return;
     }
 
-    console.log('cloning element');
     const originalNode = e.dragEvent.source;
     clonedElement = originalNode.cloneNode(true) as HTMLElement;
     originalNode.parentNode?.insertBefore(clonedElement, originalNode.nextSibling);
@@ -78,8 +83,6 @@ function applyDraggable() {
   sortable.on('sortable:stop', (e) => {
     // prevent items from being added to the add container
     if (e.newContainer.classList.contains('former-add')) {
-      console.log('adding item to add container');
-
       if (clonedElement) {
         clonedElement.remove();
         clonedElement = null;
@@ -92,8 +95,6 @@ function applyDraggable() {
 
     // check if we are dragging a new item
     if (e.oldContainer.classList.contains('former-add')) {
-      console.log('adding new item');
-
       const type = e.dragEvent.originalSource.getAttribute('data-type');
       if (type === null) {
         return;
@@ -115,8 +116,6 @@ function applyDraggable() {
         addNode(schema.value, newParentGroup, e.newIndex, newNode);
       });
     } else {
-      console.log('moving item');
-
       // we are moving an existing item
       const nodeId = e.dragEvent.source.getAttribute('data-node');
 

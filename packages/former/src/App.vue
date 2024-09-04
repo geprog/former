@@ -235,6 +235,15 @@ const components: { [k: string]: FormFieldType } = {
     propsSchema: [
       {
         type: 'text',
+        name: '$name',
+        props: {
+          label: 'Name',
+          placeholder: 'Enter the name of the data field',
+        },
+      },
+
+      {
+        type: 'text',
         name: 'label',
         props: {
           label: 'Label',
@@ -254,12 +263,29 @@ const components: { [k: string]: FormFieldType } = {
   group: {
     label: 'Group',
     component: markRaw(Group),
-    propsSchema: [],
+    propsSchema: [
+      {
+        type: 'text',
+        name: '$name',
+        props: {
+          label: 'Name',
+          placeholder: 'Enter the name of the data field',
+        },
+      },
+    ],
   },
   repeater: {
     label: 'Repeater',
     component: markRaw(Repeater),
     propsSchema: [
+      {
+        type: 'text',
+        name: '$name',
+        props: {
+          label: 'Name',
+          placeholder: 'Enter the name of the data field',
+        },
+      },
       {
         type: 'text',
         name: 'label',
@@ -274,6 +300,14 @@ const components: { [k: string]: FormFieldType } = {
     label: 'Select',
     component: markRaw(Select),
     propsSchema: [
+      {
+        type: 'text',
+        name: '$name',
+        props: {
+          label: 'Name',
+          placeholder: 'Enter the name of the data field',
+        },
+      },
       {
         type: 'text',
         name: 'label',

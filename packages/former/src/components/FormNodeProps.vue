@@ -44,11 +44,15 @@ const data = computed({
       return;
     }
 
-    const name = (_data as { $name?: string }).$name;
+    const props = _data as { $name?: string };
+    const name = props.$name;
+    if (name) {
+      delete props.$name;
+    }
     const updatedNode = {
       ...selectedNode.value,
       name: name || selectedNode.value.name,
-      props: _data,
+      props,
     };
     replaceNode(schema.value, updatedNode);
     selectedNode.value = updatedNode;
