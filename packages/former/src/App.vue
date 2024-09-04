@@ -1,8 +1,12 @@
 <template>
   <div class="flex w-full h-screen bg-gray-100">
-    <Former v-model:data="data" v-model:schema="schema" :components :edit>
+    <Former v-model:data="data" v-model:schema="schema" :components :edit v-slot="{ selectedNode }">
       <main class="gap-4 m-4 max-w-[960px] w-2/3 flex flex-col overflow-y-auto">
         <h1 class="text-4xl font-bold mx-auto">👩🏾‍🌾 Former playground</h1>
+
+        <Button @click="edit = !edit" class="ml-auto bg-red-400">{{
+          edit ? 'Currently editing' : 'Currently viewing'
+        }}</Button>
 
         <form @submit.prevent="submit" class="bg-white rounded-xl shadow-xl p-4 flex flex-col gap-4">
           <FormContent />
@@ -12,14 +16,12 @@
       </main>
 
       <div class="border-l flex flex-col p-4 gap-4 w-1/2 overflow-y-auto">
-        <div class="flex flex-col bg-white rounded-xl shadow-xl p-8 gap-4 items-start">
-          <Button @click="edit = !edit">{{ edit ? 'Currently editing' : 'Currently viewing' }}</Button>
-
-          <FormAdd />
-        </div>
-
-        <div v-if="edit" class="bg-white rounded-xl shadow-xl p-8 flex gap-2">
-          <FormNodeProps />
+        <div class="bg-white rounded-xl shadow-xl p-8 flex flex-col gap-2">
+          <template v-if="!selectedNode">
+            <span>Add elements by drag and dropping them into the form</span>
+            <FormAdd />
+          </template>
+          <FormNodeProps v-if="edit && selectedNode" />
         </div>
 
         <div class="bg-white rounded-xl shadow-xl p-8">

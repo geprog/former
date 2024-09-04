@@ -49,18 +49,70 @@ export function replaceNode(schema: InternalSchemaNode[], node: InternalSchemaNo
   }
 }
 
-export function deleteNode(schema: InternalSchemaNode[], node: InternalSchemaNode): void {
+export function deleteNode(schema: InternalSchemaNode[], nodeId: string): void {
   for (let i = 0; i < schema.length; i++) {
-    if (schema[i]._id === node._id) {
+    if (schema[i]._id === nodeId) {
       schema.splice(i, 1);
       return;
     }
 
     const children = schema[i].children;
     if (children) {
-      deleteNode(children, node);
+      deleteNode(children, nodeId);
     }
   }
+}
+
+export function addNode(
+  schema: InternalSchemaNode[],
+  parentId: string | null,
+  index: number,
+  node: InternalSchemaNode,
+): void {
+  if (!parentId) {
+    schema.splice(index, 0, node);
+    return;
+  }
+
+  for (let i = 0; i < schema.length; i++) {
+    if (schema[i]._id === parentId) {
+      schema[i].children?.splice(index, 0, node);
+      return;
+    }
+
+    const children = schema[i].children;
+    if (children) {
+      addNode(children, parentId, index, node);
+    }
+  }
+}
+
+export function getNode(schema: InternalSchemaNode[], nodeId: string): InternalSchemaNode | null {
+  for (let i = 0; i < schema.length; i++) {
+    if (schema[i]._id === nodeId) {
+      return schema[i];
+    }
+
+    const children = schema[i].children;
+    if (children) {
+      const node = getNode(children, nodeId);
+      if (node) {
+        return node;
+      }
+    }
+  }
+
+  return null;
+}
+
+export function moveNode(
+  schema: InternalSchemaNode[],
+  node: InternalSchemaNode,
+  parentId: string | null,
+  index: number,
+): void {
+  deleteNode(schema, node._id);
+  addNode(schema, parentId, index, node);
 }
 
 // port from nanoid

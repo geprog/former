@@ -1,5 +1,5 @@
 <template>
-  <div v-for="(node, i) in schema" :key="i" class="former-draggable">
+  <div v-for="(node, i) in schema" :key="i" class="former-draggable" :data-node="node._id">
     <component
       v-if="_showIf(node)"
       :is="edit ? EditComponent : FormComponent"
@@ -7,7 +7,7 @@
       :model-value="node.name ? data?.[node.name] : undefined"
       @update:model-value="(e: unknown) => setData(node.name, e)"
     >
-      <div class="former-drag-container">
+      <div class="former-drag-container" :data-parent-node="node._id">
         <FormRenderer
           v-if="node.children"
           :schema="node.children"

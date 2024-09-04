@@ -30,14 +30,26 @@ const selectedNodePropsSchema = computed(() =>
 
 const data = computed({
   get() {
-    return selectedNode.value?.props;
+    if (!selectedNode.value) {
+      return {};
+    }
+
+    return {
+      $name: selectedNode.value.name,
+      ...selectedNode.value.props,
+    };
   },
   set(_data) {
     if (!selectedNode.value) {
       return;
     }
 
-    const updatedNode = { ...selectedNode.value, props: _data };
+    const name = (_data as { $name?: string }).$name;
+    const updatedNode = {
+      ...selectedNode.value,
+      name: name || selectedNode.value.name,
+      props: _data,
+    };
     replaceNode(schema.value, updatedNode);
     selectedNode.value = updatedNode;
   },
@@ -48,7 +60,7 @@ function deleteComponent() {
     return;
   }
 
-  deleteNode(schema.value, selectedNode.value);
+  deleteNode(schema.value, selectedNode.value._id);
   selectedNode.value = undefined;
 }
 </script>

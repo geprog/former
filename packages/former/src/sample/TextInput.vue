@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col">
+  <div class="flex flex-col w-full">
     <label class="p-1" v-if="label">{{ label }}</label>
     <div class="border rounded">
       <input :type v-model="modelValue" :placeholder class="w-full p-1 rounded" />

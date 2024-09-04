@@ -1,5 +1,5 @@
 <template>
-  <slot>
+  <slot :selected-node="selectedNode">
     <FormContent />
   </slot>
 </template>
@@ -21,17 +21,17 @@ const schema = defineModel<SchemaNode[]>('schema', { required: true });
 const internalSchema = ref<InternalSchemaNode[]>(toInternalSchema(schema.value));
 provide('schema', internalSchema);
 
-watch(schema, (value) => {
-  internalSchema.value = toInternalSchema(value);
-});
+// watch(schema, (value) => {
+//   internalSchema.value = toInternalSchema(value);
+// });
 
-// watch(
-//   internalSchema,
-//   (value) => {
-//     schema.value = toSchema(value);
-//   },
-//   { deep: true },
-// );
+watch(
+  internalSchema,
+  (value) => {
+    schema.value = toSchema(value);
+  },
+  { deep: true },
+);
 
 const data = defineModel<FormData>('data', { default: () => ({}) });
 provide('data', data);
@@ -42,5 +42,6 @@ provide('edit', edit);
 provide('components', props.components);
 provide('showIf', props.showIf);
 
-provide('selectedNode', ref<InternalSchemaNode | undefined>(undefined));
+const selectedNode = ref<InternalSchemaNode | undefined>(undefined);
+provide('selectedNode', selectedNode);
 </script>

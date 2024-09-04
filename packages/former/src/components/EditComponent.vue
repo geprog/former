@@ -8,11 +8,9 @@
       }"
     >
       <span class="drag-handle cursor-move p-2">::</span>
-      <div>
-        <FormComponent :node v-model="modelValue">
-          <slot />
-        </FormComponent>
-      </div>
+      <FormComponent :node v-model="modelValue">
+        <slot />
+      </FormComponent>
     </div>
   </div>
 </template>

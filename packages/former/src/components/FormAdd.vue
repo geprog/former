@@ -1,6 +1,5 @@
 <template>
   <div v-if="edit" class="flex flex-col gap-2">
-    <span>Add an element by dragging into the form</span>
     <div class="grid grid-cols-2 gap-4 former-drag-container former-add">
       <div v-for="(component, i) in components" :key="i" class="flex flex-col gap-2 former-draggable" :data-type="i">
         <span>{{ component.label }}</span>
@@ -12,7 +11,7 @@
             <div class="pointer-events-none">
               <FormComponent
                 :node="{
-                  _id: '123',
+                  _id: '',
                   type: i as string,
                 }"
               />
@@ -27,9 +26,10 @@
 <script lang="ts" setup>
 import { inject } from '~/compositions/injectProvide';
 import { Sortable } from '@shopify/draggable';
-import { nextTick, onBeforeUnmount, onMounted, watch } from 'vue';
+import { nextTick, onBeforeUnmount, onMounted, toValue, watch } from 'vue';
 import FormComponent from './FormComponent.vue';
-import { nanoid } from '~/utils';
+import { addNode, deleteNode, getNode, nanoid } from '~/utils';
+import type { InternalSchemaNode } from '~/types';
 
 const components = inject('components');
 const schema = inject('schema');
@@ -38,6 +38,10 @@ const edit = inject('edit');
 let sortable: Sortable | null = null;
 
 function applyDraggable() {
+  if (!window) {
+    return;
+  }
+
   const droppableContainers = document.querySelectorAll('.former-drag-container');
   if (droppableContainers.length === 0) {
     console.error('No droppable containers found');
@@ -59,23 +63,23 @@ function applyDraggable() {
       return;
     }
 
+    console.log('cloning element');
     const originalNode = e.dragEvent.source;
     clonedElement = originalNode.cloneNode(true) as HTMLElement;
     originalNode.parentNode?.insertBefore(clonedElement, originalNode.nextSibling);
   });
 
-  // sortable.on('drag:out:container', (e) => {
-  //   if (e.overContainer.classList.contains('former-add')) {
-  //     if (clonedElement) {
-  //       clonedElement.remove();
-  //       clonedElement = null;
-  //     }
-  //   }
-  // });
+  sortable.on('drag:stop', (e) => {
+    if (e.sourceContainer.classList.contains('former-add')) {
+      e.cancel();
+    }
+  });
 
   sortable.on('sortable:stop', (e) => {
     // prevent items from being added to the add container
     if (e.newContainer.classList.contains('former-add')) {
+      console.log('adding item to add container');
+
       if (clonedElement) {
         clonedElement.remove();
         clonedElement = null;
@@ -84,24 +88,54 @@ function applyDraggable() {
       return;
     }
 
-    const type = e.dragEvent.originalSource.getAttribute('data-type');
-    if (type === null) {
-      return;
-    }
+    const newParentGroup = e.newContainer.getAttribute('data-parent-node');
 
-    // remove the dropped node
-    e.dragEvent.source.remove();
-    e.cancel(); // we need to cancel to avoid the original node from being removed
+    // check if we are dragging a new item
+    if (e.oldContainer.classList.contains('former-add')) {
+      console.log('adding new item');
 
-    nextTick(() => {
-      schema.value.splice(e.newIndex, 0, {
-        _id: nanoid(),
-        type,
-        props: {
-          options: [],
-        },
+      const type = e.dragEvent.originalSource.getAttribute('data-type');
+      if (type === null) {
+        return;
+      }
+
+      // remove the dropped node
+      e.dragEvent.source.remove();
+      e.cancel();
+
+      nextTick(() => {
+        const newNode = {
+          _id: nanoid(),
+          type,
+          props: {
+            options: [],
+          },
+        } satisfies InternalSchemaNode;
+
+        addNode(schema.value, newParentGroup, e.newIndex, newNode);
       });
-    });
+    } else {
+      console.log('moving item');
+
+      // we are moving an existing item
+      const nodeId = e.dragEvent.source.getAttribute('data-node');
+
+      if (nodeId === null) {
+        throw new Error('Missing data-node attribute');
+      }
+
+      const node = getNode(schema.value, nodeId)!;
+
+      // was moved to a different group
+      const _schema = [...toValue(schema.value)];
+
+      deleteNode(_schema, nodeId);
+      addNode(_schema, newParentGroup, e.newIndex, node);
+
+      nextTick(() => {
+        schema.value = _schema;
+      });
+    }
   });
 }
 
@@ -123,9 +157,8 @@ watch(
 );
 </script>
 
-<style>
-.former-draggable.draggable-mirror > span,
-.former-draggable.draggable-source--is-dragging > span {
-  @apply hidden;
+<style scoped>
+.former-add .draggable-source--is-dragging {
+  /* @apply hidden; */
 }
 </style>
