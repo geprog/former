@@ -7,7 +7,7 @@
         <div
           class="flex gap-2 w-full items-center cursor-move hover:bg-zinc-100"
           draggable="true"
-          @dragstart="startDrag($event, 'new', i as string)"
+          @dragstart="startDrag($event, i as string)"
         >
           <span class="drag-handle p-2">::</span>
 
@@ -34,17 +34,13 @@ import FormComponent from './FormComponent.vue';
 const components = inject('components');
 const edit = inject('edit');
 
-function startDrag(e: DragEvent, source: 'new' | 'existing', nodeId: string) {
+function startDrag(e: DragEvent, nodeType: string) {
   if (e.dataTransfer === null) {
     return;
   }
 
   e.dataTransfer.dropEffect = 'move';
   e.dataTransfer.effectAllowed = 'move';
-  if (source === 'new') {
-    e.dataTransfer.setData('node_type', nodeId);
-  } else {
-    e.dataTransfer.setData('node_id', nodeId);
-  }
+  e.dataTransfer.setData('new_node_type', nodeType);
 }
 </script>

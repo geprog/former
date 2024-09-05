@@ -21,7 +21,7 @@
 </template>
 
 <script setup lang="ts">
-import type { FormData, InternalSchemaNode, SchemaNode } from '~/types';
+import type { FormData, InternalSchemaNode } from '~/types';
 import FormComponent from './FormComponent.vue';
 import EditComponent from './EditComponent.vue';
 import { inject } from '~/compositions/injectProvide';

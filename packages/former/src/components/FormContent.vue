@@ -25,9 +25,6 @@ const data = inject('data');
 const selectedNode = inject('selectedNode');
 
 function onDrop(e: DragEvent) {
-  const nodeType = e.dataTransfer?.getData('node_type');
-  const nodeId = e.dataTransfer?.getData('node_id');
-
   const dropTarget = (e.target as HTMLElement).closest('.former-draggable');
   const parent = (e.target as HTMLElement)?.closest('.former-drag-container');
   const parentNodeId = parent?.getAttribute('data-parent-node');
@@ -40,21 +37,19 @@ function onDrop(e: DragEvent) {
 
   let newIndex = Array.from(parent?.children ?? []).indexOf(dropTarget);
 
-  console.log('onDrop', { e, dropTarget, parent, newIndex, parentNodeId });
-
   // if the dropzone has no children, add the new node as the first child
   if (newIndex === -1 && parent.children.length === 0) {
-    console.log('No children found, adding as first child', { nodeType, nodeId });
     newIndex = 0;
   } else {
     // if the dropzone has children, add the new node after the drop target
     newIndex += 1;
   }
 
-  if (nodeType) {
+  const newNodeType = e.dataTransfer?.getData('new_node_type');
+  if (newNodeType) {
     const newNode = {
       _id: nanoid(),
-      type: nodeType,
+      type: newNodeType,
       props: {},
     } satisfies InternalSchemaNode;
 
@@ -66,6 +61,7 @@ function onDrop(e: DragEvent) {
     return;
   }
 
+  const nodeId = e.dataTransfer?.getData('node_id');
   if (nodeId) {
     const node = getNode(schema.value, nodeId)!;
 
@@ -83,15 +79,5 @@ function onDrop(e: DragEvent) {
 /* some minimal box to allow users to be able to add elements to an empty group */
 .former-edit .former-drag-container {
   @apply min-h-24 min-w-24 w-full;
-}
-
-.former-edit .former-draggable.draggable-mirror > span,
-.former-edit .former-draggable.draggable-source--is-dragging > span {
-  @apply hidden;
-}
-
-/* highlight the dropzone when dragging */
-.draggable--is-dragging .former-edit .former-drag-container {
-  @apply bg-zinc-100 rounded;
 }
 </style>

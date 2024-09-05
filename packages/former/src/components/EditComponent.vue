@@ -3,7 +3,7 @@
     class="handle cursor-pointer"
     @click.stop="selectedNode = node"
     draggable="true"
-    @dragstart="startDrag($event, 'existing', node._id)"
+    @dragstart="startDrag($event, node._id)"
   >
     <div
       class="element flex items-center border-2 duration-0 w-full py-2 px-2 rounded"
@@ -52,18 +52,14 @@ const selectedNode = inject('selectedNode');
 
 const show = ref(false);
 
-function startDrag(e: DragEvent, source: 'new' | 'existing', nodeId: string) {
+function startDrag(e: DragEvent, nodeId: string) {
   if (e.dataTransfer === null) {
     return;
   }
 
   e.dataTransfer.dropEffect = 'move';
   e.dataTransfer.effectAllowed = 'move';
-  if (source === 'new') {
-    e.dataTransfer.setData('node_type', nodeId);
-  } else {
-    e.dataTransfer.setData('node_id', nodeId);
-  }
+  e.dataTransfer.setData('node_id', nodeId);
 }
 </script>
 
