@@ -1,7 +1,15 @@
 <template>
-  <div v-for="(node, i) in schema" :key="node._id" class="former-draggable" :data-node="node._id">
+  <div
+    v-for="(node, i) in schema"
+    :key="node._id"
+    class="former-draggable"
+    :class="{
+      'bg-zinc-200 rounded': edit === true && showIf ? !showIf(node, data) : false,
+    }"
+    :data-node="node._id"
+  >
     <component
-      v-if="showIf ? showIf(node, data) : true"
+      v-if="!edit && showIf ? showIf(node, data) : true"
       :is="edit ? EditComponent : FormComponent"
       :node
       :model-value="node.name ? data?.[node.name] : undefined"
