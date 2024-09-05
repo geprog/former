@@ -1,7 +1,7 @@
 <template>
   <div v-for="(node, i) in schema" :key="node._id" class="former-draggable" :data-node="node._id">
     <component
-      v-if="_showIf(node)"
+      v-if="showIf ? showIf(node, data) : true"
       :is="edit ? EditComponent : FormComponent"
       :node
       :model-value="node.name ? data?.[node.name] : undefined"
@@ -35,21 +35,9 @@ const data = defineModel<FormData>('data', { default: () => ({}) });
 
 const showIf = inject('showIf', false);
 
-function _showIf(node: SchemaNode): boolean {
-  if (showIf) {
-    return showIf(node, data.value);
-  }
-
-  // TODO: Implement more complex logic
-  if (!node.if) {
-    return true;
-  }
-
-  return true;
-}
-
 function setData(name: string | undefined, e: unknown) {
   if (!name) {
+    // TODO: pass through the change event
     return;
   }
 
