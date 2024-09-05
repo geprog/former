@@ -17,7 +17,7 @@
         <slot />
       </FormComponent>
     </div>
-    <div
+    <!-- <div
       class="h-8 flex items-center gap-1"
       :class="{
         'bg-red-500': show,
@@ -26,13 +26,7 @@
       @drop.prevent="show = false"
       @dragenter="show = true"
       @dragleave="show = false"
-    >
-      <!-- <template v-if="show">
-        <div class="h-1 flex-grow bg-red-500 rounded" />
-        <span class="text-red-500">+</span>
-        <div class="h-1 flex-grow bg-red-500 rounded" />
-      </template> -->
-    </div>
+    /> -->
   </div>
 </template>
 

@@ -16,7 +16,7 @@
       </main>
 
       <div class="border-l flex flex-col p-4 gap-4 w-1/2 overflow-y-auto">
-        <div class="bg-white rounded-xl shadow-xl p-8 flex flex-col gap-2">
+        <div v-if="edit" class="bg-white rounded-xl shadow-xl p-8 flex flex-col gap-2">
           <template v-if="!selectedNode">
             <span>Add elements by drag and dropping them into the form</span>
             <FormAdd />

@@ -2,7 +2,7 @@
   <div
     v-for="(node, i) in schema"
     :key="node._id"
-    class="former-draggable"
+    class="former-draggable relative"
     :class="{
       'bg-zinc-200 rounded': edit === true && showIf ? !showIf(node, data) : false,
     }"

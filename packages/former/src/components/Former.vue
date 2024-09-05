@@ -40,7 +40,7 @@ const edit = defineModel<boolean>('edit', { default: false });
 provide('edit', edit);
 
 provide('components', props.components);
-provide('showIf', props.showIf);
+provide('showIf', props.showIf || ((node) => node.props.label !== 'moin'));
 
 const selectedNode = ref<InternalSchemaNode | undefined>(undefined);
 provide('selectedNode', selectedNode);
