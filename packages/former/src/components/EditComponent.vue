@@ -1,5 +1,10 @@
 <template>
-  <div class="handle cursor-pointer" @click.stop="selectedNode = node">
+  <div
+    class="handle cursor-pointer"
+    @click.stop="selectedNode = node"
+    draggable="true"
+    @dragstart="startDrag($event, 'existing', node._id)"
+  >
     <div
       class="element flex items-center border-2 duration-0 w-full py-2 px-2 rounded"
       :class="{
@@ -12,6 +17,22 @@
         <slot />
       </FormComponent>
     </div>
+    <div
+      class="h-8 flex items-center gap-1"
+      :class="{
+        'bg-red-500': show,
+      }"
+      @dragover.prevent
+      @drop.prevent="show = false"
+      @dragenter="show = true"
+      @dragleave="show = false"
+    >
+      <!-- <template v-if="show">
+        <div class="h-1 flex-grow bg-red-500 rounded" />
+        <span class="text-red-500">+</span>
+        <div class="h-1 flex-grow bg-red-500 rounded" />
+      </template> -->
+    </div>
   </div>
 </template>
 
@@ -19,6 +40,7 @@
 import type { InternalSchemaNode } from '~/types';
 import FormComponent from './FormComponent.vue';
 import { inject } from '~/compositions/injectProvide';
+import { ref } from 'vue';
 
 defineProps<{
   node: InternalSchemaNode;
@@ -27,6 +49,22 @@ defineProps<{
 const modelValue = defineModel();
 
 const selectedNode = inject('selectedNode');
+
+const show = ref(false);
+
+function startDrag(e: DragEvent, source: 'new' | 'existing', nodeId: string) {
+  if (e.dataTransfer === null) {
+    return;
+  }
+
+  e.dataTransfer.dropEffect = 'move';
+  e.dataTransfer.effectAllowed = 'move';
+  if (source === 'new') {
+    e.dataTransfer.setData('node_type', nodeId);
+  } else {
+    e.dataTransfer.setData('node_id', nodeId);
+  }
+}
 </script>
 
 <style>

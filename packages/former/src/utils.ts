@@ -69,13 +69,18 @@ export function addNode(
   index: number,
   node: InternalSchemaNode,
 ): void {
-  if (!parentId) {
+  if (parentId === null) {
     schema.splice(index, 0, node);
     return;
   }
 
   for (let i = 0; i < schema.length; i++) {
     if (schema[i]._id === parentId) {
+      if (!schema[i].children) {
+        schema[i].children = [node];
+        return;
+      }
+
       schema[i].children?.splice(index, 0, node);
       return;
     }

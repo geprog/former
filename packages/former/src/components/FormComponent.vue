@@ -1,14 +1,16 @@
 <template>
-  <component :is="getComponent(node)" v-bind="node.props" v-model="modelValue">
+  <component v-if="component" :is="component" v-bind="node.props" v-model="modelValue">
     <slot />
   </component>
+  <span v-else>Component type not found!</span>
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue';
 import { inject } from '~/compositions/injectProvide';
 import type { InternalSchemaNode } from '~/types';
 
-defineProps<{
+const props = defineProps<{
   node: InternalSchemaNode;
 }>();
 
@@ -16,13 +18,5 @@ const components = inject('components');
 
 const modelValue = defineModel<unknown>();
 
-function getComponent(node: InternalSchemaNode) {
-  const component = components[node.type];
-
-  if (!component) {
-    throw new Error(`Component not found for type: ${node.type}`);
-  }
-
-  return components[node.type].component;
-}
+const component = computed(() => components[props.node.type]?.component);
 </script>

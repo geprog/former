@@ -1,10 +1,14 @@
 <template>
   <div v-if="edit" class="flex flex-col gap-2">
-    <div class="grid grid-cols-2 gap-4 former-drag-container former-add">
-      <div v-for="(component, i) in components" :key="i" class="flex flex-col gap-2 former-draggable" :data-type="i">
+    <div class="flex flex-col gap-4">
+      <div v-for="(component, i) in components" :key="i" class="flex flex-col gap-2">
         <span>{{ component.label }}</span>
 
-        <div class="flex gap-2 w-full items-center cursor-move">
+        <div
+          class="flex gap-2 w-full items-center cursor-move hover:bg-zinc-100"
+          draggable="true"
+          @dragstart="startDrag($event, 'new', i as string)"
+        >
           <span class="drag-handle p-2">::</span>
 
           <div class="flex flex-grow flex-col border rounded p-2 bg-white gap-2">
@@ -25,139 +29,22 @@
 
 <script lang="ts" setup>
 import { inject } from '~/compositions/injectProvide';
-import { type Sortable } from '@shopify/draggable';
-import { nextTick, onBeforeUnmount, onMounted, toValue, watch } from 'vue';
 import FormComponent from './FormComponent.vue';
-import { addNode, deleteNode, getNode, nanoid } from '~/utils';
-import type { InternalSchemaNode } from '~/types';
 
 const components = inject('components');
-const schema = inject('schema');
 const edit = inject('edit');
 
-let sortable: Sortable | null = null;
-let _Sortable: typeof Sortable | null = null;
-
-async function applyDraggable() {
-  if (!globalThis.window || globalThis.process?.server) {
+function startDrag(e: DragEvent, source: 'new' | 'existing', nodeId: string) {
+  if (e.dataTransfer === null) {
     return;
   }
 
-  const droppableContainers = document.querySelectorAll('.former-drag-container');
-  if (droppableContainers.length === 0) {
-    console.error('No droppable containers found');
-    return;
+  e.dataTransfer.dropEffect = 'move';
+  e.dataTransfer.effectAllowed = 'move';
+  if (source === 'new') {
+    e.dataTransfer.setData('node_type', nodeId);
+  } else {
+    e.dataTransfer.setData('node_id', nodeId);
   }
-
-  if (!_Sortable) {
-    _Sortable = (await import('@shopify/draggable')).Sortable;
-    return applyDraggable();
-  }
-
-  sortable = new _Sortable(droppableContainers, {
-    draggable: '.former-draggable',
-    distance: 10,
-    mirror: {
-      constrainDimensions: true,
-    },
-  });
-
-  let clonedElement: HTMLElement | null = null;
-
-  sortable.on('sortable:start', (e) => {
-    if (!e.startContainer.classList.contains('former-add')) {
-      return;
-    }
-
-    const originalNode = e.dragEvent.source;
-    clonedElement = originalNode.cloneNode(true) as HTMLElement;
-    originalNode.parentNode?.insertBefore(clonedElement, originalNode.nextSibling);
-  });
-
-  sortable.on('drag:stop', (e) => {
-    if (e.sourceContainer.classList.contains('former-add')) {
-      e.cancel();
-    }
-  });
-
-  sortable.on('sortable:stop', (e) => {
-    // prevent items from being added to the add container
-    if (e.newContainer.classList.contains('former-add')) {
-      if (clonedElement) {
-        clonedElement.remove();
-        clonedElement = null;
-      }
-      e.cancel();
-      return;
-    }
-
-    const newParentGroup = e.newContainer.getAttribute('data-parent-node');
-
-    // check if we are dragging a new item
-    if (e.oldContainer.classList.contains('former-add')) {
-      const type = e.dragEvent.originalSource.getAttribute('data-type');
-      if (type === null) {
-        return;
-      }
-
-      // remove the dropped node
-      e.dragEvent.source.remove();
-      e.cancel();
-
-      nextTick(() => {
-        const newNode = {
-          _id: nanoid(),
-          type,
-          props: {
-            options: [],
-          },
-        } satisfies InternalSchemaNode;
-
-        addNode(schema.value, newParentGroup, e.newIndex, newNode);
-      });
-    } else {
-      // we are moving an existing item
-      const nodeId = e.dragEvent.source.getAttribute('data-node');
-
-      if (nodeId === null) {
-        throw new Error('Missing data-node attribute');
-      }
-
-      const node = getNode(schema.value, nodeId)!;
-
-      // was moved to a different group
-      const _schema = [...toValue(schema.value)];
-
-      deleteNode(_schema, nodeId);
-      addNode(_schema, newParentGroup, e.newIndex, node);
-
-      nextTick(() => {
-        schema.value = _schema;
-      });
-    }
-  });
 }
-
-function destroyDraggable() {
-  sortable?.destroy();
-  sortable = null;
-}
-
-onMounted(applyDraggable);
-onBeforeUnmount(destroyDraggable);
-
-watch(
-  [edit, schema],
-  () => {
-    destroyDraggable();
-    nextTick(applyDraggable);
-  },
-  { deep: true },
-);
 </script>
-
-<style scoped>
-.former-add .draggable-source--is-dragging {
-  /* @apply hidden; */
-}
-</style>
