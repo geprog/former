@@ -47,6 +47,7 @@ function onDrop(e: DragEvent) {
 
   const newNodeType = e.dataTransfer?.getData('new_node_type');
   if (newNodeType) {
+    console.log('adding new item to', parentNodeId, 'at', newIndex);
     const newNode = {
       _id: nanoid(),
       type: newNodeType,
@@ -63,6 +64,7 @@ function onDrop(e: DragEvent) {
 
   const nodeId = e.dataTransfer?.getData('node_id');
   if (nodeId) {
+    console.log('moving item', nodeId, 'to', parentNodeId, 'at', newIndex);
     const node = getNode(schema.value, nodeId)!;
 
     const _schema = [...toValue(schema.value)];

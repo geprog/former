@@ -3,7 +3,7 @@
     class="handle cursor-pointer"
     @click.stop="selectedNode = node"
     draggable="true"
-    @dragstart="startDrag($event, node._id)"
+    @dragstart.stop="startDrag($event, node._id)"
   >
     <div
       class="element flex items-center border-2 duration-0 w-full py-2 px-2 rounded"
