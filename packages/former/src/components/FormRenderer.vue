@@ -15,7 +15,7 @@
       :model-value="node.name ? data?.[node.name] : undefined"
       @update:model-value="(e: unknown) => setData(node.name, e)"
     >
-      <div class="former-drag-container" :data-parent-node="node._id">
+      <div class="former-drag-container relative" :data-parent-node="node._id">
         <FormRenderer
           v-if="node.children"
           :schema="node.children"

@@ -17,16 +17,6 @@
         <slot />
       </FormComponent>
     </div>
-    <!-- <div
-      class="h-8 flex items-center gap-1"
-      :class="{
-        'bg-red-500': show,
-      }"
-      @dragover.prevent
-      @drop.prevent="show = false"
-      @dragenter="show = true"
-      @dragleave="show = false"
-    /> -->
   </div>
 </template>
 
@@ -34,7 +24,6 @@
 import type { InternalSchemaNode } from '~/types';
 import FormComponent from './FormComponent.vue';
 import { inject } from '~/compositions/injectProvide';
-import { ref } from 'vue';
 
 defineProps<{
   node: InternalSchemaNode;
@@ -43,8 +32,6 @@ defineProps<{
 const modelValue = defineModel();
 
 const selectedNode = inject('selectedNode');
-
-const show = ref(false);
 
 function startDrag(e: DragEvent, nodeId: string) {
   if (e.dataTransfer === null) {

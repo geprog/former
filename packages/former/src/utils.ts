@@ -63,6 +63,32 @@ export function deleteNode(schema: InternalSchemaNode[], nodeId: string): void {
   }
 }
 
+export function nodePosition(
+  schema: InternalSchemaNode[],
+  nodeId: string,
+  anchor: 'above' | 'below',
+  parentId?: string,
+): {
+  parentId?: string;
+  index: number;
+} | null {
+  for (let i = 0; i < schema.length; i++) {
+    if (schema[i]._id === nodeId) {
+      return { parentId, index: anchor === 'above' ? i : i + 1 };
+    }
+
+    const children = schema[i].children;
+    if (children) {
+      const position = nodePosition(children, nodeId, anchor, schema[i]._id);
+      if (position) {
+        return position;
+      }
+    }
+  }
+
+  return null;
+}
+
 export function addNode(
   schema: InternalSchemaNode[],
   parentId: string | null,
