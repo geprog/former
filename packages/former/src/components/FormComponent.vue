@@ -1,5 +1,5 @@
 <template>
-  <component v-if="component" :is="component" v-bind="node.props" v-model="modelValue">
+  <component v-if="component" :is="component" v-bind="node.props" :node-path v-model="modelValue">
     <slot />
   </component>
   <span v-else>Component type not found!</span>
@@ -12,6 +12,7 @@ import type { InternalSchemaNode } from '~/types';
 
 const props = defineProps<{
   node: InternalSchemaNode;
+  nodePath?: string[];
 }>();
 
 const components = inject('components');

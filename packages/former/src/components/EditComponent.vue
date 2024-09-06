@@ -13,7 +13,7 @@
       }"
     >
       <span class="drag-handle cursor-move p-2">::</span>
-      <FormComponent :node v-model="modelValue">
+      <FormComponent :node :node-path v-model="modelValue">
         <slot />
       </FormComponent>
     </div>
@@ -27,6 +27,7 @@ import { inject } from '~/compositions/injectProvide';
 
 defineProps<{
   node: InternalSchemaNode;
+  nodePath?: string[];
 }>();
 
 const modelValue = defineModel();

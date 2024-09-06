@@ -11,11 +11,12 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed, ref, watch } from 'vue';
 import { inject } from '~/compositions/injectProvide';
 import FormRenderer from './FormRenderer.vue';
-import { deleteNode, replaceNode } from '~/utils';
+import { deleteNode, replaceNode, toInternalSchema } from '~/utils';
 import Button from '~/sample/Button.vue';
+import type { InternalSchemaNode } from '~/types';
 
 const components = inject('components');
 const schema = inject('schema');
@@ -24,8 +25,14 @@ const selectedNode = inject('selectedNode');
 
 const selectedNodeType = computed(() => (selectedNode.value ? components[selectedNode.value.type] : undefined));
 
-const selectedNodePropsSchema = computed(() =>
-  selectedNodeType.value ? selectedNodeType.value?.propsSchema : undefined,
+const selectedNodePropsSchema = ref<InternalSchemaNode[]>();
+
+watch(
+  selectedNodeType,
+  (_selectedNodeType) => {
+    selectedNodePropsSchema.value = _selectedNodeType ? toInternalSchema(_selectedNodeType.propsSchema) : undefined;
+  },
+  { immediate: true },
 );
 
 const data = computed({
@@ -40,18 +47,20 @@ const data = computed({
     };
   },
   set(_data) {
+    console.log(_data);
+
     if (!selectedNode.value) {
       return;
     }
 
     const props = _data as { $name?: string };
     const name = props.$name;
-    if (name) {
+    if (name !== undefined) {
       delete props.$name;
     }
     const updatedNode = {
       ...selectedNode.value,
-      name: name || selectedNode.value.name,
+      name: name ?? selectedNode.value.name,
       props,
     };
     replaceNode(schema.value, updatedNode);

@@ -13,7 +13,7 @@ import { toInternalSchema, toSchema } from '~/utils';
 
 const props = defineProps<{
   components: { [key: string]: FormFieldType };
-  showIf?: (node: SchemaNode, data: FormData) => boolean;
+  showIf?: (node: SchemaNode, nodePath: string[], data: FormData) => boolean;
 }>();
 
 const schema = defineModel<SchemaNode[]>('schema', { required: true });
@@ -21,6 +21,7 @@ const schema = defineModel<SchemaNode[]>('schema', { required: true });
 const internalSchema = ref<InternalSchemaNode[]>(toInternalSchema(schema.value));
 provide('schema', internalSchema);
 
+// TODO: allow to change the schema from the outside
 // watch(schema, (value) => {
 //   internalSchema.value = toInternalSchema(value);
 // });
@@ -40,7 +41,7 @@ const edit = defineModel<boolean>('edit', { default: false });
 provide('edit', edit);
 
 provide('components', props.components);
-provide('showIf', props.showIf || ((node) => node.props.label !== 'moin'));
+provide('showIf', props.showIf || (() => true));
 
 const selectedNode = ref<InternalSchemaNode | undefined>(undefined);
 provide('selectedNode', selectedNode);

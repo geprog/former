@@ -13,7 +13,7 @@ export type InternalSchemaNode<Props = { [key: string]: any }> = Omit<SchemaNode
   children?: InternalSchemaNode<Props>[];
 };
 
-export type FormData = Record<string, any>;
+export type FormData = any;
 
 export type FormFieldType = {
   label: string;

@@ -1,17 +1,18 @@
 <template>
   <div
-    v-for="(node, i) in schema"
+    v-for="node in schema"
     :key="node._id"
     class="former-draggable relative"
     :class="{
-      'bg-zinc-200 rounded': edit === true && showIf ? !showIf(node, data) : false,
+      'bg-zinc-200 rounded': edit === true && showIf ? !showIf(node, nodePath.concat(node._id), data) : false,
     }"
     :data-node="node._id"
   >
     <component
-      v-if="!edit && showIf ? showIf(node, data) : true"
+      v-if="!edit && showIf ? showIf(node, nodePath.concat(node.name || []), data) : true"
       :is="edit ? EditComponent : FormComponent"
       :node
+      :node-path="nodePath.concat(node.name || [])"
       :model-value="node.name ? data?.[node.name] : undefined"
       @update:model-value="(e: unknown) => setData(node.name, e)"
     >
@@ -20,6 +21,7 @@
           v-if="node.children"
           :schema="node.children"
           :edit
+          :node-path="nodePath.concat(node.name || [])"
           :data="node.name ? data?.[node.name] : undefined"
           @update:data="(e: unknown) => setData(node.name, e)"
         />
@@ -34,10 +36,18 @@ import FormComponent from './FormComponent.vue';
 import EditComponent from './EditComponent.vue';
 import { inject } from '~/compositions/injectProvide';
 
-defineProps<{
-  schema?: InternalSchemaNode[];
-  edit?: boolean;
-}>();
+withDefaults(
+  defineProps<{
+    schema?: InternalSchemaNode[];
+    edit?: boolean;
+    nodePath?: string[];
+  }>(),
+  {
+    schema: undefined,
+    edit: false,
+    nodePath: () => [],
+  },
+);
 
 const data = defineModel<FormData>('data', { default: () => ({}) });
 
