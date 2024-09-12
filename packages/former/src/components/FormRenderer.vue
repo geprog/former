@@ -25,6 +25,7 @@
           :data="node.name ? data?.[node.name] : undefined"
           @update:data="(e: unknown) => setData(node.name, e)"
         />
+        <div v-if="!errorMessage"><slot/></div>
       </div>
     </component>
   </div>
@@ -52,6 +53,7 @@ withDefaults(
 const data = defineModel<FormData>('data', { default: () => ({}) });
 
 const showIf = inject('showIf', false);
+const errorMessage = inject('errorMessage', true);
 
 function setData(name: string | undefined, e: unknown) {
   if (!name) {

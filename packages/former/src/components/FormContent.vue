@@ -96,7 +96,6 @@ function dragOver(e: DragEvent) {
 
   const details = getDropDetails(e);
   if (!details) {
-    console.error('No drop details found');
     return;
   }
   const { dropTarget, aboveTarget, dropzone } = details;
@@ -148,19 +147,16 @@ function onDrop(e: DragEvent) {
 
   const details = getDropDetails(e);
   if (!details) {
-    console.error('No drop details found');
     return;
   }
 
   const { newPosition } = details;
   if (!newPosition) {
-    console.error('No new position found', newPosition);
     return;
   }
 
   const newNodeType = e.dataTransfer?.getData('new_node_type');
   if (newNodeType) {
-    console.log('adding new item to', newPosition.parentId, 'at', newPosition.index);
     const newNode = {
       _id: nanoid(),
       type: newNodeType,
@@ -177,7 +173,6 @@ function onDrop(e: DragEvent) {
 
   const nodeId = e.dataTransfer?.getData('node_id');
   if (nodeId) {
-    console.log('moving item', nodeId, 'to', newPosition.parentId, 'at', newPosition.index);
     const node = getNode(schema.value, nodeId)!;
 
     const _schema = [...toValue(schema.value)];

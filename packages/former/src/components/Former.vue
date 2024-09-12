@@ -14,6 +14,7 @@ import { toInternalSchema, toSchema } from '~/utils';
 const props = defineProps<{
   components: { [key: string]: FormFieldType };
   showIf?: (node: SchemaNode, nodePath: string[], data: FormData) => boolean;
+  errorMessage?: (node: SchemaNode, tyepData: FormData) => true | string;
 }>();
 
 const schema = defineModel<SchemaNode[]>('schema', { required: true });
@@ -42,6 +43,7 @@ provide('edit', edit);
 
 provide('components', props.components);
 provide('showIf', props.showIf || (() => true));
+provide('errorMessage', props.errorMessage || (()=> true));
 
 const selectedNode = ref<InternalSchemaNode | undefined>(undefined);
 provide('selectedNode', selectedNode);

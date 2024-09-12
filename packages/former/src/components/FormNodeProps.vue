@@ -47,7 +47,6 @@ const data = computed({
     };
   },
   set(_data) {
-    console.log(_data);
 
     if (!selectedNode.value) {
       return;
