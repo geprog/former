@@ -9,7 +9,7 @@
     :data-node="node._id"
   >
     <component
-      v-if="!edit && showIf ? showIf(node, nodePath.concat(node.name || []), data) : true"
+      v-if="!edit && showIf ? showIf(node, nodePath.concat(node.name || []), data) : true && errorMessage ? errorMessage(node, data) : true"
       :is="edit ? EditComponent : FormComponent"
       :node
       :node-path="nodePath.concat(node.name || [])"
@@ -25,7 +25,6 @@
           :data="node.name ? data?.[node.name] : undefined"
           @update:data="(e: unknown) => setData(node.name, e)"
         />
-        <div v-if="!errorMessage"><slot/></div>
       </div>
     </component>
   </div>
