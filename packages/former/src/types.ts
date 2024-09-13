@@ -5,7 +5,8 @@ export type SchemaNode<Props = { [key: string]: any }> = {
   name?: string;
   props?: Props;
   children?: SchemaNode<Props>[];
-  if?: string;
+  showIf?: string;
+  errorMessage?: true | string;
 };
 
 export type InternalSchemaNode<Props = { [key: string]: any }> = Omit<SchemaNode<Props>, 'children'> & {
