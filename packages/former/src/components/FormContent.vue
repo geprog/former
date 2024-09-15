@@ -91,6 +91,10 @@ function getDropDetails(e: DragEvent) {
 let placeholder: HTMLElement | null = null;
 let activeDropzone: HTMLElement | null = null;
 function dragOver(e: DragEvent) {
+  if (!edit.value) {
+    // do not handle any drag if not edit in edit mode
+    return;
+  }
   e.preventDefault();
   e.dataTransfer!.dropEffect = 'move';
 
