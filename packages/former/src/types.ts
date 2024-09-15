@@ -16,8 +16,10 @@ export type InternalSchemaNode<Props = { [key: string]: any }> = Omit<SchemaNode
 
 export type FormData = any;
 
+type FormFieldComponent = DefineComponent<any, any, any>;
+
 export type FormFieldType = {
   label: string;
   propsSchema: SchemaNode[];
-  component: DefineComponent | Raw<DefineComponent>;
+  component: FormFieldComponent | Raw<FormFieldComponent>;
 };
