@@ -21,7 +21,7 @@
             <span>Add elements by drag and dropping them into the form</span>
             <FormAdd />
           </template>
-          <FormNodeProps v-if="edit && selectedNode" />
+          <FormNodeProps v-if="selectedNode" />
         </div>
 
         <div class="bg-white rounded-xl shadow-xl p-8">
@@ -143,7 +143,7 @@ const schema = useStorage<SchemaNode[]>('former:schema', [
     ],
   },
   {
-    if: 'hallo',
+    showIf: 'hallo',
     type: 'select',
     name: 'select',
     props: {
