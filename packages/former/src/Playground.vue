@@ -1,6 +1,6 @@
 <template>
   <div class="flex w-full h-screen bg-gray-100">
-    <Former v-model:data="data" v-model:schema="schema" :components :edit v-slot="{ selectedNode }">
+    <Former v-model:data="data" v-model:schema="schema" :components :edit :showIf v-slot="{ selectedNode }">
       <main class="gap-4 m-4 max-w-[960px] w-2/3 flex flex-col overflow-y-auto">
         <h1 class="text-4xl font-bold mx-auto">👩🏾‍🌾 Former playground</h1>
 
@@ -143,7 +143,7 @@ const schema = useStorage<SchemaNode[]>('former:schema', [
     ],
   },
   {
-    showIf: 'hallo',
+    showIf: 'hello',
     type: 'select',
     name: 'select',
     props: {
@@ -347,6 +347,13 @@ const components: { [k: string]: FormFieldType } = {
     ],
   },
 };
+
+function showIf(node: SchemaNode, nodePath: string[], data: FormData): boolean {
+  if (!node.props) return true;
+  const condition = node.props.showIf;
+  if (!condition || condition === '') return true;
+  return condition === 'hello';
+}
 
 function submit() {
   console.log('submit', data.value);
