@@ -1,8 +1,8 @@
 <template>
   <div
-    class="former-drag-container relative"
+    class="relative"
     :class="{
-      'former-edit': edit,
+      'former-drag-container former-edit': edit,
     }"
     @dragover.prevent="dragOver"
     @dragenter.prevent
