@@ -9,7 +9,7 @@
     :data-node="node._id"
   >
     <component
-      v-if="!edit && showIf ? showIf(node, nodePath.concat(node.name || []), data) : true && errorMessage ? errorMessage(node, data) : true"
+      v-if="!edit && showIf ? showIf(node, nodePath.concat(node.name || []), data) : true"
       :is="edit ? EditComponent : FormComponent"
       :node
       :node-path="nodePath.concat(node.name || [])"
@@ -52,7 +52,6 @@ withDefaults(
 const data = defineModel<FormData>('data', { default: () => ({}) });
 
 const showIf = inject('showIf', false);
-const errorMessage = inject('errorMessage', true);
 
 function setData(name: string | undefined, e: unknown) {
   if (!name) {

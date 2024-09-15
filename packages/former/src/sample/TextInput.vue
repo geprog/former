@@ -4,6 +4,7 @@
     <div class="border rounded">
       <input :type v-model="modelValue" :placeholder class="w-full p-1 rounded" />
     </div>
+    <div v-if="error" class="text-red-500">{{ error }}</div>
   </div>
 </template>
 
@@ -13,6 +14,7 @@ withDefaults(
     label?: string;
     type?: 'text' | 'password' | 'email';
     placeholder?: string;
+    error?: string;
   }>(),
   {
     type: 'text',

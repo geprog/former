@@ -1,6 +1,6 @@
 <template>
   <div class="flex w-full h-screen bg-gray-100">
-    <Former v-model:data="data" v-model:schema="schema" :components :edit :showIf v-slot="{ selectedNode }">
+    <Former v-model:data="data" v-model:schema="schema" :components :edit :showIf :error-message="errorMessage" v-slot="{ selectedNode }">
       <main class="gap-4 m-4 max-w-[960px] w-2/3 flex flex-col overflow-y-auto">
         <h1 class="text-4xl font-bold mx-auto">👩🏾‍🌾 Former playground</h1>
 
@@ -58,6 +58,7 @@ import Select from './sample/Select.vue';
 import Button from './sample/Button.vue';
 import { useStorage } from '@vueuse/core';
 import FormAdd from './components/FormAdd.vue';
+import Checkbox from './sample/Checkbox.vue';
 
 const edit = useStorage('former:edit', false);
 
@@ -68,6 +69,7 @@ const schema = useStorage<SchemaNode[]>('former:schema', [
     props: {
       label: 'Name',
       placeholder: 'Enter your name',
+      required: true,
     },
   },
   {
@@ -259,6 +261,13 @@ const components: { [k: string]: FormFieldType } = {
           placeholder: 'Enter a placeholder',
         },
       },
+      { 
+        type: 'checkbox', 
+        name: 'required', 
+        props: { 
+          label: 'Is field required?',
+        },
+      },
     ],
   },
   group: {
@@ -346,6 +355,29 @@ const components: { [k: string]: FormFieldType } = {
       },
     ],
   },
+  checkbox: {
+    label: 'Checkbox',
+    component: markRaw(Checkbox),
+    propsSchema: [
+      {
+        type: 'text',
+        name: '$name',
+        props: {
+          label: 'Name',
+          placeholder: 'Enter the name of the data field',
+        },
+      },
+
+      {
+        type: 'text',
+        name: 'label',
+        props: {
+          label: 'Label',
+          placeholder: 'Enter a label',
+        },
+      },
+    ],
+  },
 };
 
 function showIf(node: SchemaNode, nodePath: string[], data: FormData): boolean {
@@ -353,6 +385,15 @@ function showIf(node: SchemaNode, nodePath: string[], data: FormData): boolean {
   const condition = node.props.showIf;
   if (!condition || condition === '') return true;
   return condition === 'hello';
+}
+
+function errorMessage(node: SchemaNode, data: FormData): string | true {
+  if (!node.props) return true;
+  const requiredFlag = node.props.required;
+  if (requiredFlag === true && !data) {
+    return 'Value is required';
+  }
+  return true;
 }
 
 function submit() {
