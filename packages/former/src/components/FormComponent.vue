@@ -16,7 +16,7 @@ const props = defineProps<{
 }>();
 
 const components = inject('components');
-const errorMessage = inject('errorMessage', true);
+const validator = inject('validator', true);
 
 const modelValue = defineModel<unknown>();
 
@@ -25,7 +25,7 @@ const component = computed(() => components[props.node.type]?.component);
 const node = toRef(props, 'node');
 
 const error = computed(() => {
-  const message = errorMessage(node.value, modelValue.value);
+  const message = validator(node.value, modelValue.value);
   if (message === true) {
     return undefined;
   }

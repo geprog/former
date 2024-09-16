@@ -1,6 +1,6 @@
 <template>
   <div class="flex w-full h-screen bg-gray-100">
-    <Former v-model:data="data" v-model:schema="schema" :components :edit :showIf :error-message="errorMessage" v-slot="{ selectedNode }">
+    <Former v-model:data="data" v-model:schema="schema" :components :edit :showIf :validator="validator" v-slot="{ selectedNode }">
       <main class="gap-4 m-4 max-w-[960px] w-2/3 flex flex-col overflow-y-auto">
         <h1 class="text-4xl font-bold mx-auto">👩🏾‍🌾 Former playground</h1>
 
@@ -387,7 +387,7 @@ function showIf(node: SchemaNode, nodePath: string[], data: FormData): boolean {
   return condition === 'hello';
 }
 
-function errorMessage(node: SchemaNode, data: FormData): string | true {
+function validator(node: SchemaNode, data: FormData): string | true {
   if (!node.props) return true;
   const requiredFlag = node.props.required;
   if (requiredFlag === true && !data) {
