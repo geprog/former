@@ -1,6 +1,6 @@
 <template>
   <slot :selected-node="selectedNode">
-    <FormContent />
+    <FormContent @valid="isValid = $event"/>
   </slot>
 </template>
 
@@ -17,7 +17,16 @@ const props = defineProps<{
   validator?: (node: SchemaNode, tyepData: FormData) => true | string;
 }>();
 
+const emit = defineEmits<{
+  (e: 'valid', valid: boolean): void
+}>();
+
 const schema = defineModel<SchemaNode[]>('schema', { required: true });
+
+const isValid = ref(true);
+watch(isValid, () => {
+  emit('valid', isValid.value);
+}, { immediate: true,  });
 
 const internalSchema = ref<InternalSchemaNode[]>(toInternalSchema(schema.value));
 provide('schema', internalSchema);

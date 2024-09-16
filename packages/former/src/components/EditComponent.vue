@@ -13,7 +13,7 @@
       }"
     >
       <span class="drag-handle cursor-move p-2">::</span>
-      <FormComponent :node :node-path v-model="modelValue">
+      <FormComponent :node :node-path v-model="modelValue" @valid="$emit('valid', $event)">
         <slot />
       </FormComponent>
     </div>
@@ -28,6 +28,10 @@ import { inject } from '~/compositions/injectProvide';
 defineProps<{
   node: InternalSchemaNode;
   nodePath?: string[];
+}>();
+
+defineEmits<{
+  (e: 'valid', valid: boolean): void
 }>();
 
 const modelValue = defineModel();

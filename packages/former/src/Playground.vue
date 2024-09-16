@@ -4,12 +4,17 @@
       <main class="gap-4 m-4 max-w-[960px] w-2/3 flex flex-col overflow-y-auto">
         <h1 class="text-4xl font-bold mx-auto">👩🏾‍🌾 Former playground</h1>
 
-        <Button @click="edit = !edit" class="ml-auto bg-red-400">{{
-          edit ? 'Currently editing' : 'Currently viewing'
-        }}</Button>
+        <div class="flex items-center ml-auto space-x-4">
+          <div :class="{ 'text-red-500': !isValid }">
+            Validity status: {{ isValid ? 'valid' : 'invalid' }}
+          </div>
+          <Button @click="edit = !edit" class="bg-red-400">{{
+            edit ? 'Currently editing' : 'Currently viewing'
+          }}</Button>
+        </div>
 
         <form @submit.prevent="submit" class="bg-white rounded-xl shadow-xl p-4 flex flex-col gap-4">
-          <FormContent />
+          <FormContent @valid="isValid = $event"/>
 
           <Button type="submit">Submit</Button>
         </form>
@@ -61,6 +66,8 @@ import FormAdd from './components/FormAdd.vue';
 import Checkbox from './sample/Checkbox.vue';
 
 const edit = useStorage('former:edit', false);
+
+const isValid = ref(true);
 
 const schema = useStorage<SchemaNode[]>('former:schema', [
   {

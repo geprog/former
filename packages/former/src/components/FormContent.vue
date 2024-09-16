@@ -7,7 +7,7 @@
     @dragover.prevent="dragOver"
     @dragenter.prevent
   >
-    <FormRenderer v-model:data="data" :edit :schema />
+    <FormRenderer v-model:data="data" :edit :schema @valid="isValid = $event"/>
   </div>
 </template>
 
@@ -16,7 +16,16 @@ import { inject } from '~/compositions/injectProvide';
 import FormRenderer from './FormRenderer.vue';
 import { addNode, deleteNode, getNode, nanoid, nodePosition } from '~/utils';
 import type { InternalSchemaNode } from '~/types';
-import { onBeforeUnmount, onMounted, toValue } from 'vue';
+import { onBeforeUnmount, onMounted, ref, toValue, watch } from 'vue';
+
+const emit = defineEmits<{
+  (e: 'valid', valid: boolean): void;
+}>();
+
+const isValid = ref(true);
+watch(isValid, () => {
+  emit('valid', isValid.value);
+}, { immediate: true });
 
 const edit = inject('edit');
 const schema = inject('schema');

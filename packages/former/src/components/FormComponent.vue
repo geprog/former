@@ -6,13 +6,17 @@
 </template>
 
 <script setup lang="ts">
-import { computed, toRef } from 'vue';
+import { computed, toRef, watch } from 'vue';
 import { inject } from '~/compositions/injectProvide';
 import type { InternalSchemaNode } from '~/types';
 
 const props = defineProps<{
   node: InternalSchemaNode;
   nodePath?: string[];
+}>();
+
+const emit = defineEmits<{
+  (e: 'valid', valid: boolean): void
 }>();
 
 const components = inject('components');
@@ -30,5 +34,9 @@ const error = computed(() => {
     return undefined;
   }
   return message;
-})
+});
+
+watch(error, () => {
+  emit('valid', error.value === undefined);
+}, { immediate: true })
 </script>
