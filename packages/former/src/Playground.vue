@@ -22,11 +22,13 @@
 
       <div class="border-l flex flex-col p-4 gap-4 w-1/2 overflow-y-auto">
         <div v-if="edit" class="bg-white rounded-xl shadow-xl p-8 flex flex-col gap-2">
-          <template v-if="!selectedNode">
-            <span>Add elements by drag and dropping them into the form</span>
-            <FormAdd />
-          </template>
           <FormNodeProps v-if="selectedNode" />
+          <div v-else>Click on an element for being able to adjust the props</div>
+        </div>
+
+        <div v-if="edit" class="bg-white rounded-xl shadow-xl p-8 flex flex-col gap-2">
+          <span>Add elements by drag and dropping them into the form</span>
+          <FormAdd />
         </div>
 
         <div class="bg-white rounded-xl shadow-xl p-8">
