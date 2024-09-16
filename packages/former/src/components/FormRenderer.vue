@@ -2,9 +2,10 @@
   <div
     v-for="node in schema"
     :key="node._id"
-    class="former-draggable relative"
+    class="relative"
     :class="{
       'bg-zinc-200 rounded': !isShown(node, true),
+      'former-draggable': edit,
     }"
     :data-node="node._id"
   >
@@ -17,7 +18,7 @@
       @update:model-value="(e: unknown) => setData(node.name, e)"
       @valid="validityMap[node._id] = $event"
     >
-      <div class="former-drag-container relative" :data-parent-node="node._id">
+      <div class="relative" :class="{ 'former-drag-container': edit }" :data-parent-node="node._id">
         <FormRenderer
           v-if="node.children"
           :schema="node.children"
