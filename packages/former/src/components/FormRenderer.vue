@@ -4,12 +4,12 @@
     :key="node._id"
     class="former-draggable relative"
     :class="{
-      'bg-zinc-200 rounded': edit === true && showIf ? !showIf(node, nodePath.concat(node._id), data) : false,
+      'bg-zinc-200 rounded': !isShown(node, true),
     }"
     :data-node="node._id"
   >
     <component
-      v-if="!edit && showIf ? showIf(node, nodePath.concat(node.name || []), data) : true"
+      v-if="isShown(node)"
       :is="edit ? EditComponent : FormComponent"
       :node
       :node-path="nodePath.concat(node.name || [])"
@@ -67,10 +67,10 @@ const nodePath = toRef(props, 'nodePath');
 
 const showIf = inject('showIf', false);
 
-function isShown(node: SchemaNode) {
-  if (!edit.value && showIf) {
+function isShown(node: SchemaNode, forHighlighting?: boolean) {
+  if ((!edit.value || forHighlighting) && showIf) {
     // only evaluate showIf when we are not editing the form
-    // in edit mode we are still showing the component but highlighting it differently
+    // but in edit mode we still want to show the component but highlighted
     return showIf(node, nodePath.value.concat(node.name || []), data.value);
   }
   return true;

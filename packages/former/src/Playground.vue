@@ -152,10 +152,10 @@ const schema = useStorage<SchemaNode[]>('former:schema', [
     ],
   },
   {
-    showIf: 'hello',
     type: 'select',
     name: 'select',
     props: {
+      showIf: 'hallo',
       label: 'Select',
       options: [
         { label: 'Option 1', value: 'option1' },
@@ -390,7 +390,7 @@ const components: { [k: string]: FormFieldType } = {
 function showIf(node: SchemaNode, nodePath: string[], data: FormData): boolean {
   if (!node.props) return true;
   const condition = node.props.showIf;
-  if (!condition || condition === '') return true;
+  if (!condition) return true;
   return condition === 'hello';
 }
 
