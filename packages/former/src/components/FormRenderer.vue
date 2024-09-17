@@ -70,7 +70,7 @@ const nodePath = toRef(props, 'nodePath');
 const showIf = inject('showIf', false);
 
 function isShown(node: SchemaNode, forHighlighting?: boolean) {
-  if ((mode.value === 'edit' || mode.value === 'reader' )&& forHighlighting && showIf) {
+  if ((mode.value === 'edit' || mode.value === 'reader' ||  forHighlighting) && showIf) {
     // only evaluate showIf when we are not editing the form
     // but in edit mode we still want to show the component but highlighted
     return showIf(node, nodePath.value.concat(node.name || []), data.value);
