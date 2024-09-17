@@ -1,5 +1,5 @@
 <template>
-  <div v-if="edit" class="flex flex-col gap-2">
+  <div v-if="mode === 'builder'" class="flex flex-col gap-2">
     <div class="flex flex-col gap-4">
       <div v-for="(component, i) in components" :key="i" class="flex flex-col gap-2">
         <span>{{ component.label }}</span>
@@ -32,7 +32,7 @@ import { inject } from '~/compositions/injectProvide';
 import FormComponent from './FormComponent.vue';
 
 const components = inject('components');
-const edit = inject('edit');
+const mode = inject('mode');
 
 function startDrag(e: DragEvent, nodeType: string) {
   if (e.dataTransfer === null) {

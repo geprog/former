@@ -13,6 +13,8 @@ export type InternalSchemaNode<Props = { [key: string]: any }> = Omit<SchemaNode
   children?: InternalSchemaNode<Props>[];
 };
 
+export type Mode = 'edit' | 'reader' | 'builder' | string;
+
 export type FormData = any;
 
 type FormFieldComponent = DefineComponent<any, any, any>;

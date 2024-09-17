@@ -1,6 +1,6 @@
 <template>
   <div class="flex w-full h-screen bg-gray-100">
-    <Former v-model:data="data" v-model:schema="schema" :components :edit :showIf :validator="validator" v-slot="{ selectedNode }">
+    <Former v-model:data="data" v-model:schema="schema" :components :mode :showIf :validator="validator" v-slot="{ selectedNode }">
       <main class="gap-4 m-4 max-w-[960px] w-2/3 flex flex-col overflow-y-auto">
         <h1 class="text-4xl font-bold mx-auto">👩🏾‍🌾 Former playground</h1>
 
@@ -8,9 +8,8 @@
           <div :class="{ 'text-red-500': !isValid }">
             Validity status: {{ isValid ? 'valid' : 'invalid' }}
           </div>
-          <Button @click="edit = !edit" class="bg-red-400">{{
-            edit ? 'Currently editing' : 'Currently viewing'
-          }}</Button>
+          <Select v-model="mode" :options/>
+          
         </div>
 
         <form @submit.prevent="submit" class="bg-white rounded-xl shadow-xl p-4 flex flex-col gap-4">
@@ -21,12 +20,12 @@
       </main>
 
       <div class="border-l flex flex-col p-4 gap-4 w-1/2 overflow-y-auto">
-        <div v-if="edit" class="bg-white rounded-xl shadow-xl p-8 flex flex-col gap-2">
-          <FormNodeProps v-if="selectedNode" />
+        <div v-if="mode === 'builder'" class="bg-white rounded-xl shadow-xl p-8 flex flex-col gap-2">
+          <FormNodeProps v-if="selectedNode" :mode="'edit'" />
           <div v-else>Click on an element for being able to adjust the props</div>
         </div>
 
-        <div v-if="edit" class="bg-white rounded-xl shadow-xl p-8 flex flex-col gap-2">
+        <div v-if="mode === 'builder'" class="bg-white rounded-xl shadow-xl p-8 flex flex-col gap-2">
           <span>Add elements by drag and dropping them into the form</span>
           <FormAdd />
         </div>
@@ -45,7 +44,7 @@
 
         <div class="bg-white rounded-xl shadow-xl p-8 flex flex-col">
           <span>`group.name` (Nested editing test)</span>
-          <TextInput v-model="data.group.name" label="Group Name" />
+          <TextInput v-model="data.group.name" :mode label="Group Name" />
         </div>
       </div>
     </Former>
@@ -67,7 +66,13 @@ import { useStorage } from '@vueuse/core';
 import FormAdd from './components/FormAdd.vue';
 import Checkbox from './sample/Checkbox.vue';
 
-const edit = useStorage('former:edit', false);
+const mode = useStorage('former:mode', 'edit');
+
+const options = [
+        { label: 'edit', value: 'edit' },
+        { label: 'reader', value: 'reader' },
+        { label: 'builder', value: 'builder' },
+      ];
 
 const isValid = ref(true);
 

@@ -5,24 +5,25 @@
     class="relative"
     :class="{
       'bg-zinc-200 rounded': !isShown(node, true),
-      'former-draggable': edit,
+      'former-draggable': mode ==='builder',
     }"
     :data-node="node._id"
   >
     <component
       v-if="isShown(node)"
-      :is="edit ? EditComponent : FormComponent"
+      :is="mode === 'builder' ? EditComponent : FormComponent"
       :node
+      :mode
       :node-path="nodePath.concat(node.name || [])"
       :model-value="node.name ? data?.[node.name] : undefined"
       @update:model-value="(e: unknown) => setData(node.name, e)"
       @valid="validityMap[node._id] = $event"
     >
-      <div class="relative" :class="{ 'former-drag-container': edit }" :data-parent-node="node._id">
+      <div class="relative" :class="{ 'former-drag-container': mode }" :data-parent-node="node._id">
         <FormRenderer
           v-if="node.children"
           :schema="node.children"
-          :edit
+          :mode
           :node-path="nodePath.concat(node.name || [])"
           :data="node.name ? data?.[node.name] : undefined"
           @update:data="(e: unknown) => setData(node.name, e)"
@@ -34,7 +35,7 @@
 </template>
 
 <script setup lang="ts">
-import type { FormData, InternalSchemaNode, SchemaNode } from '~/types';
+import type { FormData, InternalSchemaNode, Mode, SchemaNode } from '~/types';
 import FormComponent from './FormComponent.vue';
 import EditComponent from './EditComponent.vue';
 import { inject } from '~/compositions/injectProvide';
@@ -43,12 +44,12 @@ import { computed, ref, toRef, watch } from 'vue';
 const props = withDefaults(
   defineProps<{
     schema?: InternalSchemaNode[];
-    edit?: boolean;
+    mode?: Mode;
     nodePath?: string[];
   }>(),
   {
     schema: undefined,
-    edit: false,
+    mode: 'edit',
     nodePath: () => [],
   },
 );
@@ -63,13 +64,13 @@ const childrenValidityMap = ref<Record<string, boolean | undefined>>({});
 const data = defineModel<FormData>('data', { default: () => ({}) });
 
 const schema = toRef(props, 'schema');
-const edit = toRef(props, 'edit');
+const mode = toRef(props, 'mode');
 const nodePath = toRef(props, 'nodePath');
 
 const showIf = inject('showIf', false);
 
 function isShown(node: SchemaNode, forHighlighting?: boolean) {
-  if ((!edit.value || forHighlighting) && showIf) {
+  if ((!mode.value || forHighlighting) && showIf) {
     // only evaluate showIf when we are not editing the form
     // but in edit mode we still want to show the component but highlighted
     return showIf(node, nodePath.value.concat(node.name || []), data.value);

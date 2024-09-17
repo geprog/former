@@ -2,12 +2,12 @@
   <div
     class="relative"
     :class="{
-      'former-drag-container former-edit': edit,
+      'former-drag-container former-edit': mode === 'builder',
     }"
     @dragover.prevent="dragOver"
     @dragenter.prevent
   >
-    <FormRenderer v-model:data="data" :edit :schema @valid="isValid = $event"/>
+    <FormRenderer v-model:data="data" :mode :schema @valid="isValid = $event"/>
   </div>
 </template>
 
@@ -27,7 +27,7 @@ watch(isValid, () => {
   emit('valid', isValid.value);
 }, { immediate: true });
 
-const edit = inject('edit');
+const mode = inject('mode');
 const schema = inject('schema');
 const data = inject('data');
 const selectedNode = inject('selectedNode');
@@ -100,7 +100,7 @@ function getDropDetails(e: DragEvent) {
 let placeholder: HTMLElement | null = null;
 let activeDropzone: HTMLElement | null = null;
 function dragOver(e: DragEvent) {
-  if (!edit.value) {
+  if (!mode.value) {
     // do not handle any drag if not edit in edit mode
     return;
   }

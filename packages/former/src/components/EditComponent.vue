@@ -13,7 +13,7 @@
       }"
     >
       <span class="drag-handle cursor-move p-2">::</span>
-      <FormComponent :node :node-path v-model="modelValue" @valid="$emit('valid', $event)">
+      <FormComponent :node :node-path v-model="modelValue" :mode @valid="$emit('valid', $event)">
         <slot />
       </FormComponent>
     </div>
@@ -21,13 +21,14 @@
 </template>
 
 <script setup lang="ts">
-import type { InternalSchemaNode } from '~/types';
+import type { InternalSchemaNode, Mode } from '~/types';
 import FormComponent from './FormComponent.vue';
 import { inject } from '~/compositions/injectProvide';
 
 defineProps<{
   node: InternalSchemaNode;
   nodePath?: string[];
+  mode: Mode;
 }>();
 
 defineEmits<{

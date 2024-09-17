@@ -5,7 +5,7 @@
 </template>
 
 <script setup lang="ts">
-import type { FormData, SchemaNode, FormFieldType, InternalSchemaNode } from '~/types';
+import type { FormData, SchemaNode, FormFieldType, InternalSchemaNode, Mode } from '~/types';
 import { provide } from '~/compositions/injectProvide';
 import { ref, watch } from 'vue';
 import FormContent from './FormContent.vue';
@@ -47,8 +47,8 @@ watch(
 const data = defineModel<FormData>('data', { default: () => ({}) });
 provide('data', data);
 
-const edit = defineModel<boolean>('edit', { default: false });
-provide('edit', edit);
+const mode = defineModel<Mode>('mode', { default: 'edit'} );
+provide('mode', mode);
 
 provide('components', props.components);
 provide('showIf', props.showIf || (() => true));
