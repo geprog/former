@@ -5,7 +5,7 @@ import FormContent from '~/components/FormContent.vue';
 import FormNodeProps from '~/components/FormNodeProps.vue';
 import FormRenderer from '~/components/FormRenderer.vue';
 import FormAdd from '~/components/FormAdd.vue';
-import type { FormFieldType, FormData, SchemaNode } from '~/types';
+import type { FormFieldType, FormData, SchemaNode, Mode } from '~/types';
 
 export {
   Former,
@@ -16,4 +16,5 @@ export {
   type FormFieldType,
   type FormData,
   type SchemaNode,
+  type Mode,
 };
