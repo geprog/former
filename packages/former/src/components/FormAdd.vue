@@ -1,5 +1,5 @@
 <template>
-  <div v-if="mode === 'builder'" class="flex flex-col gap-2">
+  <div v-if="mode === 'build'" class="flex flex-col gap-2">
     <div class="flex flex-col gap-4">
       <div v-for="(component, i) in components" :key="i" class="flex flex-col gap-2">
         <span>{{ component.label }}</span>

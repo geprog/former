@@ -20,12 +20,12 @@
       </main>
 
       <div class="border-l flex flex-col p-4 gap-4 w-1/2 overflow-y-auto">
-        <div v-if="mode === 'builder'" class="bg-white rounded-xl shadow-xl p-8 flex flex-col gap-2">
-          <FormNodeProps v-if="selectedNode" :mode="'edit'" />
+        <div v-if="mode === 'build'" class="bg-white rounded-xl shadow-xl p-8 flex flex-col gap-2">
+          <FormNodeProps v-if="selectedNode" />
           <div v-else>Click on an element for being able to adjust the props</div>
         </div>
 
-        <div v-if="mode === 'builder'" class="bg-white rounded-xl shadow-xl p-8 flex flex-col gap-2">
+        <div v-if="mode === 'build'" class="bg-white rounded-xl shadow-xl p-8 flex flex-col gap-2">
           <span>Add elements by drag and dropping them into the form</span>
           <FormAdd />
         </div>
@@ -44,7 +44,7 @@
 
         <div class="bg-white rounded-xl shadow-xl p-8 flex flex-col">
           <span>`group.name` (Nested editing test)</span>
-          <TextInput v-model="data.group.name" :mode label="Group Name" />
+          <TextInput v-model="data.group.name" label="Group Name" />
         </div>
       </div>
     </Former>
@@ -55,7 +55,7 @@
 import { computed, markRaw, ref } from 'vue';
 import Group from '~/sample/Group.vue';
 import Repeater from '~/sample/Repeater.vue';
-import type { FormFieldType, SchemaNode } from '~/types';
+import type { FormFieldType, Mode, SchemaNode } from '~/types';
 import TextInput from '~/sample/TextInput.vue';
 import FormContent from './components/FormContent.vue';
 import FormNodeProps from './components/FormNodeProps.vue';
@@ -66,12 +66,12 @@ import { useStorage } from '@vueuse/core';
 import FormAdd from './components/FormAdd.vue';
 import Checkbox from './sample/Checkbox.vue';
 
-const mode = useStorage('former:mode', 'edit');
+const mode = useStorage<Mode>('former:mode', 'edit');
 
 const options = [
         { label: 'edit', value: 'edit' },
-        { label: 'reader', value: 'reader' },
-        { label: 'builder', value: 'builder' },
+        { label: 'read', value: 'read' },
+        { label: 'build', value: 'build' },
       ];
 
 const isValid = ref(true);

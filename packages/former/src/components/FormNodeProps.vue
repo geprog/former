@@ -4,7 +4,7 @@
       <span class="text-lg">{{ selectedNodeType?.label }}{{ selectedNode.name ? ` - ${selectedNode.name}` : '' }}</span>
       <Button @click="selectedNode = undefined">x</Button>
     </div>
-    <FormRenderer v-if="selectedNodePropsSchema" v-model:data="data" :schema="selectedNodePropsSchema" />
+    <Former v-if="selectedNodePropsSchema" v-model:data="data" :schema="selectedNodePropsSchema" mode="edit" :components />
     <pre v-else>{{ selectedNode }}</pre>
     <Button @click="deleteComponent">Delete</Button>
   </div>
@@ -13,7 +13,7 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue';
 import { inject } from '~/compositions/injectProvide';
-import FormRenderer from './FormRenderer.vue';
+import Former from './Former.vue';
 import { deleteNode, replaceNode, toInternalSchema } from '~/utils';
 import Button from '~/sample/Button.vue';
 import type { InternalSchemaNode } from '~/types';

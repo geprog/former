@@ -2,7 +2,7 @@
   <div class="flex flex-col w-full">
     <label class="p-1" v-if="label">{{ label }}</label>
     <div class="border rounded">
-      <input :disabled="mode === 'reader'":type v-model="modelValue" :placeholder class="w-full p-1 rounded" />
+      <input :disabled="mode === 'read'":type v-model="modelValue" :placeholder class="w-full p-1 rounded" />
     </div>
     <div v-if="error" class="text-red-500">{{ error }}</div>
   </div>
@@ -18,7 +18,7 @@ const props = withDefaults(
     type?: 'text' | 'password' | 'email';
     placeholder?: string;
     error?: string;
-    mode: Mode;
+    mode?: Mode;
   }>(),
   {
     type: 'text',

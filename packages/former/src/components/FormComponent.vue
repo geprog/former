@@ -1,5 +1,5 @@
 <template>
-  <component v-if="component" :is="component" v-bind="node.props" :node-path v-model="modelValue" :error>
+  <component v-if="component" :is="component" v-bind="node.props" :mode :node-path v-model="modelValue" :error>
     <slot />
   </component>
   <span v-else>Component type not found!</span>
@@ -21,6 +21,7 @@ const emit = defineEmits<{
 
 const components = inject('components');
 const validator = inject('validator', true);
+const mode = inject('mode');
 
 const modelValue = defineModel<unknown>();
 

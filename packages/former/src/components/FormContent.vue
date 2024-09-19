@@ -2,12 +2,12 @@
   <div
     class="relative"
     :class="{
-      'former-drag-container former-edit': mode === 'builder',
+      'former-drag-container': mode === 'build',
     }"
     @dragover.prevent="dragOver"
     @dragenter.prevent
   >
-    <FormRenderer v-model:data="data" :mode :schema @valid="isValid = $event"/>
+    <FormRenderer v-model:data="data" :schema @valid="isValid = $event"/>
   </div>
 </template>
 
@@ -100,8 +100,8 @@ function getDropDetails(e: DragEvent) {
 let placeholder: HTMLElement | null = null;
 let activeDropzone: HTMLElement | null = null;
 function dragOver(e: DragEvent) {
-  if (!mode.value) {
-    // do not handle any drag if not edit in edit mode
+  if (mode.value !== 'build') {
+    // do not handle any drag if not in builder mode
     return;
   }
   e.preventDefault();
@@ -208,8 +208,7 @@ onBeforeUnmount(() => {
 
 <style>
 /* some minimal box to allow users to be able to add elements to an empty group */
-.former-edit .former-drag-container,
-.former-edit.former-drag-container {
+.former-drag-container {
   @apply min-h-24 min-w-24 w-full;
 }
 </style>
