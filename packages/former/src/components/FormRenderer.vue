@@ -51,7 +51,7 @@ const props = withDefaults(
 );
 
 const emit = defineEmits<{
-  (e: 'valid', valid: boolean): void
+  (e: 'valid', valid: boolean): void;
 }>();
 
 const validityMap = ref<Record<string, boolean | undefined>>({});
@@ -66,7 +66,7 @@ const showIf = inject('showIf', false);
 const mode = inject('mode');
 
 function isShown(node: SchemaNode, forHighlighting?: boolean) {
-  if ((mode.value !== 'build' ||  forHighlighting) && showIf) {
+  if ((mode.value !== 'build' || forHighlighting) && showIf) {
     // only evaluate showIf when we are not editing the form
     // but in edit mode we still want to show the component but highlighted
     return showIf(node, nodePath.value.concat(node.name || []), data.value);
@@ -87,10 +87,16 @@ function setData(name: string | undefined, e: unknown) {
 
 const isValid = computed(() => {
   const relevantNodes = (schema.value || []).filter((node) => isShown(node));
-  return relevantNodes.every((node) => validityMap.value[node._id] !== false && childrenValidityMap.value[node._id] !== false);
+  return relevantNodes.every(
+    (node) => validityMap.value[node._id] !== false && childrenValidityMap.value[node._id] !== false,
+  );
 });
 
-watch(isValid, () => {
-  emit('valid', isValid.value);
-}, { immediate: true,  });
+watch(
+  isValid,
+  () => {
+    emit('valid', isValid.value);
+  },
+  { immediate: true },
+);
 </script>

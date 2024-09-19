@@ -31,7 +31,7 @@ defineProps<{
 }>();
 
 defineEmits<{
-  (e: 'valid', valid: boolean): void
+  (e: 'valid', valid: boolean): void;
 }>();
 
 const modelValue = defineModel();

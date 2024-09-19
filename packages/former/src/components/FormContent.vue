@@ -7,7 +7,7 @@
     @dragover.prevent="dragOver"
     @dragenter.prevent
   >
-    <FormRenderer v-model:data="data" :schema @valid="isValid = $event"/>
+    <FormRenderer v-model:data="data" :schema @valid="isValid = $event" />
   </div>
 </template>
 
@@ -23,9 +23,13 @@ const emit = defineEmits<{
 }>();
 
 const isValid = ref(true);
-watch(isValid, () => {
-  emit('valid', isValid.value);
-}, { immediate: true });
+watch(
+  isValid,
+  () => {
+    emit('valid', isValid.value);
+  },
+  { immediate: true },
+);
 
 const mode = inject('mode');
 const schema = inject('schema');

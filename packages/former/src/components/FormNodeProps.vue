@@ -4,7 +4,13 @@
       <span class="text-lg">{{ selectedNodeType?.label }}{{ selectedNode.name ? ` - ${selectedNode.name}` : '' }}</span>
       <Button @click="selectedNode = undefined">x</Button>
     </div>
-    <Former v-if="selectedNodePropsSchema" v-model:data="data" :schema="selectedNodePropsSchema" mode="edit" :components />
+    <Former
+      v-if="selectedNodePropsSchema"
+      v-model:data="data"
+      :schema="selectedNodePropsSchema"
+      mode="edit"
+      :components
+    />
     <pre v-else>{{ selectedNode }}</pre>
     <Button @click="deleteComponent">Delete</Button>
   </div>
@@ -47,7 +53,6 @@ const data = computed({
     };
   },
   set(_data) {
-
     if (!selectedNode.value) {
       return;
     }

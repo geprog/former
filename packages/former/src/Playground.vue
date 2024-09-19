@@ -1,19 +1,24 @@
 <template>
   <div class="flex w-full h-screen bg-gray-100">
-    <Former v-model:data="data" v-model:schema="schema" :components :mode :showIf :validator="validator" v-slot="{ selectedNode }">
+    <Former
+      v-model:data="data"
+      v-model:schema="schema"
+      :components
+      :mode
+      :showIf
+      :validator="validator"
+      v-slot="{ selectedNode }"
+    >
       <main class="gap-4 m-4 max-w-[960px] w-2/3 flex flex-col overflow-y-auto">
         <h1 class="text-4xl font-bold mx-auto">👩🏾‍🌾 Former playground</h1>
 
         <div class="flex items-center ml-auto space-x-4">
-          <div :class="{ 'text-red-500': !isValid }">
-            Validity status: {{ isValid ? 'valid' : 'invalid' }}
-          </div>
-          <Select v-model="mode" :options/>
-          
+          <div :class="{ 'text-red-500': !isValid }">Validity status: {{ isValid ? 'valid' : 'invalid' }}</div>
+          <Select v-model="mode" :options />
         </div>
 
         <form @submit.prevent="submit" class="bg-white rounded-xl shadow-xl p-4 flex flex-col gap-4">
-          <FormContent @valid="isValid = $event"/>
+          <FormContent @valid="isValid = $event" />
 
           <Button type="submit">Submit</Button>
         </form>
@@ -69,10 +74,10 @@ import Checkbox from './sample/Checkbox.vue';
 const mode = useStorage<Mode>('former:mode', 'edit');
 
 const options = [
-        { label: 'edit', value: 'edit' },
-        { label: 'read', value: 'read' },
-        { label: 'build', value: 'build' },
-      ];
+  { label: 'edit', value: 'edit' },
+  { label: 'read', value: 'read' },
+  { label: 'build', value: 'build' },
+];
 
 const isValid = ref(true);
 
@@ -275,10 +280,10 @@ const components: { [k: string]: FormFieldType } = {
           placeholder: 'Enter a placeholder',
         },
       },
-      { 
-        type: 'checkbox', 
-        name: 'required', 
-        props: { 
+      {
+        type: 'checkbox',
+        name: 'required',
+        props: {
           label: 'Is field required?',
         },
       },

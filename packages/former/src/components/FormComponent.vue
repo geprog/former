@@ -16,7 +16,7 @@ const props = defineProps<{
 }>();
 
 const emit = defineEmits<{
-  (e: 'valid', valid: boolean): void
+  (e: 'valid', valid: boolean): void;
 }>();
 
 const components = inject('components');
@@ -37,7 +37,11 @@ const error = computed(() => {
   return message;
 });
 
-watch(error, () => {
-  emit('valid', error.value === undefined);
-}, { immediate: true })
+watch(
+  error,
+  () => {
+    emit('valid', error.value === undefined);
+  },
+  { immediate: true },
+);
 </script>

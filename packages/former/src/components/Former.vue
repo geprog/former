@@ -1,6 +1,6 @@
 <template>
   <slot :selected-node="selectedNode">
-    <FormContent @valid="isValid = $event"/>
+    <FormContent @valid="isValid = $event" />
   </slot>
 </template>
 
@@ -18,15 +18,19 @@ const props = defineProps<{
 }>();
 
 const emit = defineEmits<{
-  (e: 'valid', valid: boolean): void
+  (e: 'valid', valid: boolean): void;
 }>();
 
 const schema = defineModel<SchemaNode[]>('schema', { required: true });
 
 const isValid = ref(true);
-watch(isValid, () => {
-  emit('valid', isValid.value);
-}, { immediate: true,  });
+watch(
+  isValid,
+  () => {
+    emit('valid', isValid.value);
+  },
+  { immediate: true },
+);
 
 const internalSchema = ref<InternalSchemaNode[]>(toInternalSchema(schema.value));
 provide('schema', internalSchema);
@@ -47,12 +51,12 @@ watch(
 const data = defineModel<FormData>('data', { default: () => ({}) });
 provide('data', data);
 
-const mode = defineModel<Mode>('mode', { default: 'edit'} );
+const mode = defineModel<Mode>('mode', { default: 'edit' });
 provide('mode', mode);
 
 provide('components', props.components);
 provide('showIf', props.showIf || (() => true));
-provide('validator', props.validator || (()=> true));
+provide('validator', props.validator || (() => true));
 
 const selectedNode = ref<InternalSchemaNode | undefined>(undefined);
 provide('selectedNode', selectedNode);

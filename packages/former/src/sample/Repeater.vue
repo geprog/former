@@ -18,7 +18,7 @@ defineProps<{
   label?: string;
   placeholder?: string;
   itemSchema?: InternalSchemaNode[];
-  mode?: Mode
+  mode?: Mode;
 }>();
 
 const modelValue = defineModel<unknown[]>({

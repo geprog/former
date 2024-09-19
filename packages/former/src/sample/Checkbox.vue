@@ -6,9 +6,9 @@
 </template>
 
 <script setup lang="ts">
-  defineProps<{
-    label?: string;
-  }>();
+defineProps<{
+  label?: string;
+}>();
 
 const modelValue = defineModel<boolean>();
 </script>
