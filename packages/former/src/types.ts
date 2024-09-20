@@ -15,7 +15,7 @@ export type InternalSchemaNode<Props = { [key: string]: any }> = Omit<SchemaNode
 
 export type Mode = 'edit' | 'read' | 'build';
 
-export type FormData = any;
+export type FormData = Record<string, any>;
 
 type FormFieldComponent = DefineComponent<any, any, any>;
 

@@ -70,7 +70,7 @@ import { computed, markRaw, ref } from 'vue';
 import Group from '~/sample/Group.vue';
 import Repeater from '~/sample/Repeater.vue';
 import TextInput from '~/sample/TextInput.vue';
-import type { FormFieldType, Mode, SchemaNode } from '~/types';
+import type { FormData, FormFieldType, Mode, SchemaNode } from '~/types';
 import FormAdd from './components/FormAdd.vue';
 import FormContent from './components/FormContent.vue';
 import Former from './components/Former.vue';
@@ -236,7 +236,7 @@ const jsonSchema = computed<string>({
   },
 });
 
-const data = useStorage<Record<string, any>>('former:data', {
+const data = useStorage<FormData>('former:data', {
   name: 'Anton',
   email: 'anton@example.com',
   password: '12345678',
