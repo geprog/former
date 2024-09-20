@@ -1,7 +1,7 @@
 <template>
   <div class="flex flex-col gap-2 w-full items-start">
     <label v-if="label" class="p-1">{{ label }}</label>
-    <div v-for="(item, index) in modelValue" :key="index" class="flex gap-2">
+    <div v-for="(item, index) in modelValue" :key="index" class="flex gap-2 w-full">
       <FormDragContainer :node>
         <FormRenderer :schema="node.children" :data="item" @update:data="updateItem(index, $event)" />
       </FormDragContainer>
