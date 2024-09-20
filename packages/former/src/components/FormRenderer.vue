@@ -10,8 +10,8 @@
     :data-node="node._id"
   >
     <component
-      v-if="isShown(node)"
       :is="mode === 'build' ? EditComponent : FormComponent"
+      v-if="isShown(node)"
       :node
       :node-path="nodePath.concat(node.name || [])"
       :model-value="node.name ? data?.[node.name] : undefined"
@@ -33,11 +33,11 @@
 </template>
 
 <script setup lang="ts">
-import type { FormData, InternalSchemaNode, Mode, SchemaNode } from '~/types';
-import FormComponent from './FormComponent.vue';
-import EditComponent from './EditComponent.vue';
-import { inject } from '~/compositions/injectProvide';
 import { computed, ref, toRef, watch } from 'vue';
+import { inject } from '~/compositions/injectProvide';
+import type { FormData, InternalSchemaNode, SchemaNode } from '~/types';
+import EditComponent from './EditComponent.vue';
+import FormComponent from './FormComponent.vue';
 
 const props = withDefaults(
   defineProps<{
@@ -86,9 +86,9 @@ function setData(name: string | undefined, e: unknown) {
 }
 
 const isValid = computed(() => {
-  const relevantNodes = (schema.value || []).filter((node) => isShown(node));
+  const relevantNodes = (schema.value || []).filter(node => isShown(node));
   return relevantNodes.every(
-    (node) => validityMap.value[node._id] !== false && childrenValidityMap.value[node._id] !== false,
+    node => validityMap.value[node._id] !== false && childrenValidityMap.value[node._id] !== false,
   );
 });
 

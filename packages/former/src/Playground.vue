@@ -1,33 +1,41 @@
 <template>
   <div class="flex w-full h-screen bg-gray-100">
     <Former
+      v-slot="{ selectedNode }"
       v-model:data="data"
       v-model:schema="schema"
       :components
       :mode
-      :showIf
+      :show-if
       :validator="validator"
-      v-slot="{ selectedNode }"
     >
       <main class="gap-4 m-4 max-w-[960px] w-2/3 flex flex-col overflow-y-auto">
-        <h1 class="text-4xl font-bold mx-auto">👩🏾‍🌾 Former playground</h1>
+        <h1 class="text-4xl font-bold mx-auto">
+          👩🏾‍🌾 Former playground
+        </h1>
 
         <div class="flex items-center ml-auto space-x-4">
-          <div :class="{ 'text-red-500': !isValid }">Validity status: {{ isValid ? 'valid' : 'invalid' }}</div>
+          <div :class="{ 'text-red-500': !isValid }">
+            Validity status: {{ isValid ? 'valid' : 'invalid' }}
+          </div>
           <Select v-model="mode" :options />
         </div>
 
-        <form @submit.prevent="submit" class="bg-white rounded-xl shadow-xl p-4 flex flex-col gap-4">
+        <form class="bg-white rounded-xl shadow-xl p-4 flex flex-col gap-4" @submit.prevent="submit">
           <FormContent @valid="isValid = $event" />
 
-          <Button type="submit">Submit</Button>
+          <Button type="submit">
+            Submit
+          </Button>
         </form>
       </main>
 
       <div class="border-l flex flex-col p-4 gap-4 w-1/2 overflow-y-auto">
         <div v-if="mode === 'build'" class="bg-white rounded-xl shadow-xl p-8 flex flex-col gap-2">
           <FormNodeProps v-if="selectedNode" />
-          <div v-else>Click on an element for being able to adjust the props</div>
+          <div v-else>
+            Click on an element for being able to adjust the props
+          </div>
         </div>
 
         <div v-if="mode === 'build'" class="bg-white rounded-xl shadow-xl p-8 flex flex-col gap-2">
@@ -57,19 +65,19 @@
 </template>
 
 <script setup lang="ts">
+import { useStorage } from '@vueuse/core';
 import { computed, markRaw, ref } from 'vue';
 import Group from '~/sample/Group.vue';
 import Repeater from '~/sample/Repeater.vue';
-import type { FormFieldType, Mode, SchemaNode } from '~/types';
 import TextInput from '~/sample/TextInput.vue';
-import FormContent from './components/FormContent.vue';
-import FormNodeProps from './components/FormNodeProps.vue';
-import Former from './components/Former.vue';
-import Select from './sample/Select.vue';
-import Button from './sample/Button.vue';
-import { useStorage } from '@vueuse/core';
+import type { FormFieldType, Mode, SchemaNode } from '~/types';
 import FormAdd from './components/FormAdd.vue';
+import FormContent from './components/FormContent.vue';
+import Former from './components/Former.vue';
+import FormNodeProps from './components/FormNodeProps.vue';
+import Button from './sample/Button.vue';
 import Checkbox from './sample/Checkbox.vue';
+import Select from './sample/Select.vue';
 
 const mode = useStorage<Mode>('former:mode', 'edit');
 
@@ -399,15 +407,18 @@ const components: { [k: string]: FormFieldType } = {
   },
 };
 
-function showIf(node: SchemaNode, nodePath: string[], data: FormData): boolean {
-  if (!node.props) return true;
+function showIf(node: SchemaNode, _nodePath: string[], _data: FormData): boolean {
+  if (!node.props)
+    return true;
   const condition = node.props.showIf;
-  if (!condition) return true;
+  if (!condition)
+    return true;
   return condition === 'hello';
 }
 
 function validator(node: SchemaNode, data: FormData): string | true {
-  if (!node.props) return true;
+  if (!node.props)
+    return true;
   const requiredFlag = node.props.required;
   if (requiredFlag === true && !data) {
     return 'Value is required';
@@ -416,7 +427,11 @@ function validator(node: SchemaNode, data: FormData): string | true {
 }
 
 function submit() {
+  // eslint-disable-next-line no-console
   console.log('submit', data.value);
-  alert('Submitted');
+  // eslint-disable-next-line no-alert
+  alert(`Submitted:
+  
+  ${JSON.stringify(data.value, undefined, 4)}`);
 }
 </script>

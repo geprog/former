@@ -1,8 +1,8 @@
 <template>
   <div
     class="handle cursor-pointer"
-    @click.stop="selectedNode = node"
     draggable="true"
+    @click.stop="selectedNode = node"
     @dragstart.stop="startDrag($event, node._id)"
   >
     <div
@@ -13,7 +13,7 @@
       }"
     >
       <span class="drag-handle cursor-move p-2">::</span>
-      <FormComponent :node :node-path v-model="modelValue" @valid="$emit('valid', $event)">
+      <FormComponent v-model="modelValue" :node :node-path @valid="$emit('valid', $event)">
         <slot />
       </FormComponent>
     </div>
@@ -21,9 +21,9 @@
 </template>
 
 <script setup lang="ts">
+import { inject } from '~/compositions/injectProvide';
 import type { InternalSchemaNode } from '~/types';
 import FormComponent from './FormComponent.vue';
-import { inject } from '~/compositions/injectProvide';
 
 defineProps<{
   node: InternalSchemaNode;

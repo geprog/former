@@ -1,7 +1,7 @@
 <template>
   <div>
-    <input type="checkbox" v-model="modelValue" class="p-1 rounded" />
-    <label class="p-1" v-if="label">{{ label }}</label>
+    <input v-model="modelValue" type="checkbox" class="p-1 rounded">
+    <label v-if="label" class="p-1">{{ label }}</label>
   </div>
 </template>
 

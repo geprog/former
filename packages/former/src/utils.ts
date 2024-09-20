@@ -1,5 +1,5 @@
 import type { InternalSchemaNode, SchemaNode } from './types';
-import { isRef, nextTick, toValue, type MaybeRef, type MaybeRefOrGetter } from 'vue';
+import { isRef, type MaybeRef, type MaybeRefOrGetter, nextTick, toValue } from 'vue';
 
 function addIdToNode(_node: InternalSchemaNode | SchemaNode): InternalSchemaNode {
   const node = { ..._node } as InternalSchemaNode;
@@ -167,7 +167,9 @@ export function moveArrayElement<T>(list: MaybeRefOrGetter<T[]>, from: number, t
     nextTick(() => {
       array.splice(to, 0, element);
       // When list is ref, assign array to list.value
-      if (_valueIsRef) (list as MaybeRef).value = array;
+      if (_valueIsRef) {
+        (list as MaybeRef).value = array;
+      }
     });
   }
 }

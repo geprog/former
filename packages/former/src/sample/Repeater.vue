@@ -1,17 +1,21 @@
 <template>
   <div class="flex flex-col gap-2 w-full items-start">
-    <label class="p-1" v-if="label">{{ label }}</label>
+    <label v-if="label" class="p-1">{{ label }}</label>
     <div v-for="(item, key, index) in modelValue" :key="index" class="flex gap-2">
       <FormRenderer v-if="itemSchema" :schema="itemSchema" :data="item" @update:data="updateItem(index, $event)" />
-      <Button v-if="mode !== 'read'" @click.prevent="deleteItem(key)">x</Button>
+      <Button v-if="mode !== 'read'" @click.prevent="deleteItem(key)">
+        x
+      </Button>
     </div>
-    <Button v-if="mode !== 'read'" @click.prevent="addItem">Add</Button>
+    <Button v-if="mode !== 'read'" @click.prevent="addItem">
+      Add
+    </Button>
   </div>
 </template>
 
 <script setup lang="ts">
 import FormRenderer from '~/components/FormRenderer.vue';
-import type { InternalSchemaNode, Mode, SchemaNode } from '~/types';
+import type { InternalSchemaNode, Mode } from '~/types';
 import Button from './Button.vue';
 
 defineProps<{

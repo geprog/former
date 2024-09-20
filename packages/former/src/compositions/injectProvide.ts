@@ -1,4 +1,4 @@
-import { getCurrentInstance, inject as vueInject, type InjectionKey, provide as vueProvide, type Ref } from 'vue';
+import { getCurrentInstance, type InjectionKey, type Ref, inject as vueInject, provide as vueProvide } from 'vue';
 import type { FormData, FormFieldType, InternalSchemaNode, Mode, SchemaNode } from '~/types';
 
 export type InjectKeys = {

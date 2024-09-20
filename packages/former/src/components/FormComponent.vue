@@ -1,5 +1,5 @@
 <template>
-  <component v-if="component" :is="component" v-bind="node.props" :mode :node-path v-model="modelValue" :error>
+  <component :is="component" v-if="component" v-bind="node.props" v-model="modelValue" :mode :node-path :error>
     <slot />
   </component>
   <span v-else>Component type not found!</span>

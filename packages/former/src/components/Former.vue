@@ -5,17 +5,18 @@
 </template>
 
 <script setup lang="ts">
-import type { FormData, SchemaNode, FormFieldType, InternalSchemaNode, Mode } from '~/types';
+import { ref, toRef, watch } from 'vue';
 import { provide } from '~/compositions/injectProvide';
-import { ref, watch } from 'vue';
-import FormContent from './FormContent.vue';
+import type { FormData, FormFieldType, InternalSchemaNode, Mode, SchemaNode } from '~/types';
 import { toInternalSchema, toSchema } from '~/utils';
+import FormContent from './FormContent.vue';
 
-const props = defineProps<{
+const props = withDefaults(defineProps<{
   components: { [key: string]: FormFieldType };
   showIf?: (node: SchemaNode, nodePath: string[], data: FormData) => boolean;
   validator?: (node: SchemaNode, tyepData: FormData) => true | string;
-}>();
+  mode?: Mode;
+}>(), { mode: 'edit' });
 
 const emit = defineEmits<{
   (e: 'valid', valid: boolean): void;
@@ -51,8 +52,7 @@ watch(
 const data = defineModel<FormData>('data', { default: () => ({}) });
 provide('data', data);
 
-const mode = defineModel<Mode>('mode', { default: 'edit' });
-provide('mode', mode);
+provide('mode', toRef(props, 'mode'));
 
 provide('components', props.components);
 provide('showIf', props.showIf || (() => true));

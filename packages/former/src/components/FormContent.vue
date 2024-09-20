@@ -12,11 +12,11 @@
 </template>
 
 <script setup lang="ts">
-import { inject } from '~/compositions/injectProvide';
-import FormRenderer from './FormRenderer.vue';
-import { addNode, deleteNode, getNode, nanoid, nodePosition } from '~/utils';
-import type { InternalSchemaNode } from '~/types';
 import { onBeforeUnmount, onMounted, ref, toValue, watch } from 'vue';
+import { inject } from '~/compositions/injectProvide';
+import type { InternalSchemaNode } from '~/types';
+import { addNode, deleteNode, getNode, nanoid, nodePosition } from '~/utils';
+import FormRenderer from './FormRenderer.vue';
 
 const emit = defineEmits<{
   (e: 'valid', valid: boolean): void;
@@ -138,11 +138,13 @@ function dragOver(e: DragEvent) {
     if (aboveTarget) {
       placeholder.style.top = '0';
       dropTarget.prepend(placeholder);
-    } else {
+    }
+    else {
       placeholder.style.bottom = '0';
       dropTarget.append(placeholder);
     }
-  } else {
+  }
+  else {
     dropzone.appendChild(placeholder);
   }
 

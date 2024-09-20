@@ -1,9 +1,11 @@
 <template>
   <div class="flex flex-col">
-    <label class="p-1" v-if="label">{{ label }}</label>
+    <label v-if="label" class="p-1">{{ label }}</label>
     <div class="border rounded">
       <select v-model="modelValue" class="w-full p-1 rounded bg-[field]">
-        <option v-for="(item, i) in options" :key="i">{{ item.label }}</option>
+        <option v-for="(item, i) in options" :key="i">
+          {{ item.label }}
+        </option>
       </select>
     </div>
   </div>

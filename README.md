@@ -24,7 +24,7 @@ yarn add former-ui
 
 ```vue
 <template>
-  <FormBuilder v-model:schema="schema" :mode="mode" v-model:data="data">
+  <FormBuilder v-model:schema="schema" v-model:data="data" :mode="mode">
     <main id="form-panel">
       <FormContent />
     </main>

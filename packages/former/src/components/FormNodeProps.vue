@@ -2,7 +2,9 @@
   <div v-if="selectedNode" class="flex flex-col gap-4 w-full">
     <div class="flex w-full justify-between">
       <span class="text-lg">{{ selectedNodeType?.label }}{{ selectedNode.name ? ` - ${selectedNode.name}` : '' }}</span>
-      <Button @click="selectedNode = undefined">x</Button>
+      <Button @click="selectedNode = undefined">
+        x
+      </Button>
     </div>
     <Former
       v-if="selectedNodePropsSchema"
@@ -12,17 +14,19 @@
       :components
     />
     <pre v-else>{{ selectedNode }}</pre>
-    <Button @click="deleteComponent">Delete</Button>
+    <Button @click="deleteComponent">
+      Delete
+    </Button>
   </div>
 </template>
 
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue';
 import { inject } from '~/compositions/injectProvide';
-import Former from './Former.vue';
-import { deleteNode, replaceNode, toInternalSchema } from '~/utils';
 import Button from '~/sample/Button.vue';
 import type { InternalSchemaNode } from '~/types';
+import { deleteNode, replaceNode, toInternalSchema } from '~/utils';
+import Former from './Former.vue';
 
 const components = inject('components');
 const schema = inject('schema');

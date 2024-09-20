@@ -1,20 +1,20 @@
-import './index.css';
+import FormAdd from '~/components/FormAdd.vue';
 
-import Former from '~/components/Former.vue';
 import FormContent from '~/components/FormContent.vue';
+import Former from '~/components/Former.vue';
 import FormNodeProps from '~/components/FormNodeProps.vue';
 import FormRenderer from '~/components/FormRenderer.vue';
-import FormAdd from '~/components/FormAdd.vue';
-import type { FormFieldType, FormData, SchemaNode, Mode } from '~/types';
+import type { FormData, FormFieldType, Mode, SchemaNode } from '~/types';
+import './index.css';
 
 export {
-  Former,
-  FormContent,
   FormAdd,
+  FormContent,
+  type FormData,
+  Former,
+  type FormFieldType,
   FormNodeProps,
   FormRenderer,
-  type FormFieldType,
-  type FormData,
-  type SchemaNode,
   type Mode,
+  type SchemaNode,
 };
