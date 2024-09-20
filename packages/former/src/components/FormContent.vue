@@ -208,10 +208,3 @@ onBeforeUnmount(() => {
   window.removeEventListener('drop', onDrop);
 });
 </script>
-
-<style>
-/* some minimal box to allow users to be able to add elements to an empty group */
-.former-drag-container {
-  @apply min-h-24 min-w-24 w-full;
-}
-</style>
