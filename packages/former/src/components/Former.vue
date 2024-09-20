@@ -8,14 +8,14 @@
 import { isEqual } from 'lodash';
 import { ref, toRef, watch } from 'vue';
 import { provide } from '~/compositions/injectProvide';
-import type { FieldData, FormData, FormFieldType, InternalSchemaNode, Mode, SchemaNode } from '~/types';
+import type { FormData, FormFieldType, InternalSchemaNode, Mode, SchemaNode, ShowIfPredicate, Validator } from '~/types';
 import { toInternalSchema, toSchema } from '~/utils';
 import FormContent from './FormContent.vue';
 
 const props = withDefaults(defineProps<{
   components: { [key: string]: FormFieldType };
-  showIf?: (node: SchemaNode, data: FormData) => boolean;
-  validator?: (node: SchemaNode, data: FieldData | FormData) => true | string;
+  showIf?: ShowIfPredicate;
+  validator?: Validator;
   mode?: Mode;
 }>(), { mode: 'edit' });
 

@@ -13,6 +13,10 @@ export type InternalSchemaNode<Props = { [key: string]: any }> = Omit<SchemaNode
   children?: InternalSchemaNode<Props>[];
 };
 
+export type ShowIfPredicate = (node: SchemaNode, data: FormData) => boolean;
+
+export type Validator = (node: SchemaNode, data: FieldData | FormData) => true | string;
+
 export type Mode = 'edit' | 'read' | 'build';
 
 export type FormData = Record<string, FieldData>;
