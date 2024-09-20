@@ -28,7 +28,7 @@
             Submit
           </Button>
 
-          <Button @click="clearPlayground">
+          <Button @click.prevent="clearPlayground">
             Clear playground
           </Button>
         </form>
