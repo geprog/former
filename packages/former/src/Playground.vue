@@ -389,7 +389,7 @@ function showIf(node: SchemaNode, _data: FormData): boolean {
   return condition === 'hello';
 }
 
-function validator(node: SchemaNode, data: FieldData): string | true {
+function validator(node: SchemaNode, data: FieldData | FormData): string | true {
   if (!node.props)
     return true;
   const requiredFlag = node.props.required;

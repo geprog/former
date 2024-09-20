@@ -15,7 +15,7 @@ import FormContent from './FormContent.vue';
 const props = withDefaults(defineProps<{
   components: { [key: string]: FormFieldType };
   showIf?: (node: SchemaNode, data: FormData) => boolean;
-  validator?: (node: SchemaNode, data: FieldData) => true | string;
+  validator?: (node: SchemaNode, data: FieldData | FormData) => true | string;
   mode?: Mode;
 }>(), { mode: 'edit' });
 

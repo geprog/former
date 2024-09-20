@@ -8,7 +8,7 @@
 <script setup lang="ts">
 import { computed, toRef, watch } from 'vue';
 import { inject } from '~/compositions/injectProvide';
-import type { FieldData, InternalSchemaNode } from '~/types';
+import type { FieldData, FormData, InternalSchemaNode } from '~/types';
 
 const props = defineProps<{
   node: InternalSchemaNode;
@@ -22,7 +22,7 @@ const components = inject('components');
 const validator = inject('validator', true);
 const mode = inject('mode');
 
-const modelValue = defineModel<FieldData>();
+const modelValue = defineModel<FieldData | FormData>();
 
 const component = computed(() => components[props.node.type]?.component);
 

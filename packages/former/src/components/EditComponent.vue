@@ -22,7 +22,7 @@
 
 <script setup lang="ts">
 import { inject } from '~/compositions/injectProvide';
-import type { FieldData, InternalSchemaNode } from '~/types';
+import type { FieldData, FormData, InternalSchemaNode } from '~/types';
 import FormComponent from './FormComponent.vue';
 
 defineProps<{
@@ -33,7 +33,7 @@ defineEmits<{
   (e: 'valid', valid: boolean): void;
 }>();
 
-const modelValue = defineModel<FieldData>();
+const modelValue = defineModel<FieldData | FormData>();
 
 const selectedNode = inject('selectedNode');
 

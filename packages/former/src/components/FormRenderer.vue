@@ -13,8 +13,8 @@
       :is="mode === 'build' ? EditComponent : FormComponent"
       v-if="isShown(node)"
       :node
-      :model-value="node.name ? data?.[node.name] : undefined"
-      @update:model-value="setData(node.name, $event)"
+      :model-value="node.name ? data?.[node.name] : data"
+      @update:model-value="setData(node, $event)"
       @valid="validityMap[node._id] = $event"
     />
   </div>
@@ -59,15 +59,15 @@ function isShown(node: SchemaNode, forHighlighting?: boolean) {
   return true;
 }
 
-function setData(name: string | undefined, e: FieldData) {
-  if (!name) {
-    // TODO: pass through the change event
+function setData(node: InternalSchemaNode, newData: FieldData | FormData) {
+  if (!node.name) {
+    data.value = newData as FormData;
     return;
   }
 
-  const _data = { ...data.value };
-  _data[name] = e;
-  data.value = _data;
+  const updatedData = { ...data.value };
+  updatedData[node.name] = newData as FieldData;
+  data.value = updatedData;
 }
 
 const isValid = computed(() => {

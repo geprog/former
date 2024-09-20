@@ -8,7 +8,7 @@ export type InjectKeys = {
   components: { [key: string]: FormFieldType };
   selectedNode: Ref<InternalSchemaNode | undefined>;
   showIf?: (node: SchemaNode, data: FormData) => boolean;
-  validator: (node: SchemaNode, data: FieldData) => true | string;
+  validator: (node: SchemaNode, data: FieldData | FormData) => true | string;
 };
 
 export function inject<T extends keyof InjectKeys>(key: T): InjectKeys[T];
