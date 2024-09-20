@@ -5,6 +5,7 @@
 </template>
 
 <script setup lang="ts">
+import { isEqual } from 'lodash';
 import { ref, toRef, watch } from 'vue';
 import { provide } from '~/compositions/injectProvide';
 import type { FieldData, FormData, FormFieldType, InternalSchemaNode, Mode, SchemaNode } from '~/types';
@@ -33,18 +34,23 @@ watch(
   { immediate: true },
 );
 
-const internalSchema = ref<InternalSchemaNode[]>(toInternalSchema(schema.value));
+const internalSchema = ref<InternalSchemaNode[]>([]);
 provide('schema', internalSchema);
 
-// TODO: allow to change the schema from the outside
-// watch(schema, (value) => {
-//   internalSchema.value = toInternalSchema(value);
-// });
+const latestSchema = ref<SchemaNode[]>();
+
+watch(schema, (value) => {
+  if (!isEqual(latestSchema.value, value)) {
+    internalSchema.value = toInternalSchema(value);
+  }
+}, { immediate: true });
 
 watch(
   internalSchema,
   (value) => {
-    schema.value = toSchema(value);
+    const newSchema = toSchema(value);
+    latestSchema.value = newSchema;
+    schema.value = newSchema;
   },
   { deep: true },
 );
