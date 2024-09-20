@@ -1,4 +1,4 @@
-name: Deploy
+name: Deploy Playground
 
 on:
   pull_request:
@@ -21,11 +21,11 @@ jobs:
         with:
           version: 8
           run_install: true
-      - run: pnpm build
+      - run: pnpm -r build:playground
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: playground/dist
+          path: packages/former/dist-playground
 
   deploy:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
