@@ -7,14 +7,14 @@
 <script setup lang="ts">
 import { ref, toRef, watch } from 'vue';
 import { provide } from '~/compositions/injectProvide';
-import type { FormData, FormFieldType, InternalSchemaNode, Mode, SchemaNode } from '~/types';
+import type { FieldData, FormData, FormFieldType, InternalSchemaNode, Mode, SchemaNode } from '~/types';
 import { toInternalSchema, toSchema } from '~/utils';
 import FormContent from './FormContent.vue';
 
 const props = withDefaults(defineProps<{
   components: { [key: string]: FormFieldType };
-  showIf?: (node: SchemaNode, nodePath: string[], data: FormData) => boolean;
-  validator?: (node: SchemaNode, tyepData: FormData) => true | string;
+  showIf?: (node: SchemaNode, data: FormData) => boolean;
+  validator?: (node: SchemaNode, data: FieldData) => true | string;
   mode?: Mode;
 }>(), { mode: 'edit' });
 

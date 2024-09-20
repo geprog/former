@@ -13,40 +13,26 @@
       :is="mode === 'build' ? EditComponent : FormComponent"
       v-if="isShown(node)"
       :node
-      :node-path="nodePath.concat(node.name || [])"
       :model-value="node.name ? data?.[node.name] : undefined"
-      @update:model-value="(e: unknown) => setData(node.name, e)"
+      @update:model-value="setData(node.name, $event)"
       @valid="validityMap[node._id] = $event"
-    >
-      <div class="relative" :class="{ 'former-drag-container': mode === 'build' }" :data-parent-node="node._id">
-        <FormRenderer
-          v-if="node.children"
-          :schema="node.children"
-          :node-path="nodePath.concat(node.name || [])"
-          :data="node.name ? data?.[node.name] : undefined"
-          @update:data="(e: unknown) => setData(node.name, e)"
-          @valid="childrenValidityMap[node._id] = $event"
-        />
-      </div>
-    </component>
+    />
   </div>
 </template>
 
 <script setup lang="ts">
 import { computed, ref, toRef, watch } from 'vue';
 import { inject } from '~/compositions/injectProvide';
-import type { FormData, InternalSchemaNode, SchemaNode } from '~/types';
+import type { FieldData, FormData, InternalSchemaNode, SchemaNode } from '~/types';
 import EditComponent from './EditComponent.vue';
 import FormComponent from './FormComponent.vue';
 
 const props = withDefaults(
   defineProps<{
     schema?: InternalSchemaNode[];
-    nodePath?: string[];
   }>(),
   {
     schema: undefined,
-    nodePath: () => [],
   },
 );
 
@@ -60,7 +46,6 @@ const childrenValidityMap = ref<Record<string, boolean | undefined>>({});
 const data = defineModel<FormData>('data', { default: () => ({}) });
 
 const schema = toRef(props, 'schema');
-const nodePath = toRef(props, 'nodePath');
 
 const showIf = inject('showIf', false);
 const mode = inject('mode');
@@ -69,12 +54,12 @@ function isShown(node: SchemaNode, forHighlighting?: boolean) {
   if ((mode.value !== 'build' || forHighlighting) && showIf) {
     // only evaluate showIf when we are not editing the form
     // but in edit mode we still want to show the component but highlighted
-    return showIf(node, nodePath.value.concat(node.name || []), data.value);
+    return showIf(node, data.value);
   }
   return true;
 }
 
-function setData(name: string | undefined, e: unknown) {
+function setData(name: string | undefined, e: FieldData) {
   if (!name) {
     // TODO: pass through the change event
     return;

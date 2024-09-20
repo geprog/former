@@ -1,4 +1,4 @@
-import type { DefineComponent, Raw } from 'vue';
+import type { Component, Raw } from 'vue';
 
 export type SchemaNode<Props = { [key: string]: any }> = {
   type: string;
@@ -15,9 +15,13 @@ export type InternalSchemaNode<Props = { [key: string]: any }> = Omit<SchemaNode
 
 export type Mode = 'edit' | 'read' | 'build';
 
-export type FormData = Record<string, any>;
+export type FormData = Record<string, FieldData>;
 
-type FormFieldComponent = DefineComponent<any, any, any>;
+export type FieldData = string | number | boolean | null | undefined | FormData[];
+
+export type FormerProps = { node: InternalSchemaNode; mode: Mode; error?: string; };
+
+type FormFieldComponent = Component<any, any, any>;
 
 export type FormFieldType = {
   label: string;

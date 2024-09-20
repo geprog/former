@@ -12,19 +12,16 @@
 
 <script setup lang="ts">
 import { toRef } from 'vue';
-import type { Mode } from '~/types';
+import type { FormerProps } from '~/types';
 
 const props = withDefaults(
   defineProps<{
     label?: string;
     type?: 'text' | 'password' | 'email';
     placeholder?: string;
-    error?: string;
-    mode?: Mode;
-  }>(),
+  } & FormerProps>(),
   {
     type: 'text',
-    mode: 'edit',
   },
 );
 const mode = toRef(props, 'mode');

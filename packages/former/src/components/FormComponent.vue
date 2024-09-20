@@ -1,5 +1,5 @@
 <template>
-  <component :is="component" v-if="component" v-bind="node.props" v-model="modelValue" :mode :node-path :error>
+  <component :is="component" v-if="component" v-bind="node.props" v-model="modelValue" :node :mode :error>
     <slot />
   </component>
   <span v-else>Component type not found!</span>
@@ -8,11 +8,10 @@
 <script setup lang="ts">
 import { computed, toRef, watch } from 'vue';
 import { inject } from '~/compositions/injectProvide';
-import type { InternalSchemaNode } from '~/types';
+import type { FieldData, InternalSchemaNode } from '~/types';
 
 const props = defineProps<{
   node: InternalSchemaNode;
-  nodePath?: string[];
 }>();
 
 const emit = defineEmits<{
@@ -23,7 +22,7 @@ const components = inject('components');
 const validator = inject('validator', true);
 const mode = inject('mode');
 
-const modelValue = defineModel<unknown>();
+const modelValue = defineModel<FieldData>();
 
 const component = computed(() => components[props.node.type]?.component);
 

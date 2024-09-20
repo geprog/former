@@ -1,14 +1,10 @@
 <template>
-  <div
-    class="relative"
-    :class="{
-      'former-drag-container': mode === 'build',
-    }"
+  <FormDragContainer
     @dragover.prevent="dragOver"
     @dragenter.prevent
   >
     <FormRenderer v-model:data="data" :schema @valid="isValid = $event" />
-  </div>
+  </FormDragContainer>
 </template>
 
 <script setup lang="ts">
@@ -16,6 +12,7 @@ import { onBeforeUnmount, onMounted, ref, toValue, watch } from 'vue';
 import { inject } from '~/compositions/injectProvide';
 import type { InternalSchemaNode } from '~/types';
 import { addNode, deleteNode, getNode, nanoid, nodePosition } from '~/utils';
+import FormDragContainer from './FormDragContainer.vue';
 import FormRenderer from './FormRenderer.vue';
 
 const emit = defineEmits<{

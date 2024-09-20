@@ -54,11 +54,6 @@
             <pre class="font-mono text-sm p-4 bg-zinc-100 mb-4">{{ data }}</pre>
           </details>
         </div>
-
-        <div class="bg-white rounded-xl shadow-xl p-8 flex flex-col">
-          <span>`group.name` (Nested editing test)</span>
-          <TextInput v-model="data.group.name" label="Group Name" />
-        </div>
       </div>
     </Former>
   </div>
@@ -70,7 +65,7 @@ import { computed, markRaw, ref } from 'vue';
 import Group from '~/sample/Group.vue';
 import Repeater from '~/sample/Repeater.vue';
 import TextInput from '~/sample/TextInput.vue';
-import type { FormData, FormFieldType, Mode, SchemaNode } from '~/types';
+import type { FieldData, FormData, FormFieldType, Mode, SchemaNode } from '~/types';
 import FormAdd from './components/FormAdd.vue';
 import FormContent from './components/FormContent.vue';
 import Former from './components/Former.vue';
@@ -187,28 +182,26 @@ const schema = useStorage<SchemaNode[]>('former:schema', [
   {
     type: 'repeater',
     name: 'repeater',
-    props: {
-      itemSchema: [
-        {
+    children: [
+      {
+        type: 'text',
+        name: 'label',
+        props: {
           type: 'text',
-          name: 'label',
-          props: {
-            type: 'text',
-            label: 'Label',
-            placeholder: 'Enter a label',
-          },
+          label: 'Label',
+          placeholder: 'Enter a label',
         },
-        {
+      },
+      {
+        type: 'text',
+        name: 'value',
+        props: {
           type: 'text',
-          name: 'value',
-          props: {
-            type: 'text',
-            label: 'Value',
-            placeholder: 'Enter a value',
-          },
+          label: 'Value',
+          placeholder: 'Enter a value',
         },
-      ],
-    },
+      },
+    ],
   },
 ]);
 
@@ -236,27 +229,7 @@ const jsonSchema = computed<string>({
   },
 });
 
-const data = useStorage<FormData>('former:data', {
-  name: 'Anton',
-  email: 'anton@example.com',
-  password: '12345678',
-  confirmPassword: '12345678',
-  group: {
-    name: 'Wonderful team',
-    email: 'group@example.com',
-  },
-  level1: {
-    level2: {
-      name: 'Nested group',
-    },
-  },
-  select: 'Option 2',
-  repeater: [
-    { label: 'Option 1', value: 'option1' },
-    { label: 'Option 2', value: 'option2' },
-    { label: 'Option 3', value: 'option3' },
-  ],
-});
+const data = useStorage<FormData>('former:data', {});
 
 const components: { [k: string]: FormFieldType } = {
   text: {
@@ -356,28 +329,28 @@ const components: { [k: string]: FormFieldType } = {
       {
         type: 'repeater',
         name: 'options',
+        children: [
+          {
+            type: 'text',
+            name: 'label',
+            props: {
+              type: 'text',
+              label: 'Label',
+              placeholder: 'Enter a label',
+            },
+          },
+          {
+            type: 'text',
+            name: 'value',
+            props: {
+              type: 'text',
+              label: 'Value',
+              placeholder: 'Enter a value',
+            },
+          },
+        ],
         props: {
           label: 'Options',
-          itemSchema: [
-            {
-              type: 'text',
-              name: 'label',
-              props: {
-                type: 'text',
-                label: 'Label',
-                placeholder: 'Enter a label',
-              },
-            },
-            {
-              type: 'text',
-              name: 'value',
-              props: {
-                type: 'text',
-                label: 'Value',
-                placeholder: 'Enter a value',
-              },
-            },
-          ],
         },
       },
     ],
@@ -407,7 +380,7 @@ const components: { [k: string]: FormFieldType } = {
   },
 };
 
-function showIf(node: SchemaNode, _nodePath: string[], _data: FormData): boolean {
+function showIf(node: SchemaNode, _data: FormData): boolean {
   if (!node.props)
     return true;
   const condition = node.props.showIf;
@@ -416,7 +389,7 @@ function showIf(node: SchemaNode, _nodePath: string[], _data: FormData): boolean
   return condition === 'hello';
 }
 
-function validator(node: SchemaNode, data: FormData): string | true {
+function validator(node: SchemaNode, data: FieldData): string | true {
   if (!node.props)
     return true;
   const requiredFlag = node.props.required;
