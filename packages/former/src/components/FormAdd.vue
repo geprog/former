@@ -18,6 +18,7 @@
                   _id: '',
                   type: i as string,
                 }"
+                :model-value="undefined"
               />
             </div>
           </div>
