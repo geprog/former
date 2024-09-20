@@ -27,6 +27,10 @@
           <Button type="submit">
             Submit
           </Button>
+
+          <Button @click="clearPlayground">
+            Clear playground
+          </Button>
         </form>
       </main>
 
@@ -406,5 +410,10 @@ function submit() {
   alert(`Submitted:
   
   ${JSON.stringify(data.value, undefined, 4)}`);
+}
+
+function clearPlayground() {
+  schema.value = [];
+  data.value = {};
 }
 </script>
