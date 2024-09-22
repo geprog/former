@@ -18,6 +18,9 @@
       Delete
     </Button>
   </div>
+  <div v-else>
+    Click on an element for being able to adjust the props
+  </div>
 </template>
 
 <script setup lang="ts">
