@@ -13,9 +13,7 @@
       }"
     >
       <span class="drag-handle cursor-move p-2">::</span>
-      <FormComponent v-model="modelValue" :node @valid="$emit('valid', $event)">
-        <slot />
-      </FormComponent>
+      <FormComponent v-model="modelValue" :node @valid="$emit('valid', $event)" />
     </div>
   </div>
 </template>
