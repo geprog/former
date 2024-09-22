@@ -8,6 +8,7 @@
       :mode
       :show-if
       :validator="validator"
+      @valid="isValid = $event"
     >
       <main class="gap-4 m-4 max-w-[960px] w-2/3 flex flex-col overflow-y-auto">
         <h1 class="text-4xl font-bold mx-auto">
@@ -22,7 +23,7 @@
         </div>
 
         <form class="bg-white rounded-xl shadow-xl p-4 flex flex-col gap-4" @submit.prevent="submit">
-          <FormContent @valid="isValid = $event" />
+          <FormContent />
 
           <Button type="submit">
             Submit

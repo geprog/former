@@ -7,6 +7,7 @@ export type InjectKeys = {
   data: Ref<FormData>;
   components: { [key: string]: FormFieldType };
   selectedNode: Ref<InternalSchemaNode | undefined>;
+  validityMap: Ref<Record<string, boolean | undefined>>;
   showIf?: ShowIfPredicate;
   validator: Validator;
 };

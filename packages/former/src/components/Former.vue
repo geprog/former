@@ -1,12 +1,12 @@
 <template>
   <slot :selected-node="selectedNode">
-    <FormContent @valid="isValid = $event" />
+    <FormContent />
   </slot>
 </template>
 
 <script setup lang="ts">
 import { isEqual } from 'lodash';
-import { ref, toRef, watch } from 'vue';
+import { computed, ref, toRef, watch } from 'vue';
 import { provide } from '~/compositions/injectProvide';
 import type { FormData, FormFieldType, InternalSchemaNode, Mode, SchemaNode, ShowIfPredicate, Validator } from '~/types';
 import { toInternalSchema, toSchema } from '~/utils';
@@ -24,15 +24,6 @@ const emit = defineEmits<{
 }>();
 
 const schema = defineModel<SchemaNode[]>('schema', { required: true });
-
-const isValid = ref(true);
-watch(
-  isValid,
-  () => {
-    emit('valid', isValid.value);
-  },
-  { immediate: true },
-);
 
 const internalSchema = ref<InternalSchemaNode[]>([]);
 provide('schema', internalSchema);
@@ -63,6 +54,23 @@ provide('mode', toRef(props, 'mode'));
 provide('components', props.components);
 provide('showIf', props.showIf || (() => true));
 provide('validator', props.validator || (() => true));
+
+const validityMap = ref<Record<string, boolean | undefined>>({});
+provide('validityMap', validityMap);
+
+const isValid = computed(() => {
+  return Object.values(validityMap.value).every(
+    validFlag => validFlag !== false,
+  );
+});
+
+watch(
+  isValid,
+  () => {
+    emit('valid', isValid.value);
+  },
+  { immediate: true },
+);
 
 const selectedNode = ref<InternalSchemaNode | undefined>(undefined);
 provide('selectedNode', selectedNode);

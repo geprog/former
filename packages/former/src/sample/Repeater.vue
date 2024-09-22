@@ -3,7 +3,7 @@
     <label v-if="label" class="p-1">{{ label }}</label>
     <div v-for="(item, index) in modelValue" :key="index" class="flex gap-2 w-full">
       <FormDragContainer :node>
-        <FormRenderer :schema="node.children" :data="item" @update:data="updateItem(index, $event)" />
+        <FormRenderer :schema="node.children" :data="item" :repeated-form-identifier="index" @update:data="updateItem(index, $event)" />
       </FormDragContainer>
       <Button v-if="mode !== 'read'" @click.prevent="deleteItem(index)">
         x

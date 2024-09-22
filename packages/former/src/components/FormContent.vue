@@ -3,7 +3,7 @@
     @dragover.prevent="dragOver"
     @dragenter.prevent
   >
-    <FormRenderer v-model:data="data" :schema @valid="isValid = $event" />
+    <FormRenderer v-model:data="data" :schema />
   </FormDragContainer>
 </template>
 
@@ -14,19 +14,6 @@ import type { InternalSchemaNode } from '~/types';
 import { addNode, deleteNode, getNode, nanoid, nodePosition } from '~/utils';
 import FormDragContainer from './FormDragContainer.vue';
 import FormRenderer from './FormRenderer.vue';
-
-const emit = defineEmits<{
-  (e: 'valid', valid: boolean): void;
-}>();
-
-const isValid = ref(true);
-watch(
-  isValid,
-  () => {
-    emit('valid', isValid.value);
-  },
-  { immediate: true },
-);
 
 const mode = inject('mode');
 const schema = inject('schema');

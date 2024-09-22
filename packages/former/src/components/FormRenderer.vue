@@ -1,87 +1,24 @@
 <template>
-  <div
+  <FormNode
     v-for="node in schema"
     :key="node._id"
-    class="relative"
-    :class="{
-      'bg-zinc-200 rounded': !isShown(node, true),
-      'former-draggable': mode === 'build',
-    }"
-    :data-node="node._id"
-  >
-    <component
-      :is="mode === 'build' ? EditComponent : FormComponent"
-      v-if="isShown(node)"
-      :node
-      :model-value="node.name ? data?.[node.name] : data"
-      @update:model-value="setData(node, $event)"
-      @valid="validityMap[node._id] = $event"
-    />
-  </div>
+    v-model:data="data"
+    :node
+    :repeated-form-identifier
+  />
 </template>
 
 <script setup lang="ts">
 import { computed, ref, toRef, watch } from 'vue';
-import { inject } from '~/compositions/injectProvide';
-import type { FieldData, FormData, InternalSchemaNode, SchemaNode } from '~/types';
-import EditComponent from './EditComponent.vue';
-import FormComponent from './FormComponent.vue';
+import type { FormData, InternalSchemaNode } from '~/types';
+import FormNode from './FormNode.vue';
 
-const props = withDefaults(
-  defineProps<{
-    schema?: InternalSchemaNode[];
-  }>(),
-  {
-    schema: undefined,
-  },
-);
-
-const emit = defineEmits<{
-  (e: 'valid', valid: boolean): void;
+const props = defineProps<{
+  schema?: InternalSchemaNode[];
+  repeatedFormIdentifier?: string | number;
 }>();
-
-const validityMap = ref<Record<string, boolean | undefined>>({});
-const childrenValidityMap = ref<Record<string, boolean | undefined>>({});
 
 const data = defineModel<FormData>('data', { default: () => ({}) });
 
 const schema = toRef(props, 'schema');
-
-const showIf = inject('showIf', false);
-const mode = inject('mode');
-
-function isShown(node: SchemaNode, forHighlighting?: boolean) {
-  if ((mode.value !== 'build' || forHighlighting) && showIf) {
-    // only evaluate showIf when we are not editing the form
-    // but in edit mode we still want to show the component but highlighted
-    return showIf(node, data.value);
-  }
-  return true;
-}
-
-function setData(node: InternalSchemaNode, newData: FieldData | FormData) {
-  if (!node.name) {
-    data.value = newData as FormData;
-    return;
-  }
-
-  const updatedData = { ...data.value };
-  updatedData[node.name] = newData as FieldData;
-  data.value = updatedData;
-}
-
-const isValid = computed(() => {
-  const relevantNodes = (schema.value || []).filter(node => isShown(node));
-  return relevantNodes.every(
-    node => validityMap.value[node._id] !== false && childrenValidityMap.value[node._id] !== false,
-  );
-});
-
-watch(
-  isValid,
-  () => {
-    emit('valid', isValid.value);
-  },
-  { immediate: true },
-);
 </script>
