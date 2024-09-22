@@ -8,7 +8,7 @@
 </template>
 
 <script setup lang="ts">
-import { onBeforeUnmount, onMounted, ref, toValue, watch } from 'vue';
+import { onBeforeUnmount, onMounted, toValue } from 'vue';
 import { inject } from '~/compositions/injectProvide';
 import type { InternalSchemaNode } from '~/types';
 import { addNode, deleteNode, getNode, nanoid, nodePosition } from '~/utils';

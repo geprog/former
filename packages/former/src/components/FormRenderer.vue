@@ -9,7 +9,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, toRef, watch } from 'vue';
+import { toRef } from 'vue';
 import type { FormData, InternalSchemaNode } from '~/types';
 import FormNode from './FormNode.vue';
 

@@ -20,7 +20,7 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, ref, toRef, watch } from 'vue';
 import { inject } from '~/compositions/injectProvide';
-import type { FieldData, FormData, InternalSchemaNode, SchemaNode } from '~/types';
+import type { FieldData, FormData, InternalSchemaNode } from '~/types';
 import EditComponent from './EditComponent.vue';
 import FormComponent from './FormComponent.vue';
 
