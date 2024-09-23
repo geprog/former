@@ -9,7 +9,7 @@
   >
     <component
       :is="mode === 'build' ? EditComponent : FormComponent"
-      v-if="isShown"
+      v-if="isShown || mode === 'build'"
       v-model="modelValue"
       :node
       @valid="isValid = $event"
@@ -65,7 +65,7 @@ const modelValue = computed({
 });
 
 const isShown = computed(() => {
-  if (mode.value !== 'build' && showIf) {
+  if (showIf) {
     // only evaluate showIf when we are not building up the form
     // but in edit mode we still want to show the component but highlighted
     return showIf(node.value, data.value);
