@@ -201,11 +201,18 @@ function onDrop(e: DragEvent) {
   const nodeId = e.dataTransfer?.getData('node_id');
   if (nodeId) {
     const node = getNode(schema.value, nodeId)!;
+    const currentPosition = nodePosition(schema.value, nodeId, 'above')!;
 
     const _schema = [...toValue(schema.value)];
 
     deleteNode(_schema, nodeId);
-    addNode(_schema, newPosition.parentId ?? null, newPosition.index, node);
+
+    let index = newPosition.index;
+    if (currentPosition.parentId === newPosition.parentId && currentPosition.index < newPosition.index) {
+      // we need to reduce the index if the element got deleted in the same parent at a lower position
+      index--;
+    }
+    addNode(_schema, newPosition.parentId ?? null, index, node);
 
     schema.value = _schema;
   }
