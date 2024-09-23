@@ -87,6 +87,12 @@ onBeforeUnmount(() => {
   delete validityMap.value[nodeIdForValidation.value];
 });
 
+watch(isShown, (value, oldValue) => {
+  if (oldValue && !value) {
+    modelValue.value = undefined;
+  }
+});
+
 watch(
   isValid,
   () => {
