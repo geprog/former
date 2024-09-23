@@ -44,7 +44,7 @@ function startDrag(e: DragEvent, nodeId: string) {
 
 onBeforeUnmount(() => {
   modelValue.value = undefined;
-})
+});
 </script>
 
 <style>

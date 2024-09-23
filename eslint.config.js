@@ -24,7 +24,7 @@ export default antfu({
   rules: {
     '@typescript-eslint/consistent-type-definitions': 'off', // off for now
     'style/member-delimiter-style': 'off', // off for now
-    'style/semi': 'off', // off for now
+    'style/semi': ['error', 'always'],
     'vue/block-order': ['error', {
       order: [['template', 'script'], 'style'],
     }],
