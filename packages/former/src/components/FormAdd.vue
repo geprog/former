@@ -5,7 +5,7 @@
         <span>{{ component.label }}</span>
 
         <div
-          class="flex gap-2 w-full items-center cursor-move hover:bg-zinc-100"
+          class="flex gap-2 w-full items-center cursor-move hover:bg-blue-100"
           draggable="true"
           @dragstart="startDrag($event, i as string)"
         >

@@ -136,9 +136,9 @@ function dragOver(e: DragEvent) {
   }
 
   if (activeDropzone) {
-    activeDropzone.classList.remove('bg-gray-200');
+    activeDropzone.classList.remove('bg-blue-200');
   }
-  dropzone.classList.add('bg-gray-200');
+  dropzone.classList.add('bg-blue-200');
   activeDropzone = dropzone;
 }
 
@@ -152,7 +152,7 @@ function dragLeave(e: DragEvent) {
   }
   placeholder = null;
   if (activeDropzone) {
-    activeDropzone.classList.remove('bg-gray-200');
+    activeDropzone.classList.remove('bg-blue-200');
   }
   activeDropzone = null;
 }
@@ -169,7 +169,7 @@ function onDrop(e: DragEvent) {
   }
 
   if (activeDropzone) {
-    activeDropzone.classList.remove('bg-gray-200');
+    activeDropzone.classList.remove('bg-blue-200');
   }
 
   const details = getDropDetails(e);

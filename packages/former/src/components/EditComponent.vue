@@ -48,7 +48,8 @@ onBeforeUnmount(() => {
 </script>
 
 <style>
+/** necessary to do proper hovering in nested elements */
 .handle:hover:not(:has(.handle:hover)) > .element {
-  @apply bg-zinc-100;
+  @apply bg-blue-200;
 }
 </style>
