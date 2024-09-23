@@ -245,6 +245,7 @@ const components: { [k: string]: FormFieldType } = {
         props: {
           label: 'Name',
           placeholder: 'Enter the name of the data field',
+          required: true,
         },
       },
       showIfProp,

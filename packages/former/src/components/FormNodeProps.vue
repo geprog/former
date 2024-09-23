@@ -12,6 +12,7 @@
       :schema="selectedNodePropsSchema"
       mode="edit"
       :components
+      :validator
     />
     <pre v-else>{{ selectedNode }}</pre>
     <Button @click="deleteComponent">
@@ -33,6 +34,7 @@ import Former from './Former.vue';
 
 const components = inject('components');
 const schema = inject('schema');
+const validator = inject('validator');
 
 const selectedNode = inject('selectedNode');
 
