@@ -232,6 +232,8 @@ const jsonSchema = computed<string>({
 
 const data = useStorage<FormData>('former:data', {});
 
+const showIfProp = { type: 'text', name: 'showIf', props: { label: 'Konditionale Bedingung', placeholder: 'If empty or "hello" then component is visible.' } };
+
 const components: { [k: string]: FormFieldType } = {
   text: {
     label: 'Text',
@@ -245,7 +247,7 @@ const components: { [k: string]: FormFieldType } = {
           placeholder: 'Enter the name of the data field',
         },
       },
-
+      showIfProp,
       {
         type: 'text',
         name: 'label',
@@ -283,6 +285,7 @@ const components: { [k: string]: FormFieldType } = {
           placeholder: 'Enter the name of the data field',
         },
       },
+      showIfProp,
     ],
   },
   repeater: {
@@ -297,6 +300,7 @@ const components: { [k: string]: FormFieldType } = {
           placeholder: 'Enter the name of the data field',
         },
       },
+      showIfProp,
       {
         type: 'text',
         name: 'label',
@@ -319,6 +323,7 @@ const components: { [k: string]: FormFieldType } = {
           placeholder: 'Enter the name of the data field',
         },
       },
+      showIfProp,
       {
         type: 'text',
         name: 'label',
@@ -368,7 +373,7 @@ const components: { [k: string]: FormFieldType } = {
           placeholder: 'Enter the name of the data field',
         },
       },
-
+      showIfProp,
       {
         type: 'text',
         name: 'label',
