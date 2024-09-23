@@ -2,6 +2,7 @@
   <FormDragContainer
     @dragover.prevent="dragOver"
     @dragenter.prevent
+    @dragleave.prevent="dragLeave"
   >
     <FormRenderer v-model:data="data" :schema />
   </FormDragContainer>
@@ -139,6 +140,21 @@ function dragOver(e: DragEvent) {
   }
   dropzone.classList.add('bg-gray-200');
   activeDropzone = dropzone;
+}
+
+function dragLeave(e: DragEvent) {
+  if (e.currentTarget && e.relatedTarget && (e.currentTarget as Node).contains(e.relatedTarget as Node)) {
+    // doing this check to avoid flikkering of the gray background in the drag container
+    return;
+  }
+  if (placeholder) {
+    placeholder.remove();
+  }
+  placeholder = null;
+  if (activeDropzone) {
+    activeDropzone.classList.remove('bg-gray-200');
+  }
+  activeDropzone = null;
 }
 
 function onDrop(e: DragEvent) {
