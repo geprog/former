@@ -11,7 +11,7 @@
 import { onBeforeUnmount, onMounted, toValue } from 'vue';
 import { inject } from '~/compositions/injectProvide';
 import type { InternalSchemaNode } from '~/types';
-import { addNode, deleteNode, getNode, nanoid, nodePosition } from '~/utils';
+import { addNode, deleteNode, getFormIdFromEvent, getNode, nanoid, nodePosition } from '~/utils';
 import FormDragContainer from './FormDragContainer.vue';
 import FormRenderer from './FormRenderer.vue';
 
@@ -19,6 +19,7 @@ const mode = inject('mode');
 const schema = inject('schema');
 const data = inject('data');
 const selectedNode = inject('selectedNode');
+const formId = inject('formId');
 
 let lastDropTarget: HTMLElement | null = null;
 let lastDropzone: HTMLElement | null = null;
@@ -88,7 +89,8 @@ function getDropDetails(e: DragEvent) {
 let placeholder: HTMLElement | null = null;
 let activeDropzone: HTMLElement | null = null;
 function dragOver(e: DragEvent) {
-  if (mode.value !== 'build') {
+  const eventFormId = getFormIdFromEvent(e);
+  if (mode.value !== 'build' || formId.value !== eventFormId) {
     // do not handle any drag if not in builder mode
     return;
   }
@@ -140,6 +142,12 @@ function dragOver(e: DragEvent) {
 }
 
 function onDrop(e: DragEvent) {
+  const eventFormId = getFormIdFromEvent(e);
+  if (mode.value !== 'build' || formId.value !== eventFormId) {
+    // do not handle any drag if not in builder mode
+    return;
+  }
+
   if (placeholder) {
     placeholder.remove();
   }

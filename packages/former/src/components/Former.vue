@@ -9,7 +9,7 @@ import { isEqual } from 'lodash';
 import { computed, ref, toRef, watch } from 'vue';
 import { provide } from '~/compositions/injectProvide';
 import type { FormData, FormFieldType, InternalSchemaNode, Mode, SchemaNode, ShowIfPredicate, Validator } from '~/types';
-import { toInternalSchema, toSchema } from '~/utils';
+import { generateFormId, toInternalSchema, toSchema } from '~/utils';
 import FormContent from './FormContent.vue';
 
 const props = withDefaults(defineProps<{
@@ -27,6 +27,9 @@ const schema = defineModel<SchemaNode[]>('schema', { required: true });
 
 const internalSchema = ref<InternalSchemaNode[]>([]);
 provide('schema', internalSchema);
+
+const formId = ref(generateFormId());
+provide('formId', formId);
 
 const latestSchema = ref<SchemaNode[]>();
 

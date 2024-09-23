@@ -30,18 +30,14 @@
 
 <script lang="ts" setup>
 import { inject } from '~/compositions/injectProvide';
+import { setDragEventData } from '~/utils';
 import FormComponent from './FormComponent.vue';
 
 const components = inject('components');
 const mode = inject('mode');
+const formId = inject('formId');
 
 function startDrag(e: DragEvent, nodeType: string) {
-  if (e.dataTransfer === null) {
-    return;
-  }
-
-  e.dataTransfer.dropEffect = 'move';
-  e.dataTransfer.effectAllowed = 'move';
-  e.dataTransfer.setData('new_node_type', nodeType);
+  setDragEventData(e, formId.value, 'new_node_type', nodeType);
 }
 </script>

@@ -21,6 +21,7 @@
 <script setup lang="ts">
 import { inject } from '~/compositions/injectProvide';
 import type { FieldData, FormData, InternalSchemaNode } from '~/types';
+import { setDragEventData } from '~/utils';
 import FormComponent from './FormComponent.vue';
 
 defineProps<{
@@ -34,15 +35,10 @@ defineEmits<{
 const modelValue = defineModel<FieldData | FormData>();
 
 const selectedNode = inject('selectedNode');
+const formId = inject('formId');
 
 function startDrag(e: DragEvent, nodeId: string) {
-  if (e.dataTransfer === null) {
-    return;
-  }
-
-  e.dataTransfer.dropEffect = 'move';
-  e.dataTransfer.effectAllowed = 'move';
-  e.dataTransfer.setData('node_id', nodeId);
+  setDragEventData(e, formId.value, 'node_id', nodeId);
 }
 </script>
 

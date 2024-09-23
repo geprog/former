@@ -3,6 +3,7 @@ import type { FormData, FormFieldType, InternalSchemaNode, Mode, ShowIfPredicate
 
 export type InjectKeys = {
   mode: Ref<Mode>;
+  formId: Ref<string>;
   schema: Ref<InternalSchemaNode[]>;
   data: Ref<FormData>;
   components: { [key: string]: FormFieldType };

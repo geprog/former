@@ -173,3 +173,26 @@ export function moveArrayElement<T>(list: MaybeRefOrGetter<T[]>, from: number, t
     });
   }
 }
+
+export function generateFormId(): string {
+  // must be lower case to match with drag event handling hack see e.g. EditComponent.vue#startDrag
+  return nanoid().toLowerCase();
+}
+
+export function getFormIdFromEvent(event: DragEvent) {
+  return (event.dataTransfer?.types || []).find(type => type.startsWith('form_id_'))?.replace('form_id_', '');
+}
+
+export function setDragEventData(event: DragEvent, formId: string, nodeDiscriminator: 'new_node_type' | 'node_id', nodeDiscriminatorValue: string) {
+  if (event.dataTransfer === null) {
+    return;
+  }
+
+  event.dataTransfer.dropEffect = 'move';
+  event.dataTransfer.effectAllowed = 'move';
+  event.dataTransfer.setData(nodeDiscriminator, nodeDiscriminatorValue);
+  event.dataTransfer.setData('form_id', formId);
+  // hack because transfer data is not available on drag over but you can iterate the available types
+  // see https://html.spec.whatwg.org/multipage/dnd.html#the-drag-data-store
+  event.dataTransfer.setData(`form_id_${formId}`, formId);
+}
