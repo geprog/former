@@ -15,3 +15,9 @@ tasks:
 
     init: pnpm install && pnpm run build
     command: pnpm run dev
+
+vscode:
+  extensions:
+    - dbaeumer.vscode-eslint
+    - Vue.volar
+    - bradlc.vscode-tailwindcss

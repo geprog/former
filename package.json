@@ -2,16 +2,17 @@
   "type": "module",
   "version": "0.0.0",
   "private": true,
-  "packageManager": "pnpm@8.14.1",
   "scripts": {
     "dev": "pnpm -r --parallel dev",
     "lint": "eslint .",
     "test": "pnpm -r test",
+    "typecheck": "pnpm -r typecheck",
     "release": "pnpm -r release && changeset publish",
-    "format:check": "prettier --check .",
     "build": "pnpm -r build"
   },
   "devDependencies": {
-    "prettier": "^3.2.5"
+    "@antfu/eslint-config": "^3.6.2",
+    "eslint": "^9.9.1",
+    "eslint-plugin-format": "^0.1.2"
   }
 }

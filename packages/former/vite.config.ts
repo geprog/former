@@ -1,8 +1,9 @@
 import { resolve } from 'node:path';
-import { defineConfig } from 'vite';
+import { fileURLToPath, URL } from 'node:url';
 import vue from '@vitejs/plugin-vue';
-import dts from 'vite-plugin-dts';
+import { defineConfig } from 'vite';
 import cssInjectedByJsPlugin from 'vite-plugin-css-injected-by-js';
+import dts from 'vite-plugin-dts';
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -16,7 +17,7 @@ export default defineConfig({
   ],
   resolve: {
     alias: {
-      '~': resolve(__dirname, 'src'),
+      '~': fileURLToPath(new URL('./src', import.meta.url)),
     },
   },
   build: {
@@ -29,17 +30,17 @@ export default defineConfig({
     rollupOptions: {
       // make sure to externalize deps that shouldn't be bundled
       // into your library (Vue)
-      external: ['vue', '@formkit/core', '@formkit/vue', '@formkit/icons'],
+      external: ['vue'],
       output: {
         // Provide global variables to use in the UMD build
         // for externalized deps
         globals: {
           vue: 'Vue',
-          '@formkit/core': 'FormkitCore',
-          '@formkit/vue': 'FormkitVue',
         },
         assetFileNames: (chunkInfo) => {
-          if (chunkInfo.name === 'style.css') return 'index.css';
+          if (chunkInfo.name === 'style.css') {
+            return 'index.css';
+          };
           return chunkInfo.name as string;
         },
       },

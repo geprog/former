@@ -6,20 +6,6 @@ on:
       - main
 
 jobs:
-  formart:
-    name: Check Formart
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
-        with:
-          node-version: 20
-      - uses: pnpm/action-setup@v3
-        with:
-          version: 8
-          run_install: true
-      - run: pnpm format:check
-
   lint:
     name: Lint
     runs-on: ubuntu-latest
@@ -32,7 +18,21 @@ jobs:
         with:
           version: 8
           run_install: true
-      # - run: pnpm lint # TODO: Uncomment this line after adding correct linting rules
+      - run: pnpm lint
+
+  typecheck:
+    name: Typecheck
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 20
+      - uses: pnpm/action-setup@v3
+        with:
+          version: 8
+          run_install: true
+      - run: pnpm test
 
   unit-test:
     name: Unit Tests

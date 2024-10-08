@@ -1,6 +1,11 @@
 # 👩🏾‍🌾 Former
 
-Former is a library to create [FormKit](https://formkit.com/) forms using an UI.
+Former is a headless library for building and handlings forms for Vue using an UI. The available components must be configured externally so that it is highly customizable per use case.
+
+It includes further headless features like
+
+- conditional showing elements
+- validation
 
 ## Playground
 
@@ -22,64 +27,160 @@ yarn add former-ui
 
 ## Usage
 
+Just configure your form layout, define the components and let former do the rest.
+
 ```vue
 <template>
-  <FormBuilder v-model:schema="schema" :mode="mode" v-model:data="data">
-    <main id="form-panel">
+  <div>
+    <label>Former mode:</label>
+    <select v-model="mode">
+      <option value="build">
+        build
+      </option>
+      <option value="edit">
+        edit
+      </option>
+      <option value="read">
+        read
+      </option>
+    </select>
+  </div>
+  <Former v-slot="{ selectedNode }" v-model:schema="schema" v-model:data="data" :mode :components>
+    <main>
+      <h1>My Form</h1>
       <FormContent />
     </main>
 
-    <aside id="form-field-options">
-      <FormFieldOptions />
-
+    <aside>
+      <h2>Form Config</h2>
+      <template v-if="mode === 'build'">
+        <FormNodeProps v-if="selectedNode" />
+        <FormAdd v-else />
+      </template>
       <pre>{{ data }}</pre>
     </aside>
-  </FormBuilder>
+  </Former>
 </template>
 
 <script setup lang="ts">
-import type { FormKitSchemaNode } from '@formkit/core';
-import { FormBuilder, FormBuilderOptions } from 'former-ui';
+import { FormAdd, type FormData, Former, type FormFieldType, FormNodeProps, Mode, type SchemaNode } from 'former-ui';
+import { markRaw, ref } from 'vue';
 
-const schema = ref<FormKitSchemaNode[]>([
+import TextInput from './TextInput.vue';
+
+const schema = ref<SchemaNode[]>([
   {
-    $el: 'h1',
-    children: 'Register',
-    attrs: {
-      class: 'text-2xl font-bold mb-4',
+    type: 'text',
+    name: 'name',
+    props: {
+      label: 'Name',
+      placeholder: 'Enter your name',
     },
   },
   {
-    $formkit: 'text',
-    name: 'username',
-    label: 'Username',
-    help: 'This is your username.',
-  },
-  {
-    $formkit: 'text',
+    type: 'text',
     name: 'email',
-    label: 'Email',
-    help: 'This is your email.',
+    props: {
+      label: 'Email',
+      placeholder: 'Enter your e-mail',
+      type: 'email'
+    },
   },
   {
-    $formkit: 'password',
+    type: 'text',
     name: 'password',
-    label: 'Password',
-    help: 'This is your password.',
-  },
-  {
-    $formkit: 'checkbox',
-    name: 'terms',
-    label: 'I agree to the terms and conditions.',
+    props: {
+      label: 'Password',
+      placeholder: 'Enter your password',
+      type: 'password'
+    },
   },
 ]);
 
-const mode = ref<'edit' | 'preview'>('edit');
+const components: { [k: string]: FormFieldType } = {
+  text: {
+    label: 'Text',
+    component: markRaw(TextInput),
+    propsSchema: [
+      {
+        type: 'text',
+        name: '$name',
+        props: {
+          label: 'Name',
+          placeholder: 'Enter the name of the data field',
+        },
+      },
 
-const data = ref<Record<string, any>>({});
+      {
+        type: 'text',
+        name: 'label',
+        props: {
+          label: 'Label',
+          placeholder: 'Enter a label',
+        },
+      },
+      {
+        type: 'text',
+        name: 'placeholder',
+        props: {
+          label: 'Placeholder',
+          placeholder: 'Enter a placeholder',
+        },
+      },
+      {
+        type: 'text',
+        name: 'type',
+        props: {
+          label: 'Text input type',
+          placeholder: 'Specify the text input type e.g. "text", "password", "email", ...'
+        }
+      }
+    ],
+  },
+};
+
+const mode = ref<Mode>('edit');
+
+const data = ref<FormData>({});
 </script>
 ```
 
-## Credits
+Of course you need to provide the relevant component implementations.
+Here is a sample text input implementation that is suitable for the above sample
 
-- https://github.com/formkit/formkit
+```vue
+<template>
+  <div>
+    <label v-if="label">{{ label }}</label>
+    <div>
+      <input v-model="modelValue" :disabled="mode === 'read'" :type :placeholder>
+    </div>
+    <div v-if="error">
+      {{ error }}
+    </div>
+  </div>
+</template>
+
+<script setup lang="ts">
+import { toRef } from 'vue';
+import type { Mode } from '~/types';
+
+const props = withDefaults(
+  defineProps<{
+    label?: string;
+    type?: 'text' | 'password' | 'email';
+    placeholder?: string;
+    error?: string;
+    mode?: Mode;
+  }>(),
+  {
+    type: 'text',
+    mode: 'edit',
+  },
+);
+const mode = toRef(props, 'mode');
+const modelValue = defineModel<string>();
+</script>
+```
+
+For more detailed usage example check out the playground.
