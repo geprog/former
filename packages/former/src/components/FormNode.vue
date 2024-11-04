@@ -1,5 +1,6 @@
 <template>
   <div
+    v-if="isShown || mode === 'build'"
     class="relative"
     :class="{
       'bg-zinc-200 rounded': !isShown,
@@ -9,7 +10,6 @@
   >
     <component
       :is="mode === 'build' ? EditComponent : FormComponent"
-      v-if="isShown || mode === 'build'"
       v-model="modelValue"
       :node
       @valid="isValid = $event"
