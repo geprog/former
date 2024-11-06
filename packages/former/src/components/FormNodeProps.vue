@@ -2,7 +2,7 @@
   <div v-if="selectedNode" class="flex flex-col gap-4 w-full">
     <div class="flex w-full justify-between">
       <span class="text-lg">{{ selectedNodeType?.label }}{{ selectedNode.name ? ` - ${selectedNode.name}` : '' }}</span>
-      <Button @click="selectedNode = undefined">
+      <Button class="bg-zinc-100 hover:bg-zinc-300" @click="selectedNode = undefined">
         x
       </Button>
     </div>

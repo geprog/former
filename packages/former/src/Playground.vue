@@ -24,11 +24,11 @@
         <form class="bg-white rounded-xl shadow-xl p-4 flex flex-col gap-4" @submit.prevent="submit">
           <FormContent />
 
-          <Button type="submit">
+          <Button class="bg-zinc-100 hover:bg-zinc-300" type="submit">
             Submit
           </Button>
 
-          <Button @click.prevent="clearPlayground">
+          <Button class="bg-zinc-100 hover:bg-zinc-300" @click.prevent="clearPlayground">
             Clear playground
           </Button>
         </form>

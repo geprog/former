@@ -5,11 +5,11 @@
       <FormDragContainer :node>
         <FormRenderer :schema="node.children" :data="item" :repeated-form-identifier="index" @update:data="updateItem(index, $event)" />
       </FormDragContainer>
-      <Button v-if="mode !== 'read'" @click.prevent="deleteItem(index)">
+      <Button v-if="mode !== 'read'" class="bg-zinc-100 hover:bg-zinc-300" @click.prevent="deleteItem(index)">
         x
       </Button>
     </div>
-    <Button v-if="mode !== 'read'" @click.prevent="addItem">
+    <Button v-if="mode !== 'read'" class="bg-zinc-100 hover:bg-zinc-300" @click.prevent="addItem">
       Add
     </Button>
   </div>
