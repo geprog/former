@@ -15,8 +15,8 @@
       :validator
     />
     <pre v-else>{{ selectedNode }}</pre>
-    <Button @click="deleteComponent">
-      Delete
+    <Button class="bg-[#f59f0b] text-white hover:bg-[#d97706]" @click="deleteComponent">
+      Element löschen
     </Button>
   </div>
   <div v-else>
