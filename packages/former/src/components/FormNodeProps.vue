@@ -23,6 +23,7 @@
       </button>
     </slot>
   </div>
+  <slot v-else name="nothing-selected" />
 </template>
 
 <script setup lang="ts">
