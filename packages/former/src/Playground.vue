@@ -36,7 +36,21 @@
 
       <div class="border-l flex flex-col p-4 gap-4 w-1/2 overflow-y-auto">
         <div v-if="mode === 'build'" class="bg-white rounded-xl shadow-xl p-8 flex flex-col gap-2">
-          <FormNodeProps />
+          <FormNodeProps>
+            <template #unselect-button="unselectButtonProps">
+              <Button @click="unselectButtonProps.unselect">
+                X
+              </Button>
+            </template>
+            <template #delete-button="deleteButtonProps">
+              <Button @click="deleteButtonProps.delete">
+                Delete element
+              </Button>
+            </template>
+            <template #nothing-selected>
+              Click on an element for being able to adjust the props
+            </template>
+          </FormNodeProps>
         </div>
 
         <div v-if="mode === 'build'" class="bg-white rounded-xl shadow-xl p-8 flex flex-col gap-2">
