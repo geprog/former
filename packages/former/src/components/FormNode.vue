@@ -34,6 +34,7 @@ const data = defineModel<FormData>('data', { default: () => ({}) });
 const node = toRef(props, 'node');
 const repeatedFormIdentifier = toRef(props, 'repeatedFormIdentifier');
 
+const globalData = inject('data');
 const showIf = inject('showIf', false);
 const mode = inject('mode');
 const components = inject('components');
@@ -68,7 +69,7 @@ const isShown = computed(() => {
   if (showIf) {
     // only evaluate showIf when we are not building up the form
     // but in edit mode we still want to show the component but highlighted
-    return showIf(node.value, data.value);
+    return showIf(node.value, globalData.value);
   }
   return true;
 });
