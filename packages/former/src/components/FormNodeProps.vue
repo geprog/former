@@ -2,9 +2,11 @@
   <div v-if="selectedNode" class="flex flex-col gap-4 w-full">
     <div class="flex w-full justify-between">
       <span class="text-lg">{{ selectedNodeType?.label }}{{ selectedNode.name ? ` - ${selectedNode.name}` : '' }}</span>
-      <Button class="bg-zinc-100 hover:bg-zinc-300" @click="selectedNode = undefined">
-        x
-      </Button>
+      <slot name="unselect-button" :unselect="unselectComponent">
+        <button @click="unselectComponent">
+          X
+        </button>
+      </slot>
     </div>
     <Former
       v-if="selectedNodePropsSchema"
@@ -15,19 +17,17 @@
       :validator
     />
     <pre v-else>{{ selectedNode }}</pre>
-    <Button class="bg-[#f59f0b] text-white hover:bg-[#d97706]" @click="deleteComponent">
-      Element löschen
-    </Button>
-  </div>
-  <div v-else>
-    Click on an element for being able to adjust the props
+    <slot name="delete-button" :delete="deleteComponent">
+      <button @click="deleteComponent">
+        &#128465;
+      </button>
+    </slot>
   </div>
 </template>
 
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue';
 import { inject } from '~/compositions/injectProvide';
-import Button from '~/sample/Button.vue';
 import type { InternalSchemaNode } from '~/types';
 import { deleteNode, replaceNode, toInternalSchema } from '~/utils';
 import Former from './Former.vue';
@@ -80,6 +80,10 @@ const data = computed({
     selectedNode.value = updatedNode;
   },
 });
+
+function unselectComponent() {
+  selectedNode.value = undefined;
+}
 
 function deleteComponent() {
   if (!selectedNode.value) {
