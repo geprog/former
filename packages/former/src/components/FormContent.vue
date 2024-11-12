@@ -26,8 +26,15 @@ let lastDropTarget: HTMLElement | null = null;
 let lastDropzone: HTMLElement | null = null;
 function getDropDetails(e: DragEvent) {
   // add a placeholder to indicate where the element will be dropped
-  lastDropTarget = ((e.target as HTMLElement).closest('.former-draggable') as HTMLElement) ?? lastDropTarget;
-  lastDropzone = ((e.target as HTMLElement)?.closest('.former-drag-container') as HTMLElement) ?? lastDropzone;
+  lastDropTarget = (e.target as HTMLElement).closest('.former-draggable') ?? lastDropTarget;
+  lastDropzone = (e.target as HTMLElement)?.closest('.former-drag-container') ?? lastDropzone;
+  if (!document.body.contains(lastDropTarget)) {
+    lastDropTarget = null;
+  }
+
+  if (!lastDropzone) {
+    throw new Error('No dropzone found');
+  }
 
   // if draggable is parent of drop target => add first child to dropzone
   if (lastDropTarget && lastDropTarget.contains(lastDropzone)) {
@@ -36,6 +43,7 @@ function getDropDetails(e: DragEvent) {
       dropzone: lastDropzone,
       newPosition: {
         parentId: lastDropTarget.getAttribute('data-node'),
+        category: lastDropzone.getAttribute('data-category') ?? null,
         index: 0,
       },
       aboveTarget: true,
@@ -49,6 +57,7 @@ function getDropDetails(e: DragEvent) {
       dropzone: lastDropzone,
       newPosition: {
         parentId: lastDropzone.getAttribute('data-parent-node') ?? null,
+        category: lastDropzone.getAttribute('data-category') ?? null,
         index: 0,
       },
       aboveTarget: true,
@@ -57,10 +66,6 @@ function getDropDetails(e: DragEvent) {
 
   if (!lastDropTarget) {
     throw new Error('No drop target found');
-  }
-
-  if (!lastDropzone) {
-    throw new Error('No dropzone found');
   }
 
   const dropTargetId = lastDropTarget.getAttribute('data-node');
@@ -191,7 +196,7 @@ function onDrop(e: DragEvent) {
     } satisfies InternalSchemaNode;
 
     const _schema = [...toValue(schema.value)];
-    addNode(_schema, newPosition.parentId ?? null, newPosition.index, newNode);
+    addNode(_schema, newPosition, newNode);
     schema.value = _schema;
 
     selectedNode.value = newNode;
@@ -207,12 +212,11 @@ function onDrop(e: DragEvent) {
 
     deleteNode(_schema, nodeId);
 
-    let index = newPosition.index;
     if (currentPosition.parentId === newPosition.parentId && currentPosition.index < newPosition.index) {
       // we need to reduce the index if the element got deleted in the same parent at a lower position
-      index--;
+      newPosition.index--;
     }
-    addNode(_schema, newPosition.parentId ?? null, index, node);
+    addNode(_schema, newPosition, node);
 
     schema.value = _schema;
   }

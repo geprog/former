@@ -9,7 +9,15 @@ function addIdToNode(_node: InternalSchemaNode | SchemaNode): InternalSchemaNode
   }
 
   if (node.children) {
-    node.children = node.children.map(addIdToNode);
+    if (Array.isArray(node.children)) {
+      node.children = node.children.map(addIdToNode);
+    }
+    else {
+      node.children = Object.entries(node.children).reduce((result, [category, childrenOfCategory]) => ({
+        ...result,
+        [category]: childrenOfCategory.map(addIdToNode),
+      }), {});
+    }
   }
 
   return node;
@@ -25,7 +33,15 @@ function removeIdFromNode(_node: InternalSchemaNode | SchemaNode): SchemaNode {
   delete node._id;
 
   if (node.children) {
-    node.children = node.children.map(removeIdFromNode);
+    if (Array.isArray(node.children)) {
+      node.children = node.children.map(removeIdFromNode);
+    }
+    else {
+      node.children = Object.entries(node.children).reduce((result, [category, childrenOfCategory]) => ({
+        ...result,
+        [category]: childrenOfCategory.map(removeIdFromNode),
+      }), {});
+    }
   }
 
   return node;
@@ -44,7 +60,12 @@ export function replaceNode(schema: InternalSchemaNode[], node: InternalSchemaNo
 
     const children = schema[i].children;
     if (children) {
-      replaceNode(children, node);
+      if (Array.isArray(children)) {
+        replaceNode(children, node);
+      }
+      else {
+        Object.values(children).forEach(childrenOfCategory => replaceNode(childrenOfCategory, node));
+      }
     }
   }
 }
@@ -58,30 +79,49 @@ export function deleteNode(schema: InternalSchemaNode[], nodeId: string): void {
 
     const children = schema[i].children;
     if (children) {
-      deleteNode(children, nodeId);
+      if (Array.isArray(children)) {
+        deleteNode(children, nodeId);
+      }
+      else {
+        Object.values(children).forEach(childrenOfCategory => deleteNode(childrenOfCategory, nodeId));
+      }
     }
   }
 }
+
+type NodePosition = {
+  parentId: string | null;
+  category: string | null;
+  index: number;
+};
 
 export function nodePosition(
   schema: InternalSchemaNode[],
   nodeId: string,
   anchor: 'above' | 'below',
   parentId?: string,
-): {
-  parentId?: string;
-  index: number;
-} | null {
+  category?: string,
+): NodePosition | null {
   for (let i = 0; i < schema.length; i++) {
     if (schema[i]._id === nodeId) {
-      return { parentId, index: anchor === 'above' ? i : i + 1 };
+      return { parentId: parentId || null, index: anchor === 'above' ? i : i + 1, category: category || null };
     }
 
     const children = schema[i].children;
     if (children) {
-      const position = nodePosition(children, nodeId, anchor, schema[i]._id);
-      if (position) {
-        return position;
+      if (Array.isArray(children)) {
+        const position = nodePosition(children, nodeId, anchor, schema[i]._id);
+        if (position) {
+          return position;
+        }
+      }
+      else {
+        for (const category of Object.keys(children)) {
+          const position = nodePosition(children[category], nodeId, anchor, schema[i]._id, category);
+          if (position) {
+            return position;
+          }
+        }
       }
     }
   }
@@ -91,10 +131,10 @@ export function nodePosition(
 
 export function addNode(
   schema: InternalSchemaNode[],
-  parentId: string | null,
-  index: number,
+  position: NodePosition,
   node: InternalSchemaNode,
 ): void {
+  const { parentId, index, category } = position;
   if (parentId === null) {
     schema.splice(index, 0, node);
     return;
@@ -102,18 +142,28 @@ export function addNode(
 
   for (let i = 0; i < schema.length; i++) {
     if (schema[i]._id === parentId) {
-      if (!schema[i].children) {
-        schema[i].children = [node];
-        return;
+      let children = schema[i].children;
+      if (Array.isArray(children)) {
+        children = { default: children };
       }
-
-      schema[i].children?.splice(index, 0, node);
+      else if (!children) {
+        children = { };
+      }
+      const categoryOrDefault = category || 'default';
+      children[categoryOrDefault] = children[categoryOrDefault] || [];
+      children[categoryOrDefault].splice(index, 0, node);
+      schema[i].children = children;
       return;
     }
 
     const children = schema[i].children;
     if (children) {
-      addNode(children, parentId, index, node);
+      if (Array.isArray(children)) {
+        addNode(children, position, node);
+      }
+      else {
+        Object.values(children).forEach(childrenOfCategory => addNode(childrenOfCategory, position, node));
+      }
     }
   }
 }
@@ -126,9 +176,19 @@ export function getNode(schema: InternalSchemaNode[], nodeId: string): InternalS
 
     const children = schema[i].children;
     if (children) {
-      const node = getNode(children, nodeId);
-      if (node) {
-        return node;
+      if (Array.isArray(children)) {
+        const node = getNode(children, nodeId);
+        if (node) {
+          return node;
+        }
+      }
+      else {
+        for (const category of Object.keys(children)) {
+          const node = getNode(children[category], nodeId);
+          if (node) {
+            return node;
+          }
+        }
       }
     }
   }
