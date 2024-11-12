@@ -196,16 +196,6 @@ export function getNode(schema: InternalSchemaNode[], nodeId: string): InternalS
   return null;
 }
 
-export function moveNode(
-  schema: InternalSchemaNode[],
-  node: InternalSchemaNode,
-  parentId: string | null,
-  index: number,
-): void {
-  deleteNode(schema, node._id);
-  addNode(schema, parentId, index, node);
-}
-
 // port from nanoid
 // https://github.com/ai/nanoid
 const urlAlphabet = 'useandom-26T198340PX75pxJACKVERYMINDBUSHWOLF_GQZbfghjklqvwyzrict';
