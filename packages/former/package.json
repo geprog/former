@@ -1,7 +1,7 @@
 {
   "name": "former-ui",
   "type": "module",
-  "version": "0.0.11-next.54",
+  "version": "0.0.11-next.55",
   "license": "MIT",
   "repository": {
     "type": "git",
@@ -34,6 +34,7 @@
     "test": "vitest --pass-with-no-tests",
     "typecheck": "vue-tsc --build --force",
     "release": "pnpm build && npm publish",
+    "prerelease": "pnpm version prerelease --preid=next && pnpm release",
     "build:playground": "vite build --config vite.config.playground.ts",
     "preview:playground": "vite preview --config vite.config.playground.ts"
   },
