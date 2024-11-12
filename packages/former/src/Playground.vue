@@ -77,6 +77,7 @@
 <script setup lang="ts">
 import { useStorage } from '@vueuse/core';
 import { computed, markRaw, ref } from 'vue';
+import Columns from '~/sample/Columns.vue';
 import Group from '~/sample/Group.vue';
 import Repeater from '~/sample/Repeater.vue';
 import TextInput from '~/sample/TextInput.vue';
@@ -300,6 +301,13 @@ const components: { [k: string]: FormFieldType } = {
           placeholder: 'Enter the name of the data field',
         },
       },
+      showIfProp,
+    ],
+  },
+  columns: {
+    label: 'Columns',
+    component: markRaw(Columns),
+    propsSchema: [
       showIfProp,
     ],
   },

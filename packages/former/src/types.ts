@@ -1,16 +1,18 @@
 import type { Component, Raw } from 'vue';
 
+export type NodeChildren<NodeType> = NodeType[] | { [category: string]: NodeType[] };
+
 export type SchemaNode<Props = { [key: string]: any }> = {
   type: string;
   name?: string;
   props?: Props;
-  children?: SchemaNode<Props>[];
+  children?: NodeChildren<SchemaNode<Props>>;
   showIf?: string;
 };
 
 export type InternalSchemaNode<Props = { [key: string]: any }> = Omit<SchemaNode<Props>, 'children'> & {
   _id: string;
-  children?: InternalSchemaNode<Props>[];
+  children?: NodeChildren<InternalSchemaNode<Props>>;
 };
 
 export type ShowIfPredicate = (node: SchemaNode, data: FormData) => boolean;
