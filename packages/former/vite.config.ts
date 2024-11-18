@@ -27,6 +27,7 @@ export default defineConfig({
       entry: resolve(__dirname, 'src/index.ts'),
     },
     outDir: 'dist',
+    minify: false,
     rollupOptions: {
       // make sure to externalize deps that shouldn't be bundled
       // into your library (Vue)
