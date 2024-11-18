@@ -1,8 +1,8 @@
 <template>
   <div class="flex flex-col">
-    <label v-if="label" :for="node?._id" class="p-1">{{ label }}</label>
+    <label v-if="label" :for="node?._id || fallbackNodeId" class="p-1">{{ label }}</label>
     <div class="border rounded">
-      <select :id="node?._id" v-model="modelValue" class="w-full p-1 rounded bg-[field]">
+      <select :id="node?._id || fallbackNodeId" v-model="modelValue" class="w-full p-1 rounded bg-[field]">
         <option v-for="(item, i) in options" :key="i" :value="item.value">
           {{ item.label }}
         </option>
@@ -13,6 +13,7 @@
 
 <script setup lang="ts">
 import type { FormerProps } from '~/types';
+import { nanoid } from '~/utils';
 
 defineProps<{
   label?: string;
@@ -21,4 +22,7 @@ defineProps<{
 } & Partial<FormerProps>>();
 
 const modelValue = defineModel<string>();
+
+// for when component is used outside Former
+const fallbackNodeId = nanoid();
 </script>

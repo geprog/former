@@ -15,6 +15,9 @@
         </h1>
 
         <div class="flex items-center ml-auto space-x-4">
+          <Checkbox
+            v-model="activateShowIf" label="Activate Show-If"
+          />
           <div :class="{ 'text-red-500': !isValid }">
             Validity status: {{ isValid ? 'valid' : 'invalid' }}
           </div>
@@ -91,6 +94,7 @@ import Checkbox from './sample/Checkbox.vue';
 import Select from './sample/Select.vue';
 
 const mode = useStorage<Mode>('former:mode', 'edit');
+const activateShowIf = ref(false);
 
 const options = [
   { label: 'edit', value: 'edit' },
@@ -247,7 +251,7 @@ const jsonSchema = computed<string>({
 
 const data = useStorage<FormData>('former:data', {});
 
-const showIfProp = { type: 'text', name: 'showIf', props: { label: 'Konditionale Bedingung', placeholder: 'If empty or "hello" then component is visible.' } };
+const showIfProp = { type: 'text', name: 'showIf', props: { label: 'Show if', placeholder: 'If empty or "hello" then component is visible.' } };
 
 const components: { [k: string]: FormFieldType } = {
   text: {
@@ -410,6 +414,9 @@ const components: { [k: string]: FormFieldType } = {
 };
 
 function showIf(node: SchemaNode, _data: FormData): boolean {
+  if (!activateShowIf.value) {
+    return true;
+  }
   if (!node.props)
     return true;
   const condition = node.props.showIf;
