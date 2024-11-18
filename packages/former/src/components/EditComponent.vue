@@ -41,10 +41,6 @@ const formId = inject('formId');
 function startDrag(e: DragEvent, nodeId: string) {
   setDragEventData(e, formId.value, 'node_id', nodeId);
 }
-
-onBeforeUnmount(() => {
-  modelValue.value = undefined;
-});
 </script>
 
 <style>
