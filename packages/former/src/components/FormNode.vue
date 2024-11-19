@@ -19,7 +19,7 @@
 
 <script setup lang="ts">
 import { cloneDeep } from 'lodash';
-import { computed, onBeforeUnmount, ref, toRef, watch } from 'vue';
+import { computed, ref, toRef, watch } from 'vue';
 import { inject, provide } from '~/compositions/injectProvide';
 import type { FieldData, FormData, InternalSchemaNode } from '~/types';
 import EditComponent from './EditComponent.vue';

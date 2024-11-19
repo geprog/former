@@ -19,7 +19,6 @@
 </template>
 
 <script setup lang="ts">
-import { onBeforeUnmount } from 'vue';
 import { inject } from '~/compositions/injectProvide';
 import type { FieldData, FormData, InternalSchemaNode } from '~/types';
 import { setDragEventData } from '~/utils';
