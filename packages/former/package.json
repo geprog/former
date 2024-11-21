@@ -1,7 +1,7 @@
 {
   "name": "former-ui",
   "type": "module",
-  "version": "0.0.11-next.55",
+  "version": "0.0.0",
   "license": "MIT",
   "repository": {
     "type": "git",
@@ -45,9 +45,9 @@
     "lodash": "^4.17.21"
   },
   "devDependencies": {
-    "@tsconfig/node20": "^20.1.4",
+    "@tsconfig/node22": "^22.0.0",
     "@types/lodash": "^4.17.7",
-    "@types/node": "^20.12.5",
+    "@types/node": "^22.9.1",
     "@vitejs/plugin-vue": "^5.0.4",
     "@vue/tsconfig": "^0.5.1",
     "@vueuse/core": "^10.9.0",
