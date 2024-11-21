@@ -7,10 +7,10 @@
 tasks:
   - name: Setup gitpod env
     before: |
-      nvm install 20
-      nvm use 20
-      npm install -g pnpm@8
-      nvm alias default 20
+      nvm install 22
+      nvm use 22
+      npm install -g pnpm@9
+      nvm alias default 22
       echo "nvm use default &>/dev/null" >> ~/.bashrc.d/51-nvm-fix
 
     init: pnpm install && pnpm run build
