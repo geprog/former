@@ -12,14 +12,15 @@
       :is="mode === 'build' ? EditComponent : FormComponent"
       v-model="modelValue"
       :node
-      @valid="isValid = $event"
+      @valid="isNodeValid = $event"
     />
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, onBeforeUnmount, ref, toRef, watch } from 'vue';
-import { inject } from '~/compositions/injectProvide';
+import { cloneDeep } from 'lodash';
+import { computed, ref, toRef, watch } from 'vue';
+import { inject, provide } from '~/compositions/injectProvide';
 import type { FieldData, FormData, InternalSchemaNode } from '~/types';
 import EditComponent from './EditComponent.vue';
 import FormComponent from './FormComponent.vue';
@@ -39,7 +40,11 @@ const showIf = inject('showIf', false);
 const mode = inject('mode');
 const components = inject('components');
 
-const isLayoutComponent = computed(() => !(components[node.value.type]?.propsSchema || []).some(prop => prop.name === '$name'));
+function isNodeLayoutComponent(node: InternalSchemaNode): boolean {
+  return !(components[node.type]?.propsSchema || []).some(prop => prop.name === '$name');
+}
+
+const isLayoutComponent = computed(() => isNodeLayoutComponent(node.value));
 
 const modelValue = computed({
   get() {
@@ -74,8 +79,17 @@ const isShown = computed(() => {
   return true;
 });
 
-const isValid = ref(false);
+const isNodeValid = ref(false);
 const validityMap = inject('validityMap');
+
+const childrenValidityMap = ref<Record<string, boolean | undefined>>({});
+provide('validityMap', childrenValidityMap);
+
+const areChildrenValid = computed(() => {
+  return Object.values(childrenValidityMap.value).every(
+    validFlag => validFlag !== false,
+  );
+});
 
 const nodeIdForValidation = computed(() => {
   if (repeatedFormIdentifier.value !== undefined) {
@@ -84,21 +98,39 @@ const nodeIdForValidation = computed(() => {
   return node.value._id;
 });
 
-onBeforeUnmount(() => {
-  delete validityMap.value[nodeIdForValidation.value];
-});
+function unsetDataOfNode(node: InternalSchemaNode, data: FormData): FormData {
+  if (node.name) {
+    return { ...data, [node.name]: undefined };
+  }
+  else if (isNodeLayoutComponent(node) && node.children) {
+    let children = node.children;
+    if (!Array.isArray(children)) {
+      children = Object.values(children).flatMap(childrenOfCategory => childrenOfCategory);
+    }
+    return children.reduce<FormData>((updatedData, child) => {
+      return unsetDataOfNode(child, updatedData);
+    }, data as FormData);
+  }
+  return data;
+}
 
-watch(isShown, (value, oldValue) => {
-  if (oldValue && !value) {
-    modelValue.value = undefined;
+const isValid = computed(() => !isShown.value || (isNodeValid.value && areChildrenValid.value));
+
+watch(isShown, () => {
+  if (!isShown.value) {
+    const newData = cloneDeep(data.value);
+    data.value = unsetDataOfNode(node.value, newData);
+    delete validityMap.value[nodeIdForValidation.value];
+  }
+  else {
+    validityMap.value[nodeIdForValidation.value] = isValid.value;
   }
 });
 
 watch(
   isValid,
   () => {
-    // emit('valid', !isShown.value || isValid.value);
-    validityMap.value[nodeIdForValidation.value] = !isShown.value || isValid.value;
+    validityMap.value[nodeIdForValidation.value] = isValid.value;
   },
   { immediate: true },
 );
