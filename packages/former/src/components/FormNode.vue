@@ -1,15 +1,20 @@
 <template>
   <div
     v-if="isShown || mode === 'build'"
-    class="relative"
+    :data-node="node._id"
+    draggable="true"
+    class="relative flex items-center border-2 duration-0 w-full py-2 px-2 rounded"
     :class="{
+      'border-blue-600': selectedNode?._id === node._id,
+      'border-transparent': selectedNode?._id !== node._id,
       'bg-zinc-200 rounded': !isShown,
       'former-draggable': mode === 'build',
     }"
-    :data-node="node._id"
+    @click.stop="selectedNode = node"
+    @dragstart.stop="startDrag($event, node._id)"
   >
-    <component
-      :is="mode === 'build' ? EditComponent : FormComponent"
+    <span v-if="mode === 'build'" class="drag-handle !cursor-move p-2">::</span>
+    <FormComponent
       v-model="modelValue"
       :node
       @valid="isNodeValid = $event"
@@ -22,7 +27,7 @@ import { cloneDeep } from 'lodash';
 import { computed, ref, toRef, watch } from 'vue';
 import { inject, provide } from '~/compositions/injectProvide';
 import type { FieldData, FormData, InternalSchemaNode } from '~/types';
-import EditComponent from './EditComponent.vue';
+import { setDragEventData } from '~/utils';
 import FormComponent from './FormComponent.vue';
 
 const props = defineProps<{
@@ -39,6 +44,12 @@ const globalData = inject('data');
 const showIf = inject('showIf', false);
 const mode = inject('mode');
 const components = inject('components');
+const selectedNode = inject('selectedNode');
+const formId = inject('formId');
+
+function startDrag(e: DragEvent, nodeId: string) {
+  setDragEventData(e, formId.value, 'node_id', nodeId);
+}
 
 function isNodeLayoutComponent(node: InternalSchemaNode): boolean {
   return !(components[node.type]?.propsSchema || []).some(prop => prop.name === '$name');
@@ -135,3 +146,14 @@ watch(
   { immediate: true },
 );
 </script>
+
+<style>
+/** necessary to do proper hovering in nested elements */
+[data-node]:hover:not(:has([data-node]:hover)) {
+  @apply bg-blue-200;
+}
+
+[data-node] *:not(input) {
+  @apply cursor-pointer;
+}
+</style>

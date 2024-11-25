@@ -225,7 +225,7 @@ export function moveArrayElement<T>(list: MaybeRefOrGetter<T[]>, from: number, t
 }
 
 export function generateFormId(): string {
-  // must be lower case to match with drag event handling hack see e.g. EditComponent.vue#startDrag
+  // must be lower case to match with drag event handling hack see e.g. FormNode.vue#startDrag
   return nanoid().toLowerCase();
 }
 
