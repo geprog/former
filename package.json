@@ -7,8 +7,6 @@
     "lint": "eslint .",
     "test": "pnpm -r test",
     "typecheck": "pnpm -r typecheck",
-    "release": "pnpm -r release && changeset publish",
-    "prerelease": "pnpm -r prerelease && changeset publish",
     "build": "pnpm -r build"
   },
   "devDependencies": {

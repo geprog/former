@@ -8,7 +8,7 @@
 import { isEqual } from 'lodash';
 import { computed, ref, toRef, watch } from 'vue';
 import { provide } from '~/compositions/injectProvide';
-import type { FormData, FormFieldType, InternalSchemaNode, Mode, SchemaNode, ShowIfPredicate, Validator } from '~/types';
+import type { FormData, FormFieldType, InternalSchemaNode, Mode, SchemaNode, ShowIfPredicate, Texts, Validator } from '~/types';
 import { generateFormId, toInternalSchema, toSchema } from '~/utils';
 import FormContent from './FormContent.vue';
 
@@ -17,7 +17,8 @@ const props = withDefaults(defineProps<{
   showIf?: ShowIfPredicate;
   validator?: Validator;
   mode?: Mode;
-}>(), { mode: 'edit' });
+  texts?: Partial<Texts>;
+}>(), { mode: 'edit', texts: () => ({}) });
 
 const emit = defineEmits<{
   (e: 'valid', valid: boolean): void;
@@ -77,4 +78,7 @@ watch(
 
 const selectedNode = ref<InternalSchemaNode | undefined>(undefined);
 provide('selectedNode', selectedNode);
+
+const texts = toRef(props, 'texts');
+provide('texts', computed<Texts>(() => ({ dragHint: 'Here you can drag elements', ...texts.value })));
 </script>

@@ -163,24 +163,19 @@ Here is a sample text input implementation that is suitable for the above sample
 
 <script setup lang="ts">
 import { toRef } from 'vue';
-import type { Mode } from '~/types';
 
 const props = withDefaults(
   defineProps<{
     label?: string;
     type?: 'text' | 'password' | 'email';
     placeholder?: string;
-    error?: string;
-    mode?: Mode;
-  }>(),
+  } & FormerProps>(),
   {
     type: 'text',
-    mode: 'edit',
   },
 );
-const mode = toRef(props, 'mode');
 const modelValue = defineModel<string>();
 </script>
 ```
 
-For more detailed usage example check out the playground.
+For more detailed usage example check out the [Playground](https://github.com/geprog/former/blob/main/packages/former/src/Playground.vue) implementation.
