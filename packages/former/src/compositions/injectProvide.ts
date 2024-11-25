@@ -1,5 +1,5 @@
 import { getCurrentInstance, type InjectionKey, type Ref, inject as vueInject, provide as vueProvide } from 'vue';
-import type { FormData, FormFieldType, InternalSchemaNode, Mode, ShowIfPredicate, Validator } from '~/types';
+import type { FormData, FormFieldType, InternalSchemaNode, Mode, ShowIfPredicate, Texts, Validator } from '~/types';
 
 export type InjectKeys = {
   mode: Ref<Mode>;
@@ -11,6 +11,7 @@ export type InjectKeys = {
   validityMap: Ref<Record<string, boolean | undefined>>;
   showIf?: ShowIfPredicate;
   validator: Validator;
+  texts: Ref<Texts>;
 };
 
 export function inject<T extends keyof InjectKeys>(key: T): InjectKeys[T];

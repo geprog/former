@@ -34,3 +34,7 @@ export type FormFieldType = {
   propsSchema: SchemaNode[];
   component: FormFieldComponent | Raw<FormFieldComponent>;
 };
+
+export type Texts = {
+  dragHint: string;
+};

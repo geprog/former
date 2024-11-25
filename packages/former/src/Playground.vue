@@ -90,12 +90,12 @@ import Button from './sample/Button.vue';
 import Checkbox from './sample/Checkbox.vue';
 import Select from './sample/Select.vue';
 
-const mode = useStorage<Mode>('former:mode', 'edit');
+const mode = useStorage<Mode>('former:mode', 'build');
 
 const options = [
+  { label: 'build', value: 'build' },
   { label: 'edit', value: 'edit' },
   { label: 'read', value: 'read' },
-  { label: 'build', value: 'build' },
 ];
 
 const isValid = ref(true);
@@ -263,7 +263,6 @@ const components: { [k: string]: FormFieldType } = {
           required: true,
         },
       },
-      showIfProp,
       {
         type: 'text',
         name: 'label',
@@ -280,6 +279,7 @@ const components: { [k: string]: FormFieldType } = {
           placeholder: 'Enter a placeholder',
         },
       },
+      showIfProp,
       {
         type: 'checkbox',
         name: 'required',
@@ -323,7 +323,6 @@ const components: { [k: string]: FormFieldType } = {
           placeholder: 'Enter the name of the data field',
         },
       },
-      showIfProp,
       {
         type: 'text',
         name: 'label',
@@ -332,6 +331,7 @@ const components: { [k: string]: FormFieldType } = {
           placeholder: 'Enter a label',
         },
       },
+      showIfProp,
     ],
   },
   select: {
@@ -346,7 +346,6 @@ const components: { [k: string]: FormFieldType } = {
           placeholder: 'Enter the name of the data field',
         },
       },
-      showIfProp,
       {
         type: 'text',
         name: 'label',
@@ -355,6 +354,7 @@ const components: { [k: string]: FormFieldType } = {
           placeholder: 'Enter a label',
         },
       },
+      showIfProp,
       {
         type: 'repeater',
         name: 'options',
@@ -396,7 +396,6 @@ const components: { [k: string]: FormFieldType } = {
           placeholder: 'Enter the name of the data field',
         },
       },
-      showIfProp,
       {
         type: 'text',
         name: 'label',
@@ -405,6 +404,7 @@ const components: { [k: string]: FormFieldType } = {
           placeholder: 'Enter a label',
         },
       },
+      showIfProp,
     ],
   },
 };
