@@ -6,9 +6,9 @@
           &#128465;
         </button>
       </slot>
-      <div class="flex flex-col  max-w-[80%] overflow-clip  justify-center items-center">
+      <div class="flex flex-col w-[80%] overflow-clip justify-center items-center">
         <span class="">{{ `${selectedNodeType?.label}:` }}</span>
-        <span class=" font-bold whitespace-nowrap text-ellipsis w-full overflow-hidden ">{{ selectedNode.name }}</span>
+        <span class="font-bold whitespace-nowrap text-ellipsis w-full text-center overflow-hidden">{{ selectedNode.name }}</span>
       </div>
       <slot name="unselect-button" :unselect="unselectComponent">
         <button @click="unselectComponent">
