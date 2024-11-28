@@ -1,7 +1,15 @@
 <template>
   <div v-if="selectedNode" class="flex flex-col gap-4 w-full">
-    <div class="flex w-full justify-between">
-      <span class="text-lg">{{ selectedNodeType?.label }}{{ selectedNode.name ? ` - ${selectedNode.name}` : '' }}</span>
+    <div class="flex w-full justify-between border-b-2 pb-2">
+      <slot name="delete-button" :delete="deleteComponent">
+        <button @click="deleteComponent">
+          &#128465;
+        </button>
+      </slot>
+      <div class="flex flex-col  max-w-[80%] overflow-clip  justify-center items-center">
+        <span class="">{{ `${selectedNodeType?.label}:` }}</span>
+        <span class=" font-bold whitespace-nowrap text-ellipsis w-full overflow-hidden ">{{ selectedNode.name }}</span>
+      </div>
       <slot name="unselect-button" :unselect="unselectComponent">
         <button @click="unselectComponent">
           X
@@ -17,11 +25,6 @@
       :validator
     />
     <pre v-else>{{ selectedNode }}</pre>
-    <slot name="delete-button" :delete="deleteComponent">
-      <button @click="deleteComponent">
-        &#128465;
-      </button>
-    </slot>
   </div>
   <slot v-else name="nothing-selected" />
 </template>
