@@ -46,12 +46,12 @@
           <FormNodeProps>
             <template #unselect-button="unselectButtonProps">
               <Button @click="unselectButtonProps.unselect">
-                X
+                &#10060;
               </Button>
             </template>
             <template #delete-button="deleteButtonProps">
               <Button @click="deleteButtonProps.delete">
-                Delete element
+                &#128465;
               </Button>
             </template>
             <template #nothing-selected>
