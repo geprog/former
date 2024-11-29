@@ -31,6 +31,10 @@
             Submit
           </Button>
 
+          <Button @click.prevent="data = {}">
+            Reset data
+          </Button>
+
           <Button @click.prevent="clearPlayground">
             Clear playground
           </Button>
