@@ -1,4 +1,4 @@
-import type { InternalSchemaNode, SchemaNode } from './types';
+import type { Components, FieldData, FormData, InternalSchemaNode, SchemaNode } from './types';
 import { isRef, type MaybeRef, type MaybeRefOrGetter, nextTick, toValue } from 'vue';
 
 function addIdToNode(_node: InternalSchemaNode | SchemaNode): InternalSchemaNode {
@@ -194,6 +194,28 @@ export function getNode(schema: InternalSchemaNode[], nodeId: string): InternalS
   }
 
   return null;
+}
+
+export function isNodeLayoutComponent(node: InternalSchemaNode, components: Components): boolean {
+  return !(components[node.type]?.propsSchema || []).some(prop => prop.name === '$name');
+}
+
+export function unsetDataOfNode(node: InternalSchemaNode, data: FormData | FieldData | undefined, components: Components) {
+  if (data === undefined || typeof data !== 'object' || Array.isArray(data)) {
+    return;
+  }
+  if (node.name) {
+    data[node.name] = undefined;
+  }
+  else if (isNodeLayoutComponent(node, components) && node.children) {
+    let children = node.children;
+    if (!Array.isArray(children)) {
+      children = Object.values(children).flatMap(childrenOfCategory => childrenOfCategory);
+    }
+    children.forEach((child) => {
+      unsetDataOfNode(child, data, components);
+    });
+  }
 }
 
 // port from nanoid

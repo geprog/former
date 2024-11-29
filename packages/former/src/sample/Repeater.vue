@@ -2,9 +2,7 @@
   <div class="flex flex-col gap-2 w-full items-start">
     <label v-if="label" class="p-1">{{ label }}</label>
     <div v-for="(item, index) in modelValue" :key="index" class="flex gap-2 w-full">
-      <FormDragContainer :node>
-        <FormRenderer :schema="node.children" :data="item" :repeated-form-identifier="index" @update:data="updateItem(index, $event)" />
-      </FormDragContainer>
+      <FormRenderer :data="item" :repeated-form-identifier="index" @update:data="updateItem(index, $event)" />
       <Button v-if="mode !== 'read'" @click.prevent="deleteItem(index)">
         x
       </Button>
@@ -16,7 +14,6 @@
 </template>
 
 <script setup lang="ts">
-import FormDragContainer from '~/components/FormDragContainer.vue';
 import FormRenderer from '~/components/FormRenderer.vue';
 import type { FormData, FormerProps } from '~/types';
 import Button from './Button.vue';

@@ -5,7 +5,7 @@
 </template>
 
 <script setup lang="ts">
-import { isEqual } from 'lodash';
+import { cloneDeep, isEqual } from 'lodash';
 import { computed, ref, toRef, watch } from 'vue';
 import { provide } from '~/compositions/injectProvide';
 import type { FormData, FormFieldType, InternalSchemaNode, Mode, SchemaNode, ShowIfPredicate, Texts, Validator } from '~/types';
@@ -51,12 +51,28 @@ watch(
 );
 
 const data = defineModel<FormData>('data', { default: () => ({}) });
-provide('data', data);
+const wrappedData = ref<FormData>({});
+watch(data, () => {
+  if (!isEqual(data.value, wrappedData.value)) {
+    wrappedData.value = data.value;
+  }
+}, { immediate: true });
+
+watch(wrappedData, () => {
+  data.value = cloneDeep(wrappedData.value);
+}, { deep: true });
+
+provide('data', wrappedData);
 
 provide('mode', toRef(props, 'mode'));
 
 provide('components', props.components);
-provide('showIf', props.showIf || (() => true));
+provide('showIf', (node: SchemaNode) => {
+  if (!props.showIf) {
+    return true;
+  }
+  return props.showIf(node, wrappedData.value);
+});
 provide('validator', props.validator || (() => true));
 
 const validityMap = ref<Record<string, boolean | undefined>>({});

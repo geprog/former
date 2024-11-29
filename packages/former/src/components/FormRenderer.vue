@@ -1,27 +1,35 @@
 <template>
-  <FormNode
-    v-for="node in internalSchema"
-    :key="node._id"
-    v-model:data="data"
-    :node
-    :repeated-form-identifier
-  />
+  <FormDragContainer :category>
+    <FormNode
+      v-for="node in internalSchema"
+      :key="node._id"
+      :node
+      :repeated-form-identifier
+    />
+  </FormDragContainer>
 </template>
 
 <script setup lang="ts">
 import { computed, toRef } from 'vue';
-import type { FormData, InternalSchemaNode, NodeChildren } from '~/types';
+import { inject } from '~/compositions/injectProvide';
+import FormDragContainer from './FormDragContainer.vue';
 import FormNode from './FormNode.vue';
 
 const props = defineProps<{
-  schema?: NodeChildren<InternalSchemaNode>;
   category?: string;
   repeatedFormIdentifier?: string | number;
 }>();
 
-const data = defineModel<FormData>('data', { default: () => ({}) });
+const parentNode = inject('node', false);
+const rootSchema = inject('schema');
 
-const schema = toRef(props, 'schema');
+const schema = computed(() => {
+  if (parentNode) {
+    return parentNode.value.children;
+  }
+  return rootSchema.value;
+});
+
 const category = toRef(props, 'category');
 
 const internalSchema = computed(() => {

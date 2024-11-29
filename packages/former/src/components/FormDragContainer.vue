@@ -14,8 +14,9 @@
 import { inject } from '~/compositions/injectProvide';
 import type { InternalSchemaNode } from '~/types';
 
-defineProps<{ node?: InternalSchemaNode; category?: string }>();
+defineProps<{ category?: string }>();
 
+const node = inject('node', false);
 const mode = inject('mode');
 const texts = inject('texts');
 </script>

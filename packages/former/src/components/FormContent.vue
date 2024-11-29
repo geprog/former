@@ -1,11 +1,9 @@
 <template>
-  <FormDragContainer
+  <FormRenderer
     @dragover.prevent="dragOver"
     @dragenter.prevent
     @dragleave.prevent="dragLeave"
-  >
-    <FormRenderer v-model:data="data" :schema />
-  </FormDragContainer>
+  />
 </template>
 
 <script setup lang="ts">
@@ -13,12 +11,10 @@ import { onBeforeUnmount, onMounted, toValue } from 'vue';
 import { inject } from '~/compositions/injectProvide';
 import type { InternalSchemaNode } from '~/types';
 import { addNode, deleteNode, getFormIdFromEvent, getNode, nanoid, nodePosition } from '~/utils';
-import FormDragContainer from './FormDragContainer.vue';
 import FormRenderer from './FormRenderer.vue';
 
 const mode = inject('mode');
 const schema = inject('schema');
-const data = inject('data');
 const selectedNode = inject('selectedNode');
 const formId = inject('formId');
 
