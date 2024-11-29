@@ -1,18 +1,20 @@
 <template>
   <div v-if="selectedNode" class="flex flex-col gap-4 w-full">
-    <div class="flex w-full justify-between border-b-2 pb-2">
+    <div class="flex gap-2 w-full justify-between border-b-2 pb-2">
       <slot name="delete-button" :delete="deleteComponent">
         <button @click="deleteComponent">
           &#128465;
         </button>
       </slot>
-      <div class="flex flex-col w-[80%] overflow-clip justify-center items-center">
-        <span class="">{{ `${selectedNodeType?.label}:` }}</span>
-        <span class="font-bold whitespace-nowrap text-ellipsis w-full text-center overflow-hidden">{{ selectedNode.name }}</span>
+      <div class="flex flex-col overflow-hidden items-center">
+        <div>{{ selectedNodeType?.label || 'Element' }}:</div>
+        <div v-if="selectedNode.name" class="font-bold overflow-hidden whitespace-nowrap text-ellipsis w-full">
+          {{ selectedNode.name }}
+        </div>
       </div>
       <slot name="unselect-button" :unselect="unselectComponent">
         <button @click="unselectComponent">
-          X
+          &#10060;
         </button>
       </slot>
     </div>
