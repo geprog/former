@@ -1,5 +1,4 @@
 import type { FieldData, FormComponents, FormData, InternalSchemaNode, SchemaNode } from './types';
-import { isRef, type MaybeRef, type MaybeRefOrGetter, nextTick, toValue } from 'vue';
 
 function addIdToNode(_node: InternalSchemaNode | SchemaNode): InternalSchemaNode {
   const node = { ..._node } as InternalSchemaNode;
