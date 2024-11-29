@@ -54,7 +54,7 @@ const data = defineModel<FormData>('data', { default: () => ({}) });
 const wrappedData = ref<FormData>({});
 watch(data, () => {
   if (!isEqual(data.value, wrappedData.value)) {
-    wrappedData.value = data.value;
+    wrappedData.value = cloneDeep(data.value);
   }
 }, { immediate: true });
 
