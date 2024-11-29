@@ -11,7 +11,7 @@
 </template>
 
 <script setup lang="ts">
-import { toRef } from 'vue';
+import { onMounted, toRef } from 'vue';
 import type { FormerProps } from '~/types';
 
 const props = withDefaults(
@@ -19,11 +19,19 @@ const props = withDefaults(
     label?: string;
     type?: 'text' | 'password' | 'email';
     placeholder?: string;
+    initialValue?: string
   } & FormerProps>(),
   {
     type: 'text',
   },
 );
 const mode = toRef(props, 'mode');
+const initialValue = toRef(props, 'initialValue');
 const modelValue = defineModel<string>();
+
+onMounted(() => {
+  if (modelValue.value === undefined && initialValue.value) {
+    modelValue.value = initialValue.value;
+  }
+});
 </script>

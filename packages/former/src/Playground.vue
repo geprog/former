@@ -287,6 +287,14 @@ const components: { [k: string]: FormFieldType } = {
           placeholder: 'Enter a placeholder',
         },
       },
+      {
+        type: 'text',
+        name: 'initialValue',
+        props: {
+          label: 'Initial value',
+          placeholder: 'Enter an initial value here',
+        },
+      },
       showIfProp,
       {
         type: 'checkbox',
