@@ -12,7 +12,6 @@
 
 <script setup lang="ts">
 import { inject } from '~/compositions/injectProvide';
-import type { InternalSchemaNode } from '~/types';
 
 defineProps<{ category?: string }>();
 

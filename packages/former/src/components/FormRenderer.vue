@@ -4,7 +4,6 @@
       v-for="node in internalSchema"
       :key="node._id"
       :node
-      :repeated-form-identifier
     />
   </FormDragContainer>
 </template>
@@ -17,7 +16,6 @@ import FormNode from './FormNode.vue';
 
 const props = defineProps<{
   category?: string;
-  repeatedFormIdentifier?: string | number;
 }>();
 
 const parentNode = inject('node', false);

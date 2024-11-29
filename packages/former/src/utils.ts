@@ -228,24 +228,6 @@ export function nanoid(size = 21) {
   return id;
 }
 
-// from: https://github.com/vueuse/vueuse/blob/main/packages/integrations/useSortable/index.ts
-export function moveArrayElement<T>(list: MaybeRefOrGetter<T[]>, from: number, to: number): void {
-  const _valueIsRef = isRef(list);
-  // When the list is a ref, make a shallow copy of it to avoid repeatedly triggering side effects when moving elements
-  const array = _valueIsRef ? [...toValue(list)] : toValue(list);
-
-  if (to >= 0 && to < array.length) {
-    const element = array.splice(from, 1)[0];
-    nextTick(() => {
-      array.splice(to, 0, element);
-      // When list is ref, assign array to list.value
-      if (_valueIsRef) {
-        (list as MaybeRef).value = array;
-      }
-    });
-  }
-}
-
 export function generateFormId(): string {
   // must be lower case to match with drag event handling hack see e.g. FormNode.vue#startDrag
   return nanoid().toLowerCase();

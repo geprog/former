@@ -1,5 +1,5 @@
 import { computed, ref, type Ref, watch } from 'vue';
-import type { FormData, InternalSchemaNode } from '~/types';
+import type { InternalSchemaNode } from '~/types';
 import { isNodeLayoutComponent, unsetDataOfNode } from '~/utils';
 import { inject, provide } from './injectProvide';
 

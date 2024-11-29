@@ -35,7 +35,6 @@ export function prepareSchemaForRenderer(schema: Ref<InternalSchemaNode[]>, data
 
   const cachedData = ref(cloneDeep(data.value));
   watch(data, () => {
-    console.log('Received new data', cloneDeep(data.value));
     cachedData.value = cloneDeep(data.value);
   });
 
@@ -54,9 +53,7 @@ export function prepareSchemaForRenderer(schema: Ref<InternalSchemaNode[]>, data
 
       if (node.name) {
         const updatedData = cachedData.value;
-        console.info('pre Updating data', cloneDeep(updatedData), cloneDeep(data.value), cloneDeep(newData), node.name);
         updatedData[node.name] = newData as FieldData;
-        console.info('post Updating data', cloneDeep(updatedData), cloneDeep(data.value), cloneDeep(newData), node.name);
         data.value = updatedData;
       }
     },
