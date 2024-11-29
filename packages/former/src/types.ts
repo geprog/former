@@ -37,7 +37,7 @@ export type FormFieldType = {
   component: FormFieldComponent | Raw<FormFieldComponent>;
 };
 
-export type Components = { [key: string]: FormFieldType };
+export type FormComponents = { [key: string]: FormFieldType };
 
 export type Texts = {
   dragHint: string;

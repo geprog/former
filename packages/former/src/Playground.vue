@@ -88,7 +88,7 @@ import Columns from '~/sample/Columns.vue';
 import Group from '~/sample/Group.vue';
 import Repeater from '~/sample/Repeater.vue';
 import TextInput from '~/sample/TextInput.vue';
-import type { FieldData, FormData, FormFieldType, Mode, SchemaNode } from '~/types';
+import type { FieldData, FormComponents, FormData, Mode, SchemaNode } from '~/types';
 import FormAdd from './components/FormAdd.vue';
 import FormContent from './components/FormContent.vue';
 import Former from './components/Former.vue';
@@ -257,7 +257,7 @@ const data = useStorage<FormData>('former:data', {});
 
 const showIfProp = { type: 'text', name: 'showIf', props: { label: 'Show if', placeholder: 'If empty or "hello" then component is visible.' } };
 
-const components: { [k: string]: FormFieldType } = {
+const components: FormComponents = {
   text: {
     label: 'Text',
     component: markRaw(TextInput),

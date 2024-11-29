@@ -8,12 +8,12 @@
 import { cloneDeep, isEqual } from 'lodash';
 import { computed, ref, toRef, watch } from 'vue';
 import { provide } from '~/compositions/injectProvide';
-import type { FormData, FormFieldType, InternalSchemaNode, Mode, SchemaNode, ShowIfPredicate, Texts, Validator } from '~/types';
+import type { FormComponents, FormData, InternalSchemaNode, Mode, SchemaNode, ShowIfPredicate, Texts, Validator } from '~/types';
 import { generateFormId, toInternalSchema, toSchema } from '~/utils';
 import FormContent from './FormContent.vue';
 
 const props = withDefaults(defineProps<{
-  components: { [key: string]: FormFieldType };
+  components: FormComponents;
   showIf?: ShowIfPredicate;
   validator?: Validator;
   mode?: Mode;

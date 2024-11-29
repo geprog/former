@@ -63,7 +63,7 @@ Just configure your form layout, define the components and let former do the res
 </template>
 
 <script setup lang="ts">
-import { FormAdd, type FormData, Former, type FormFieldType, FormNodeProps, Mode, type SchemaNode } from 'former-ui';
+import { FormAdd, type FormComponents, type FormData, Former, FormNodeProps, Mode, type SchemaNode } from 'former-ui';
 import { markRaw, ref } from 'vue';
 
 import TextInput from './TextInput.vue';
@@ -97,7 +97,7 @@ const schema = ref<SchemaNode[]>([
   },
 ]);
 
-const components: { [k: string]: FormFieldType } = {
+const components: FormComponents = {
   text: {
     label: 'Text',
     component: markRaw(TextInput),
@@ -151,9 +151,9 @@ Here is a sample text input implementation that is suitable for the above sample
 ```vue
 <template>
   <div>
-    <label v-if="label">{{ label }}</label>
+    <label v-if="label" :for="id">{{ label }}</label>
     <div>
-      <input v-model="modelValue" :disabled="mode === 'read'" :type :placeholder>
+      <input :id v-model="modelValue" :disabled="mode === 'read'" :type :placeholder>
     </div>
     <div v-if="error">
       {{ error }}
