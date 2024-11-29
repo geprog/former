@@ -3,7 +3,7 @@ import type { FormData, InternalSchemaNode } from '~/types';
 import { isNodeLayoutComponent, unsetDataOfNode } from '~/utils';
 import { inject, provide } from './injectProvide';
 
-export default function useNode(node: Ref<InternalSchemaNode>, repeatedFormIdentifier: Ref<string | number | undefined> = ref()) {
+export default function useNode(node: Ref<InternalSchemaNode>) {
   const data = inject('data');
   const components = inject('components');
 
@@ -63,13 +63,6 @@ export default function useNode(node: Ref<InternalSchemaNode>, repeatedFormIdent
     return true;
   });
 
-  const nodeIdForValidation = computed(() => {
-    if (repeatedFormIdentifier.value !== undefined) {
-      return `${node.value._id}.${repeatedFormIdentifier.value}`;
-    }
-    return node.value._id;
-  });
-
   const validityMap = inject('validityMap');
 
   const childrenValidityMap = ref<Record<string, boolean | undefined>>({});
@@ -86,17 +79,17 @@ export default function useNode(node: Ref<InternalSchemaNode>, repeatedFormIdent
   watch(isShown, () => {
     if (!isShown.value) {
       unsetDataOfNode(node.value, data.value, components);
-      delete validityMap.value[nodeIdForValidation.value];
+      delete validityMap.value[node.value._id];
     }
     else {
-      validityMap.value[nodeIdForValidation.value] = isValid.value;
+      validityMap.value[node.value._id] = isValid.value;
     }
   });
 
   watch(
     isValid,
     () => {
-      validityMap.value[nodeIdForValidation.value] = isValid.value;
+      validityMap.value[node.value._id] = isValid.value;
     },
     { immediate: true },
   );
@@ -107,5 +100,7 @@ export default function useNode(node: Ref<InternalSchemaNode>, repeatedFormIdent
     modelValue,
     error,
     isShown,
+    isValid,
+    validityMap,
   };
 }

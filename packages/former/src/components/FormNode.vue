@@ -29,12 +29,10 @@ import { setDragEventData } from '~/utils';
 
 const props = defineProps<{
   node: InternalSchemaNode;
-  repeatedFormIdentifier?: string | number;
 }>();
 
 const node = toRef(props, 'node');
-const repeatedFormIdentifier = toRef(props, 'repeatedFormIdentifier');
-const { component, error, isShown, modelValue } = useNode(node, repeatedFormIdentifier);
+const { component, error, isShown, modelValue } = useNode(node);
 
 const mode = inject('mode');
 const selectedNode = inject('selectedNode');
