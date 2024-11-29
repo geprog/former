@@ -98,7 +98,7 @@ import Checkbox from './sample/Checkbox.vue';
 import Select from './sample/Select.vue';
 
 const mode = useStorage<Mode>('former:mode', 'build');
-const activateShowIf = ref(false);
+const activateShowIf = useStorage<boolean>('former:activateShowIf', false);
 
 const options = [
   { label: 'build', value: 'build' },
