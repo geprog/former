@@ -5,6 +5,7 @@ import Former from '~/components/Former.vue';
 import FormNodeProps from '~/components/FormNodeProps.vue';
 import FormRenderer from '~/components/FormRenderer.vue';
 import type { FieldData, FormComponents, FormData, FormerProps, FormFieldType, Mode, SchemaNode, ShowIfPredicate, Validator } from '~/types';
+import FormDataProvider from './components/FormDataProvider.vue';
 import './index.css';
 
 export {
@@ -13,6 +14,7 @@ export {
   type FormComponents,
   FormContent,
   type FormData,
+  FormDataProvider,
   Former,
   type FormerProps,
   type FormFieldType,
