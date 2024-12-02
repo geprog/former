@@ -27,7 +27,7 @@ export type FormData = { [field: string]: FieldData | FormData };
 
 export type FieldData = string | number | boolean | undefined | FormData[];
 
-export type FormerProps = { id: string; mode: Mode, error?: string; };
+export type FormerProps = { id: string; mode: Mode; error?: string; };
 
 type FormFieldComponent = Component<any, any, any>;
 
