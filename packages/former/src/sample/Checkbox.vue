@@ -1,7 +1,7 @@
 <template>
   <div>
-    <input :id="node?._id || fallbackNodeId" v-model="modelValue" type="checkbox" class="p-1 rounded">
-    <label v-if="label" :for="node?._id || fallbackNodeId" class="p-1">{{ label }}</label>
+    <input :id="id || fallbackNodeId" v-model="modelValue" type="checkbox" class="p-1 rounded">
+    <label v-if="label" :for="id || fallbackNodeId" class="p-1">{{ label }}</label>
   </div>
 </template>
 

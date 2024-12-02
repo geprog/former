@@ -1,8 +1,8 @@
 <template>
   <div class="flex flex-col">
-    <label v-if="label" :for="node?._id || fallbackNodeId" class="p-1">{{ label }}</label>
+    <label v-if="label" :for="id || fallbackNodeId" class="p-1">{{ label }}</label>
     <div class="border rounded">
-      <select :id="node?._id || fallbackNodeId" v-model="modelValue" class="w-full p-1 rounded bg-[field]">
+      <select :id="id || fallbackNodeId" v-model="modelValue" class="w-full p-1 rounded bg-[field]">
         <option v-for="(item, i) in options" :key="i" :value="item.value">
           {{ item.label }}
         </option>

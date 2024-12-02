@@ -13,13 +13,9 @@
 
           <div class="flex flex-grow flex-col border rounded p-2 bg-white gap-2">
             <div class="pointer-events-none">
-              <FormComponent
-                :node="{
-                  _id: '',
-                  type: i as string,
-                }"
-                :model-value="undefined"
-              />
+              <component :is="component.component" :id="i" :model-value="undefined" :mode>
+                <slot />
+              </component>
             </div>
           </div>
         </div>
@@ -29,13 +25,15 @@
 </template>
 
 <script lang="ts" setup>
-import { inject } from '~/compositions/injectProvide';
+import { ref } from 'vue';
+import { inject, provide } from '~/compositions/injectProvide';
 import { setDragEventData } from '~/utils';
-import FormComponent from './FormComponent.vue';
 
 const components = inject('components');
 const mode = inject('mode');
 const formId = inject('formId');
+provide('data', ref({}));
+provide('schema', ref([]));
 
 function startDrag(e: DragEvent, nodeType: string) {
   setDragEventData(e, formId.value, 'new_node_type', nodeType);

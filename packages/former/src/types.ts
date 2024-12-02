@@ -17,15 +17,17 @@ export type InternalSchemaNode<Props = { [key: string]: any }> = Omit<SchemaNode
 
 export type ShowIfPredicate = (node: SchemaNode, data: FormData) => boolean;
 
+export type InternalShowIfPredicate = (node: SchemaNode) => boolean;
+
 export type Validator = (node: SchemaNode, data: FieldData | FormData) => true | string;
 
 export type Mode = 'edit' | 'read' | 'build';
 
-export type FormData = Record<string, FieldData>;
+export type FormData = { [field: string]: FieldData | FormData };
 
-export type FieldData = string | number | boolean | null | undefined | FormData[];
+export type FieldData = string | number | boolean | undefined | FormData[];
 
-export type FormerProps = { node: InternalSchemaNode; mode: Mode; error?: string; };
+export type FormerProps = { id: string; mode: Mode; error?: string; };
 
 type FormFieldComponent = Component<any, any, any>;
 
@@ -34,6 +36,8 @@ export type FormFieldType = {
   propsSchema: SchemaNode[];
   component: FormFieldComponent | Raw<FormFieldComponent>;
 };
+
+export type FormComponents = { [key: string]: FormFieldType };
 
 export type Texts = {
   dragHint: string;

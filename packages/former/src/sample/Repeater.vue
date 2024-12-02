@@ -2,9 +2,9 @@
   <div class="flex flex-col gap-2 w-full items-start">
     <label v-if="label" class="p-1">{{ label }}</label>
     <div v-for="(item, index) in modelValue" :key="index" class="flex gap-2 w-full">
-      <FormDragContainer :node>
-        <FormRenderer :schema="node.children" :data="item" :repeated-form-identifier="index" @update:data="updateItem(index, $event)" />
-      </FormDragContainer>
+      <FormDataProvider :data="item">
+        <FormRenderer />
+      </FormDataProvider>
       <Button v-if="mode !== 'read'" @click.prevent="deleteItem(index)">
         x
       </Button>
@@ -16,7 +16,7 @@
 </template>
 
 <script setup lang="ts">
-import FormDragContainer from '~/components/FormDragContainer.vue';
+import FormDataProvider from '~/components/FormDataProvider.vue';
 import FormRenderer from '~/components/FormRenderer.vue';
 import type { FormData, FormerProps } from '~/types';
 import Button from './Button.vue';
@@ -30,11 +30,6 @@ const modelValue = defineModel<FormData[]>({
   default: () => [],
 });
 
-function updateItem(index: number, data: FormData) {
-  modelValue.value?.splice(index, 1, data);
-  modelValue.value = [...modelValue.value];
-}
-
 function addItem() {
   if (!modelValue.value) {
     modelValue.value = [];
@@ -44,7 +39,6 @@ function addItem() {
 }
 
 function deleteItem(index: number) {
-  modelValue.value?.splice(index, 1);
-  modelValue.value = [...modelValue.value];
+  modelValue.value = [...modelValue.value.slice(0, index), ...modelValue.value.slice(index + 1)];
 }
 </script>
