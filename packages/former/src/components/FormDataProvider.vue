@@ -3,9 +3,9 @@
 </template>
 
 <script setup lang="ts">
+import type { FormData } from '~/types';
 import { computed, onUnmounted, ref, toRef, watch } from 'vue';
 import { inject, provide } from '~/compositions/injectProvide';
-import type { FormData } from '~/types';
 import { nanoid } from '~/utils';
 
 const props = defineProps<{ data: FormData }>();
