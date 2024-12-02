@@ -1,5 +1,4 @@
-import type { InternalSchemaNode, SchemaNode } from './types';
-import { isRef, type MaybeRef, type MaybeRefOrGetter, nextTick, toValue } from 'vue';
+import type { FieldData, FormComponents, FormData, InternalSchemaNode, SchemaNode } from './types';
 
 function addIdToNode(_node: InternalSchemaNode | SchemaNode): InternalSchemaNode {
   const node = { ..._node } as InternalSchemaNode;
@@ -196,6 +195,28 @@ export function getNode(schema: InternalSchemaNode[], nodeId: string): InternalS
   return null;
 }
 
+export function isNodeLayoutComponent(node: InternalSchemaNode, components: FormComponents): boolean {
+  return !(components[node.type]?.propsSchema || []).some(prop => prop.name === '$name');
+}
+
+export function unsetDataOfNode(node: InternalSchemaNode, data: FormData | FieldData | undefined, components: FormComponents) {
+  if (data === undefined || typeof data !== 'object' || Array.isArray(data)) {
+    return;
+  }
+  if (node.name) {
+    data[node.name] = undefined;
+  }
+  else if (isNodeLayoutComponent(node, components) && node.children) {
+    let children = node.children;
+    if (!Array.isArray(children)) {
+      children = Object.values(children).flatMap(childrenOfCategory => childrenOfCategory);
+    }
+    children.forEach((child) => {
+      unsetDataOfNode(child, data, components);
+    });
+  }
+}
+
 // port from nanoid
 // https://github.com/ai/nanoid
 const urlAlphabet = 'useandom-26T198340PX75pxJACKVERYMINDBUSHWOLF_GQZbfghjklqvwyzrict';
@@ -206,26 +227,8 @@ export function nanoid(size = 21) {
   return id;
 }
 
-// from: https://github.com/vueuse/vueuse/blob/main/packages/integrations/useSortable/index.ts
-export function moveArrayElement<T>(list: MaybeRefOrGetter<T[]>, from: number, to: number): void {
-  const _valueIsRef = isRef(list);
-  // When the list is a ref, make a shallow copy of it to avoid repeatedly triggering side effects when moving elements
-  const array = _valueIsRef ? [...toValue(list)] : toValue(list);
-
-  if (to >= 0 && to < array.length) {
-    const element = array.splice(from, 1)[0];
-    nextTick(() => {
-      array.splice(to, 0, element);
-      // When list is ref, assign array to list.value
-      if (_valueIsRef) {
-        (list as MaybeRef).value = array;
-      }
-    });
-  }
-}
-
 export function generateFormId(): string {
-  // must be lower case to match with drag event handling hack see e.g. EditComponent.vue#startDrag
+  // must be lower case to match with drag event handling hack see e.g. FormNode.vue#startDrag
   return nanoid().toLowerCase();
 }
 

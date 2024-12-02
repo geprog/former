@@ -31,6 +31,10 @@
             Submit
           </Button>
 
+          <Button @click.prevent="data = {}">
+            Reset data
+          </Button>
+
           <Button @click.prevent="clearPlayground">
             Clear playground
           </Button>
@@ -84,7 +88,7 @@ import Columns from '~/sample/Columns.vue';
 import Group from '~/sample/Group.vue';
 import Repeater from '~/sample/Repeater.vue';
 import TextInput from '~/sample/TextInput.vue';
-import type { FieldData, FormData, FormFieldType, Mode, SchemaNode } from '~/types';
+import type { FieldData, FormComponents, FormData, Mode, SchemaNode } from '~/types';
 import FormAdd from './components/FormAdd.vue';
 import FormContent from './components/FormContent.vue';
 import Former from './components/Former.vue';
@@ -94,7 +98,7 @@ import Checkbox from './sample/Checkbox.vue';
 import Select from './sample/Select.vue';
 
 const mode = useStorage<Mode>('former:mode', 'build');
-const activateShowIf = ref(false);
+const activateShowIf = useStorage<boolean>('former:activateShowIf', false);
 
 const options = [
   { label: 'build', value: 'build' },
@@ -253,7 +257,7 @@ const data = useStorage<FormData>('former:data', {});
 
 const showIfProp = { type: 'text', name: 'showIf', props: { label: 'Show if', placeholder: 'If empty or "hello" then component is visible.' } };
 
-const components: { [k: string]: FormFieldType } = {
+const components: FormComponents = {
   text: {
     label: 'Text',
     component: markRaw(TextInput),
@@ -281,6 +285,14 @@ const components: { [k: string]: FormFieldType } = {
         props: {
           label: 'Placeholder',
           placeholder: 'Enter a placeholder',
+        },
+      },
+      {
+        type: 'text',
+        name: 'initialValue',
+        props: {
+          label: 'Initial value',
+          placeholder: 'Enter an initial value here',
         },
       },
       showIfProp,
