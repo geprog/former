@@ -8,6 +8,7 @@
       '!border-blue-600': mode === 'build' && selectedNode?._id === node._id,
       'bg-zinc-300 rounded': mode === 'build' && !isShown,
       'former-draggable ': mode === 'build',
+      'border-red-500': mode === 'build' && !isNodeValidFlag,
     }"
     @click.stop="selectedNode = node"
     @dragstart.stop="startDrag($event, node._id)"
@@ -22,9 +23,10 @@
 
 <script setup lang="ts">
 import type { InternalSchemaNode } from '~/types';
-import { toRef } from 'vue';
+import { computed, toRef } from 'vue';
 import { inject, provide } from '~/compositions/injectProvide';
 import useNode from '~/compositions/useNode';
+import { isNodeValid } from '~/compositions/useSchema';
 import { setDragEventData } from '~/utils';
 
 const props = defineProps<{
@@ -33,6 +35,7 @@ const props = defineProps<{
 
 const node = toRef(props, 'node');
 const { component, error, isShown, modelValue } = useNode(node);
+const isNodeValidFlag = computed(() => isNodeValid(node.value));
 
 const mode = inject('mode');
 const selectedNode = inject('selectedNode');
