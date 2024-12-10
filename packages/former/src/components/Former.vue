@@ -9,6 +9,7 @@ import type { FormComponents, FormData, InternalSchemaNode, Mode, SchemaNode, Sh
 import { cloneDeep, isEqual } from 'lodash';
 import { computed, ref, toRef, watch } from 'vue';
 import { provide } from '~/compositions/injectProvide';
+import useSchema from '~/compositions/useSchema';
 import { generateFormId, toInternalSchema, toSchema } from '~/utils';
 import FormContent from './FormContent.vue';
 
@@ -22,6 +23,7 @@ const props = withDefaults(defineProps<{
 
 const emit = defineEmits<{
   (e: 'valid', valid: boolean): void;
+  (e: 'schemaValid', valid: boolean): void;
 }>();
 
 const schema = defineModel<SchemaNode[]>('schema', { required: true });
@@ -73,7 +75,13 @@ provide('showIf', (node: SchemaNode) => {
   }
   return props.showIf(node, wrappedData.value);
 });
-provide('validator', props.validator || (() => true));
+const validator = props.validator || (() => true);
+provide('validator', validator);
+
+const { isValid: isSchemaValid } = useSchema(internalSchema, { validator, components: props.components });
+watch(isSchemaValid, () => {
+  emit('schemaValid', isSchemaValid.value);
+}, { immediate: true });
 
 const validityMap = ref<Record<string, boolean | undefined>>({});
 provide('validityMap', validityMap);
