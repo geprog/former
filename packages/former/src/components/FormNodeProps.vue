@@ -32,9 +32,9 @@
 </template>
 
 <script setup lang="ts">
+import type { InternalSchemaNode } from '~/types';
 import { computed, ref, watch } from 'vue';
 import { inject } from '~/compositions/injectProvide';
-import type { InternalSchemaNode } from '~/types';
 import { deleteNode, replaceNode, toInternalSchema } from '~/utils';
 import Former from './Former.vue';
 

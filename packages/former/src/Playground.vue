@@ -82,13 +82,13 @@
 </template>
 
 <script setup lang="ts">
+import type { FieldData, FormComponents, FormData, Mode, SchemaNode } from '~/types';
 import { useStorage } from '@vueuse/core';
 import { computed, markRaw, ref } from 'vue';
 import Columns from '~/sample/Columns.vue';
 import Group from '~/sample/Group.vue';
 import Repeater from '~/sample/Repeater.vue';
 import TextInput from '~/sample/TextInput.vue';
-import type { FieldData, FormComponents, FormData, Mode, SchemaNode } from '~/types';
 import FormAdd from './components/FormAdd.vue';
 import FormContent from './components/FormContent.vue';
 import Former from './components/Former.vue';

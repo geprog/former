@@ -21,10 +21,10 @@
 </template>
 
 <script setup lang="ts">
+import type { InternalSchemaNode } from '~/types';
 import { toRef } from 'vue';
 import { inject, provide } from '~/compositions/injectProvide';
 import useNode from '~/compositions/useNode';
-import type { InternalSchemaNode } from '~/types';
 import { setDragEventData } from '~/utils';
 
 const props = defineProps<{
