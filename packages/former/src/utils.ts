@@ -1,5 +1,39 @@
 import type { FieldData, FormComponents, FormData, InternalSchemaNode, SchemaNode } from './types';
 
+export function schemaIterator(schema: InternalSchemaNode[]) {
+  let nextIndex = 0;
+  let childrenIterator: Iterator<InternalSchemaNode> | null = null;
+
+  const rangeIterator: Iterator<InternalSchemaNode> & Iterable<InternalSchemaNode> = {
+    next() {
+      const done = nextIndex >= schema.length;
+      if (childrenIterator) {
+        const { done: childrenDone, value } = childrenIterator.next();
+        if (childrenDone) {
+          childrenIterator = null;
+        }
+        else {
+          return { value, done: childrenDone && done };
+        }
+      }
+      const node = schema[nextIndex];
+      if (node && node.children) {
+        const children = Array.isArray(node.children)
+          ? node.children
+          : Object.values(node.children).flatMap(childrenOfCategory => childrenOfCategory);
+        childrenIterator = schemaIterator(children);
+      }
+      const result = { value: node, done: childrenIterator === null && done };
+      nextIndex++;
+      return result;
+    },
+    [Symbol.iterator]() {
+      return this;
+    },
+  };
+  return rangeIterator;
+}
+
 function addIdToNode(_node: InternalSchemaNode | SchemaNode): InternalSchemaNode {
   const node = { ..._node } as InternalSchemaNode;
 
