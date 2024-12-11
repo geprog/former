@@ -8,6 +8,7 @@
       :show-if
       :validator="validator"
       @valid="isValid = $event"
+      @schema-valid="isSchemaValid = $event"
     >
       <main class="gap-4 m-4 max-w-[960px] w-2/3 flex flex-col overflow-y-auto">
         <h1 class="text-4xl font-bold mx-auto">
@@ -18,8 +19,8 @@
           <Checkbox
             v-model="activateShowIf" label="Activate Show-If"
           />
-          <div :class="{ 'text-red-500': !isValid }">
-            Validity status: {{ isValid ? 'valid' : 'invalid' }}
+          <div :class="{ 'text-red-500': !isValid || !isSchemaValid }">
+            Validity status: Data {{ isValid ? 'valid' : 'invalid' }}, Schema {{ isSchemaValid ? 'valid' : 'invalid' }}
           </div>
           <Select v-model="mode" :options />
         </div>
@@ -107,6 +108,7 @@ const options = [
 ];
 
 const isValid = ref(true);
+const isSchemaValid = ref(true);
 
 const schema = useStorage<SchemaNode[]>('former:schema', [
   {
@@ -315,6 +317,7 @@ const components: FormComponents = {
         props: {
           label: 'Name',
           placeholder: 'Enter the name of the data field',
+          required: true,
         },
       },
       showIfProp,
@@ -337,6 +340,7 @@ const components: FormComponents = {
         props: {
           label: 'Name',
           placeholder: 'Enter the name of the data field',
+          required: true,
         },
       },
       {
@@ -360,6 +364,7 @@ const components: FormComponents = {
         props: {
           label: 'Name',
           placeholder: 'Enter the name of the data field',
+          required: true,
         },
       },
       {
@@ -410,6 +415,7 @@ const components: FormComponents = {
         props: {
           label: 'Name',
           placeholder: 'Enter the name of the data field',
+          required: true,
         },
       },
       {

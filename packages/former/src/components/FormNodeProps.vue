@@ -25,6 +25,7 @@
       mode="edit"
       :components
       :validator
+      @valid="$emit('valid', $event)"
     />
     <pre v-else>{{ selectedNode }}</pre>
   </div>
@@ -37,6 +38,10 @@ import { computed, ref, watch } from 'vue';
 import { inject } from '~/compositions/injectProvide';
 import { deleteNode, replaceNode, toInternalSchema } from '~/utils';
 import Former from './Former.vue';
+
+defineEmits<{
+  (e: 'valid', valid: boolean): void;
+}>();
 
 const components = inject('components');
 const schema = inject('schema');
