@@ -13,7 +13,7 @@ export type InjectKeys = {
   validator: Validator;
   texts: Ref<Texts>;
   node: Ref<InternalSchemaNode>;
-  nodeData: Ref<FormData | undefined>;
+  rootData: Ref<FormData>;
 };
 
 export function inject<T extends keyof InjectKeys>(key: T): InjectKeys[T];

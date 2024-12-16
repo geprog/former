@@ -65,6 +65,7 @@ watch(wrappedData, () => {
 }, { deep: true });
 
 provide('data', wrappedData);
+provide('rootData', computed(() => Object.freeze(cloneDeep(wrappedData.value))));
 
 provide('mode', toRef(props, 'mode'));
 
