@@ -65,6 +65,7 @@ watch(wrappedData, () => {
 }, { deep: true });
 
 provide('data', wrappedData);
+provide('rootData', wrappedData);
 
 provide('mode', toRef(props, 'mode'));
 
