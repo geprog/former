@@ -3,12 +3,12 @@
     v-if="isShown || mode === 'build'"
     :data-node="node._id"
     :draggable="mode === 'build'"
-    class="relative flex items-center border-2 border-transparent duration-0 w-full py-2 px-2 rounded"
+    class="relative flex items-center duration-0 w-full py-2 px-2 rounded"
     :class="{
-      '!border-blue-600': mode === 'build' && selectedNode?._id === node._id,
+      'border-2 !border-blue-600': mode === 'build' && selectedNode?._id === node._id,
       'bg-zinc-300 rounded': mode === 'build' && !isShown,
       'former-draggable ': mode === 'build',
-      'border-red-500': mode === 'build' && !isNodeValidFlag,
+      'border-2 border-red-500': mode === 'build' && !isNodeValidFlag,
     }"
     @click.stop="selectedNode = node"
     @dragstart.stop="startDrag($event, node._id)"
