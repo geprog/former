@@ -19,8 +19,10 @@
           <Checkbox
             v-model="activateShowIf" label="Activate Show-If"
           />
-          <div :class="{ 'text-red-500': !isValid || !isSchemaValid }">
-            Validity status: Data {{ isValid ? 'valid' : 'invalid' }}, Schema {{ isSchemaValid ? 'valid' : 'invalid' }}
+          <div>
+            Validity status:
+            <span :class="{ 'text-red-500': !isValid }">Data {{ isValid ? 'valid' : 'invalid' }}</span>,
+            <span :class="{ 'text-red-500': !isSchemaValid }">Schema {{ isSchemaValid ? 'valid' : 'invalid' }}</span>
           </div>
           <Select v-model="mode" :options />
         </div>
