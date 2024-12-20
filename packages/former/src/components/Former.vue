@@ -66,6 +66,7 @@ watch(wrappedData, () => {
 
 provide('data', wrappedData);
 provide('rootData', wrappedData);
+provide('rootSchema', schema);
 
 provide('mode', toRef(props, 'mode'));
 

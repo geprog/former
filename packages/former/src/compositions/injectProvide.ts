@@ -1,4 +1,4 @@
-import type { FieldData, FormComponents, FormData, InternalSchemaNode, InternalShowIfPredicate, Mode, Texts, Validator } from '~/types';
+import type { FieldData, FormComponents, FormData, InternalSchemaNode, InternalShowIfPredicate, Mode, SchemaNode, Texts, Validator } from '~/types';
 import { getCurrentInstance, type InjectionKey, type Ref, inject as vueInject, provide as vueProvide } from 'vue';
 
 export type InjectKeys = {
@@ -14,6 +14,7 @@ export type InjectKeys = {
   texts: Ref<Texts>;
   node: Ref<InternalSchemaNode>;
   rootData: Ref<FormData>;
+  rootSchema: Ref<SchemaNode[]>;
 };
 
 export function inject<T extends keyof InjectKeys>(key: T): InjectKeys[T];
