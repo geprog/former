@@ -1,5 +1,5 @@
 <template>
-  <div class="flex w-full h-screen bg-gray-100">
+  <div class="flex w-full h-screen dark:bg-zinc-800 bg-gray-100 dark:text-zinc-100">
     <Former
       v-model:data="data"
       v-model:schema="schema"
@@ -10,7 +10,7 @@
       @valid="isValid = $event"
       @schema-valid="isSchemaValid = $event"
     >
-      <main class="gap-4 m-4 max-w-[960px] w-2/3 flex flex-col overflow-y-auto">
+      <main class="gap-4 m-4 max-w-[960px] w-2/3 flex flex-col overflow-y-auto dark:bg-zinc-900 dark:text-zinc-100">
         <h1 class="text-4xl font-bold mx-auto">
           👩🏾‍🌾 Former playground
         </h1>
@@ -24,28 +24,28 @@
             <span :class="{ 'text-red-500': !isValid }">Data {{ isValid ? 'valid' : 'invalid' }}</span>,
             <span :class="{ 'text-red-500': !isSchemaValid }">Schema {{ isSchemaValid ? 'valid' : 'invalid' }}</span>
           </div>
-          <Select v-model="mode" :options />
+          <Select v-model="mode" :options class="dark:bg-zinc-900 dark:text-zinc-100" />
         </div>
 
-        <form class="bg-white rounded-xl shadow-xl p-4 flex flex-col gap-4" @submit.prevent="submit">
+        <form class="dark:bg-zinc-800 bg-white rounded-xl shadow-xl p-4 flex flex-col gap-4" @submit.prevent="submit">
           <FormContent />
 
-          <Button type="submit">
+          <Button type="submit" class="dark:bg-zinc-900 dark:text-zinc-100">
             Submit
           </Button>
 
-          <Button @click.prevent="data = {}">
+          <Button class="dark:bg-zinc-900 dark:text-zinc-100" @click.prevent="data = {}">
             Reset data
           </Button>
 
-          <Button @click.prevent="clearPlayground">
+          <Button class="dark:bg-zinc-900 dark:text-zinc-100" @click.prevent="clearPlayground">
             Clear playground
           </Button>
         </form>
       </main>
 
       <div class="border-l flex flex-col p-4 gap-4 w-1/2 overflow-y-auto">
-        <div v-if="mode === 'build'" class="bg-white rounded-xl shadow-xl p-8 flex flex-col gap-2">
+        <div v-if="mode === 'build'" class="dark:bg-zinc-800 bg-white rounded-xl shadow-xl p-8 flex flex-col gap-2">
           <FormNodeProps>
             <template #unselect-button="unselectButtonProps">
               <Button @click="unselectButtonProps.unselect">
@@ -63,20 +63,24 @@
           </FormNodeProps>
         </div>
 
-        <div v-if="mode === 'build'" class="bg-white rounded-xl shadow-xl p-8 flex flex-col gap-2">
+        <div v-if="mode === 'build'" class="dark:text-zinc-100 dark:bg-zinc-800 bg-white rounded-xl shadow-xl p-8 flex flex-col gap-2">
           <span>Add elements by drag and dropping them into the form</span>
           <FormAdd />
         </div>
 
-        <div class="bg-white rounded-xl shadow-xl p-8">
+        <div class="dark:bg-zinc-800 bg-white rounded-xl shadow-xl p-8">
           <details open>
-            <summary>Schema</summary>
-            <textarea v-model="jsonSchema" rows="20" class="w-full border font-mono text-sm p-4 bg-zinc-50 mb-4" />
+            <summary class="dark:text-zinc-100">
+              Schema
+            </summary>
+            <textarea v-model="jsonSchema" rows="20" class="w-full border font-mono text-sm p-4 dark:text-zinc-100 dark:bg-zinc-800 bg-zinc-50 mb-4" />
           </details>
 
           <details open>
-            <summary>Data</summary>
-            <pre class="font-mono text-sm p-4 bg-zinc-100 mb-4">{{ data }}</pre>
+            <summary class="dark:text-zinc-100">
+              Data
+            </summary>
+            <pre class="font-mono text-sm p-4 dark:bg-zinc-800 dark:text-zinc-100 bg-zinc-100 mb-4">{{ data }}</pre>
           </details>
         </div>
       </div>

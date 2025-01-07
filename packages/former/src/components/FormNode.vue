@@ -3,7 +3,7 @@
     v-if="isShown || mode === 'build'"
     :data-node="node._id"
     :draggable="mode === 'build'"
-    class="relative flex items-center duration-0 w-full py-2 px-2 rounded"
+    class="relative flex items-center duration-0 w-full rounded"
     :class="{
       'border-2 !border-blue-600': mode === 'build' && selectedNode?._id === node._id,
       'bg-zinc-300 rounded': mode === 'build' && !isShown,
@@ -51,7 +51,7 @@ function startDrag(e: DragEvent, nodeId: string) {
 <style>
 /** necessary to do proper hovering in nested elements */
 .former-draggable[data-node]:hover:not(:has([data-node]:hover)) {
-  @apply bg-blue-200;
+  @apply bg-blue-200 dark:bg-blue-800;
 }
 
 .former-draggable[data-node] *:not(input) {
