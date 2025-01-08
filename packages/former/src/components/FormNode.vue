@@ -6,7 +6,7 @@
     class="relative flex items-center duration-0 w-full py-2 px-2 rounded"
     :class="{
       'border-2 !border-blue-600': mode === 'build' && selectedNode?._id === node._id,
-      'bg-zinc-300 rounded': mode === 'build' && !isShown,
+      'bg-zinc-300 dark:bg-zinc-700 rounded': mode === 'build' && !isShown,
       'former-draggable ': mode === 'build',
       'border-2 border-red-500': mode === 'build' && !isNodeValidFlag,
     }"
@@ -51,7 +51,7 @@ function startDrag(e: DragEvent, nodeId: string) {
 <style>
 /** necessary to do proper hovering in nested elements */
 .former-draggable[data-node]:hover:not(:has([data-node]:hover)) {
-  @apply bg-blue-200;
+  @apply bg-blue-200 dark:bg-blue-800;
 }
 
 .former-draggable[data-node] *:not(input) {
