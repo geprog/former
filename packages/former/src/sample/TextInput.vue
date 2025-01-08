@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col w-full dark:text-zinc-100 dark:bg-zinc-800">
+  <div class="flex flex-col w-full dark:bg-zinc-800">
     <label v-if="label" :for="id" class="p-1" dark:>{{ label }}</label>
     <div class="border rounded">
       <input :id="id" v-model="modelValue" :disabled="mode === 'read'" :type :placeholder class="w-full p-1 rounded dark:text-white dark:bg-zinc-800">

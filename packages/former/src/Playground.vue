@@ -10,7 +10,7 @@
       @valid="isValid = $event"
       @schema-valid="isSchemaValid = $event"
     >
-      <main class="gap-4 m-4 max-w-[960px] w-2/3 flex flex-col overflow-y-auto dark:text-zinc-100">
+      <main class="gap-4 m-4 max-w-[960px] w-2/3 flex flex-col overflow-y-auto">
         <h1 class="text-4xl font-bold mx-auto">
           👩🏾‍🌾 Former playground
         </h1>
@@ -24,21 +24,21 @@
             <span :class="{ 'text-red-500': !isValid }">Data {{ isValid ? 'valid' : 'invalid' }}</span>,
             <span :class="{ 'text-red-500': !isSchemaValid }">Schema {{ isSchemaValid ? 'valid' : 'invalid' }}</span>
           </div>
-          <Select v-model="mode" :options class="dark:bg-zinc-900 dark:text-zinc-100" />
+          <Select v-model="mode" :options class="dark:bg-zinc-900" />
         </div>
 
         <form class="dark:bg-zinc-800 bg-white rounded-xl shadow-xl p-4 flex flex-col gap-4" @submit.prevent="submit">
           <FormContent />
 
-          <Button type="submit" class="dark:bg-zinc-900 dark:text-zinc-100">
+          <Button type="submit" class="dark:bg-zinc-900">
             Submit
           </Button>
 
-          <Button class="dark:bg-zinc-900 dark:text-zinc-100" @click.prevent="data = {}">
+          <Button class="dark:bg-zinc-900" @click.prevent="data = {}">
             Reset data
           </Button>
 
-          <Button class="dark:bg-zinc-900 dark:text-zinc-100" @click.prevent="clearPlayground">
+          <Button class="dark:bg-zinc-900" @click.prevent="clearPlayground">
             Clear playground
           </Button>
         </form>
@@ -63,24 +63,24 @@
           </FormNodeProps>
         </div>
 
-        <div v-if="mode === 'build'" class="dark:text-zinc-100 dark:bg-zinc-800 bg-white rounded-xl shadow-xl p-8 flex flex-col gap-2">
+        <div v-if="mode === 'build'" class="dark:bg-zinc-800 bg-white rounded-xl shadow-xl p-8 flex flex-col gap-2">
           <span>Add elements by drag and dropping them into the form</span>
           <FormAdd />
         </div>
 
         <div class="dark:bg-zinc-800 bg-white rounded-xl shadow-xl p-8">
           <details open>
-            <summary class="dark:text-zinc-100">
+            <summary>
               Schema
             </summary>
-            <textarea v-model="jsonSchema" rows="20" class="w-full border font-mono text-sm p-4 dark:text-zinc-100 dark:bg-zinc-800 bg-zinc-50 mb-4" />
+            <textarea v-model="jsonSchema" rows="20" class="w-full border font-mono text-sm p-4 bg-zinc-50 mb-4" />
           </details>
 
           <details open>
-            <summary class="dark:text-zinc-100">
+            <summary>
               Data
             </summary>
-            <pre class="font-mono text-sm p-4 dark:bg-zinc-800 dark:text-zinc-100 bg-zinc-100 mb-4">{{ data }}</pre>
+            <pre class="font-mono text-sm p-4 dark:bg-zinc-800 bg-zinc-100 mb-4">{{ data }}</pre>
           </details>
         </div>
       </div>
