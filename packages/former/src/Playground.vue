@@ -1,5 +1,5 @@
 <template>
-  <div class="flex w-full h-screen bg-gray-100">
+  <div class="flex w-full h-screen dark:bg-zinc-900 bg-gray-100 dark:text-zinc-100">
     <Former
       v-model:data="data"
       v-model:schema="schema"
@@ -27,7 +27,7 @@
           <Select v-model="mode" :options />
         </div>
 
-        <form class="bg-white rounded-xl shadow-xl p-4 flex flex-col gap-4" @submit.prevent="submit">
+        <form class="dark:bg-zinc-800 bg-white rounded-xl shadow-xl p-4 flex flex-col gap-4" @submit.prevent="submit">
           <FormContent />
 
           <Button type="submit">
@@ -45,7 +45,7 @@
       </main>
 
       <div class="border-l flex flex-col p-4 gap-4 w-1/2 overflow-y-auto">
-        <div v-if="mode === 'build'" class="bg-white rounded-xl shadow-xl p-8 flex flex-col gap-2">
+        <div v-if="mode === 'build'" class="dark:bg-zinc-800 bg-white rounded-xl shadow-xl p-8 flex flex-col gap-2">
           <FormNodeProps>
             <template #unselect-button="unselectButtonProps">
               <Button @click="unselectButtonProps.unselect">
@@ -63,20 +63,24 @@
           </FormNodeProps>
         </div>
 
-        <div v-if="mode === 'build'" class="bg-white rounded-xl shadow-xl p-8 flex flex-col gap-2">
+        <div v-if="mode === 'build'" class="dark:bg-zinc-800 bg-white rounded-xl shadow-xl p-8 flex flex-col gap-2">
           <span>Add elements by drag and dropping them into the form</span>
           <FormAdd />
         </div>
 
-        <div class="bg-white rounded-xl shadow-xl p-8">
+        <div class="dark:bg-zinc-800 bg-white rounded-xl shadow-xl p-8">
           <details open>
-            <summary>Schema</summary>
-            <textarea v-model="jsonSchema" rows="20" class="w-full border font-mono text-sm p-4 bg-zinc-50 mb-4" />
+            <summary>
+              Schema
+            </summary>
+            <textarea v-model="jsonSchema" rows="20" class="w-full border font-mono text-sm p-4 dark:bg-zinc-800 mb-4" />
           </details>
 
           <details open>
-            <summary>Data</summary>
-            <pre class="font-mono text-sm p-4 bg-zinc-100 mb-4">{{ data }}</pre>
+            <summary>
+              Data
+            </summary>
+            <pre class="font-mono text-sm p-4 mb-4">{{ data }}</pre>
           </details>
         </div>
       </div>

@@ -5,13 +5,13 @@
         <span>{{ component.label }}</span>
 
         <div
-          class="flex gap-2 w-full items-center cursor-move hover:bg-blue-100"
+          class="flex gap-2 w-full items-center cursor-move hover:bg-blue-100 dark:hover:bg-zinc-700"
           draggable="true"
           @dragstart="startDrag($event, i as string)"
         >
           <span class="drag-handle p-2">::</span>
 
-          <div class="flex flex-grow flex-col border rounded p-2 bg-white gap-2">
+          <div class="flex flex-grow flex-col border rounded p-2 gap-2">
             <div class="pointer-events-none">
               <component :is="component.component" :id="i" :model-value="undefined" :mode>
                 <slot />
