@@ -73,7 +73,7 @@
             <summary>
               Schema
             </summary>
-            <textarea v-model="jsonSchema" rows="20" class="w-full border font-mono text-sm p-4 bg-zinc-50 mb-4" />
+            <textarea v-model="jsonSchema" rows="20" class="w-full border font-mono text-sm p-4 dark:bg-zinc-800 mb-4" />
           </details>
 
           <details open>
