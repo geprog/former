@@ -3,7 +3,7 @@
     v-if="isShown || mode === 'build'"
     :data-node="node._id"
     :draggable="mode === 'build'"
-    class="relative flex items-center duration-0 w-full rounded"
+    class="relative flex items-center duration-0 w-full py-2 px-2 rounded"
     :class="{
       'border-2 !border-blue-600': mode === 'build' && selectedNode?._id === node._id,
       'bg-zinc-300 rounded': mode === 'build' && !isShown,
