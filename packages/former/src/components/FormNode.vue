@@ -7,7 +7,7 @@
     :class="{
       'border-2 !border-blue-600': mode === 'build' && selectedNode?._id === node._id,
       'bg-zinc-300 rounded': mode === 'build' && !isShown,
-      'former-draggable ': mode === 'build',
+      'former-draggable p-2': mode === 'build',
       'border-2 border-red-500': mode === 'build' && !isNodeValidFlag,
     }"
     @click.stop="selectedNode = node"
