@@ -18,6 +18,8 @@ const schema = inject('schema');
 const selectedNode = inject('selectedNode');
 const formId = inject('formId');
 
+const draggingClasses = ['bg-blue-200', 'dark:bg-blue-800'];
+
 let lastDropTarget: HTMLElement | null = null;
 let lastDropzone: HTMLElement | null = null;
 function getDropDetails(e: DragEvent) {
@@ -137,9 +139,9 @@ function dragOver(e: DragEvent) {
   }
 
   if (activeDropzone) {
-    activeDropzone.classList.remove('bg-blue-200');
+    activeDropzone.classList.remove(...draggingClasses);
   }
-  dropzone.classList.add('bg-blue-200');
+  dropzone.classList.add(...draggingClasses);
   activeDropzone = dropzone;
 }
 
@@ -153,7 +155,7 @@ function dragLeave(e: DragEvent) {
   }
   placeholder = null;
   if (activeDropzone) {
-    activeDropzone.classList.remove('bg-blue-200');
+    activeDropzone.classList.remove(...draggingClasses);
   }
   activeDropzone = null;
 }
@@ -170,7 +172,7 @@ function onDrop(e: DragEvent) {
   }
 
   if (activeDropzone) {
-    activeDropzone.classList.remove('bg-blue-200');
+    activeDropzone.classList.remove(...draggingClasses);
   }
 
   const details = getDropDetails(e);
