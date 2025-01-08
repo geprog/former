@@ -1,6 +1,6 @@
 <template>
   <div
-    class="relative flex flex-col gap-3 before:content-[attr(data-drag-hint)] before:hidden before:m-auto before:text-center"
+    class="relative flex flex-col gap-4 before:content-[attr(data-drag-hint)] before:hidden before:m-auto before:text-center"
     :class="{ 'former-drag-container min-h-24 w-full border-2 border-dashed rounded-md border-zinc-200 empty:before:block empty:bg-zinc-100 empty:dark:bg-zinc-700': mode === 'build' }"
     :data-parent-node="node?._id"
     :data-category="category"
