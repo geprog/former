@@ -1,7 +1,7 @@
 <template>
-  <div class="flex flex-col gap-2 w-full items-start dark:bg-zinc-800">
+  <div class="flex flex-col gap-2 w-full items-start">
     <label v-if="label" class="p-1">{{ label }}</label>
-    <div v-for="(item, index) in modelValue" :key="index" class="flex gap-2 w-full dark:bg-zinc-800">
+    <div v-for="(item, index) in modelValue" :key="index" class="flex gap-2 w-full">
       <FormDataProvider :data="item">
         <FormRenderer />
       </FormDataProvider>

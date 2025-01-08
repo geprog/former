@@ -24,21 +24,21 @@
             <span :class="{ 'text-red-500': !isValid }">Data {{ isValid ? 'valid' : 'invalid' }}</span>,
             <span :class="{ 'text-red-500': !isSchemaValid }">Schema {{ isSchemaValid ? 'valid' : 'invalid' }}</span>
           </div>
-          <Select v-model="mode" :options class="dark:bg-zinc-900" />
+          <Select v-model="mode" :options />
         </div>
 
         <form class="dark:bg-zinc-800 bg-white rounded-xl shadow-xl p-4 flex flex-col gap-4" @submit.prevent="submit">
           <FormContent />
 
-          <Button type="submit" class="dark:bg-zinc-900">
+          <Button type="submit">
             Submit
           </Button>
 
-          <Button class="dark:bg-zinc-900" @click.prevent="data = {}">
+          <Button @click.prevent="data = {}">
             Reset data
           </Button>
 
-          <Button class="dark:bg-zinc-900" @click.prevent="clearPlayground">
+          <Button @click.prevent="clearPlayground">
             Clear playground
           </Button>
         </form>
@@ -80,7 +80,7 @@
             <summary>
               Data
             </summary>
-            <pre class="font-mono text-sm p-4 dark:bg-zinc-800 bg-zinc-100 mb-4">{{ data }}</pre>
+            <pre class="font-mono text-sm p-4 mb-4">{{ data }}</pre>
           </details>
         </div>
       </div>
