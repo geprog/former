@@ -1,5 +1,5 @@
 <template>
-  <div class="flex w-full h-screen dark:bg-zinc-900 bg-gray-100 dark:text-zinc-100">
+  <div class="flex w-full h-screen dark:bg-zinc-900 bg-gray-100 dark:text-zinc-100" :class="{ dark: activateDarkMode }">
     <Former
       v-model:data="data"
       v-model:schema="schema"
@@ -16,6 +16,9 @@
         </h1>
 
         <div class="flex items-center ml-auto space-x-4">
+          <Checkbox
+            v-model="activateDarkMode" label="Activate dark mode"
+          />
           <Checkbox
             v-model="activateShowIf" label="Activate Show-If"
           />
@@ -106,6 +109,7 @@ import Select from './sample/Select.vue';
 
 const mode = useStorage<Mode>('former:mode', 'build');
 const activateShowIf = useStorage<boolean>('former:activateShowIf', false);
+const activateDarkMode = useStorage<boolean>('former:darkMode', false);
 
 const options = [
   { label: 'build', value: 'build' },
