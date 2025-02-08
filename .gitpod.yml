@@ -4,6 +4,9 @@
 
 # Learn more from ready-to-use templates: https://www.gitpod.io/docs/introduction/getting-started/quickstart
 
+env:
+  __VITE_ADDITIONAL_SERVER_ALLOWED_HOSTS: $GITPOD_WORKSPACE_URL
+
 tasks:
   - name: Setup gitpod env
     before: |
