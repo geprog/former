@@ -16,6 +16,10 @@ tasks:
     init: pnpm install && pnpm run build
     command: pnpm run dev
 
+ports:
+  - port: 5173
+    name: Playground
+
 vscode:
   extensions:
     - dbaeumer.vscode-eslint

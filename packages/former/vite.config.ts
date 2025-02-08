@@ -47,4 +47,7 @@ export default defineConfig({
       },
     },
   },
+  server: {
+    allowedHosts: ['.gitpod.io'],
+  },
 });
