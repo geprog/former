@@ -12,7 +12,7 @@ tasks:
       npm install -g pnpm@9
       nvm alias default 22
       echo "nvm use default &>/dev/null" >> ~/.bashrc.d/51-nvm-fix
-      echo "export __VITE_ADDITIONAL_SERVER_ALLOWED_HOSTS=$GITPOD_WORKSPACE_URL" >> ~/.bashrc.d/52-vite-config
+      echo "export __VITE_ADDITIONAL_SERVER_ALLOWED_HOSTS=5173-${GITPOD_WORKSPACE_ID}.${GITPOD_WORKSPACE_CLUSTER_HOST}" >> ~/.bashrc.d/52-vite-config
 
     init: pnpm install && pnpm run build
     command: pnpm run dev
