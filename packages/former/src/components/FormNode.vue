@@ -33,9 +33,12 @@ const props = defineProps<{
   node: InternalSchemaNode;
 }>();
 
+const validator = inject('validator');
+const components = inject('components');
+
 const node = toRef(props, 'node');
 const { component, error, isShown, modelValue } = useNode(node);
-const isNodeValidFlag = computed(() => isNodeValid(node.value));
+const isNodeValidFlag = computed(() => isNodeValid(node.value, validator, components));
 
 const mode = inject('mode');
 const selectedNode = inject('selectedNode');
