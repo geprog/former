@@ -75,7 +75,7 @@ provide('showIf', (node: SchemaNode) => {
   if (!props.showIf) {
     return true;
   }
-  return props.showIf(node, wrappedData.value);
+  return props.showIf(node, wrappedData.value, schema.value);
 });
 const validator = props.validator || (() => true);
 provide('validator', validator);

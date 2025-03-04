@@ -15,7 +15,7 @@ export type InternalSchemaNode<Props = { [key: string]: any }> = Omit<SchemaNode
   children?: NodeChildren<InternalSchemaNode<Props>>;
 };
 
-export type ShowIfPredicate = (node: SchemaNode, data: FormData) => boolean;
+export type ShowIfPredicate = (node: SchemaNode, data: FormData, schema: SchemaNode[]) => boolean;
 
 export type InternalShowIfPredicate = (node: SchemaNode) => boolean;
 
