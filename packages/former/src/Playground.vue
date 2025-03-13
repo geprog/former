@@ -47,7 +47,7 @@
         </form>
       </main>
 
-      <div class="border-l flex flex-col p-4 gap-4 w-1/2 overflow-y-auto">
+      <div class="border-l dark:border-zinc-400 flex flex-col p-4 gap-4 w-1/2 overflow-y-auto">
         <div v-if="mode === 'build'" class="dark:bg-zinc-800 bg-white rounded-xl shadow-xl p-8 flex flex-col gap-2">
           <FormNodeProps>
             <template #unselect-button="unselectButtonProps">
@@ -76,7 +76,7 @@
             <summary>
               Schema
             </summary>
-            <textarea v-model="jsonSchema" rows="20" class="w-full border font-mono text-sm p-4 dark:bg-zinc-800 mb-4" />
+            <textarea v-model="jsonSchema" rows="20" class="w-full border dark:border-zinc-400 font-mono text-sm p-4 dark:bg-zinc-800 mb-4" />
           </details>
 
           <details open>
