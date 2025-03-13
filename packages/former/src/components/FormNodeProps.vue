@@ -1,6 +1,6 @@
 <template>
   <div v-if="selectedNode" class="flex flex-col gap-4 w-full">
-    <div class="flex gap-2 w-full justify-between border-b-2 pb-2">
+    <div class="flex gap-2 w-full justify-between border-b-2 dark:border-zinc-400 pb-2">
       <slot name="delete-button" :delete="deleteComponent">
         <button @click="deleteComponent">
           &#128465;

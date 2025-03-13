@@ -1,7 +1,7 @@
 <template>
   <div class="flex flex-col w-full">
     <label v-if="label" :for="id" class="p-1">{{ label }}</label>
-    <div class="border rounded">
+    <div class="border dark:border-zinc-400 rounded">
       <input :id="id" v-model="modelValue" :disabled="mode === 'read'" :type :placeholder class="w-full p-1 rounded dark:bg-zinc-800">
     </div>
     <div v-if="error" class="text-red-500">

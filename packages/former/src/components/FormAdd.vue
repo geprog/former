@@ -11,7 +11,7 @@
         >
           <span class="drag-handle p-2">::</span>
 
-          <div class="flex flex-grow flex-col border rounded p-2 gap-2">
+          <div class="flex flex-grow flex-col border dark:border-zinc-400 rounded p-2 gap-2">
             <div class="pointer-events-none">
               <component :is="component.component" :id="i" :model-value="undefined" :mode>
                 <slot />
