@@ -5,6 +5,7 @@
         <span>{{ component.label }}</span>
 
         <div
+          :ref="el => refs[i] = el"
           class="flex gap-2 w-full items-center cursor-move hover:bg-blue-100 dark:hover:bg-zinc-700"
           draggable="true"
           @dragstart="startDrag($event, i as string)"
@@ -25,17 +26,37 @@
 </template>
 
 <script lang="ts" setup>
-import { ref } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import { inject, provide } from '~/compositions/injectProvide';
+import { useTouchDrag } from '~/compositions/useTouchDrag';
 import { setDragEventData } from '~/utils';
 
+const refs = ref<HTMLElement[]>([]);
 const components = inject('components');
 const mode = inject('mode');
 const formId = inject('formId');
-provide('data', ref({}));
-provide('schema', ref([]));
+const componentList = computed(() =>
+  Object.entries(components).map(([type, config]) => ({
+    type,
+    ...config,
+  })),
+);
+
+const dummySchema = ref([]);
+const dummyData = ref({});
+provide('data', dummySchema);
+provide('schema', dummyData);
 
 function startDrag(e: DragEvent, nodeType: string) {
   setDragEventData(e, formId.value, 'new_node_type', nodeType);
 }
+
+onMounted(() => {
+  componentList.value.forEach((component, i) => {
+    useTouchDrag({
+      elementGetter: () => refs.value[i],
+      dragData: () => ({ type: 'new_node_type', value: component.type }),
+    });
+  });
+});
 </script>

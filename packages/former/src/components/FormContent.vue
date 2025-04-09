@@ -3,12 +3,14 @@
     @dragover.prevent="dragOver"
     @dragenter.prevent
     @dragleave.prevent="dragLeave"
+    @touchmove.prevent="dragOver"
+    @touchend="onTouchDrop"
   />
 </template>
 
 <script setup lang="ts">
 import type { InternalSchemaNode } from '~/types';
-import { onBeforeUnmount, onMounted, toValue } from 'vue';
+import { onBeforeUnmount, onMounted, ref, toValue } from 'vue';
 import { inject } from '~/compositions/injectProvide';
 import { addNode, deleteNode, getFormIdFromEvent, getNode, nanoid, nodePosition } from '~/utils';
 import FormRenderer from './FormRenderer.vue';
@@ -218,6 +220,19 @@ function onDrop(e: DragEvent) {
 
     schema.value = _schema;
   }
+}
+
+const activeTouchData = ref<{ type: string; value: string } | null>(null);
+
+function onTouchDrop(e: TouchEvent) {
+  const touch = e.changedTouches[0];
+  const simulatedEvent = new DragEvent('drop', {
+    clientX: touch.clientX,
+    clientY: touch.clientY,
+  });
+  // simulate internal state transition
+  Object.assign(simulatedEvent, activeTouchData); // Custom logic
+  onDrop(simulatedEvent as any);
 }
 
 onMounted(() => {
