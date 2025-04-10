@@ -33,6 +33,9 @@ const components = inject('components');
 const mode = inject('mode');
 const formId = inject('formId');
 
+provide('data', ref({}));
+provide('schema', ref([]));
+
 function startDrag(e: DragEvent, nodeType: string) {
   setDragEventData(e, formId.value, 'new_node_type', nodeType);
 }
