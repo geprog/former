@@ -1,7 +1,6 @@
 <template>
   <div
     v-if="isShown || mode === 'build'"
-    ref="elementRef"
     :data-node="node._id"
     :draggable="mode === 'build'"
     class="relative flex items-center duration-0 w-full rounded empty:hidden"
@@ -24,18 +23,16 @@
 
 <script setup lang="ts">
 import type { InternalSchemaNode } from '~/types';
-import { computed, ref, toRef } from 'vue';
+import { computed, toRef } from 'vue';
 import { inject, provide } from '~/compositions/injectProvide';
 import useNode from '~/compositions/useNode';
 import { isNodeValid } from '~/compositions/useSchema';
-import { useTouchDrag } from '~/compositions/useTouchDrag';
 import { setDragEventData } from '~/utils';
 
 const props = defineProps<{
   node: InternalSchemaNode;
 }>();
 
-const elementRef = ref<HTMLElement>();
 const validator = inject('validator');
 const components = inject('components');
 
@@ -52,11 +49,6 @@ provide('node', node);
 function startDrag(e: DragEvent, nodeId: string) {
   setDragEventData(e, formId.value, 'node_id', nodeId);
 }
-
-useTouchDrag({
-  elementGetter: () => elementRef.value,
-  dragData: () => ({ type: 'node_id', value: node.value._id }),
-});
 </script>
 
 <style>
