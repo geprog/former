@@ -1,3 +1,7 @@
+import { ref } from 'vue';
+
+export const isTouchDragging = ref(false);
+
 export function useTouchDrag() {
   let startEl: HTMLElement | null = null;
   let dataTransfer: DataTransfer | null = null;
@@ -28,6 +32,7 @@ export function useTouchDrag() {
 
     if (!hasDragged && distance > dragThreshold) {
       hasDragged = true;
+      isTouchDragging.value = true;
       dataTransfer = new DataTransfer();
 
       const dragStartEvent = new DragEvent('dragstart', {
@@ -37,21 +42,21 @@ export function useTouchDrag() {
       });
       startEl.dispatchEvent(dragStartEvent);
 
-      // Create ghost
       ghostEl = startEl.cloneNode(true) as HTMLElement;
-      ghostEl.style.position = 'fixed';
-      ghostEl.style.pointerEvents = 'none';
-      ghostEl.style.opacity = '0.7';
-      ghostEl.style.top = '0';
-      ghostEl.style.left = '0';
-      ghostEl.style.zIndex = '1000';
-      ghostEl.style.width = '300px';
-      ghostEl.style.borderRadius = '8px';
-      ghostEl.style.boxShadow = '0 4px 12px rgba(0,0,0,0.2)';
-      ghostEl.style.background = '#bfdbfe';
+      Object.assign(ghostEl.style, {
+        position: 'fixed',
+        pointerEvents: 'none',
+        opacity: '0.7',
+        top: '0',
+        left: '0',
+        zIndex: '1000',
+        width: '300px',
+        borderRadius: '8px',
+        boxShadow: '0 4px 12px rgba(0,0,0,0.2)',
+        background: '#bfdbfe dark:#1e40af',
+        transition: 'none',
+      });
       ghostEl.style.transform = `translate(${touch.clientX}px, ${touch.clientY}px)`;
-      ghostEl.style.transition = 'none';
-
       document.body.appendChild(ghostEl);
     }
 
@@ -69,7 +74,6 @@ export function useTouchDrag() {
         cancelable: true,
         dataTransfer,
       });
-
       el.dispatchEvent(dragOverEvent);
     }
   }
@@ -92,6 +96,7 @@ export function useTouchDrag() {
           cancelable: true,
           dataTransfer,
         });
+        (dropEvent as any).synthetic = true;
         el.dispatchEvent(dropEvent);
       }
 
@@ -107,6 +112,11 @@ export function useTouchDrag() {
     dataTransfer = null;
     initialTouch = null;
     hasDragged = false;
+
+    // Small timeout to reset after drop
+    setTimeout(() => {
+      isTouchDragging.value = false;
+    }, 0);
   }
 
   function enable() {

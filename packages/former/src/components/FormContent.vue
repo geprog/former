@@ -10,7 +10,7 @@
 import type { InternalSchemaNode } from '~/types';
 import { onBeforeUnmount, onMounted, toValue } from 'vue';
 import { inject } from '~/compositions/injectProvide';
-import { useTouchDrag } from '~/compositions/useTouchDrag';
+import { isTouchDragging, useTouchDrag } from '~/compositions/useTouchDrag';
 import { addNode, deleteNode, getFormIdFromEvent, getNode, nanoid, nodePosition } from '~/utils';
 import FormRenderer from './FormRenderer.vue';
 
@@ -163,11 +163,15 @@ function dragLeave(e: DragEvent) {
 }
 
 function onDrop(e: DragEvent) {
+  if (isTouchDragging.value && !e.synthetic)
+    return;
+
   const eventFormId = getFormIdFromEvent(e);
   if (mode.value !== 'build' || formId.value !== eventFormId) {
     // do not handle any drag if not in builder mode
     return;
   }
+  e.preventDefault();
 
   if (placeholder) {
     placeholder.remove();
