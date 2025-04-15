@@ -1,4 +1,3 @@
-import type { useDark } from '@vueuse/core';
 import { ref } from 'vue';
 
 export const isTouchDragging = ref(false);
