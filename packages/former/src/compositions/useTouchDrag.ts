@@ -1,14 +1,28 @@
+import type { useDark } from '@vueuse/core';
 import { ref } from 'vue';
 
 export const isTouchDragging = ref(false);
 
-export function useTouchDrag() {
+const ghostStyle = {
+  position: 'fixed',
+  pointerEvents: 'none',
+  opacity: '0.7',
+  top: '0',
+  left: '0',
+  zIndex: '1000',
+  width: '300px',
+  borderRadius: '8px',
+  boxShadow: '0 4px 12px rgba(0,0,0,0.2)',
+  background: '#808080',
+  transition: 'none',
+};
+
+export function useTouchDrag(dragThreshold = 10) {
   let startEl: HTMLElement | null = null;
   let dataTransfer: DataTransfer | null = null;
   let ghostEl: HTMLElement | null = null;
   let initialTouch: Touch | null = null;
   let hasDragged = false;
-  const dragThreshold = 10;
 
   function handleTouchStart(e: TouchEvent) {
     const target = e.target as HTMLElement;
@@ -43,19 +57,7 @@ export function useTouchDrag() {
       startEl.dispatchEvent(dragStartEvent);
 
       ghostEl = startEl.cloneNode(true) as HTMLElement;
-      Object.assign(ghostEl.style, {
-        position: 'fixed',
-        pointerEvents: 'none',
-        opacity: '0.7',
-        top: '0',
-        left: '0',
-        zIndex: '1000',
-        width: '300px',
-        borderRadius: '8px',
-        boxShadow: '0 4px 12px rgba(0,0,0,0.2)',
-        background: '#bfdbfe dark:#1e40af',
-        transition: 'none',
-      });
+      Object.assign(ghostEl.style, ghostStyle);
       ghostEl.style.transform = `translate(${touch.clientX}px, ${touch.clientY}px)`;
       document.body.appendChild(ghostEl);
     }
@@ -82,15 +84,15 @@ export function useTouchDrag() {
     if (!startEl)
       return;
 
-    if (ghostEl?.parentNode) {
-      ghostEl.parentNode.removeChild(ghostEl);
-    }
+    ghostEl?.remove();
     ghostEl = null;
 
     if (hasDragged) {
       const touch = e.changedTouches[0];
       const el = document.elementFromPoint(touch.clientX, touch.clientY);
-      if (el) {
+      const validDropzone = el?.closest('.former-drag-container');
+
+      if (el && validDropzone) {
         const dropEvent = new DragEvent('drop', {
           bubbles: true,
           cancelable: true,
@@ -113,7 +115,6 @@ export function useTouchDrag() {
     initialTouch = null;
     hasDragged = false;
 
-    // Small timeout to reset after drop
     setTimeout(() => {
       isTouchDragging.value = false;
     }, 0);

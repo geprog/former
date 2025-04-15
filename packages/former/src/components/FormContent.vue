@@ -8,7 +8,7 @@
 
 <script setup lang="ts">
 import type { InternalSchemaNode } from '~/types';
-import { onBeforeUnmount, onMounted, toValue } from 'vue';
+import { onBeforeUnmount, onMounted, ref, toValue } from 'vue';
 import { inject } from '~/compositions/injectProvide';
 import { isTouchDragging, useTouchDrag } from '~/compositions/useTouchDrag';
 import { addNode, deleteNode, getFormIdFromEvent, getNode, nanoid, nodePosition } from '~/utils';
@@ -22,21 +22,20 @@ const formId = inject('formId');
 
 const draggingClasses = ['bg-blue-200', 'dark:bg-blue-800'];
 
+const isDropping = ref(false); // Prevent multiple drop events
+const lastDroppedNodeId = ref<string | null>(null); // Track node ID to prevent duplicate drops
+
 let lastDropTarget: HTMLElement | null = null;
 let lastDropzone: HTMLElement | null = null;
+
 function getDropDetails(e: DragEvent) {
-  // add a placeholder to indicate where the element will be dropped
   lastDropTarget = (e.target as HTMLElement).closest('.former-draggable') ?? lastDropTarget;
   lastDropzone = (e.target as HTMLElement)?.closest('.former-drag-container') ?? lastDropzone;
-  if (!document.body.contains(lastDropTarget)) {
+  if (!document.body.contains(lastDropTarget))
     lastDropTarget = null;
-  }
-
-  if (!lastDropzone) {
+  if (!lastDropzone)
     throw new Error('No dropzone found');
-  }
 
-  // if draggable is parent of drop target => add first child to dropzone
   if (lastDropTarget && lastDropTarget.contains(lastDropzone)) {
     return {
       dropTarget: null,
@@ -50,7 +49,6 @@ function getDropDetails(e: DragEvent) {
     };
   }
 
-  // if there is no other node => allow to add first node
   if (!lastDropTarget && lastDropzone) {
     return {
       dropTarget: null,
@@ -64,25 +62,20 @@ function getDropDetails(e: DragEvent) {
     };
   }
 
-  if (!lastDropTarget) {
+  if (!lastDropTarget)
     throw new Error('No drop target found');
-  }
 
   const dropTargetId = lastDropTarget.getAttribute('data-node');
   const aboveTarget = e.clientY < lastDropTarget.getBoundingClientRect().top + lastDropTarget.offsetHeight / 2;
 
-  if (!dropTargetId) {
+  if (!dropTargetId)
     throw new Error('No drop target id found');
-  }
 
   const newPosition = nodePosition(schema.value, dropTargetId, aboveTarget ? 'above' : 'below');
 
-  // TODO: prevent adding groups to itself as a child
-  // this check doesn't work as getData returns null
   const nodeId = e.dataTransfer?.getData('node_id');
-  if (newPosition?.parentId === nodeId) {
+  if (newPosition?.parentId === nodeId)
     return null;
-  }
 
   return {
     dropTarget: lastDropTarget,
@@ -94,24 +87,22 @@ function getDropDetails(e: DragEvent) {
 
 let placeholder: HTMLElement | null = null;
 let activeDropzone: HTMLElement | null = null;
+
 function dragOver(e: DragEvent) {
   const eventFormId = getFormIdFromEvent(e);
-  if (mode.value !== 'build' || formId.value !== eventFormId) {
-    // do not handle any drag if not in builder mode
+  if (mode.value !== 'build' || formId.value !== eventFormId)
     return;
-  }
   e.preventDefault();
   e.dataTransfer!.dropEffect = 'move';
 
   const details = getDropDetails(e);
-  if (!details) {
+  if (!details)
     return;
-  }
+
   const { dropTarget, aboveTarget, dropzone } = details;
 
-  if (placeholder) {
+  if (placeholder)
     placeholder.remove();
-  }
 
   placeholder = document.createElement('div');
   placeholder.classList.add(
@@ -148,13 +139,15 @@ function dragOver(e: DragEvent) {
 }
 
 function dragLeave(e: DragEvent) {
-  if (e.currentTarget && e.relatedTarget && (e.currentTarget as Node).contains(e.relatedTarget as Node)) {
-    // doing this check to avoid flikkering of the gray background in the drag container
+  if (
+    e.currentTarget
+    && e.relatedTarget
+    && (e.currentTarget as Node).contains(e.relatedTarget as Node)
+  ) {
     return;
   }
-  if (placeholder) {
+  if (placeholder)
     placeholder.remove();
-  }
   placeholder = null;
   if (activeDropzone) {
     activeDropzone.classList.remove(...draggingClasses);
@@ -163,38 +156,47 @@ function dragLeave(e: DragEvent) {
 }
 
 function onDrop(e: DragEvent) {
-  if (isTouchDragging.value && !e.synthetic)
+  const customEvent = e as DragEvent & { synthetic?: boolean };
+
+  if (isTouchDragging.value && !customEvent.synthetic)
     return;
+
+  // Prevent multiple drops
+  if (isDropping.value)
+    return;
+
+  isDropping.value = true;
 
   const eventFormId = getFormIdFromEvent(e);
-  if (mode.value !== 'build' || formId.value !== eventFormId) {
-    // do not handle any drag if not in builder mode
+  if (mode.value !== 'build' || formId.value !== eventFormId)
     return;
-  }
   e.preventDefault();
 
-  if (placeholder) {
+  if (placeholder)
     placeholder.remove();
-  }
-
-  if (activeDropzone) {
+  if (activeDropzone)
     activeDropzone.classList.remove(...draggingClasses);
-  }
 
   const details = getDropDetails(e);
-  if (!details) {
+  if (!details || !details.newPosition)
     return;
-  }
 
   const { newPosition } = details;
-  if (!newPosition) {
-    return;
-  }
 
   const newNodeType = e.dataTransfer?.getData('new_node_type');
   if (newNodeType) {
+    const newNodeId = nanoid();
+
+    // Skip if node already dropped
+    if (lastDroppedNodeId.value === newNodeId) {
+      isDropping.value = false;
+      return;
+    }
+
+    lastDroppedNodeId.value = newNodeId;
+
     const newNode = {
-      _id: nanoid(),
+      _id: newNodeId,
       type: newNodeType,
       props: {},
     } satisfies InternalSchemaNode;
@@ -202,27 +204,50 @@ function onDrop(e: DragEvent) {
     const _schema = [...toValue(schema.value)];
     addNode(_schema, newPosition, newNode);
     schema.value = _schema;
-
     selectedNode.value = newNode;
+
+    setTimeout(() => {
+      lastDroppedNodeId.value = null;
+      isDropping.value = false;
+    }, 300);
     return;
   }
 
   const nodeId = e.dataTransfer?.getData('node_id');
   if (nodeId) {
-    const node = getNode(schema.value, nodeId)!;
-    const currentPosition = nodePosition(schema.value, nodeId, 'above')!;
+    // Skip if node already dropped
+    if (lastDroppedNodeId.value === nodeId) {
+      isDropping.value = false;
+      return;
+    }
+
+    lastDroppedNodeId.value = nodeId;
+
+    const node = getNode(schema.value, nodeId);
+    if (!node)
+      return;
+
+    const currentPosition = nodePosition(schema.value, nodeId, 'above');
+    if (!currentPosition)
+      return;
 
     const _schema = [...toValue(schema.value)];
-
     deleteNode(_schema, nodeId);
 
-    if (currentPosition.parentId === newPosition.parentId && currentPosition.index < newPosition.index) {
-      // we need to reduce the index if the element got deleted in the same parent at a lower position
+    if (
+      currentPosition.parentId === newPosition.parentId
+      && currentPosition.index < newPosition.index
+    ) {
       newPosition.index--;
     }
-    addNode(_schema, newPosition, node);
 
+    addNode(_schema, newPosition, node);
     schema.value = _schema;
+
+    setTimeout(() => {
+      lastDroppedNodeId.value = null;
+      isDropping.value = false;
+    }, 300);
   }
 }
 
