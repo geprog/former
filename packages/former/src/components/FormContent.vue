@@ -189,6 +189,7 @@ function onDrop(e: DragEvent) {
   if (placeholder) {
     placeholder.remove();
   }
+
   if (activeDropzone) {
     activeDropzone.classList.remove(...draggingClasses);
   }
