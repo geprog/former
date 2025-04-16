@@ -73,6 +73,8 @@ export function useTouchDrag(dragThreshold = 10) {
       const dragOverEvent = new DragEvent('dragover', {
         bubbles: true,
         cancelable: true,
+        clientX: touch.clientX,
+        clientY: touch.clientY,
         dataTransfer,
       });
       el.dispatchEvent(dragOverEvent);
@@ -88,13 +90,21 @@ export function useTouchDrag(dragThreshold = 10) {
 
     if (hasDragged) {
       const touch = e.changedTouches[0];
-      const el = document.elementFromPoint(touch.clientX, touch.clientY);
-      const validDropzone = el?.closest('.former-drag-container');
+      let el = document.elementFromPoint(touch.clientX, touch.clientY);
+      let validDropzone = el?.closest('.former-drag-container');
+
+      if (!validDropzone && el) {
+        // attempt to find the last visible dropzone near bottom
+        validDropzone = document.querySelector('.former-drag-container:last-child') as HTMLElement;
+        el = validDropzone;
+      }
 
       if (el && validDropzone) {
         const dropEvent = new DragEvent('drop', {
           bubbles: true,
           cancelable: true,
+          clientX: touch.clientX,
+          clientY: touch.clientY,
           dataTransfer,
         });
         (dropEvent as any).synthetic = true;
