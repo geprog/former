@@ -33,6 +33,7 @@ function getDropDetails(e: DragEvent) {
   if (!document.body.contains(lastDropTarget)) {
     lastDropTarget = null;
   }
+
   if (!lastDropzone) {
     throw new Error('No dropzone found');
   }
@@ -84,6 +85,7 @@ function getDropDetails(e: DragEvent) {
   if (newPosition?.parentId === nodeId) {
     return null;
   }
+
   return {
     dropTarget: lastDropTarget,
     dropzone: lastDropzone,
@@ -97,6 +99,7 @@ let activeDropzone: HTMLElement | null = null;
 function dragOver(e: DragEvent) {
   const eventFormId = getFormIdFromEvent(e);
   if (mode.value !== 'build' || formId.value !== eventFormId) {
+    // do not handle any drag if not in builder mode
     return;
   }
   e.preventDefault();
@@ -106,7 +109,6 @@ function dragOver(e: DragEvent) {
   if (!details) {
     return;
   }
-
   const { dropTarget, aboveTarget, dropzone } = details;
 
   if (placeholder) {
@@ -160,6 +162,7 @@ function dragLeave(e: DragEvent) {
     placeholder.remove();
   }
   placeholder = null;
+
   if (activeDropzone) {
     activeDropzone.classList.remove(...draggingClasses);
   }
