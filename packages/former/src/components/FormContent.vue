@@ -99,7 +99,7 @@ function dragOver(e: DragEvent) {
   if (!details)
     return;
 
-  const { dropTarget, dropzone } = details;
+  const { dropTarget, aboveTarget, dropzone } = details;
 
   if (placeholder)
     placeholder.remove();
@@ -117,13 +117,8 @@ function dragOver(e: DragEvent) {
     '-translate-y-1/2',
   );
 
-  const container = dropTarget || dropzone;
-
-  const targetRect = container.getBoundingClientRect();
-  const isAbove = e.clientY < targetRect.top + targetRect.height / 2;
-
   if (dropTarget) {
-    if (isAbove) {
+    if (aboveTarget) {
       placeholder.style.top = '0';
       dropTarget.prepend(placeholder);
     }
