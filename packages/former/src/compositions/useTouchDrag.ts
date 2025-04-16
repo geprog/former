@@ -26,8 +26,9 @@ export function useTouchDrag(dragThreshold = 10) {
   function handleTouchStart(e: TouchEvent) {
     const target = e.target as HTMLElement;
     const draggable = target.closest('[draggable="true"]') as HTMLElement;
-    if (!draggable)
+    if (!draggable) {
       return;
+    }
 
     startEl = draggable;
     initialTouch = e.touches[0];
@@ -35,8 +36,9 @@ export function useTouchDrag(dragThreshold = 10) {
   }
 
   function handleTouchMove(e: TouchEvent) {
-    if (!startEl || !initialTouch)
+    if (!startEl || !initialTouch) {
       return;
+    }
 
     const touch = e.touches[0];
     const dx = touch.clientX - initialTouch.clientX;
@@ -67,8 +69,9 @@ export function useTouchDrag(dragThreshold = 10) {
 
     if (hasDragged) {
       const el = document.elementFromPoint(touch.clientX, touch.clientY);
-      if (!el)
+      if (!el) {
         return;
+      }
 
       const dragOverEvent = new DragEvent('dragover', {
         bubbles: true,
@@ -82,8 +85,9 @@ export function useTouchDrag(dragThreshold = 10) {
   }
 
   function handleTouchEnd(e: TouchEvent) {
-    if (!startEl)
+    if (!startEl) {
       return;
+    }
 
     ghostEl?.remove();
     ghostEl = null;
