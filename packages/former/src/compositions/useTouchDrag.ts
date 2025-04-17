@@ -39,6 +39,7 @@ export function useTouchDrag(dragThreshold = 10) {
     if (!startEl || !initialTouch) {
       return;
     }
+    e.preventDefault();
 
     const touch = e.touches[0];
     const dx = touch.clientX - initialTouch.clientX;
