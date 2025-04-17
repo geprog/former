@@ -32,6 +32,7 @@ import { setDragEventData } from '~/utils';
 const components = inject('components');
 const mode = inject('mode');
 const formId = inject('formId');
+
 provide('data', ref({}));
 provide('schema', ref([]));
 
