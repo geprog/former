@@ -19,7 +19,7 @@ const props = withDefaults(defineProps<{
   validator?: Validator;
   mode?: Mode;
   texts?: Partial<Texts>;
-  isUpdating: boolean;
+  isUpdating?: boolean;
 }>(), {
   mode: 'edit',
   texts: () => ({}),
