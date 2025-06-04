@@ -19,15 +19,22 @@ const props = withDefaults(defineProps<{
   validator?: Validator;
   mode?: Mode;
   texts?: Partial<Texts>;
-}>(), { mode: 'edit', texts: () => ({}) });
+  isUpdating: boolean;
+}>(), {
+  mode: 'edit',
+  texts: () => ({}),
+  isUpdating: false,
+});
 
 const emit = defineEmits<{
   (e: 'valid', valid: boolean): void;
   (e: 'schemaValid', valid: boolean): void;
 }>();
 
-const schema = defineModel<SchemaNode[]>('schema', { required: true });
+const isUpdating = toRef(props, 'isUpdating');
+provide('formerIsUpdating', isUpdating);
 
+const schema = defineModel<SchemaNode[]>('schema', { required: true });
 const internalSchema = ref<InternalSchemaNode[]>([]);
 provide('schema', internalSchema);
 
@@ -35,7 +42,6 @@ const formId = ref(generateFormId());
 provide('formId', formId);
 
 const latestSchema = ref<SchemaNode[]>();
-
 watch(schema, (value) => {
   if (!isEqual(latestSchema.value, value)) {
     internalSchema.value = toInternalSchema(value);
@@ -69,14 +75,15 @@ provide('rootData', wrappedData);
 provide('rootSchema', schema);
 
 provide('mode', toRef(props, 'mode'));
-
 provide('components', props.components);
+
 provide('showIf', (node: SchemaNode) => {
   if (!props.showIf) {
     return true;
   }
   return props.showIf(node, wrappedData.value, schema.value);
 });
+
 const validator = props.validator || (() => true);
 provide('validator', validator);
 
