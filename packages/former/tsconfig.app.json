@@ -7,6 +7,6 @@
     },
     "noEmit": true
   },
-  "include": ["env.d.ts", "src/**/*", "src/**/*.vue"],
+  "include": ["env.d.ts", "src/**/*", "src/**/*.vue", "../playground/src/App.vue"],
   "exclude": ["src/**/__tests__/*"]
 }

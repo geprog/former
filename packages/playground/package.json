@@ -1,0 +1,25 @@
+{
+  "name": "former-playground",
+  "type": "module",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview --strictPort",
+    "typecheck": "vue-tsc -p tsconfig.app.json --noEmit"
+  },
+  "dependencies": {
+    "@vueuse/core": "12.0.0",
+    "former-ui": "workspace:*",
+    "vue": "^3.5.13"
+  },
+  "devDependencies": {
+    "@types/node": "^20.19.13",
+    "@vitejs/plugin-vue": "^5.2.1",
+    "@vueuse/core": "12.0.0",
+    "typescript": "^5.7.2",
+    "vite": "^5.4.14",
+    "vue-tsc": "^1.8.27"
+  }
+}

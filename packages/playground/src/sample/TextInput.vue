@@ -11,7 +11,7 @@
 </template>
 
 <script setup lang="ts">
-import type { FormerProps } from '~/types';
+import type { FieldData, FormComponents, FormData, FormerProps, FormFieldType, Mode, SchemaNode, ShowIfPredicate, Validator } from 'former-ui';
 import { onMounted, toRef } from 'vue';
 
 const props = withDefaults(

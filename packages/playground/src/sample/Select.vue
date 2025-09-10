@@ -12,8 +12,8 @@
 </template>
 
 <script setup lang="ts">
-import type { FormerProps } from '~/types';
-import { nanoid } from '~/utils';
+import type { FieldData, FormComponents, FormData, FormerProps, FormFieldType, Mode, SchemaNode, ShowIfPredicate, Validator } from 'former-ui';
+import { nanoid } from 'former-ui';
 
 defineProps<{
   label?: string;

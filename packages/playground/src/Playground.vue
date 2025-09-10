@@ -92,20 +92,33 @@
 </template>
 
 <script setup lang="ts">
-import type { FieldData, FormComponents, FormData, Mode, SchemaNode } from '~/types';
+import type {
+  FieldData,
+  FormComponents,
+  FormData,
+  Mode,
+  SchemaNode,
+} from 'former-ui';
+import Button from '@/sample/Button.vue';
+
+import Checkbox from '@/sample/Checkbox.vue';
+
+import Columns from '@/sample/Columns.vue';
+
+import Group from '@/sample/Group.vue';
+import Repeater from '@/sample/Repeater.vue';
+import Select from '@/sample/Select.vue';
+import TextInput from '@/sample/TextInput.vue';
 import { useStorage } from '@vueuse/core';
+import {
+  FormAdd,
+  FormContent,
+  FormDataProvider,
+  Former,
+  FormNodeProps,
+  FormRenderer,
+} from 'former-ui';
 import { computed, markRaw, ref } from 'vue';
-import Columns from '~/sample/Columns.vue';
-import Group from '~/sample/Group.vue';
-import Repeater from '~/sample/Repeater.vue';
-import TextInput from '~/sample/TextInput.vue';
-import FormAdd from './components/FormAdd.vue';
-import FormContent from './components/FormContent.vue';
-import Former from './components/Former.vue';
-import FormNodeProps from './components/FormNodeProps.vue';
-import Button from './sample/Button.vue';
-import Checkbox from './sample/Checkbox.vue';
-import Select from './sample/Select.vue';
 
 const mode = useStorage<Mode>('former:mode', 'build');
 const activateShowIf = useStorage<boolean>('former:activateShowIf', false);
