@@ -6,8 +6,12 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "prepack": "pnpm build",
+    "test": "vitest --pass-with-no-tests",
+    "typecheck": "vue-tsc --build --force",
     "preview": "vite preview --strictPort",
-    "typecheck": "vue-tsc -p tsconfig.app.json --noEmit"
+    "build:playground": "vite build --config vite.config.playground.ts",
+    "preview:playground": "vite preview --config vite.config.playground.ts"
   },
   "dependencies": {
     "@vueuse/core": "12.0.0",
@@ -15,11 +19,21 @@
     "vue": "^3.5.13"
   },
   "devDependencies": {
-    "@types/node": "^20.19.13",
-    "@vitejs/plugin-vue": "^5.2.1",
+    "@tsconfig/node22": "22.0.0",
+    "@types/lodash": "4.17.13",
+    "@types/node": "22.10.1",
+    "@vitejs/plugin-vue": "5.2.1",
+    "@vue/tsconfig": "0.7.0",
     "@vueuse/core": "12.0.0",
-    "typescript": "^5.7.2",
-    "vite": "^5.4.14",
-    "vue-tsc": "^1.8.27"
+    "autoprefixer": "10.4.20",
+    "postcss": "^8.5.6",
+    "tailwindcss": "3.4.16",
+    "typescript": "5.7.2",
+    "vite": "6.1.6",
+    "vite-plugin-css-injected-by-js": "3.5.2",
+    "vite-plugin-dts": "4.3.0",
+    "vitest": "2.1.9",
+    "vue": "3.5.13",
+    "vue-tsc": "2.1.10"
   }
 }

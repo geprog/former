@@ -1,3 +1,5 @@
+import './index.css';
+
 export { default as FormAdd } from './components/FormAdd.vue';
 export { default as FormContent } from './components/FormContent.vue';
 export { default as FormDataProvider } from './components/FormDataProvider.vue';
