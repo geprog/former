@@ -16,8 +16,8 @@
 </template>
 
 <script setup lang="ts">
-import type { FieldData, FormComponents, FormData, FormerProps, FormFieldType, Mode, SchemaNode, ShowIfPredicate, Validator } from 'former-ui';
-import { FormAdd, FormContent, FormDataProvider, Former, FormNodeProps, FormRenderer } from 'former-ui';
+import type { FormData, FormerProps } from 'former-ui';
+import { FormDataProvider, FormRenderer } from 'former-ui';
 import Button from './Button.vue';
 
 defineProps<{

@@ -12,7 +12,7 @@
 </template>
 
 <script setup lang="ts">
-import type { FieldData, FormComponents, FormData, FormerProps, FormFieldType, Mode, SchemaNode, ShowIfPredicate, Validator } from 'former-ui';
+import type { FormerProps } from 'former-ui';
 import { nanoid } from 'former-ui';
 
 defineProps<{

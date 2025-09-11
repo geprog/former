@@ -6,5 +6,5 @@
 </template>
 
 <script setup lang="ts">
-import { FormAdd, FormContent, FormDataProvider, Former, FormNodeProps, FormRenderer } from 'former-ui';
+import { FormRenderer } from 'former-ui';
 </script>
