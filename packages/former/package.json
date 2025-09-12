@@ -36,9 +36,7 @@
     "build": "vite build",
     "prepack": "pnpm build",
     "test": "vitest --pass-with-no-tests",
-    "typecheck": "vue-tsc --build --force",
-    "build:playground": "vite build --config vite.config.playground.ts",
-    "preview:playground": "vite preview --config vite.config.playground.ts"
+    "typecheck": "vue-tsc --build --force"
   },
   "peerDependencies": {
     "vue": "^3.0.0"
