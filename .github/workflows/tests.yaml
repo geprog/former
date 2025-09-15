@@ -32,7 +32,8 @@ jobs:
         with:
           version: 9
           run_install: true
-      - run: pnpm test
+      - run: pnpm build
+      - run: pnpm typecheck
 
   unit-test:
     name: Unit Tests

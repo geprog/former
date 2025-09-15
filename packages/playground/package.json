@@ -1,40 +1,20 @@
 {
-  "name": "former-ui",
+  "name": "@former-ui/playground",
   "type": "module",
   "version": "0.0.0",
-  "license": "MIT",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/geprog/former.git"
-  },
-  "keywords": [
-    "vue",
-    "vue3",
-    "form-builder",
-    "forms"
-  ],
-  "main": "./dist/index.umd.cjs",
-  "module": "./dist/index.js",
-  "types": "./dist/index.d.ts",
-  "files": [
-    "README.md",
-    "dist"
-  ],
-  "engines": {
-    "pnpm": ">=9.0.0",
-    "node": ">=22.0.0"
-  },
+  "private": true,
   "scripts": {
+    "dev": "vite",
     "build": "vite build",
     "prepack": "pnpm build",
     "test": "vitest --pass-with-no-tests",
-    "typecheck": "vue-tsc --build --force"
-  },
-  "peerDependencies": {
-    "vue": "^3.0.0"
+    "typecheck": "vue-tsc --build --force",
+    "preview": "vite preview"
   },
   "dependencies": {
-    "lodash": "4.17.21"
+    "@vueuse/core": "12.0.0",
+    "former-ui": "workspace:*",
+    "vue": "^3.5.13"
   },
   "devDependencies": {
     "@tsconfig/node22": "22.0.0",
@@ -48,7 +28,6 @@
     "typescript": "5.7.2",
     "vite": "6.1.6",
     "vite-plugin-css-injected-by-js": "3.5.2",
-    "vite-plugin-dts": "4.3.0",
     "vitest": "2.1.9",
     "vue": "3.5.13",
     "vue-tsc": "3.0.7"

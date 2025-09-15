@@ -4,6 +4,7 @@ import { getCurrentInstance, type InjectionKey, type Ref, inject as vueInject, p
 export type InjectKeys = {
   mode: Ref<Mode>;
   formId: Ref<string>;
+  formerIsUpdating: Ref<boolean>;
   schema: Ref<InternalSchemaNode[]>;
   data: Ref<FormData | FieldData>;
   components: FormComponents;
