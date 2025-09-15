@@ -21,10 +21,8 @@ jobs:
         with:
           version: 9
           run_install: true
-      - name: Build library (former)
-        run: pnpm -F former build
-      - name: Build playground
-        run: pnpm -F former-playground build
+      - name: Build
+        run: pnpm build
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:

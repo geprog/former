@@ -7,8 +7,8 @@
 
 <script setup lang="ts">
 import type { FormerProps } from 'former-ui';
+import { genId } from '@/utils/id';
 import { ref } from 'vue';
-import { genId } from '../utils/id';
 
 defineProps<{
   label?: string;

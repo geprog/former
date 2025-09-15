@@ -1,5 +1,5 @@
 {
-  "name": "former-playground",
+  "name": "@former-ui/playground",
   "type": "module",
   "version": "0.0.0",
   "private": true,
@@ -9,7 +9,7 @@
     "prepack": "pnpm build",
     "test": "vitest --pass-with-no-tests",
     "typecheck": "vue-tsc --build --force",
-    "preview": "vite preview --strictPort"
+    "preview": "vite preview"
   },
   "dependencies": {
     "@vueuse/core": "12.0.0",
@@ -24,12 +24,10 @@
     "@vue/tsconfig": "0.7.0",
     "@vueuse/core": "12.0.0",
     "autoprefixer": "10.4.20",
-    "postcss": "^8.5.6",
     "tailwindcss": "3.4.16",
     "typescript": "5.7.2",
     "vite": "6.1.6",
     "vite-plugin-css-injected-by-js": "3.5.2",
-    "vite-plugin-dts": "4.3.0",
     "vitest": "2.1.9",
     "vue": "3.5.13",
     "vue-tsc": "2.1.10"
