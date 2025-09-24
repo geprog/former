@@ -3,9 +3,9 @@
     <Former
       v-model:data="data"
       v-model:schema="schema"
-      :components
-      :mode
-      :show-if
+      :components="builderComponents"
+      :mode="mode"
+      :show-if="showIf"
       :validator="validator"
       @valid="isValid = $event"
       @schema-valid="isSchemaValid = $event"
@@ -27,7 +27,7 @@
             <span :class="{ 'text-red-500': !isValid }">Data {{ isValid ? 'valid' : 'invalid' }}</span>,
             <span :class="{ 'text-red-500': !isSchemaValid }">Schema {{ isSchemaValid ? 'valid' : 'invalid' }}</span>
           </div>
-          <Select v-model="mode" :options />
+          <Select v-model="mode" :options="options" />
         </div>
 
         <form class="dark:bg-zinc-800 bg-white rounded-xl shadow-xl p-4 flex flex-col gap-4" @submit.prevent="submit">
@@ -100,15 +100,9 @@ import type {
   SchemaNode,
 } from 'former-ui';
 import Button from '@/sample/Button.vue';
-
 import Checkbox from '@/sample/Checkbox.vue';
-
-import Columns from '@/sample/Columns.vue';
-
-import Group from '@/sample/Group.vue';
-import Repeater from '@/sample/Repeater.vue';
+import { schemaComponentsSample } from '@/sample/schemaComponentsSample';
 import Select from '@/sample/Select.vue';
-import TextInput from '@/sample/TextInput.vue';
 import { useStorage } from '@vueuse/core';
 import {
   FormAdd,
@@ -116,7 +110,11 @@ import {
   Former,
   FormNodeProps,
 } from 'former-ui';
-import { computed, markRaw, ref } from 'vue';
+
+import { schemaComponentsNuxt } from 'preset-nuxt-ui';
+import { computed, ref } from 'vue';
+
+const builderComponents = schemaComponentsSample();
 
 const mode = useStorage<Mode>('former:mode', 'build');
 const activateShowIf = useStorage<boolean>('former:activateShowIf', false);
@@ -277,180 +275,6 @@ const jsonSchema = computed<string>({
 });
 
 const data = useStorage<FormData>('former:data', {});
-
-const showIfProp = { type: 'text', name: 'showIf', props: { label: 'Show if', placeholder: 'If empty or "hello" then component is visible.' } };
-
-const components: FormComponents = {
-  text: {
-    label: 'Text',
-    component: markRaw(TextInput),
-    propsSchema: [
-      {
-        type: 'text',
-        name: '$name',
-        props: {
-          label: 'Name',
-          placeholder: 'Enter the name of the data field',
-          required: true,
-        },
-      },
-      {
-        type: 'text',
-        name: 'label',
-        props: {
-          label: 'Label',
-          placeholder: 'Enter a label',
-        },
-      },
-      {
-        type: 'text',
-        name: 'placeholder',
-        props: {
-          label: 'Placeholder',
-          placeholder: 'Enter a placeholder',
-        },
-      },
-      {
-        type: 'text',
-        name: 'initialValue',
-        props: {
-          label: 'Initial value',
-          placeholder: 'Enter an initial value here',
-        },
-      },
-      showIfProp,
-      {
-        type: 'checkbox',
-        name: 'required',
-        props: {
-          label: 'Is field required?',
-        },
-      },
-    ],
-  },
-  group: {
-    label: 'Group',
-    component: markRaw(Group),
-    propsSchema: [
-      {
-        type: 'text',
-        name: '$name',
-        props: {
-          label: 'Name',
-          placeholder: 'Enter the name of the data field',
-          required: true,
-        },
-      },
-      showIfProp,
-    ],
-  },
-  columns: {
-    label: 'Columns',
-    component: markRaw(Columns),
-    propsSchema: [
-      showIfProp,
-    ],
-  },
-  repeater: {
-    label: 'Repeater',
-    component: markRaw(Repeater),
-    propsSchema: [
-      {
-        type: 'text',
-        name: '$name',
-        props: {
-          label: 'Name',
-          placeholder: 'Enter the name of the data field',
-          required: true,
-        },
-      },
-      {
-        type: 'text',
-        name: 'label',
-        props: {
-          label: 'Label',
-          placeholder: 'Enter a label',
-        },
-      },
-      showIfProp,
-    ],
-  },
-  select: {
-    label: 'Select',
-    component: markRaw(Select),
-    propsSchema: [
-      {
-        type: 'text',
-        name: '$name',
-        props: {
-          label: 'Name',
-          placeholder: 'Enter the name of the data field',
-          required: true,
-        },
-      },
-      {
-        type: 'text',
-        name: 'label',
-        props: {
-          label: 'Label',
-          placeholder: 'Enter a label',
-        },
-      },
-      showIfProp,
-      {
-        type: 'repeater',
-        name: 'options',
-        children: [
-          {
-            type: 'text',
-            name: 'label',
-            props: {
-              type: 'text',
-              label: 'Label',
-              placeholder: 'Enter a label',
-            },
-          },
-          {
-            type: 'text',
-            name: 'value',
-            props: {
-              type: 'text',
-              label: 'Value',
-              placeholder: 'Enter a value',
-            },
-          },
-        ],
-        props: {
-          label: 'Options',
-        },
-      },
-    ],
-  },
-  checkbox: {
-    label: 'Checkbox',
-    component: markRaw(Checkbox),
-    propsSchema: [
-      {
-        type: 'text',
-        name: '$name',
-        props: {
-          label: 'Name',
-          placeholder: 'Enter the name of the data field',
-          required: true,
-        },
-      },
-      {
-        type: 'text',
-        name: 'label',
-        props: {
-          label: 'Label',
-          placeholder: 'Enter a label',
-        },
-      },
-      showIfProp,
-    ],
-  },
-};
 
 function showIf(node: SchemaNode, _data: FormData): boolean {
   if (!activateShowIf.value) {

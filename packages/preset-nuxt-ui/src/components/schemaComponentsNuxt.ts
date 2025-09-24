@@ -4,6 +4,7 @@ import { markRaw } from 'vue';
 import Checkbox from './Checkbox.vue';
 import Columns from './Columns.vue';
 import ComboBox from './ComboBox.vue';
+import Group from './Group.vue';
 import Number from './Number.vue';
 import RadioGroup from './RadioGroup.vue';
 import Repeater from './Repeater.vue';
@@ -30,7 +31,7 @@ function commonSchema(opt: Partial<CommonOpts> = {}): SchemaNode[] {
   return s;
 }
 
-export function schemaComponents(): FormComponents {
+export function schemaComponentsNuxt(): FormComponents {
   return {
     text: {
       label: 'Text',
@@ -47,6 +48,15 @@ export function schemaComponents(): FormComponents {
         ...commonSchema(),
         { type: 'text', name: 'rows', props: { type: 'number', label: 'Rows', min: 1 } },
         { type: 'checkbox', name: 'autoresize', props: { label: 'Auto resize' } },
+      ],
+    },
+    group: {
+      label: 'Group',
+      component: markRaw(Group),
+      // Für Container keine placeholder/required-Props nötig
+      propsSchema: [
+        { type: 'text', name: '$name', props: { label: 'Technical name', required: true } },
+        { type: 'checkbox', name: 'border', props: { label: 'Show border' } },
       ],
     },
     number: {

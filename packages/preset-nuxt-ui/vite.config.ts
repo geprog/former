@@ -3,10 +3,6 @@ import vue from '@vitejs/plugin-vue';
 import { defineConfig } from 'vite';
 import dts from 'vite-plugin-dts';
 
-const entries = {
-  schemaComponent: fileURLToPath(new URL('./src/components/schemaComponent.ts', import.meta.url)),
-};
-
 export default defineConfig({
   plugins: [
     vue(),
@@ -14,7 +10,7 @@ export default defineConfig({
   ],
   build: {
     lib: {
-      entry: entries,
+      entry: 'src/index.ts',
       formats: ['es'],
       fileName: (_fmt, name) => `${name}.js`,
     },
