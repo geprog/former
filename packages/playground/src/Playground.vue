@@ -114,7 +114,7 @@ import {
 import { schemaComponentsNuxt } from 'preset-nuxt-ui';
 import { computed, ref } from 'vue';
 
-const builderComponents = schemaComponentsSample();
+const builderComponents = schemaComponentsNuxt();
 
 const mode = useStorage<Mode>('former:mode', 'build');
 const activateShowIf = useStorage<boolean>('former:activateShowIf', false);

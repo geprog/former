@@ -4,6 +4,9 @@
     "composite": true,
     "module": "ESNext",
     "moduleResolution": "Bundler",
+    "paths": {
+      "#build/ui": ["./node_modules/@nuxt/ui/.nuxt/ui"]
+    },
     "types": ["node"],
     "noEmit": true
   },
