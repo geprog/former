@@ -22,7 +22,7 @@ defineOptions({ inheritAttrs: false });
 
 const props = defineProps<{ label?: string; help?: string; options?: Opt[] } & Partial<FormerProps>>();
 type Opt = { label: string; value: string };
-const modelValue = defineModel<any>();
+const modelValue = defineModel<string>();
 const { label, help, error, mode } = toRefs(props);
 const options = props.options ?? [];
 </script>

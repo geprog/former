@@ -9,4 +9,6 @@ const router = createRouter({ history: createWebHistory(), routes: [{ path: '/',
 const app = createApp(App);
 app.use(router);
 app.use(ui);
+// eslint-disable-next-line no-console
+console.table({ UInput: !!app.component('UInput'), UFormGroup: !!app.component('UFormGroup') });
 app.mount('#app');

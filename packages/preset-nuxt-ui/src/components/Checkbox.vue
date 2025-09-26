@@ -18,6 +18,6 @@ import { toRefs } from 'vue';
 defineOptions({ inheritAttrs: false });
 
 const props = defineProps<{ label?: string; help?: string; checkboxLabel?: string } & Partial<FormerProps>>();
-const modelValue = defineModel<any>();
+const modelValue = defineModel<boolean>();
 const { id, label, help, error, mode, checkboxLabel } = toRefs(props);
 </script>

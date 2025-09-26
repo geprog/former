@@ -53,7 +53,6 @@ export function schemaComponentsNuxt(): FormComponents {
     group: {
       label: 'Group',
       component: markRaw(Group),
-      // Für Container keine placeholder/required-Props nötig
       propsSchema: [
         { type: 'text', name: '$name', props: { label: 'Technical name', required: true } },
         { type: 'checkbox', name: 'border', props: { label: 'Show border' } },

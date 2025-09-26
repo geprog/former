@@ -21,6 +21,6 @@ const props = withDefaults(
   defineProps<{ label?: string; help?: string; rows?: number; autoresize?: boolean } & Partial<FormerProps>>(),
   { rows: 3, autoresize: false },
 );
-const modelValue = defineModel<any>();
+const modelValue = defineModel<string>();
 const { id, label, help, error, mode, rows, autoresize } = toRefs(props);
 </script>

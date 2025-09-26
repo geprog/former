@@ -20,6 +20,6 @@ const props = withDefaults(
   defineProps<{ label?: string; help?: string; type?: 'text' | 'password' | 'email'; initialValue?: string } & Partial<FormerProps>>(),
   { type: 'text' },
 );
-const modelValue = defineModel<any>();
+const modelValue = defineModel<string>();
 const { id, label, help, error, mode, type } = toRefs(props);
 </script>

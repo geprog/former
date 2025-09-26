@@ -23,6 +23,6 @@ const props = withDefaults(
   defineProps<{ label?: string; help?: string; min?: number; max?: number; step?: number } & Partial<FormerProps>>(),
   { step: 1 },
 );
-const modelValue = defineModel<any>();
+const modelValue = defineModel<number>();
 const { id, label, help, error, mode, min, max, step } = toRefs(props);
 </script>
