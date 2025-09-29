@@ -1,7 +1,7 @@
 <template>
   <div v-if="mode === 'build'" class="flex flex-col gap-2">
     <div class="flex flex-col gap-4">
-      <div v-for="(component, i) in components" :key="i" class="flex flex-col gap-2">
+      <div v-for="[i, component] in sortedComponents" :key="i" class="flex flex-col gap-2">
         <span>{{ component.label }}</span>
 
         <div
@@ -25,7 +25,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
 import { inject, provide } from '~/compositions/injectProvide';
 import { setDragEventData } from '~/utils';
 
@@ -35,6 +35,10 @@ const formId = inject('formId');
 
 provide('data', ref({}));
 provide('schema', ref([]));
+
+const sortedComponents = computed(() => {
+  return Object.entries(components).sort(([, componentA], [, componentB]) => componentA.label.localeCompare(componentB.label));
+});
 
 function startDrag(e: DragEvent, nodeType: string) {
   setDragEventData(e, formId.value, 'new_node_type', nodeType);
