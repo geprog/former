@@ -1,4 +1,5 @@
 import { fileURLToPath, URL } from 'node:url';
+import ui from '@nuxt/ui/vite';
 import vue from '@vitejs/plugin-vue';
 import { defineConfig } from 'vite';
 import dts from 'vite-plugin-dts';
@@ -6,6 +7,7 @@ import dts from 'vite-plugin-dts';
 export default defineConfig({
   plugins: [
     vue(),
+    ui(),
     dts({ entryRoot: 'src', outDir: 'dist', insertTypesEntry: true }),
   ],
   build: {
