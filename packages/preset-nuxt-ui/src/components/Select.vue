@@ -1,5 +1,5 @@
 <template>
-  <UFormGroup :label="label" :help="help" :error="error" class="w-full">
+  <UFormField :label="label" :help="help" :error="error" class="w-full">
     <USelect
       v-bind="$attrs"
       :id="id"
@@ -8,7 +8,7 @@
       :disabled="mode === 'read'"
       class="w-full"
     />
-  </UFormGroup>
+  </UFormField>
 </template>
 
 <script setup lang="ts">

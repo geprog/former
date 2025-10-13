@@ -1,5 +1,5 @@
 <template>
-  <UFormGroup :label="label" :help="help" :error="error" class="w-full">
+  <UFormField :label="label" :help="help" :error="error" class="w-full">
     <UInput
       v-bind="$attrs"
       :id="id"
@@ -7,7 +7,7 @@
       :type="type"
       :disabled="mode === 'read'"
     />
-  </UFormGroup>
+  </UFormField>
 </template>
 
 <script setup lang="ts">

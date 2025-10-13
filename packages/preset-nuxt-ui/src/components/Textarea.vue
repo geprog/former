@@ -1,5 +1,5 @@
 <template>
-  <UFormGroup :label="label" :help="help" :error="error" class="w-full">
+  <UFormField :label="label" :help="help" :error="error" class="w-full">
     <UTextarea
       v-bind="$attrs"
       :id="id"
@@ -8,7 +8,7 @@
       :autoresize="autoresize"
       :disabled="mode === 'read'"
     />
-  </UFormGroup>
+  </UFormField>
 </template>
 
 <script setup lang="ts">

@@ -1,5 +1,5 @@
 <template>
-  <UFormGroup :label="label" :help="help" :error="error">
+  <UFormField :label="label" :help="help" :error="error">
     <URadioGroup v-model="modelValue" :disabled="mode === 'read'">
       <div class="flex flex-col gap-2">
         <URadio
@@ -11,7 +11,7 @@
         />
       </div>
     </URadioGroup>
-  </UFormGroup>
+  </UFormField>
 </template>
 
 <script setup lang="ts">

@@ -1,5 +1,5 @@
 <template>
-  <UFormGroup :label="label" :help="help" :error="error">
+  <UFormField :label="label" :help="help" :error="error">
     <UCheckbox
       v-bind="$attrs"
       :id="id"
@@ -8,7 +8,7 @@
     >
       <span v-if="checkboxLabel">{{ checkboxLabel }}</span>
     </UCheckbox>
-  </UFormGroup>
+  </UFormField>
 </template>
 
 <script setup lang="ts">

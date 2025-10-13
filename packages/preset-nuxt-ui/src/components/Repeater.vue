@@ -1,5 +1,5 @@
 <template>
-  <UFormGroup :label="label" :help="help" :error="errorStr" class="w-full">
+  <UFormField :label="label" :help="help" :error="errorStr" class="w-full">
     <section class="flex flex-col gap-3 w-full">
       <!-- Empty state -->
       <p v-if="!items.length" class="text-xs opacity-60 italic">
@@ -43,7 +43,7 @@
         </UButton>
       </div>
     </section>
-  </UFormGroup>
+  </UFormField>
 </template>
 
 <script setup lang="ts">

@@ -1,5 +1,5 @@
 <template>
-  <UFormGroup
+  <UFormField
     :label="label"
     :help="help"
     :error="error"
@@ -12,7 +12,7 @@
     <div v-else>
       <slot />
     </div>
-  </UFormGroup>
+  </UFormField>
 </template>
 
 <script setup lang="ts">

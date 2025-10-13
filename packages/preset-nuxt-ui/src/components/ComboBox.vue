@@ -1,5 +1,5 @@
 <template>
-  <UFormGroup :label="label" :help="help" :error="error" class="w-full">
+  <UFormField :label="label" :help="help" :error="error" class="w-full">
     <UInputMenu
       v-bind="$attrs"
       :id="id"
@@ -10,7 +10,7 @@
       :searchable="true"
       class="w-full"
     />
-  </UFormGroup>
+  </UFormField>
 </template>
 
 <script setup lang="ts">

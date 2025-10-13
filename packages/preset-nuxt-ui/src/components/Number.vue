@@ -1,5 +1,5 @@
 <template>
-  <UFormGroup :label="label" :help="help" :error="error">
+  <UFormField :label="label" :help="help" :error="error">
     <UInput
       v-bind="$attrs"
       :id="id"
@@ -10,7 +10,7 @@
       :max="max"
       :step="step"
     />
-  </UFormGroup>
+  </UFormField>
 </template>
 
 <script setup lang="ts">

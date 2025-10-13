@@ -1,6 +1,6 @@
 <template>
   <div class="w-full">
-    <UFormGroup v-if="label" :label="label" :help="help" />
+    <UFormField v-if="label" :label="label" :help="help" />
     <div class="grid gap-4" :style="{ gridTemplateColumns: `repeat(${cols}, minmax(0,1fr))` }">
       <slot />
     </div>
