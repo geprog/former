@@ -27,7 +27,7 @@ function commonSchema(opt: Partial<CommonOpts> = {}): SchemaNode[] {
   if (help)
     s.push({ type: 'text', name: 'help', props: { label: 'Help text' } });
   if (required)
-    s.push({ type: 'checkbox', name: 'required', props: { label: 'Required' } });
+    s.push({ type: 'checkbox', name: 'required', props: { label: 'Is field required?' } });
   return s;
 }
 

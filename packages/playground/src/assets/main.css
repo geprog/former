@@ -1,2 +1,20 @@
 @import "tailwindcss";
 @import "@nuxt/ui";
+
+button[role="checkbox"]{
+  border: 1px solid rgb(209 213 219);            
+  background-color: rgb(243 244 246);            
+}
+
+button[role="checkbox"][data-state="checked"]{
+  background-color: rgb(229 231 235);         
+}
+
+:root.dark button[role="checkbox"]{
+  border-color: rgb(75 85 99);                  
+  background-color: rgb(31 41 55);              
+}
+
+:root.dark button[role="checkbox"][data-state="checked"]{
+  background-color: rgb(55 65 81);               
+}

@@ -1,28 +1,40 @@
+<!-- RadioGroup.vue -->
 <template>
-  <UFormField :label="label" :help="help" :error="error">
-    <URadioGroup v-model="modelValue" :disabled="mode === 'read'">
-      <div class="flex flex-col gap-2">
-        <URadio
-          v-for="(opt, i) in options"
-          :key="i"
-          v-bind="$attrs"
-          :value="opt.value"
-          :label="opt.label"
-        />
-      </div>
-    </URadioGroup>
+  <UFormField
+    v-if="!(mode === 'read' && !modelValue)"
+    :label="label"
+    :description="help"
+    :error="hasBlurred ? error : undefined"
+    class="w-full"
+  >
+    <URadioGroup
+      v-model="modelValue"
+      :items="items"
+      option-attribute="label"
+      value-attribute="value"
+      :disabled="mode === 'read'"
+      size="lg"
+      class="w-full rounded border border-dashed border-zinc-300 dark:border-zinc-600"
+      @blur="hasBlurred = true"
+    />
   </UFormField>
 </template>
 
 <script setup lang="ts">
 import type { FormerProps } from 'former-ui';
-import { toRefs } from 'vue';
+import { computed, ref } from 'vue';
 
-defineOptions({ inheritAttrs: false });
-
-const props = defineProps<{ label?: string; help?: string; options?: Opt[] } & Partial<FormerProps>>();
-type Opt = { label: string; value: string };
+const props = defineProps<{
+  label?: string
+  help?: string
+  options?: Array<{ label?: string; value: string }>
+} & Partial<FormerProps>>();
 const modelValue = defineModel<string>();
-const { label, help, error, mode } = toRefs(props);
-const options = props.options ?? [];
+const hasBlurred = ref(false);
+
+const items = computed(() =>
+  (props.options ?? []).map(o => ({ label: o.label ?? o.value, value: o.value })),
+);
+
+const { label, help, error, mode } = props;
 </script>

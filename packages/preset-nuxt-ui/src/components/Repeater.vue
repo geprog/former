@@ -1,79 +1,73 @@
 <template>
-  <UFormField :label="label" :help="help" :error="errorStr" class="w-full">
-    <section class="flex flex-col gap-3 w-full">
-      <!-- Empty state -->
-      <p v-if="!items.length" class="text-xs opacity-60 italic">
-        {{ itemLabel || 'Item' }} list is empty. Click “Add”.
-      </p>
+  <UFormField
+    v-if="!(mode === 'read' && !modelValue)"
+    :label="label"
+    :required="required"
+    :error="error"
+    class="flex w-full flex-col gap-2 [&>*]:w-full"
+  >
+    <div
+      v-for="(item, index) in modelValue"
+      :key="index"
+      class="rounded-lg border border-dashed border-zinc-300 dark:border-zinc-600 p-4 [&:not(:last-child)]:mb-2"
+    >
+      <header class="flex items-center justify-between gap-4 mb-3">
+        <span class="block font-medium text-gray-700 dark:text-gray-200">
+          {{ `${itemLabel || defaultLabels.repeaterItem} ${index + 1}` }}
+        </span>
+        <UButton
+          v-if="mode !== 'read'"
+          variant="soft"
+          color="red"
+          icon="i-heroicons-trash"
+          size="xs"
+          @click.prevent="deleteItem(index)"
+        />
+      </header>
 
-      <!-- Items -->
-      <div
-        v-for="(item, index) in items"
-        :key="index"
-        class="rounded-lg border border-dashed border-zinc-600/60 dark:border-zinc-500/50 p-4"
-      >
-        <header class="flex items-center justify-between mb-3">
-          <h4 class="text-sm font-medium">
-            {{ itemLabel || 'Item' }} {{ index + 1 }}
-          </h4>
-          <UButton
-            color="red"
-            variant="ghost"
-            size="xs"
-            :disabled="mode === 'read'"
-            @click.prevent="remove(index)"
-          >
-            Remove
-          </UButton>
-        </header>
-
+      <div class="flex w-full gap-2">
         <FormDataProvider :data="item">
-          <FormRenderer />
+          <FormRenderer class="w-full" />
         </FormDataProvider>
       </div>
+    </div>
 
-      <!-- Add -->
-      <div class="mt-2">
-        <UButton
-          color="primary"
-          :disabled="mode === 'read'"
-          @click.prevent="add"
-        >
-          Add {{ itemLabel || 'item' }}
-        </UButton>
-      </div>
-    </section>
+    <div class="flex flex-col gap-4">
+      <UButton
+        v-if="mode !== 'read'"
+        :label="`${defaultLabels.add} ${itemLabel || defaultLabels.item}`"
+        icon="i-heroicons-plus"
+        variant="outline"
+        block
+        @click.prevent="addItem"
+      />
+    </div>
   </UFormField>
 </template>
 
 <script setup lang="ts">
-import type { FormData, FormerProps } from 'former-ui';
-import { FormDataProvider, FormRenderer } from 'former-ui';
-import { computed } from 'vue';
-
-defineOptions({ inheritAttrs: false });
+import { type FormData, FormDataProvider, type FormerProps, FormRenderer } from 'former-ui';
 
 const props = defineProps<{
   label?: string
-  help?: string
+  placeholder?: string
+  required?: boolean
   itemLabel?: string
-} & Partial<FormerProps>>();
+} & FormerProps>();
 
 const modelValue = defineModel<FormData[]>({ default: () => [] });
 
-const items = computed({
-  get: () => modelValue.value ?? [],
-  set: v => (modelValue.value = v),
-});
-
-function add() {
-  items.value = [...items.value, {}];
+// eslint-disable-next-line style/max-statements-per-line
+function addItem() { modelValue.value = [...modelValue.value, {}]; }
+function deleteItem(index: number) {
+  modelValue.value = [...modelValue.value.slice(0, index), ...modelValue.value.slice(index + 1)];
 }
 
-function remove(index: number) {
-  items.value = items.value.filter((_, i) => i !== index);
-}
+const defaultLabels = {
+  repeaterItem: 'Item',
+  add: 'Add',
+  item: 'item',
+};
 
-const errorStr = computed(() => (typeof props.error === 'string' ? props.error : undefined));
-const { label, help, itemLabel, mode } = props;
+const { label, required, itemLabel, error, mode } = props;
 </script>

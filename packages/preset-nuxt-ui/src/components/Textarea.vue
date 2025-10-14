@@ -1,26 +1,38 @@
 <template>
-  <UFormField :label="label" :help="help" :error="error" class="w-full">
+  <UFormField
+    v-if="!(mode === 'read' && !modelValue)"
+    :label="label"
+    :required="required"
+    :description="help"
+    :error="hasBlurred ? error : undefined"
+    class="w-full"
+  >
     <UTextarea
       v-bind="$attrs"
-      :id="id"
       v-model="modelValue"
-      :rows="rows"
-      :autoresize="autoresize"
+      :ui="{ base: 'bg-transparent' }"
+      class="w-full border border-zinc-300 dark:border-zinc-600 rounded"
+      size="lg"
       :disabled="mode === 'read'"
+      @blur="hasBlurred = true"
     />
   </UFormField>
 </template>
 
 <script setup lang="ts">
 import type { FormerProps } from 'former-ui';
-import { toRefs } from 'vue';
+import { ref, toRef } from 'vue';
 
 defineOptions({ inheritAttrs: false });
 
-const props = withDefaults(
-  defineProps<{ label?: string; help?: string; rows?: number; autoresize?: boolean } & Partial<FormerProps>>(),
-  { rows: 3, autoresize: false },
-);
+const props = defineProps<{
+  label?: string
+  required?: boolean
+  help?: string
+} & FormerProps>();
 const modelValue = defineModel<string>();
-const { id, label, help, error, mode, rows, autoresize } = toRefs(props);
+const hasBlurred = ref(false);
+
+const { mode, error } = { mode: toRef(props, 'mode').value, error: toRef(props, 'error').value };
+const { label, required, help } = props;
 </script>

@@ -1,30 +1,28 @@
 <template>
   <UFormField
+    v-if="!(mode === 'read' && (!modelValue || Object.keys(modelValue).length === 0))"
     :label="label"
-    :help="help"
+    :description="help"
     :error="error"
-    class="w-full"
+    class="flex w-full flex-col"
+    :class="{ 'gap-1 pt-3': !!label }"
   >
-    <UCard v-if="border" :ui="{ body: { padding: 'p-4 sm:p-6' } }">
-      <slot />
-    </UCard>
-
-    <div v-else>
-      <slot />
+    <div class="w-full rounded-xl border border-dashed border-zinc-300 dark:border-zinc-600 p-4">
+      <FormRenderer />
     </div>
   </UFormField>
 </template>
 
 <script setup lang="ts">
-import type { FormerProps } from 'former-ui';
+import { type FormData, type FormerProps, FormRenderer } from 'former-ui';
+import { toRef } from 'vue';
 
-const props = withDefaults(defineProps<{
+const props = defineProps<{
   label?: string
   help?: string
-  border?: boolean
-} & Partial<FormerProps>>(), {
-  border: false,
-});
+} & FormerProps>();
 
-const { label, help, error, border } = props;
+const modelValue = defineModel<FormData | undefined>();
+const mode = toRef(props, 'mode');
+const { label, help, error } = props;
 </script>
