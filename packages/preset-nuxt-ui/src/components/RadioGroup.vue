@@ -1,4 +1,3 @@
-<!-- RadioGroup.vue -->
 <template>
   <UFormField
     v-if="!(mode === 'read' && !modelValue)"
@@ -8,33 +7,51 @@
     class="w-full"
   >
     <URadioGroup
+      color="primary"
+      variant="card"
       v-model="modelValue"
       :items="items"
       option-attribute="label"
       value-attribute="value"
       :disabled="mode === 'read'"
-      size="lg"
-      class="w-full rounded border border-dashed border-zinc-300 dark:border-zinc-600"
+      class="w-full"
       @blur="hasBlurred = true"
     />
   </UFormField>
 </template>
 
 <script setup lang="ts">
-import type { FormerProps } from 'former-ui';
-import { computed, ref } from 'vue';
+import type { FormerProps } from 'former-ui'
+import { computed, ref, onMounted } from 'vue'
+
+type Opt = { label?: string; value: string }
 
 const props = defineProps<{
   label?: string
   help?: string
-  options?: Array<{ label?: string; value: string }>
-} & Partial<FormerProps>>();
-const modelValue = defineModel<string>();
-const hasBlurred = ref(false);
+  options?: Array<Opt>
+} & Partial<FormerProps>>()
+
+const modelValue = defineModel<string>()
+const hasBlurred = ref(false)
+
+const DEFAULT_ITEMS: Required<Opt>[] = [
+  { label: 'Item 1', value: 'item_1' },
+  { label: 'Item 2', value: 'item_2' }
+]
 
 const items = computed(() =>
-  (props.options ?? []).map(o => ({ label: o.label ?? o.value, value: o.value })),
-);
+  (props.options && props.options.length
+    ? props.options
+    : DEFAULT_ITEMS
+  ).map(o => ({ label: o.label ?? o.value, value: o.value }))
+)
 
-const { label, help, error, mode } = props;
+onMounted(() => {
+  if (modelValue.value == null && items.value.length) {
+    modelValue.value = items.value[0].value
+  }
+})
+
+const { label, help, error, mode } = props
 </script>

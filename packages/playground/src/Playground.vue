@@ -11,7 +11,7 @@
       @schema-valid="isSchemaValid = $event"
     >
       <main class="gap-4 m-4 mx-auto max-w-7xl px-4 py-4 w-2/3 flex flex-col overflow-y-auto">
-        <h1 class="text-4xl font-bold mx-auto">
+        <h1 class="text-4xl font-bold w-full text-center">
           👩🏾‍🌾 Former playground
         </h1>
 

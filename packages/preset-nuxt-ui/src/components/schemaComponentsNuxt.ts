@@ -12,22 +12,36 @@ import Select from './Select.vue';
 import Text from './Text.vue';
 import Textarea from './Textarea.vue';
 
-type CommonOpts = { name: boolean; label: boolean; help: boolean; required: boolean; placeholder: boolean };
-const defaults: CommonOpts = { name: true, label: true, help: true, required: true, placeholder: true };
+const showIfProp: SchemaNode = {
+  type: 'text',
+  name: 'showIf',
+  props: {
+    label: 'Show if',
+    placeholder: 'If empty or "hello" then component is visible.',
+  },
+};
+
+type CommonOpts = {
+  name: boolean;
+  label: boolean;
+  help: boolean;
+  required: boolean;
+  placeholder: boolean;
+  showIf: boolean;
+};
+const defaults: CommonOpts = {
+  name: true, label: true, help: true, required: true, placeholder: true, showIf: true,
+};
 
 function commonSchema(opt: Partial<CommonOpts> = {}): SchemaNode[] {
-  const { name, label, help, required, placeholder } = { ...defaults, ...opt };
+  const { name, label, help, required, placeholder, showIf } = { ...defaults, ...opt };
   const s: SchemaNode[] = [];
-  if (name)
-    s.push({ type: 'text', name: '$name', props: { label: 'Technical name', required: true } });
-  if (label)
-    s.push({ type: 'text', name: 'label', props: { label: 'Label' } });
-  if (placeholder)
-    s.push({ type: 'text', name: 'placeholder', props: { label: 'Placeholder' } });
-  if (help)
-    s.push({ type: 'text', name: 'help', props: { label: 'Help text' } });
-  if (required)
-    s.push({ type: 'checkbox', name: 'required', props: { label: 'Is field required?' } });
+  if (name) s.push({ type: 'text', name: '$name', props: { label: 'Technical name', required: true } });
+  if (label) s.push({ type: 'text', name: 'label', props: { label: 'Label' } });
+  if (placeholder) s.push({ type: 'text', name: 'placeholder', props: { label: 'Placeholder' } });
+  if (help) s.push({ type: 'text', name: 'help', props: { label: 'Help text' } });
+  if (required) s.push({ type: 'checkbox', name: 'required', props: { label: 'Is field required?' } });
+  if (showIf) s.push(showIfProp);
   return s;
 }
 
@@ -41,6 +55,7 @@ export function schemaComponentsNuxt(): FormComponents {
         { type: 'text', name: 'initialValue', props: { label: 'Initial value' } },
       ],
     },
+
     textarea: {
       label: 'Textarea',
       component: markRaw(Textarea),
@@ -50,14 +65,17 @@ export function schemaComponentsNuxt(): FormComponents {
         { type: 'checkbox', name: 'autoresize', props: { label: 'Auto resize' } },
       ],
     },
+
     group: {
       label: 'Group',
       component: markRaw(Group),
       propsSchema: [
         { type: 'text', name: '$name', props: { label: 'Technical name', required: true } },
+        showIfProp,
         { type: 'checkbox', name: 'border', props: { label: 'Show border' } },
       ],
     },
+
     number: {
       label: 'Number',
       component: markRaw(Number),
@@ -68,6 +86,7 @@ export function schemaComponentsNuxt(): FormComponents {
         { type: 'text', name: 'step', props: { type: 'number', label: 'Step' } },
       ],
     },
+
     checkbox: {
       label: 'Checkbox',
       component: markRaw(Checkbox),
@@ -76,6 +95,7 @@ export function schemaComponentsNuxt(): FormComponents {
         { type: 'text', name: 'checkboxLabel', props: { label: 'Label next to box' } },
       ],
     },
+
     select: {
       label: 'Select',
       component: markRaw(Select),
@@ -92,8 +112,9 @@ export function schemaComponentsNuxt(): FormComponents {
         },
       ],
     },
+
     radio_group: {
-      label: 'Radio group',
+      label: 'RadioGroup',
       component: markRaw(RadioGroup),
       propsSchema: [
         ...commonSchema({ placeholder: false }),
@@ -108,6 +129,7 @@ export function schemaComponentsNuxt(): FormComponents {
         },
       ],
     },
+
     combo_box: {
       label: 'Combobox',
       component: markRaw(ComboBox),
@@ -124,14 +146,17 @@ export function schemaComponentsNuxt(): FormComponents {
         },
       ],
     },
+
     columns: {
       label: 'Columns',
       component: markRaw(Columns),
       propsSchema: [
         ...commonSchema({ name: false, required: false, placeholder: false }),
+        showIfProp,
         { type: 'text', name: 'cols', props: { type: 'number', label: 'Columns', min: 1 } },
       ],
     },
+
     repeater: {
       label: 'Repeater',
       component: markRaw(Repeater),
