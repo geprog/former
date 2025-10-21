@@ -8,31 +8,37 @@
     class="w-full"
   >
     <UTextarea
-      v-bind="$attrs"
       v-model="modelValue"
-      :ui="{ base: 'bg-transparent' }"
-      class="w-full border border-zinc-300 dark:border-zinc-600 rounded"
-      size="lg"
+      :rows="rows"
+      :autoresize="autoresize"
       :disabled="mode === 'read'"
+      :ui="ui"
+      :class="klass"
+      v-bind="$attrs"
       @blur="hasBlurred = true"
     />
   </UFormField>
 </template>
 
 <script setup lang="ts">
-import type { FormerProps } from 'former-ui';
-import { ref, toRef } from 'vue';
+import type { FormerProps } from 'former-ui'
+import { ref, toRef } from 'vue'
 
-defineOptions({ inheritAttrs: false });
+type ClassNameValue = string | string[] | Record<string, boolean>
 
-const props = defineProps<{
-  label?: string
-  required?: boolean
-  help?: string
-} & FormerProps>();
-const modelValue = defineModel<string>();
-const hasBlurred = ref(false);
+defineOptions({ inheritAttrs: false })
 
-const { mode, error } = { mode: toRef(props, 'mode').value, error: toRef(props, 'error').value };
-const { label, required, help } = props;
+const props = withDefaults(defineProps<{
+  label?: string; required?: boolean; help?: string
+  rows?: number; autoresize?: boolean
+  ui?: Record<string, string>; klass?: ClassNameValue
+} & Partial<FormerProps>>(), { rows: 3, autoresize: false })
+
+const modelValue = defineModel<string>()
+const hasBlurred = ref(false)
+
+const mode  = toRef(props, 'mode')
+const error = toRef(props, 'error')
+
+const { label, required, help, rows, autoresize, ui, klass } = props
 </script>

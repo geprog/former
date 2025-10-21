@@ -9,14 +9,11 @@
   >
     <USelect
       v-model="modelValue"
-      :items="selectItems"
-      :placeholder="placeholder || 'Select…'"
-      size="lg"
+      :items="items"
       :disabled="mode === 'read'"
-      class="w-full"
-      :ui="{
-        base: 'w-full bg-transparent border border-zinc-300 dark:border-zinc-600 rounded'
-      }"
+      :ui="ui"
+      :class="klass"
+      v-bind="$attrs"
       @blur="hasBlurred = true"
     />
   </UFormField>
@@ -24,26 +21,24 @@
 
 <script setup lang="ts">
 import type { FormerProps } from 'former-ui'
-import { computed, ref, toRefs } from 'vue'
+import { computed, ref, toRef } from 'vue'
+type ClassNameValue = string | string[] | Record<string, boolean>
 
 defineOptions({ inheritAttrs: false })
 
-type Opt = { label: string; value: string }
+type Opt = { label?: string; value: string }
 
 const props = defineProps<{
-  label?: string
-  required?: boolean
-  help?: string
+  label?: string; required?: boolean; help?: string
   options?: Opt[]
-  placeholder?: string
-} & FormerProps>()
+  ui?: Record<string, string>; klass?: ClassNameValue
+} & Partial<FormerProps>>()
 
 const modelValue = defineModel<string>()
 const hasBlurred = ref(false)
 
-const { label, required, help, error, mode, placeholder } = toRefs(props)
-
-const selectItems = computed(() =>
-  (props.options ?? []).map(o => ({ label: o.label, value: o.value }))
-)
+const items = computed(() => (props.options ?? []).map(o => ({ label: o.label ?? o.value, value: o.value })))
+const mode  = toRef(props, 'mode')
+const error = toRef(props, 'error')
+const { label, required, help, ui, klass } = props
 </script>

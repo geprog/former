@@ -7,14 +7,15 @@
     class="w-full"
   >
     <URadioGroup
-      color="primary"
       variant="card"
       v-model="modelValue"
       :items="items"
       option-attribute="label"
       value-attribute="value"
       :disabled="mode === 'read'"
-      class="w-full"
+      :ui="ui"
+      :class="klass"
+      v-bind="$attrs"
       @blur="hasBlurred = true"
     />
   </UFormField>
@@ -22,36 +23,24 @@
 
 <script setup lang="ts">
 import type { FormerProps } from 'former-ui'
-import { computed, ref, onMounted } from 'vue'
+import { computed, ref, toRef } from 'vue'
+type ClassNameValue = string | string[] | Record<string, boolean>
+
+defineOptions({ inheritAttrs: false })
 
 type Opt = { label?: string; value: string }
 
 const props = defineProps<{
-  label?: string
-  help?: string
-  options?: Array<Opt>
+  label?: string; help?: string
+  options?: Opt[]
+  ui?: Record<string, string>; klass?: ClassNameValue
 } & Partial<FormerProps>>()
 
 const modelValue = defineModel<string>()
 const hasBlurred = ref(false)
 
-const DEFAULT_ITEMS: Required<Opt>[] = [
-  { label: 'Item 1', value: 'item_1' },
-  { label: 'Item 2', value: 'item_2' }
-]
-
-const items = computed(() =>
-  (props.options && props.options.length
-    ? props.options
-    : DEFAULT_ITEMS
-  ).map(o => ({ label: o.label ?? o.value, value: o.value }))
-)
-
-onMounted(() => {
-  if (modelValue.value == null && items.value.length) {
-    modelValue.value = items.value[0].value
-  }
-})
-
-const { label, help, error, mode } = props
+const items = computed(() => (props.options ?? []).map(o => ({ label: o.label ?? o.value, value: o.value })))
+const mode  = toRef(props, 'mode')
+const error = toRef(props, 'error')
+const { label, help, ui, klass } = props
 </script>

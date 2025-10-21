@@ -1,5 +1,6 @@
 <template>
   <UFormField
+    v-if="!(mode === 'read' && modelValue === undefined)"
     :label="label"
     :required="required"
     :description="help"
@@ -7,54 +8,37 @@
     class="w-full"
   >
     <UInput
-      v-bind="$attrs"
-      v-model="modelValue"
-      :ui="{ base: 'bg-transparent' }"
-      class="w-full border border-zinc-300 dark:border-zinc-600 rounded"
+      v-model.number="modelValue"
       type="number"
-      size="lg"
       :min="min"
       :max="max"
       :step="step"
       :disabled="mode === 'read'"
+      :ui="ui"
+      :class="klass"
+      v-bind="$attrs"
       @blur="hasBlurred = true"
-      @keypress="blockAlphabets"
     />
   </UFormField>
 </template>
 
 <script setup lang="ts">
-import type { FormerProps } from 'former-ui';
-import { onMounted, ref, watch } from 'vue';
+import type { FormerProps } from 'former-ui'
+import { ref, toRef } from 'vue'
+type ClassNameValue = string | string[] | Record<string, boolean>
+
+defineOptions({ inheritAttrs: false })
 
 const props = withDefaults(defineProps<{
-  label?: string
-  required?: boolean
-  help?: string
-  min?: number
-  max?: number
-  step?: number
-} & FormerProps>(), {
-  step: 1,
-});
-const modelValue = defineModel<number>();
-const hasBlurred = ref(false);
+  label?: string; required?: boolean; help?: string
+  min?: number; max?: number; step?: number
+  ui?: Record<string, string>; klass?: ClassNameValue
+} & Partial<FormerProps>>(), { step: 1 })
 
-onMounted(() => {
-  if (modelValue.value === undefined)
-    modelValue.value = 0;
-});
+const modelValue = defineModel<number>()
+const hasBlurred = ref(false)
 
-watch(modelValue, () => {
-  if (typeof modelValue.value === 'string' && modelValue.value === '') {
-    modelValue.value = 0;
-  }
-});
-
-function blockAlphabets(e: KeyboardEvent) {
-  if (!/[\d.-]/.test(e.key))
-    e.preventDefault();
-}
-
-const { label, required, help, error, mode, min, max, step } = props;
+const mode  = toRef(props, 'mode')
+const error = toRef(props, 'error')
+const { label, required, help, min, max, step, ui, klass } = props
 </script>

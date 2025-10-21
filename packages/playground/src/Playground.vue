@@ -27,6 +27,7 @@
             <span :class="{ 'text-red-500': !isValid }">Data {{ isValid ? 'valid' : 'invalid' }}</span>,
             <span :class="{ 'text-red-500': !isSchemaValid }">Schema {{ isSchemaValid ? 'valid' : 'invalid' }}</span>
           </div>
+          <Select v-model="preset" :options="presetOptions" />
           <Select v-model="mode" :options="options" />
         </div>
 
@@ -111,10 +112,66 @@ import {
   FormNodeProps,
 } from 'former-ui';
 
-import { schemaComponentsNuxt } from 'preset-nuxt-ui';
+import { schemaComponents as schemaComponentsNuxt } from 'preset-nuxt-ui';
 import { computed, ref } from 'vue';
+import type { PresetStyleConfig } from 'preset-nuxt-ui';
 
-const builderComponents: FormComponents = schemaComponentsNuxt();
+const defaultStyles: PresetStyleConfig = {
+  text: {
+    class: 'w-full border border-zinc-300 dark:border-zinc-600 rounded-md focus:outline-none px-2.5 py-1.5 text-sm gap-1.5 text-highlighted bg-default',
+  },
+  number: {
+    class: 'w-full border border-zinc-300 dark:border-zinc-600 rounded-md focus:outline-none px-2.5 py-1.5 text-sm gap-1.5 text-highlighted bg-default',
+  },
+  textarea: {
+    class: 'w-full border border-zinc-300 dark:border-zinc-600 rounded-md focus:outline-none px-2.5 py-1.5 text-sm gap-1.5 text-highlighted bg-default',
+  },
+
+  select: {
+    ui: {
+      content: 'bg-default',
+    },
+    class: 'w-full border border-zinc-300 dark:border-zinc-600 rounded-md focus:outline-none px-2.5 py-1.5 text-sm gap-1.5 text-highlighted bg-default',
+  },
+  combo_box: {
+    class: 'w-full border border-zinc-300 dark:border-zinc-600 rounded-md focus:outline-none px-2.5 py-1.5 text-sm gap-1.5 text-highlighted bg-default',
+  },
+
+  checkbox: {
+    ui: {
+      base:  'border border-zinc-400 rounded bg-white dark:bg-zinc-900',
+      label: 'ml-2',
+      icon:  'text-zinc-800 dark:text-zinc-100',
+    },
+  },
+
+  radio_group: {
+    class: "w-full rounded-lg border border-zinc-300 dark:border-zinc-600 px-2.5 py-1.5 text-sm gap-1.5 text-highlighted",
+    ui: {
+      item: 'rounded-lg border border-zinc-300 dark:border-zinc-600 bg-default',
+    }
+  },
+
+  group: {
+    class: 'w-full border border-zinc-300 dark:border-zinc-600 rounded-md px-2.5 py-1.5 text-sm gap-1.5 text-highlighted bg-transparent',
+  },
+  columns: {
+    class: 'w-full border border-zinc-300 dark:border-zinc-600 rounded-md px-2.5 py-1.5 text-sm gap-1.5 text-highlighted bg-transparent',
+  },
+
+  repeater: {
+    class: 'flex flex-col gap-4',
+    ui: {
+      item: 'rounded-lg border border-dashed border-zinc-300 dark:border-zinc-600 p-4',
+    },
+  },
+}
+
+const builderComponents = computed<FormComponents>(() =>
+  preset.value === 'nuxt'
+    ? schemaComponentsNuxt(defaultStyles)  
+    : schemaComponentsSample()             
+);
 
 const mode = useStorage<Mode>('former:mode', 'build');
 const activateShowIf = useStorage<boolean>('former:activateShowIf', false);
@@ -124,6 +181,13 @@ const options = [
   { label: 'build', value: 'build' },
   { label: 'edit', value: 'edit' },
   { label: 'read', value: 'read' },
+];
+type PresetKey = 'nuxt' | 'sample';
+const preset = useStorage<PresetKey>('former:preset', 'nuxt');
+
+const presetOptions = [
+  { label: 'Nuxt UI', value: 'nuxt' },
+  { label: 'Sample', value: 'sample' },
 ];
 
 const isValid = ref(true);
