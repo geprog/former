@@ -1,36 +1,25 @@
 <template>
   <UFormField :label="label" :error="error" class="w-full">
     <div :class="klass ?? 'flex flex-col gap-2 w-full items-start'">
-      <div
-        v-for="(item, index) in modelValue"
-        :key="index"
-        class="flex gap-2 w-full items-start"
-      >
+      <div v-for="(item, index) in modelValue" :key="index" class="flex gap-2 w-full items-start">
         <FormDataProvider :data="item">
           <FormRenderer />
         </FormDataProvider>
 
-        <UButton
-          v-if="mode !== 'read'"
-          type="button"
-          variant="soft"
-          color="red"
-          size="xs"
-          @click.stop.prevent="deleteItem(index)"
-        >
-          ×
+        <UButton v-if="mode !== 'read'" type="button" variant="soft" color="red"
+          class="w-7 h-7 grid place-items-center border border-zinc-300 dark:border-zinc-600 rounded"
+          aria-label="Remove item" @click.stop.prevent="deleteItem(index)">
+          <span class="leading-none text-base">×</span>
         </UButton>
       </div>
 
-      <UButton
-        v-if="mode !== 'read'"
-        type="button"
-        variant="outline"
-        icon="i-heroicons-plus"
-        @click.stop.prevent="addItem"
-      >
-        Add {{ itemLabel || 'item' }}
-      </UButton>
+      <div class="self-start">
+        <UButton v-if="mode !== 'read'" type="button" variant="outline" icon="i-heroicons-plus"
+          class="w-auto inline-flex border border-zinc-300 dark:border-zinc-600"
+          @click.stop.prevent="addItem">
+          Add {{ itemLabel || 'item' }}
+        </UButton>
+      </div>
     </div>
   </UFormField>
 </template>
