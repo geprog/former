@@ -102,7 +102,7 @@ import type {
 } from 'former-ui';
 import Button from '@/sample/Button.vue';
 import Checkbox from '@/sample/Checkbox.vue';
-import { schemaComponentsSample } from '@/sample/schemaComponentsSample';
+import { schemaComponents as schemaComponentsSample } from '@/sample/schemaComponents';
 import Select from '@/sample/Select.vue';
 import { useStorage } from '@vueuse/core';
 import {
@@ -113,7 +113,7 @@ import {
 } from 'former-ui';
 
 import { schemaComponents as schemaComponentsNuxt } from 'preset-nuxt-ui';
-import { computed, ref } from 'vue';
+import { computed, nextTick, ref, watch } from 'vue';
 import type { PresetStyleConfig } from 'preset-nuxt-ui';
 
 const defaultStyles: PresetStyleConfig = {
@@ -193,7 +193,8 @@ const presetOptions = [
 const isValid = ref(true);
 const isSchemaValid = ref(true);
 
-const schema = useStorage<SchemaNode[]>('former:schema', [
+
+const DEFAULT_SCHEMA: SchemaNode[] = [
   {
     type: 'text',
     name: 'name',
@@ -312,7 +313,18 @@ const schema = useStorage<SchemaNode[]>('former:schema', [
       },
     ],
   },
-]);
+];
+
+const schema = useStorage<SchemaNode[]>('former:schema', structuredClone(DEFAULT_SCHEMA));
+
+watch(preset, async () => {
+  clearPlayground();                 
+  await nextTick();
+  schema.value = structuredClone(DEFAULT_SCHEMA);
+  data.value = {};
+  await nextTick();
+  location.reload();
+});
 
 const debouncedSchema = (() => {
   let timeout: number | null = null;
@@ -375,4 +387,5 @@ function clearPlayground() {
   schema.value = [];
   data.value = {};
 }
+
 </script>

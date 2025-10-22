@@ -17,7 +17,7 @@ const showIfProp: SchemaNode = {
   },
 };
 
-export function schemaComponentsSample(): FormComponents {
+export function schemaComponents(): FormComponents {
   return {
     text: {
       label: 'Text',
