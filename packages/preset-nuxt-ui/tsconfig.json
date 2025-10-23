@@ -6,14 +6,13 @@
     "rootDir": "src",
     "module": "ESNext",
     "moduleResolution": "Bundler",
+    "paths": { "@/*": ["./src/*"] },
     "strict": true,
     "declaration": true,
     "emitDeclarationOnly": false,
     "outDir": "dist",
-    "skipLibCheck": true,
-    "paths": {
-      "@/*": ["./src/*"]
-    }
+
+    "skipLibCheck": true
   },
-  "include": ["src/**/*.ts", "src/**/*.vue"]
+  "include": ["src/**/*.ts", "src/**/*.vue", "src/env.d.ts"]
 }

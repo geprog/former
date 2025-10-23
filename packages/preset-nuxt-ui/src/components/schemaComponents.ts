@@ -1,8 +1,7 @@
-import { defineComponent, computed, h, markRaw } from 'vue';
-import type { FormComponents, SchemaNode } from 'former-ui';
 import type { InputProps } from '@nuxt/ui';
-
+import type { FormComponents, SchemaNode } from 'former-ui';
 import Checkbox from '@/components/Checkbox.vue';
+
 import Columns from '@/components/Columns.vue';
 import ComboBox from '@/components/ComboBox.vue';
 import Group from '@/components/Group.vue';
@@ -12,7 +11,7 @@ import Repeater from '@/components/Repeater.vue';
 import Select from '@/components/Select.vue';
 import Text from '@/components/Text.vue';
 import Textarea from '@/components/Textarea.vue';
-
+import { computed, defineComponent, h, markRaw } from 'vue';
 
 type ClassNameValue = string | string[] | Record<string, boolean>;
 type AnyUi = Record<string, ClassNameValue>;
@@ -21,7 +20,7 @@ type UIOf<T> = NonNullable<T>;
 type StylingConfiguration<Ui = AnyUi> = {
   class?: ClassNameValue;
   ui?: Partial<Ui>;
-}
+};
 
 export type PresetStyleConfig = Partial<{
   text: StylingConfiguration<UIOf<InputProps['ui']>>;
@@ -34,7 +33,7 @@ export type PresetStyleConfig = Partial<{
   columns: StylingConfiguration<AnyUi>;
   group: StylingConfiguration<AnyUi>;
   repeater: StylingConfiguration<AnyUi>;
-}>
+}>;
 
 function withStyle<Ui = AnyUi>(Comp: any, cfg?: StylingConfiguration<Ui>) {
   return defineComponent({
@@ -44,8 +43,8 @@ function withStyle<Ui = AnyUi>(Comp: any, cfg?: StylingConfiguration<Ui>) {
       const mergedKlass = computed(() => [(attrs as any)?.klass, cfg?.class].filter(Boolean));
       const mergedUi = computed<Partial<Ui>>(() => {
         const fromAttrs = (attrs as any)?.ui as Partial<Ui> | undefined;
-        return { ...(cfg?.ui ?? {}), ...(fromAttrs ?? {}) }
-      })
+        return { ...(cfg?.ui ?? {}), ...(fromAttrs ?? {}) };
+      });
       return () =>
         h(
           Comp,
@@ -55,11 +54,10 @@ function withStyle<Ui = AnyUi>(Comp: any, cfg?: StylingConfiguration<Ui>) {
             ui: mergedUi.value,
           },
           slots,
-        )
+        );
     },
-  })
+  });
 }
-
 
 const showIfProp: SchemaNode = {
   type: 'text',
@@ -68,20 +66,25 @@ const showIfProp: SchemaNode = {
     label: 'Show if',
     placeholder: 'If empty or "hello" then component is visible.',
   },
-}
+};
 
 type CommonOpts = { name: boolean; label: boolean; help: boolean; required: boolean; placeholder: boolean };
 const defaults: CommonOpts = { name: true, label: true, help: true, required: true, placeholder: true };
 
 function commonSchema(opt: Partial<CommonOpts> = {}): SchemaNode[] {
-  const { name, label, help, required, placeholder } = { ...defaults, ...opt }
+  const { name, label, help, required, placeholder } = { ...defaults, ...opt };
   const s: SchemaNode[] = [];
-  if (name) s.push({ type: 'text', name: '$name', props: { label: 'Technical name', required: true } })
-  if (label) s.push({ type: 'text', name: 'label', props: { label: 'Label' } })
-  if (placeholder) s.push({ type: 'text', name: 'placeholder', props: { label: 'Placeholder' } })
-  if (help) s.push({ type: 'text', name: 'help', props: { label: 'Help text' } })
-  if (required) s.push({ type: 'checkbox', name: 'required', props: { label: 'Is field required?' } })
-  return s
+  if (name)
+    s.push({ type: 'text', name: '$name', props: { label: 'Technical name', required: true } });
+  if (label)
+    s.push({ type: 'text', name: 'label', props: { label: 'Label' } });
+  if (placeholder)
+    s.push({ type: 'text', name: 'placeholder', props: { label: 'Placeholder' } });
+  if (help)
+    s.push({ type: 'text', name: 'help', props: { label: 'Help text' } });
+  if (required)
+    s.push({ type: 'checkbox', name: 'required', props: { label: 'Is field required?' } });
+  return s;
 }
 
 export function schemaComponents(style?: PresetStyleConfig): FormComponents {
@@ -214,5 +217,5 @@ export function schemaComponents(style?: PresetStyleConfig): FormComponents {
         showIfProp,
       ],
     },
-  }
+  };
 }

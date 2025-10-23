@@ -1,5 +1,5 @@
 {
-  "name": "preset-nuxt-ui",
+  "name": "@former-u/preset-nuxt-ui",
   "type": "module",
   "exports": {
     ".": {

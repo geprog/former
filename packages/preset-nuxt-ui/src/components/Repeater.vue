@@ -6,17 +6,21 @@
           <FormRenderer />
         </FormDataProvider>
 
-        <UButton v-if="mode !== 'read'" type="button" variant="soft" color="red"
+        <UButton
+          v-if="mode !== 'read'" type="button" variant="soft" color="red"
           class="w-7 h-7 grid place-items-center border border-zinc-300 dark:border-zinc-600 rounded"
-          aria-label="Remove item" @click.stop.prevent="deleteItem(index)">
+          aria-label="Remove item" @click.stop.prevent="deleteItem(index)"
+        >
           <span class="leading-none text-base">×</span>
         </UButton>
       </div>
 
       <div class="self-start">
-        <UButton v-if="mode !== 'read'" type="button" variant="outline" icon="i-heroicons-plus"
+        <UButton
+          v-if="mode !== 'read'" type="button" variant="outline" icon="i-heroicons-plus"
           class="w-auto inline-flex border border-zinc-300 dark:border-zinc-600"
-          @click.stop.prevent="addItem">
+          @click.stop.prevent="addItem"
+        >
           Add {{ itemLabel || 'item' }}
         </UButton>
       </div>
@@ -25,7 +29,7 @@
 </template>
 
 <script setup lang="ts">
-import { FormDataProvider, FormRenderer, type FormData, type FormerProps } from 'former-ui';
+import { type FormData, FormDataProvider, type FormerProps, FormRenderer } from 'former-ui';
 
 const props = defineProps<{
   label?: string;

@@ -12,9 +12,9 @@
       :type="type || 'text'"
       :size="size"
       :disabled="mode === 'read'"
-      :ui="ui"         
-      :class="klass"   
-      v-bind="$attrs"   
+      :ui="ui"
+      :class="klass"
+      v-bind="$attrs"
       @blur="hasBlurred = true"
     />
   </UFormField>
@@ -39,20 +39,20 @@ const props = withDefaults(defineProps<{
   klass?: ClassNameValue;
 } & Partial<FormerProps>>(), {
   size: 'lg',
-})
+});
 
 const modelValue = defineModel<string>();
 const hasBlurred = ref(false);
 
-const mode   = toRef(props, 'mode');
-const error  = toRef(props, 'error');
+const mode = toRef(props, 'mode');
+const error = toRef(props, 'error');
 const preset = toRef(props, 'preset');
 
 onMounted(() => {
   if (modelValue.value === undefined && preset.value !== undefined) {
     modelValue.value = preset.value;
   }
-})
+});
 
 const { label, required, help, type, size, ui, klass } = props;
 </script>
