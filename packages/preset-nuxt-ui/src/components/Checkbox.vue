@@ -13,16 +13,16 @@
 </template>
 
 <script setup lang="ts">
-import type { FormerProps } from 'former-ui'
-type ClassNameValue = string | string[] | Record<string, boolean>
+import type { FormerProps } from 'former-ui';
+type ClassNameValue = string | string[] | Record<string, boolean>;
 
-defineOptions({ inheritAttrs: false })
+defineOptions({ inheritAttrs: false });
 
 const props = defineProps<{
-  label?: string; help?: string; checkboxLabel?: string
-  ui?: Record<string, string>; klass?: ClassNameValue
-} & Partial<FormerProps>>()
+  label?: string; help?: string; checkboxLabel?: string;
+  ui?: Record<string, string>; klass?: ClassNameValue;
+} & Partial<FormerProps>>();
 
-const modelValue = defineModel<boolean>()
-const { label, help, error, mode, ui, klass, checkboxLabel } = props
+const modelValue = defineModel<boolean>();
+const { label, help, error, mode, ui, klass, checkboxLabel } = props;
 </script>

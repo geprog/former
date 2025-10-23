@@ -1,39 +1,39 @@
-import { defineComponent, computed, h, markRaw } from 'vue'
-import type { FormComponents, SchemaNode } from 'former-ui'
-import type { InputProps } from '@nuxt/ui'
+import { defineComponent, computed, h, markRaw } from 'vue';
+import type { FormComponents, SchemaNode } from 'former-ui';
+import type { InputProps } from '@nuxt/ui';
 
-import Checkbox from './Checkbox.vue'
-import Columns from './Columns.vue'
-import ComboBox from './ComboBox.vue'
-import Group from './Group.vue'
-import Number from './Number.vue'
-import RadioGroup from './RadioGroup.vue'
-import Repeater from './Repeater.vue'
-import Select from './Select.vue'
-import Text from './Text.vue'
-import Textarea from './Textarea.vue'
+import Checkbox from '@/components/Checkbox.vue';
+import Columns from '@/components/Columns.vue';
+import ComboBox from '@/components/ComboBox.vue';
+import Group from '@/components/Group.vue';
+import Number from '@/components/Number.vue';
+import RadioGroup from '@/components/RadioGroup.vue';
+import Repeater from '@/components/Repeater.vue';
+import Select from '@/components/Select.vue';
+import Text from '@/components/Text.vue';
+import Textarea from '@/components/Textarea.vue';
 
 
-type ClassNameValue = string | string[] | Record<string, boolean>
-type AnyUi = Record<string, ClassNameValue>
-type UIOf<T> = NonNullable<T>
+type ClassNameValue = string | string[] | Record<string, boolean>;
+type AnyUi = Record<string, ClassNameValue>;
+type UIOf<T> = NonNullable<T>;
 
 type StylingConfiguration<Ui = AnyUi> = {
-  class?: ClassNameValue
-  ui?: Partial<Ui>
+  class?: ClassNameValue;
+  ui?: Partial<Ui>;
 }
 
 export type PresetStyleConfig = Partial<{
-  text: StylingConfiguration<UIOf<InputProps['ui']>>
-  textarea: StylingConfiguration<AnyUi>
-  number: StylingConfiguration<AnyUi>
-  select: StylingConfiguration<AnyUi>
-  checkbox: StylingConfiguration<AnyUi>
-  radio_group: StylingConfiguration<AnyUi>
-  combo_box: StylingConfiguration<AnyUi>
-  columns: StylingConfiguration<AnyUi>
-  group: StylingConfiguration<AnyUi>
-  repeater: StylingConfiguration<AnyUi>
+  text: StylingConfiguration<UIOf<InputProps['ui']>>;
+  textarea: StylingConfiguration<AnyUi>;
+  number: StylingConfiguration<AnyUi>;
+  select: StylingConfiguration<AnyUi>;
+  checkbox: StylingConfiguration<AnyUi>;
+  radio_group: StylingConfiguration<AnyUi>;
+  combo_box: StylingConfiguration<AnyUi>;
+  columns: StylingConfiguration<AnyUi>;
+  group: StylingConfiguration<AnyUi>;
+  repeater: StylingConfiguration<AnyUi>;
 }>
 
 function withStyle<Ui = AnyUi>(Comp: any, cfg?: StylingConfiguration<Ui>) {
@@ -41,9 +41,9 @@ function withStyle<Ui = AnyUi>(Comp: any, cfg?: StylingConfiguration<Ui>) {
     name: `Styled(${Comp?.name ?? 'Anon'})`,
     inheritAttrs: true,
     setup(_, { attrs, slots }) {
-      const mergedKlass = computed(() => [(attrs as any)?.klass, cfg?.class].filter(Boolean))
+      const mergedKlass = computed(() => [(attrs as any)?.klass, cfg?.class].filter(Boolean));
       const mergedUi = computed<Partial<Ui>>(() => {
-        const fromAttrs = (attrs as any)?.ui as Partial<Ui> | undefined
+        const fromAttrs = (attrs as any)?.ui as Partial<Ui> | undefined;
         return { ...(cfg?.ui ?? {}), ...(fromAttrs ?? {}) }
       })
       return () =>
@@ -70,12 +70,12 @@ const showIfProp: SchemaNode = {
   },
 }
 
-type CommonOpts = { name: boolean; label: boolean; help: boolean; required: boolean; placeholder: boolean }
-const defaults: CommonOpts = { name: true, label: true, help: true, required: true, placeholder: true }
+type CommonOpts = { name: boolean; label: boolean; help: boolean; required: boolean; placeholder: boolean };
+const defaults: CommonOpts = { name: true, label: true, help: true, required: true, placeholder: true };
 
 function commonSchema(opt: Partial<CommonOpts> = {}): SchemaNode[] {
   const { name, label, help, required, placeholder } = { ...defaults, ...opt }
-  const s: SchemaNode[] = []
+  const s: SchemaNode[] = [];
   if (name) s.push({ type: 'text', name: '$name', props: { label: 'Technical name', required: true } })
   if (label) s.push({ type: 'text', name: 'label', props: { label: 'Label' } })
   if (placeholder) s.push({ type: 'text', name: 'placeholder', props: { label: 'Placeholder' } })
@@ -85,16 +85,16 @@ function commonSchema(opt: Partial<CommonOpts> = {}): SchemaNode[] {
 }
 
 export function schemaComponents(style?: PresetStyleConfig): FormComponents {
-  const CText       = withStyle<UIOf<InputProps['ui']>>(Text, style?.text)
-  const CTextarea   = withStyle<AnyUi>(Textarea,   style?.textarea)
-  const CNumber     = withStyle<AnyUi>(Number,     style?.number)
-  const CSelect     = withStyle<AnyUi>(Select,     style?.select)
-  const CCheckbox   = withStyle<AnyUi>(Checkbox,   style?.checkbox)
-  const CRadioGroup = withStyle<AnyUi>(RadioGroup, style?.radio_group)
-  const CComboBox   = withStyle<AnyUi>(ComboBox,   style?.combo_box)
-  const CColumns    = withStyle<AnyUi>(Columns,    style?.columns)
-  const CGroup      = withStyle<AnyUi>(Group,      style?.group)
-  const CRepeater   = withStyle<AnyUi>(Repeater,   style?.repeater)
+  const CText = withStyle<UIOf<InputProps['ui']>>(Text, style?.text);
+  const CTextarea = withStyle<AnyUi>(Textarea, style?.textarea);
+  const CNumber = withStyle<AnyUi>(Number, style?.number);
+  const CSelect = withStyle<AnyUi>(Select, style?.select);
+  const CCheckbox = withStyle<AnyUi>(Checkbox, style?.checkbox);
+  const CRadioGroup = withStyle<AnyUi>(RadioGroup, style?.radio_group);
+  const CComboBox = withStyle<AnyUi>(ComboBox, style?.combo_box);
+  const CColumns = withStyle<AnyUi>(Columns, style?.columns);
+  const CGroup = withStyle<AnyUi>(Group, style?.group);
+  const CRepeater = withStyle<AnyUi>(Repeater, style?.repeater);
 
   return {
     text: {
@@ -121,8 +121,8 @@ export function schemaComponents(style?: PresetStyleConfig): FormComponents {
       component: markRaw(CNumber),
       propsSchema: [
         ...commonSchema({ placeholder: false }),
-        { type: 'text', name: 'min',  props: { type: 'number', label: 'Min' } },
-        { type: 'text', name: 'max',  props: { type: 'number', label: 'Max' } },
+        { type: 'text', name: 'min', props: { type: 'number', label: 'Min' } },
+        { type: 'text', name: 'max', props: { type: 'number', label: 'Max' } },
         { type: 'text', name: 'step', props: { type: 'number', label: 'Step' } },
         showIfProp,
       ],

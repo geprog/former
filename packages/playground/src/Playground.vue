@@ -327,10 +327,10 @@ watch(preset, async () => {
 });
 
 const debouncedSchema = (() => {
-  let timeout: number | null = null;
+  let timeout: ReturnType<typeof setTimeout> | null = null;
 
   return (_schema: SchemaNode[]) => {
-    if (timeout) {
+    if (timeout !== null) {
       clearTimeout(timeout);
     }
 

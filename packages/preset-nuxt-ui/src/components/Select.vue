@@ -20,25 +20,25 @@
 </template>
 
 <script setup lang="ts">
-import type { FormerProps } from 'former-ui'
-import { computed, ref, toRef } from 'vue'
-type ClassNameValue = string | string[] | Record<string, boolean>
+import type { FormerProps } from 'former-ui';
+import { computed, ref, toRef } from 'vue';
+type ClassNameValue = string | string[] | Record<string, boolean>;
 
-defineOptions({ inheritAttrs: false })
+defineOptions({ inheritAttrs: false });
 
-type Opt = { label?: string; value: string }
+type Opt = { label?: string; value: string };
 
 const props = defineProps<{
-  label?: string; required?: boolean; help?: string
-  options?: Opt[]
-  ui?: Record<string, string>; klass?: ClassNameValue
-} & Partial<FormerProps>>()
+  label?: string; required?: boolean; help?: string;
+  options?: Opt[];
+  ui?: Record<string, string>; klass?: ClassNameValue;
+} & Partial<FormerProps>>();
 
-const modelValue = defineModel<string>()
-const hasBlurred = ref(false)
+const modelValue = defineModel<string>();
+const hasBlurred = ref(false);
 
-const items = computed(() => (props.options ?? []).map(o => ({ label: o.label ?? o.value, value: o.value })))
-const mode  = toRef(props, 'mode')
-const error = toRef(props, 'error')
-const { label, required, help, ui, klass } = props
+const items = computed(() => (props.options ?? []).map(o => ({ label: o.label ?? o.value, value: o.value })));
+const mode  = toRef(props, 'mode');
+const error = toRef(props, 'error');
+const { label, required, help, ui, klass } = props;
 </script>

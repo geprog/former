@@ -10,6 +10,9 @@ export default defineConfig({
     ui(),
     dts({ entryRoot: 'src', outDir: 'dist', insertTypesEntry: true }),
   ],
+  resolve: {
+    alias: { '@': fileURLToPath(new URL('./src', import.meta.url)) },
+  },
   build: {
     lib: {
       entry: 'src/index.ts',

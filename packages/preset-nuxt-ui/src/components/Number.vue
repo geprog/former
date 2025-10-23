@@ -23,22 +23,22 @@
 </template>
 
 <script setup lang="ts">
-import type { FormerProps } from 'former-ui'
-import { ref, toRef } from 'vue'
-type ClassNameValue = string | string[] | Record<string, boolean>
+import type { FormerProps } from 'former-ui';
+import { ref, toRef } from 'vue';
+type ClassNameValue = string | string[] | Record<string, boolean>;
 
-defineOptions({ inheritAttrs: false })
+defineOptions({ inheritAttrs: false });
 
 const props = withDefaults(defineProps<{
-  label?: string; required?: boolean; help?: string
-  min?: number; max?: number; step?: number
-  ui?: Record<string, string>; klass?: ClassNameValue
-} & Partial<FormerProps>>(), { step: 1 })
+  label?: string; required?: boolean; help?: string;
+  min?: number; max?: number; step?: number;
+  ui?: Record<string, string>; klass?: ClassNameValue;
+} & Partial<FormerProps>>(), { step: 1 });
 
-const modelValue = defineModel<number>()
-const hasBlurred = ref(false)
+const modelValue = defineModel<number>();
+const hasBlurred = ref(false);
 
-const mode  = toRef(props, 'mode')
-const error = toRef(props, 'error')
-const { label, required, help, min, max, step, ui, klass } = props
+const mode  = toRef(props, 'mode');
+const error = toRef(props, 'error');
+const { label, required, help, min, max, step, ui, klass } = props;
 </script>

@@ -10,13 +10,13 @@
 </template>
 
 <script setup lang="ts">
-import { FormRenderer, type FormerProps } from 'former-ui'
-type ClassNameValue = string | string[] | Record<string, boolean>
+import { FormRenderer, type FormerProps } from 'former-ui';
+type ClassNameValue = string | string[] | Record<string, boolean>;
 
 const props = withDefaults(defineProps<{
-  label?: string; help?: string; cols?: number
-  klass?: ClassNameValue
-} & Partial<FormerProps>>(), { cols: 2 })
+  label?: string; help?: string; cols?: number;
+  klass?: ClassNameValue;
+} & Partial<FormerProps>>(), { cols: 2 });
 
-const { label, help, error, cols, klass } = props
+const { label, help, error, cols, klass } = props;
 </script>

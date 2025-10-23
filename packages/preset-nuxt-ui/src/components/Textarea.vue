@@ -21,24 +21,24 @@
 </template>
 
 <script setup lang="ts">
-import type { FormerProps } from 'former-ui'
-import { ref, toRef } from 'vue'
+import type { FormerProps } from 'former-ui';
+import { ref, toRef } from 'vue';
 
-type ClassNameValue = string | string[] | Record<string, boolean>
+type ClassNameValue = string | string[] | Record<string, boolean>;
 
-defineOptions({ inheritAttrs: false })
+defineOptions({ inheritAttrs: false });
 
 const props = withDefaults(defineProps<{
-  label?: string; required?: boolean; help?: string
-  rows?: number; autoresize?: boolean
-  ui?: Record<string, string>; klass?: ClassNameValue
-} & Partial<FormerProps>>(), { rows: 3, autoresize: false })
+  label?: string; required?: boolean; help?: string;
+  rows?: number; autoresize?: boolean;
+  ui?: Record<string, string>; klass?: ClassNameValue;
+} & Partial<FormerProps>>(), { rows: 3, autoresize: false });
 
-const modelValue = defineModel<string>()
-const hasBlurred = ref(false)
+const modelValue = defineModel<string>();
+const hasBlurred = ref(false);
 
-const mode  = toRef(props, 'mode')
-const error = toRef(props, 'error')
+const mode  = toRef(props, 'mode');
+const error = toRef(props, 'error');
 
-const { label, required, help, rows, autoresize, ui, klass } = props
+const { label, required, help, rows, autoresize, ui, klass } = props;
 </script>
