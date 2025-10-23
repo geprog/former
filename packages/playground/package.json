@@ -15,8 +15,8 @@
     "@nuxt/ui": "^3.3.4",
     "@unhead/vue": "^1",
     "@vueuse/core": "12.0.0",
-    "former-ui": "workspace:*",
     "@former-ui/preset-nuxt-ui": "workspace:*",
+    "former-ui": "workspace:*",
     "vue": "^3.5.13",
     "vue-router": "^4"
   },
