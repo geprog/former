@@ -12,6 +12,5 @@ export default defineConfig({
     alias: { '@': fileURLToPath(new URL('./src', import.meta.url)) },
     dedupe: ['vue'],
   },
-  server: { allowedHosts: ['.gitpod.io'] },
-  optimizeDeps: { exclude: ['former-ui'] },
+  optimizeDeps: { exclude: ['former-ui', '@former-ui/preset-nuxt-ui'] },
 });

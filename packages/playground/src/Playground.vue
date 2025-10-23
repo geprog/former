@@ -100,7 +100,6 @@ import type {
   Mode,
   SchemaNode,
 } from 'former-ui';
-import type { PresetStyleConfig } from 'preset-nuxt-ui';
 import Button from '@/sample/Button.vue';
 import Checkbox from '@/sample/Checkbox.vue';
 import { schemaComponents as schemaComponentsSample } from '@/sample/schemaComponents';
@@ -114,6 +113,7 @@ import {
   FormNodeProps,
 } from 'former-ui';
 import { schemaComponents as schemaComponentsNuxt } from 'preset-nuxt-ui';
+import type { PresetStyleConfig } from 'preset-nuxt-ui';
 import { computed, nextTick, ref, watch } from 'vue';
 
 const defaultStyles: PresetStyleConfig = {
