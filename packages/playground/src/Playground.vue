@@ -100,21 +100,21 @@ import type {
   Mode,
   SchemaNode,
 } from 'former-ui';
+import type { PresetStyleConfig } from 'preset-nuxt-ui';
 import Button from '@/sample/Button.vue';
 import Checkbox from '@/sample/Checkbox.vue';
 import { schemaComponents as schemaComponentsSample } from '@/sample/schemaComponents';
 import Select from '@/sample/Select.vue';
 import { useStorage } from '@vueuse/core';
+
 import {
   FormAdd,
   FormContent,
   Former,
   FormNodeProps,
 } from 'former-ui';
-
 import { schemaComponents as schemaComponentsNuxt } from 'preset-nuxt-ui';
 import { computed, nextTick, ref, watch } from 'vue';
-import type { PresetStyleConfig } from 'preset-nuxt-ui';
 
 const defaultStyles: PresetStyleConfig = {
   text: {
@@ -139,17 +139,17 @@ const defaultStyles: PresetStyleConfig = {
 
   checkbox: {
     ui: {
-      base:  'border border-zinc-400 rounded bg-white dark:bg-zinc-900',
+      base: 'border border-zinc-400 rounded bg-white dark:bg-zinc-900',
       label: 'ml-2',
-      icon:  'text-zinc-800 dark:text-zinc-100',
+      icon: 'text-zinc-800 dark:text-zinc-100',
     },
   },
 
   radio_group: {
-    class: "w-full rounded-lg border border-zinc-300 dark:border-zinc-600 px-2.5 py-1.5 text-sm gap-1.5 text-highlighted",
+    class: 'w-full rounded-lg border border-zinc-300 dark:border-zinc-600 px-2.5 py-1.5 text-sm gap-1.5 text-highlighted',
     ui: {
       item: 'rounded-lg border border-zinc-300 dark:border-zinc-600 bg-default',
-    }
+    },
   },
 
   group: {
@@ -165,12 +165,16 @@ const defaultStyles: PresetStyleConfig = {
       item: 'rounded-lg border border-dashed border-zinc-300 dark:border-zinc-600 p-4',
     },
   },
-}
+};
+
+type PresetKey = 'nuxt' | 'sample';
+const preset = useStorage<PresetKey>('former:preset', 'nuxt');
+const data = useStorage<FormData>('former:data', {});
 
 const builderComponents = computed<FormComponents>(() =>
   preset.value === 'nuxt'
-    ? schemaComponentsNuxt(defaultStyles)  
-    : schemaComponentsSample()             
+    ? schemaComponentsNuxt(defaultStyles)
+    : schemaComponentsSample(),
 );
 
 const mode = useStorage<Mode>('former:mode', 'build');
@@ -182,8 +186,6 @@ const options = [
   { label: 'edit', value: 'edit' },
   { label: 'read', value: 'read' },
 ];
-type PresetKey = 'nuxt' | 'sample';
-const preset = useStorage<PresetKey>('former:preset', 'nuxt');
 
 const presetOptions = [
   { label: 'Nuxt UI', value: 'nuxt' },
@@ -192,7 +194,6 @@ const presetOptions = [
 
 const isValid = ref(true);
 const isSchemaValid = ref(true);
-
 
 const DEFAULT_SCHEMA: SchemaNode[] = [
   {
@@ -318,7 +319,7 @@ const DEFAULT_SCHEMA: SchemaNode[] = [
 const schema = useStorage<SchemaNode[]>('former:schema', structuredClone(DEFAULT_SCHEMA));
 
 watch(preset, async () => {
-  clearPlayground();                 
+  clearPlayground();
   await nextTick();
   schema.value = structuredClone(DEFAULT_SCHEMA);
   data.value = {};
@@ -349,8 +350,6 @@ const jsonSchema = computed<string>({
     debouncedSchema(JSON.parse(_schema));
   },
 });
-
-const data = useStorage<FormData>('former:data', {});
 
 function showIf(node: SchemaNode, _data: FormData): boolean {
   if (!activateShowIf.value) {
@@ -387,5 +386,4 @@ function clearPlayground() {
   schema.value = [];
   data.value = {};
 }
-
 </script>
