@@ -93,7 +93,6 @@
 </template>
 
 <script setup lang="ts">
-import { schemaComponents as schemaComponentsNuxt } from '@former-ui/preset-nuxt-ui';
 import type { PresetStyleConfig } from '@former-ui/preset-nuxt-ui';
 import type {
   FieldData,
@@ -106,6 +105,7 @@ import Button from '@/sample/Button.vue';
 import Checkbox from '@/sample/Checkbox.vue';
 import { schemaComponents as schemaComponentsSample } from '@/sample/schemaComponents';
 import Select from '@/sample/Select.vue';
+import { schemaComponents as schemaComponentsNuxt } from '@former-ui/preset-nuxt-ui';
 import { useStorage } from '@vueuse/core';
 import {
   FormAdd,
