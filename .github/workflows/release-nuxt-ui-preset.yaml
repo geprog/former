@@ -2,11 +2,11 @@ name: Release (preset-nuxt-ui)
 
 on:
   pull_request:
-    branches: [ main ]
+    branches: [main]
   push:
-    branches: [ main ]
+    branches: [main]
     tags:
-      - 'nuxt-ui-preset-v*'  
+      - 'nuxt-ui-preset-v*'
 
 jobs:
   release:
