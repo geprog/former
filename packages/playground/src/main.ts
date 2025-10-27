@@ -9,5 +9,4 @@ const router = createRouter({ history: createWebHistory(), routes: [{ path: '/',
 const app = createApp(App);
 app.use(router);
 app.use(ui);
-document.documentElement.classList.remove('dark');
 app.mount('#app');

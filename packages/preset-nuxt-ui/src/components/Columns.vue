@@ -1,6 +1,6 @@
 <template>
   <UFormField :label="label" :description="help" :error="error" class="w-full">
-    <div :class="klass" :style="{ display: 'grid', gridTemplateColumns: `repeat(${cols || 1}, minmax(0, 1fr))` }">
+    <div :class="klass" class="w-full" :style="{ display: 'grid', gridTemplateColumns: `repeat(${cols || 1}, minmax(0, 1fr))` }">
       <FormRenderer category="default" />
       <template v-for="i in (cols || 1) - 1" :key="i">
         <FormRenderer :category="`column-${i}`" />

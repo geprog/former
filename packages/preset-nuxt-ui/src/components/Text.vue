@@ -9,6 +9,7 @@
   >
     <UInput
       v-model="modelValue"
+      class="w-full"
       :type="type || 'text'"
       :size="size"
       :disabled="mode === 'read'"

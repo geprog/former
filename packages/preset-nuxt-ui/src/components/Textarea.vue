@@ -9,6 +9,7 @@
   >
     <UTextarea
       v-model="modelValue"
+      class="w-full"
       :rows="rows"
       :autoresize="autoresize"
       :disabled="mode === 'read'"

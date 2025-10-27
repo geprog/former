@@ -8,25 +8,22 @@
     class="w-full"
   >
     <UInputMenu
-      v-model="modelValue"
+      v-model="selected"
       :items="items"
+      by="value"
       :disabled="mode === 'read'"
       :ui="ui"
       :class="klass"
+      class="w-full"
       v-bind="$attrs"
-      @update:query="onQuery"
+      @update:search-term="onSearchTerm"
       @blur="hasBlurred = true"
     >
-      <template #option-empty="{ query }">
-        <div
-          v-if="!disableCustomValue"
-        >
-          Create “{{ query }}”
+      <template #empty="{ searchTerm }">
+        <div v-if="!disableCustomValue">
+          Create {{ searchTerm ?? '' }}
         </div>
-
-        <div
-          v-else
-        >
+        <div v-else>
           No results
         </div>
       </template>
@@ -39,32 +36,49 @@ import type { FormerProps } from 'former-ui';
 import { computed, ref, toRef } from 'vue';
 
 type ClassNameValue = string | string[] | Record<string, boolean>;
+type Opt = { label: string; value: string };
 
 defineOptions({ inheritAttrs: false });
 
 const props = defineProps<{
-  label?: string;
-  required?: boolean;
-  help?: string;
-  options?: Opt[];
-  disableCustomValue?: boolean;
-  ui?: Record<string, string>;
-  klass?: ClassNameValue;
+  label?: string
+  required?: boolean
+  help?: string
+  options?: Array<{ label?: string; value: string }>
+  disableCustomValue?: boolean
+  ui?: Record<string, string>
+  klass?: ClassNameValue
 } & Partial<FormerProps>>();
 
-type Opt = { label?: string; value: string };
+const modelValue = defineModel<string | undefined>();
 
-const modelValue = defineModel<string>();
 const hasBlurred = ref(false);
-
-const items = computed(() => (props.options ?? []).map(o => ({ label: o.label ?? o.value, value: o.value })));
-const disableCustomValue = toRef(props, 'disableCustomValue');
 const mode = toRef(props, 'mode');
 const error = toRef(props, 'error');
-const { label, required, help, ui, klass } = props;
+const disableCustomValue = toRef(props, 'disableCustomValue');
 
-function onQuery(q: string) {
+const items = computed<Opt[]>(() =>
+  (props.options ?? []).map(o => ({ label: o.label ?? o.value, value: o.value })),
+);
+
+const selected = computed<Opt | undefined>({
+  get() {
+    const found = items.value.find(i => i.value === modelValue.value);
+    if (found)
+      return found;
+    if (!disableCustomValue.value && modelValue.value)
+      return { label: modelValue.value, value: modelValue.value };
+    return undefined;
+  },
+  set(item) {
+    modelValue.value = item?.value;
+  },
+});
+
+function onSearchTerm(term: string) {
   if (!disableCustomValue.value)
-    modelValue.value = q;
+    modelValue.value = term || undefined;
 }
+
+const { label, required, help, ui, klass } = props;
 </script>

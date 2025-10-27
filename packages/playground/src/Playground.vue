@@ -106,7 +106,7 @@ import Checkbox from '@/sample/Checkbox.vue';
 import { schemaComponents as schemaComponentsSample } from '@/sample/schemaComponents';
 import Select from '@/sample/Select.vue';
 import { schemaComponents as schemaComponentsNuxt } from '@former-ui/preset-nuxt-ui';
-import { useStorage } from '@vueuse/core';
+import { useColorMode, useStorage } from '@vueuse/core';
 import {
   FormAdd,
   FormContent,
@@ -180,6 +180,18 @@ const builderComponents = computed<FormComponents>(() =>
 const mode = useStorage<Mode>('former:mode', 'build');
 const activateShowIf = useStorage<boolean>('former:activateShowIf', false);
 const activateDarkMode = useStorage<boolean>('former:darkMode', false);
+
+const colorMode = useColorMode({
+  selector: 'html',
+  attribute: 'class',
+  storageKey: 'former:color',
+  initialValue: 'light',
+  modes: { light: 'light', dark: 'dark' },
+});
+
+watch(activateDarkMode, (v) => {
+  colorMode.value = v ? 'dark' : 'light';
+}, { immediate: true });
 
 const options = [
   { label: 'build', value: 'build' },

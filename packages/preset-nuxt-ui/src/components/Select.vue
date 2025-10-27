@@ -9,6 +9,7 @@
   >
     <USelect
       v-model="modelValue"
+      class="w-full"
       :items="items"
       :disabled="mode === 'read'"
       :ui="ui"

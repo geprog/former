@@ -9,6 +9,7 @@
   >
     <UInput
       v-model.number="modelValue"
+      class="w-full"
       type="number"
       :min="min"
       :max="max"

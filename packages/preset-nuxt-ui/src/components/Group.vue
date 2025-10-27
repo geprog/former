@@ -1,6 +1,6 @@
 <template>
   <UFormField :label="label" :description="help" :error="error" class="w-full">
-    <div :class="klass">
+    <div :class="klass" class="w-full">
       <FormRenderer />
     </div>
   </UFormField>

@@ -7,7 +7,7 @@
         </FormDataProvider>
 
         <UButton
-          v-if="mode !== 'read'" type="button" variant="soft" color="red"
+          v-if="mode !== 'read'" type="button" variant="soft"
           class="w-7 h-7 grid place-items-center border border-zinc-300 dark:border-zinc-600 rounded"
           aria-label="Remove item" @click.stop.prevent="deleteItem(index)"
         >

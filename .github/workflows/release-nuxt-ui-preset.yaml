@@ -6,7 +6,7 @@ on:
   push:
     branches: [main]
     tags:
-      - 'nuxt-ui-preset-v*'
+      - 'v*'
 
 jobs:
   release:
@@ -47,16 +47,21 @@ jobs:
         run: pnpm build
 
       - name: Extract version from tag
-        if: github.ref_type == 'tag' && startsWith(github.ref_name, 'nuxt-ui-preset-v')
-        run: echo "PKG_VERSION=${GITHUB_REF_NAME#nuxt-ui-preset-v}" >> $GITHUB_ENV
+        if: github.ref_type == 'tag'
+        run: echo "PKG_VERSION=${GITHUB_REF_NAME#nuxt-ui-preset-}" >> $GITHUB_ENV
 
       - name: Set version in package.json
-        if: github.ref_type == 'tag' && startsWith(github.ref_name, 'nuxt-ui-preset-v')
+        if: github.ref_type == 'tag'
         working-directory: packages/preset-nuxt-ui
         run: pnpm version "${PKG_VERSION}" --no-commit-hooks --no-git-tag-version
 
       - name: Publish to npm
-        if: github.ref_type == 'tag' && startsWith(github.ref_name, 'nuxt-ui-preset-v')
+        if: github.ref_type == 'tag'
+        working-directory: packages/preset-nuxt-ui
+        run: pnpm version "${PKG_VERSION}" --no-commit-hooks --no-git-tag-version
+
+      - name: Publish to npm
+        if: github.ref_type == 'tag'
         working-directory: packages/preset-nuxt-ui
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

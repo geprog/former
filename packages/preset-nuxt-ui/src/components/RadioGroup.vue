@@ -8,6 +8,7 @@
   >
     <URadioGroup
       v-model="modelValue"
+      class="w-full"
       variant="card"
       :items="items"
       option-attribute="label"

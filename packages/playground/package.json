@@ -13,12 +13,12 @@
   },
   "dependencies": {
     "@former-ui/preset-nuxt-ui": "workspace:*",
-    "@nuxt/ui": "^3.3.4",
-    "@unhead/vue": "^1",
+    "@nuxt/ui": "3.3.4",
+    "@unhead/vue": "1",
     "@vueuse/core": "12.0.0",
     "former-ui": "workspace:*",
-    "vue": "^3.5.13",
-    "vue-router": "^4"
+    "vue": "3.5.13",
+    "vue-router": "4.5.1"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.1.13",
@@ -33,8 +33,6 @@
     "typescript": "5.7.2",
     "vite": "^6.1.6",
     "vite-plugin-css-injected-by-js": "3.5.2",
-    "vite@3.3.4": "link:@nuxt/ui/vite@3.3.4",
-    "vite@latest": "link:@nuxt/ui/vite@latest",
     "vitest": "2.1.9",
     "vue": "3.5.13",
     "vue-tsc": "3.0.7"
