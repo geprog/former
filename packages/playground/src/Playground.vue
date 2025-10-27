@@ -3,15 +3,15 @@
     <Former
       v-model:data="data"
       v-model:schema="schema"
-      :components
-      :mode
-      :show-if
+      :components="builderComponents"
+      :mode="mode"
+      :show-if="showIf"
       :validator="validator"
       @valid="isValid = $event"
       @schema-valid="isSchemaValid = $event"
     >
       <main class="gap-4 m-4 mx-auto max-w-7xl px-4 py-4 w-2/3 flex flex-col overflow-y-auto">
-        <h1 class="text-4xl font-bold mx-auto">
+        <h1 class="text-4xl font-bold w-full text-center">
           👩🏾‍🌾 Former playground
         </h1>
 
@@ -27,7 +27,8 @@
             <span :class="{ 'text-red-500': !isValid }">Data {{ isValid ? 'valid' : 'invalid' }}</span>,
             <span :class="{ 'text-red-500': !isSchemaValid }">Schema {{ isSchemaValid ? 'valid' : 'invalid' }}</span>
           </div>
-          <Select v-model="mode" :options />
+          <Select v-model="preset" :options="presetOptions" />
+          <Select v-model="mode" :options="options" />
         </div>
 
         <form class="dark:bg-zinc-800 bg-white rounded-xl shadow-xl p-4 flex flex-col gap-4" @submit.prevent="submit">
@@ -92,6 +93,7 @@
 </template>
 
 <script setup lang="ts">
+import type { PresetStyleConfig } from '@former-ui/preset-nuxt-ui';
 import type {
   FieldData,
   FormComponents,
@@ -100,27 +102,96 @@ import type {
   SchemaNode,
 } from 'former-ui';
 import Button from '@/sample/Button.vue';
-
 import Checkbox from '@/sample/Checkbox.vue';
-
-import Columns from '@/sample/Columns.vue';
-
-import Group from '@/sample/Group.vue';
-import Repeater from '@/sample/Repeater.vue';
+import { schemaComponents as schemaComponentsSample } from '@/sample/schemaComponents';
 import Select from '@/sample/Select.vue';
-import TextInput from '@/sample/TextInput.vue';
-import { useStorage } from '@vueuse/core';
+import { schemaComponents as schemaComponentsNuxt } from '@former-ui/preset-nuxt-ui';
+import { useColorMode, useStorage } from '@vueuse/core';
 import {
   FormAdd,
   FormContent,
   Former,
   FormNodeProps,
 } from 'former-ui';
-import { computed, markRaw, ref } from 'vue';
+
+import { computed, nextTick, ref, watch } from 'vue';
+
+const defaultStyles: PresetStyleConfig = {
+  text: {
+    class: 'w-full border border-zinc-300 dark:border-zinc-600 rounded-md focus:outline-none px-2.5 py-1.5 text-sm gap-1.5 text-highlighted bg-default',
+  },
+  number: {
+    class: 'w-full border border-zinc-300 dark:border-zinc-600 rounded-md focus:outline-none px-2.5 py-1.5 text-sm gap-1.5 text-highlighted bg-default',
+  },
+  textarea: {
+    class: 'w-full border border-zinc-300 dark:border-zinc-600 rounded-md focus:outline-none px-2.5 py-1.5 text-sm gap-1.5 text-highlighted bg-default',
+  },
+
+  select: {
+    ui: {
+      content: 'bg-default',
+    },
+    class: 'w-full border border-zinc-300 dark:border-zinc-600 rounded-md focus:outline-none px-2.5 py-1.5 text-sm gap-1.5 text-highlighted bg-default',
+  },
+  combo_box: {
+    class: 'w-full border border-zinc-300 dark:border-zinc-600 rounded-md focus:outline-none px-2.5 py-1.5 text-sm gap-1.5 text-highlighted bg-default',
+  },
+
+  checkbox: {
+    ui: {
+      base: 'border border-zinc-400 rounded bg-white dark:bg-zinc-900',
+      label: 'ml-2',
+      icon: 'text-zinc-800 dark:text-zinc-100',
+    },
+  },
+
+  radio_group: {
+    class: 'w-full rounded-lg border border-zinc-300 dark:border-zinc-600 px-2.5 py-1.5 text-sm gap-1.5 text-highlighted',
+    ui: {
+      item: 'rounded-lg border border-zinc-300 dark:border-zinc-600 bg-default',
+    },
+  },
+
+  group: {
+    class: 'w-full border border-zinc-300 dark:border-zinc-600 rounded-md px-2.5 py-1.5 text-sm gap-1.5 text-highlighted bg-transparent',
+  },
+  columns: {
+    class: 'w-full border border-zinc-300 dark:border-zinc-600 rounded-md px-2.5 py-1.5 text-sm gap-1.5 text-highlighted bg-transparent',
+  },
+
+  repeater: {
+    class: 'flex flex-col gap-4',
+    ui: {
+      item: 'rounded-lg border border-dashed border-zinc-300 dark:border-zinc-600 p-4',
+    },
+  },
+};
+
+type PresetKey = 'nuxt' | 'sample';
+const preset = useStorage<PresetKey>('former:preset', 'nuxt');
+const data = useStorage<FormData>('former:data', {});
+
+const builderComponents = computed<FormComponents>(() =>
+  preset.value === 'nuxt'
+    ? schemaComponentsNuxt(defaultStyles)
+    : schemaComponentsSample(),
+);
 
 const mode = useStorage<Mode>('former:mode', 'build');
 const activateShowIf = useStorage<boolean>('former:activateShowIf', false);
 const activateDarkMode = useStorage<boolean>('former:darkMode', false);
+
+const colorMode = useColorMode({
+  selector: 'html',
+  attribute: 'class',
+  storageKey: 'former:color',
+  initialValue: 'light',
+  modes: { light: 'light', dark: 'dark' },
+});
+
+watch(activateDarkMode, (v) => {
+  colorMode.value = v ? 'dark' : 'light';
+}, { immediate: true });
 
 const options = [
   { label: 'build', value: 'build' },
@@ -128,10 +199,15 @@ const options = [
   { label: 'read', value: 'read' },
 ];
 
+const presetOptions = [
+  { label: 'Nuxt UI', value: 'nuxt' },
+  { label: 'Sample', value: 'sample' },
+];
+
 const isValid = ref(true);
 const isSchemaValid = ref(true);
 
-const schema = useStorage<SchemaNode[]>('former:schema', [
+const DEFAULT_SCHEMA: SchemaNode[] = [
   {
     type: 'text',
     name: 'name',
@@ -250,13 +326,24 @@ const schema = useStorage<SchemaNode[]>('former:schema', [
       },
     ],
   },
-]);
+];
+
+const schema = useStorage<SchemaNode[]>('former:schema', structuredClone(DEFAULT_SCHEMA));
+
+watch(preset, async () => {
+  clearPlayground();
+  await nextTick();
+  schema.value = structuredClone(DEFAULT_SCHEMA);
+  data.value = {};
+  await nextTick();
+  location.reload();
+});
 
 const debouncedSchema = (() => {
-  let timeout: number | null = null;
+  let timeout: ReturnType<typeof setTimeout> | null = null;
 
   return (_schema: SchemaNode[]) => {
-    if (timeout) {
+    if (timeout !== null) {
       clearTimeout(timeout);
     }
 
@@ -275,182 +362,6 @@ const jsonSchema = computed<string>({
     debouncedSchema(JSON.parse(_schema));
   },
 });
-
-const data = useStorage<FormData>('former:data', {});
-
-const showIfProp = { type: 'text', name: 'showIf', props: { label: 'Show if', placeholder: 'If empty or "hello" then component is visible.' } };
-
-const components: FormComponents = {
-  text: {
-    label: 'Text',
-    component: markRaw(TextInput),
-    propsSchema: [
-      {
-        type: 'text',
-        name: '$name',
-        props: {
-          label: 'Name',
-          placeholder: 'Enter the name of the data field',
-          required: true,
-        },
-      },
-      {
-        type: 'text',
-        name: 'label',
-        props: {
-          label: 'Label',
-          placeholder: 'Enter a label',
-        },
-      },
-      {
-        type: 'text',
-        name: 'placeholder',
-        props: {
-          label: 'Placeholder',
-          placeholder: 'Enter a placeholder',
-        },
-      },
-      {
-        type: 'text',
-        name: 'initialValue',
-        props: {
-          label: 'Initial value',
-          placeholder: 'Enter an initial value here',
-        },
-      },
-      showIfProp,
-      {
-        type: 'checkbox',
-        name: 'required',
-        props: {
-          label: 'Is field required?',
-        },
-      },
-    ],
-  },
-  group: {
-    label: 'Group',
-    component: markRaw(Group),
-    propsSchema: [
-      {
-        type: 'text',
-        name: '$name',
-        props: {
-          label: 'Name',
-          placeholder: 'Enter the name of the data field',
-          required: true,
-        },
-      },
-      showIfProp,
-    ],
-  },
-  columns: {
-    label: 'Columns',
-    component: markRaw(Columns),
-    propsSchema: [
-      showIfProp,
-    ],
-  },
-  repeater: {
-    label: 'Repeater',
-    component: markRaw(Repeater),
-    propsSchema: [
-      {
-        type: 'text',
-        name: '$name',
-        props: {
-          label: 'Name',
-          placeholder: 'Enter the name of the data field',
-          required: true,
-        },
-      },
-      {
-        type: 'text',
-        name: 'label',
-        props: {
-          label: 'Label',
-          placeholder: 'Enter a label',
-        },
-      },
-      showIfProp,
-    ],
-  },
-  select: {
-    label: 'Select',
-    component: markRaw(Select),
-    propsSchema: [
-      {
-        type: 'text',
-        name: '$name',
-        props: {
-          label: 'Name',
-          placeholder: 'Enter the name of the data field',
-          required: true,
-        },
-      },
-      {
-        type: 'text',
-        name: 'label',
-        props: {
-          label: 'Label',
-          placeholder: 'Enter a label',
-        },
-      },
-      showIfProp,
-      {
-        type: 'repeater',
-        name: 'options',
-        children: [
-          {
-            type: 'text',
-            name: 'label',
-            props: {
-              type: 'text',
-              label: 'Label',
-              placeholder: 'Enter a label',
-            },
-          },
-          {
-            type: 'text',
-            name: 'value',
-            props: {
-              type: 'text',
-              label: 'Value',
-              placeholder: 'Enter a value',
-            },
-          },
-        ],
-        props: {
-          label: 'Options',
-        },
-      },
-    ],
-  },
-  checkbox: {
-    label: 'Checkbox',
-    component: markRaw(Checkbox),
-    propsSchema: [
-      {
-        type: 'text',
-        name: '$name',
-        props: {
-          label: 'Name',
-          placeholder: 'Enter the name of the data field',
-          required: true,
-        },
-      },
-      {
-        type: 'text',
-        name: 'label',
-        props: {
-          label: 'Label',
-          placeholder: 'Enter a label',
-        },
-      },
-      showIfProp,
-    ],
-  },
-};
 
 function showIf(node: SchemaNode, _data: FormData): boolean {
   if (!activateShowIf.value) {

@@ -35,3 +35,7 @@ test-results/
 playwright-report/
 
 .vite/
+
+# Auto-generated type declarations
+auto-imports.d.ts
+components.d.ts

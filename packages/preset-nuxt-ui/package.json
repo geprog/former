@@ -1,0 +1,33 @@
+{
+  "name": "@former-ui/preset-nuxt-ui",
+  "type": "module",
+  "version": "0.0.0",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": ["dist"],
+
+  "scripts": {
+    "build": "vite build",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "peerDependencies": {
+    "@nuxt/ui": "^3.3.4",
+    "former-ui": ">=0.0.0",
+    "vue": "^3.5.13"
+  },
+  "devDependencies": {
+    "@nuxt/ui": "^3.3.4",
+    "@vitejs/plugin-vue": "^5.0.0",
+    "former-ui": "workspace:*",
+    "typescript": "^5.7.2",
+    "vite": "^6.1.0",
+    "vite-plugin-dts": "^4.3.0",
+    "vue": "^3.5.13"
+  }
+}

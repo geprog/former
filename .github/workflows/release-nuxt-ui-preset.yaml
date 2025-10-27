@@ -1,0 +1,68 @@
+name: Release (preset-nuxt-ui)
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+    tags:
+      - 'v*'
+
+jobs:
+  release:
+    name: Release preset
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup git user
+        run: |
+          git config --global user.name "$(git --no-pager log --format=format:'%an' -n 1)"
+          git config --global user.email "$(git --no-pager log --format=format:'%ae' -n 1)"
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Cache pnpm modules
+        uses: actions/cache@v4
+        with:
+          path: ~/.pnpm-store
+          key: ${{ runner.os }}-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
+          run_install: true
+
+      - name: Build preset
+        working-directory: packages/preset-nuxt-ui
+        run: pnpm build
+
+      - name: Extract version from tag
+        if: github.ref_type == 'tag'
+        run: echo "PKG_VERSION=${GITHUB_REF_NAME#nuxt-ui-preset-}" >> $GITHUB_ENV
+
+      - name: Set version in package.json
+        if: github.ref_type == 'tag'
+        working-directory: packages/preset-nuxt-ui
+        run: pnpm version "${PKG_VERSION}" --no-commit-hooks --no-git-tag-version
+
+      - name: Publish to npm
+        if: github.ref_type == 'tag'
+        working-directory: packages/preset-nuxt-ui
+        run: pnpm version "${PKG_VERSION}" --no-commit-hooks --no-git-tag-version
+
+      - name: Publish to npm
+        if: github.ref_type == 'tag'
+        working-directory: packages/preset-nuxt-ui
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: pnpm publish --no-git-checks --access public
