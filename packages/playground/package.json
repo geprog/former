@@ -14,7 +14,7 @@
   "dependencies": {
     "@former-ui/preset-nuxt-ui": "workspace:*",
     "@nuxt/ui": "3.3.4",
-    "@unhead/vue": "1",
+    "@unhead/vue": "2.0.19",
     "@vueuse/core": "12.0.0",
     "former-ui": "workspace:*",
     "vue": "3.5.13",
