@@ -25,6 +25,66 @@ npm install former-ui
 yarn add former-ui
 ```
 
+## Tailwind CSS Configuration
+
+Former UI uses Tailwind CSS for styling. The library's build **excludes** Tailwind's base reset styles (preflight) to avoid conflicts with your app's own CSS reset.
+
+### Option 1: Import the library's CSS file (Recommended)
+
+Import the pre-built CSS file in your app:
+
+```js
+// In your main.js or main.ts
+import 'former-ui/former-ui.css';
+```
+
+Make sure your consuming app includes Tailwind's base reset in your own CSS:
+
+```css
+/* In your app's main CSS file */
+@tailwind base; /* Include this in your app */
+@tailwind components;
+@tailwind utilities;
+```
+
+### Option 2: Include Former UI in your Tailwind build
+
+If you want to include Former UI's classes in your own Tailwind build, add the library's source files to your Tailwind `content` configuration:
+
+```js
+// tailwind.config.js
+export default {
+  content: [
+    './index.html',
+    './src/**/*.{vue,js,ts,jsx,tsx}',
+    // Include Former UI source files so Tailwind can scan them
+    './node_modules/former-ui/dist/**/*.{js,vue}',
+  ],
+  theme: {
+    extend: {
+      // Your theme customizations
+    },
+  },
+  plugins: [],
+};
+```
+
+This way, Tailwind will generate only the classes used by both your app and Former UI.
+
+### Dark Mode Configuration
+
+**Important:** Former UI uses Tailwind's `selector`-based dark mode. If you're using Option 2 (building your own Tailwind CSS), you **must** configure your Tailwind config to use `selector`-based dark mode:
+
+```js
+// tailwind.config.js
+export default {
+  // ... other config
+  darkMode: 'selector', // Required for Former UI dark mode to work correctly
+};
+```
+
+This means dark mode is activated by adding a `dark` class to a parent element (typically `<html>` or a wrapper element), rather than using the system preference. If you're using Option 1 (importing the pre-built CSS), the dark mode classes are already included, but you still need to ensure your app's Tailwind config uses `darkMode: 'selector'` if you're also generating your own Tailwind CSS.
+
 ## Usage
 
 Just configure your form layout, define the components and let former do the rest.
