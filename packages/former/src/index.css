@@ -1,3 +1,4 @@
-@tailwind base;
+/* Only include components and utilities, not base reset styles */
+/* Consuming apps should include their own Tailwind base reset */
 @tailwind components;
 @tailwind utilities;
