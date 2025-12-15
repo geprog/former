@@ -2,14 +2,14 @@
 
 Former is a headless library for building and handling forms for Vue using an UI. The available components must be configured externally so that it is highly customizable per use case.
 
-It includes further headless features like
+It includes further headless features like:
 
 - conditional showing elements
 - validation
 
 ## Playground
 
-Create and test your own form at [playground](https://geprog.github.io/former).
+Create and test your own form at the [playground](https://geprog.github.io/former).
 
 ## Installation
 
