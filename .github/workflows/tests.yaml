@@ -10,13 +10,12 @@ jobs:
     name: Lint
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
         with:
-          node-version: 22
+          node-version-file: package.json
       - uses: pnpm/action-setup@v4
         with:
-          version: 9
           run_install: true
       - run: pnpm lint
 
@@ -24,13 +23,12 @@ jobs:
     name: Typecheck
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
         with:
-          node-version: 22
+          node-version-file: package.json
       - uses: pnpm/action-setup@v4
         with:
-          version: 9
           run_install: true
       - run: pnpm build
       - run: pnpm typecheck
@@ -39,12 +37,11 @@ jobs:
     name: Unit Tests
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
         with:
-          node-version: 22
+          node-version-file: package.json
       - uses: pnpm/action-setup@v4
         with:
-          version: 9
           run_install: true
       - run: pnpm test
