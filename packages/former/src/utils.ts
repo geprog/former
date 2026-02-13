@@ -238,7 +238,7 @@ export function unsetDataOfNode(node: InternalSchemaNode, data: FormData | Field
     return;
   }
   if (node.name) {
-    data[node.name] = undefined;
+    delete data[node.name];
   }
   else if (isNodeLayoutComponent(node, components) && node.children) {
     let children = node.children;
