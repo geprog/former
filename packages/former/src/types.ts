@@ -35,6 +35,7 @@ export type FormFieldType = {
   label: string;
   propsSchema: SchemaNode[];
   component: FormFieldComponent | Raw<FormFieldComponent>;
+  internal?: boolean;
 };
 
 export type FormComponents = { [key: string]: FormFieldType };
