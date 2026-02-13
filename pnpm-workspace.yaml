@@ -5,3 +5,6 @@ strictPeerDependencies: true
 packages:
   - 'packages/*'
   - playground
+minimumReleaseAgeExclude:
+  # Renovate security update: lodash@4.17.23
+  - lodash@4.17.23
