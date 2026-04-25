@@ -1,3 +1,4 @@
+/// <reference types="vitest/config" />
 import { resolve } from 'node:path';
 import { fileURLToPath, URL } from 'node:url';
 import vue from '@vitejs/plugin-vue';
@@ -42,5 +43,12 @@ export default defineConfig({
   },
   server: {
     allowedHosts: ['.gitpod.io'],
+  },
+  test: {
+    coverage: {
+      provider: 'v8',
+      reporter: ['text', 'html', 'lcov'],
+      include: ['src/**/*'],
+    },
   },
 });
