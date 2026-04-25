@@ -45,6 +45,7 @@ export default defineConfig({
     allowedHosts: ['.gitpod.io'],
   },
   test: {
+    environment: 'happy-dom',
     coverage: {
       provider: 'v8',
       reporter: ['text', 'html', 'lcov'],
