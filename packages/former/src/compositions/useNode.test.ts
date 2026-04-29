@@ -1,7 +1,7 @@
 import type { FormComponents, FormData, InternalSchemaNode, Validator } from '~/types';
 import { mount } from '@vue/test-utils';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { defineComponent, h, inject, nextTick, provide, ref, type Ref, type UnwrapRef } from 'vue';
+import { defineComponent, h, inject, nextTick, provide, ref, type Ref } from 'vue';
 import useNode from './useNode';
 
 const StubLayout = defineComponent({ name: 'StubLayout', template: '<div class="stub-layout" />' });
