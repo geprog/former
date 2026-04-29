@@ -182,6 +182,7 @@ function onDrop(e: DragEvent) {
   const eventFormId = getFormIdFromEvent(e);
   if (mode.value !== 'build' || formId.value !== eventFormId) {
     // do not handle any drag if not in builder mode
+    isDropping.value = false;
     return;
   }
   e.preventDefault();
@@ -196,6 +197,7 @@ function onDrop(e: DragEvent) {
 
   const details = getDropDetails(e);
   if (!details || !details.newPosition) {
+    isDropping.value = false;
     return;
   }
 
@@ -242,11 +244,13 @@ function onDrop(e: DragEvent) {
 
     const node = getNode(schema.value, nodeId);
     if (!node) {
+      isDropping.value = false;
       return;
     }
 
     const currentPosition = nodePosition(schema.value, nodeId, 'above');
     if (!currentPosition) {
+      isDropping.value = false;
       return;
     }
 
@@ -268,7 +272,10 @@ function onDrop(e: DragEvent) {
       lastDroppedNodeId.value = null;
       isDropping.value = false;
     }, 300);
+    return;
   }
+
+  isDropping.value = false;
 }
 
 onMounted(() => {
