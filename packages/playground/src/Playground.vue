@@ -60,20 +60,19 @@
                 &#128465;
               </Button>
             </template>
-            <template #node-actions="{ node, addNode }">
-              <details class="text-sm">
-                <summary class="cursor-pointer select-none opacity-80">
-                  More
-                </summary>
-                <div class="flex flex-col gap-1 mt-2">
-                  <Button
-                    type="button"
-                    @click="addNode(node)"
-                  >
-                    Add below
-                  </Button>
-                </div>
-              </details>
+            <template #node-actions="{ node, addNode, removeNode }">
+              <Button
+                type="button"
+                @click="addNode(node)"
+              >
+                Clone
+              </Button>
+              <Button
+                type="button"
+                @click="removeNode()"
+              >
+                Custom remove
+              </Button>
             </template>
             <template #nothing-selected>
               Click on an element for being able to adjust the props
