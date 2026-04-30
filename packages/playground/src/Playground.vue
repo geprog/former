@@ -60,6 +60,20 @@
                 &#128465;
               </Button>
             </template>
+            <template #node-actions="{ node, addNode, removeNode }">
+              <Button
+                type="button"
+                @click="addNode(node)"
+              >
+                Clone
+              </Button>
+              <Button
+                type="button"
+                @click="removeNode()"
+              >
+                Custom remove
+              </Button>
+            </template>
             <template #nothing-selected>
               Click on an element for being able to adjust the props
             </template>

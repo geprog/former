@@ -79,7 +79,7 @@ function mountFormNodeProps(options?: {
       provide('selectedNode', selectedNode);
       return () => {
         const childSlots: Record<string, () => unknown> = {};
-        for (const key of ['nothing-selected', 'delete-button', 'unselect-button'] as const) {
+        for (const key of ['nothing-selected', 'delete-button', 'unselect-button', 'node-actions'] as const) {
           if (slots[key]) {
             childSlots[key] = () => slots[key]?.();
           }
@@ -285,6 +285,51 @@ describe('component FormNodeProps', () => {
       deleteNodeSpy.mockClear();
       await wrapper.find('[data-slot-unselect]').trigger('click');
       expect(deleteNodeSpy).not.toHaveBeenCalled();
+      expect(selectedNode.value).toBeUndefined();
+    });
+
+    it('exposes node-actions slot with node (SchemaNode), addNode, and removeNode', async () => {
+      const selectedNode = ref<InternalSchemaNode | undefined>(createNode());
+      const schema = ref<InternalSchemaNode[]>([createNode()]);
+      const Parent = defineComponent({
+        setup() {
+          provide('components', minimalComponents());
+          provide('schema', schema);
+          provide('validator', () => true as const);
+          provide('selectedNode', selectedNode);
+          return () =>
+            h(FormNodeProps, null, {
+              'node-actions': (props: {
+                node: { type: string };
+                addNode: (n: { type: string; name?: string }) => void;
+                removeNode: () => void;
+              }) =>
+                h('div', [
+                  h('span', { 'data-node-type': '' }, props.node.type),
+                  h(
+                    'button',
+                    {
+                      'type': 'button',
+                      'onClick': () => props.addNode({ type: 'number', name: 'added' }),
+                      'data-slot-node-actions-add': '',
+                    },
+                    'add',
+                  ),
+                  h('button', { 'type': 'button', 'onClick': props.removeNode, 'data-slot-node-actions-remove': '' }, 'rm'),
+                ]),
+            });
+        },
+      });
+      const wrapper = mount(Parent, { attachTo: document.body });
+      mountedWrappers.push(wrapper);
+      expect(wrapper.find('[data-node-type]').text()).toBe('text');
+      deleteNodeSpy.mockClear();
+      await wrapper.find('[data-slot-node-actions-add]').trigger('click');
+      expect(schema.value.length).toBe(2);
+      expect(selectedNode.value?.type).toBe('number');
+      deleteNodeSpy.mockClear();
+      await wrapper.find('[data-slot-node-actions-remove]').trigger('click');
+      expect(deleteNodeSpy).toHaveBeenCalledWith(schema.value, expect.any(String));
       expect(selectedNode.value).toBeUndefined();
     });
   });

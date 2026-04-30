@@ -1,11 +1,19 @@
 <template>
   <div v-if="selectedNode" class="flex flex-col gap-4 w-full">
     <div class="flex gap-2 w-full justify-between border-b-2 dark:border-zinc-400 pb-2">
-      <slot name="delete-button" :delete="deleteComponent">
-        <button @click="deleteComponent">
-          &#128465;
-        </button>
-      </slot>
+      <div class="flex gap-2 items-center shrink-0">
+        <slot name="delete-button" :delete="deleteComponent">
+          <button @click="deleteComponent">
+            &#128465;
+          </button>
+        </slot>
+        <slot
+          name="node-actions"
+          :node="toSchemaNode(selectedNode)"
+          :add-node="addNode"
+          :remove-node="removeNode"
+        />
+      </div>
       <div class="flex flex-col overflow-hidden items-center">
         <div>{{ selectedNodeType?.label || 'Element' }}:</div>
         <div v-if="selectedNode.name" class="font-bold overflow-hidden whitespace-nowrap text-ellipsis w-full">
@@ -33,10 +41,10 @@
 </template>
 
 <script setup lang="ts">
-import type { InternalSchemaNode } from '~/types';
+import type { InternalSchemaNode, SchemaNode } from '~/types';
 import { computed, ref, watch } from 'vue';
 import { inject } from '~/compositions/injectProvide';
-import { deleteNode, replaceNode, toInternalSchema } from '~/utils';
+import { deleteNode, addNode as insertNodeAt, nodePosition, replaceNode, toInternalSchema, toInternalSchemaNode, toSchemaNode } from '~/utils';
 import Former from './Former.vue';
 
 defineEmits<{
@@ -91,6 +99,24 @@ const data = computed({
     selectedNode.value = updatedNode;
   },
 });
+
+function addNode(newNode: SchemaNode) {
+  const current = selectedNode.value;
+  if (!current) {
+    return;
+  }
+  const internal = toInternalSchemaNode(newNode);
+  const position = nodePosition(schema.value, current._id, 'below');
+  if (!position) {
+    return;
+  }
+  insertNodeAt(schema.value, position, internal);
+  selectedNode.value = internal;
+}
+
+function removeNode() {
+  deleteComponent();
+}
 
 function unselectComponent() {
   selectedNode.value = undefined;

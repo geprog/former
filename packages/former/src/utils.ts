@@ -56,8 +56,12 @@ function addIdToNode(_node: InternalSchemaNode | SchemaNode): InternalSchemaNode
   return node;
 }
 
+export function toInternalSchemaNode(node: SchemaNode): InternalSchemaNode {
+  return addIdToNode(node);
+}
+
 export function toInternalSchema(schema: SchemaNode[]): InternalSchemaNode[] {
-  return schema.map(addIdToNode);
+  return schema.map(toInternalSchemaNode);
 }
 
 function removeIdFromNode(_node: InternalSchemaNode | SchemaNode): SchemaNode {
@@ -80,8 +84,12 @@ function removeIdFromNode(_node: InternalSchemaNode | SchemaNode): SchemaNode {
   return node;
 }
 
+export function toSchemaNode(node: InternalSchemaNode): SchemaNode {
+  return removeIdFromNode(node);
+}
+
 export function toSchema(schema: InternalSchemaNode[]): SchemaNode[] {
-  return schema.map(removeIdFromNode);
+  return schema.map(toSchemaNode);
 }
 
 export function replaceNode(schema: InternalSchemaNode[], node: InternalSchemaNode): void {
