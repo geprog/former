@@ -540,6 +540,15 @@ describe('unsetDataOfNode', () => {
     unsetDataOfNode(layout, data, components);
     expect(data).toStrictEqual({ keep: 1 });
   });
+
+  it('ignores layout components without children', () => {
+    const data: FormData = { keep: 1, leaf: 2 };
+    const layout = node('L', {
+      type: 'bare',
+    });
+    unsetDataOfNode(layout, data, components);
+    expect(data).toStrictEqual({ keep: 1, leaf: 2 });
+  });
 });
 
 describe('nanoid and generateFormId', () => {
