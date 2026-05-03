@@ -102,6 +102,44 @@ describe('schema iterator', () => {
     expect([...iter]).toStrictEqual([schemaNode, ...schemaNode.children.category1, ...schemaNode.children.category2]);
   });
 
+  it('should handle node with children at end', () => {
+    // given
+    const simpleNode = { _id: 'a', type: 'text' };
+    const schemaNode = {
+      _id: 'a',
+      type: 'text',
+      children: [
+        { _id: 'b', type: 'text' },
+        { _id: 'c', type: 'text' },
+      ],
+    };
+
+    // when
+    const iter = schemaIterator([simpleNode, schemaNode]);
+
+    // then
+    expect([...iter]).toStrictEqual([simpleNode, schemaNode, ...schemaNode.children]);
+  });
+
+  it('should handle node with children at start', () => {
+    // given
+    const simpleNode = { _id: 'a', type: 'text' };
+    const schemaNode = {
+      _id: 'a',
+      type: 'text',
+      children: [
+        { _id: 'b', type: 'text' },
+        { _id: 'c', type: 'text' },
+      ],
+    };
+
+    // when
+    const iter = schemaIterator([schemaNode, simpleNode]);
+
+    // then
+    expect([...iter]).toStrictEqual([schemaNode, ...schemaNode.children, simpleNode]);
+  });
+
   it('should handle complex schema', () => {
     // given
     const schemaNodeWithFlatChildren = {
