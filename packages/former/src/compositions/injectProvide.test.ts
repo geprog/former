@@ -39,7 +39,7 @@ describe('injectProvide', () => {
         },
       });
 
-      expect(() => mount(Child)).toThrowError('Please provide a value for data');
+      expect(() => mount(Child)).toThrow('Please provide a value for data');
     });
 
     it('returns undefined when the value is undefined and failIfNotProvided is false', () => {

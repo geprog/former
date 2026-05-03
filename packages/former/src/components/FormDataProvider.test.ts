@@ -99,7 +99,7 @@ describe('component FormDataProvider', () => {
         props: { data: {} },
         attachTo: document.body,
       }),
-    ).toThrowError('Please provide a value for validityMap');
+    ).toThrow('Please provide a value for validityMap');
   });
 
   it('provides reactive data from the data prop to descendants', async () => {
