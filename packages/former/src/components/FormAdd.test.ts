@@ -1,16 +1,11 @@
 import type { FormComponents, Mode } from '~/types';
 import { mount } from '@vue/test-utils';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { defineComponent, h, nextTick, provide, ref, type Ref, unref } from 'vue';
+import { defineComponent, h, nextTick, ref, unref } from 'vue';
 import { inject } from '~/compositions/injectProvide';
+import * as utils from '~/utils';
 
 import FormAdd from './FormAdd.vue';
-
-const mockSetDragEventData = vi.fn();
-
-vi.mock('~/utils', () => ({
-  setDragEventData: (...args: unknown[]) => mockSetDragEventData(...args),
-}));
 
 const FieldStub = defineComponent({
   name: 'FieldStub',
@@ -29,6 +24,27 @@ const FieldStub = defineComponent({
   `,
 });
 
+const InternalStub = defineComponent({ name: 'InternalStub', template: '<div data-internal-never />' });
+
+const ADD_COMPONENTS: FormComponents = {
+  text: {
+    label: 'Text field',
+    propsSchema: [],
+    component: FieldStub,
+  },
+  number: {
+    label: 'Number field',
+    propsSchema: [],
+    component: FieldStub,
+  },
+  hiddenInternal: {
+    label: 'Should not list',
+    propsSchema: [],
+    component: InternalStub,
+    internal: true,
+  },
+};
+
 const SlotInjectProbe = defineComponent({
   name: 'SlotInjectProbe',
   setup() {
@@ -42,87 +58,68 @@ const SlotInjectProbe = defineComponent({
   },
 });
 
-const mountedWrappers: Array<ReturnType<typeof mount>> = [];
-
-function fixtureComponents(): FormComponents {
-  const InternalStub = defineComponent({ name: 'InternalStub', template: '<div data-internal-never />' });
-  return {
-    text: {
-      label: 'Text field',
-      propsSchema: [],
-      component: FieldStub,
-    },
-    number: {
-      label: 'Number field',
-      propsSchema: [],
-      component: FieldStub,
-    },
-    hiddenInternal: {
-      label: 'Should not list',
-      propsSchema: [],
-      component: InternalStub,
-      internal: true,
-    },
-  };
-}
-
-function mountFormAdd(options?: {
-  mode?: Ref<Mode>;
-  formId?: Ref<string>;
-  components?: FormComponents;
-  withSlotProbe?: boolean;
-}) {
-  const mode = options?.mode ?? ref<Mode>('build');
-  const formId = options?.formId ?? ref('form-1');
-  const components = options?.components ?? fixtureComponents();
-
-  const Parent = defineComponent({
-    setup() {
-      provide('components', components);
-      provide('mode', mode);
-      provide('formId', formId);
-      return () =>
-        h(FormAdd, null, {
-          default: () => (options?.withSlotProbe ? h(SlotInjectProbe) : undefined),
-        });
-    },
-  });
-
-  const wrapper = mount(Parent, { attachTo: document.body });
-  mountedWrappers.push(wrapper);
-  return { wrapper, mode, formId, components };
-}
-
 describe('component FormAdd', () => {
+  let setDragEventDataSpy: ReturnType<typeof vi.spyOn>;
+
   beforeEach(() => {
     vi.clearAllMocks();
+    setDragEventDataSpy = vi.spyOn(utils, 'setDragEventData').mockImplementation(() => {});
   });
 
   afterEach(() => {
-    for (const w of mountedWrappers.splice(0)) {
-      w.unmount();
-    }
+    vi.restoreAllMocks();
   });
 
   describe('visibility', () => {
     it('shows palette in build mode', () => {
-      const { wrapper } = mountFormAdd({ mode: ref<Mode>('build') });
+      const mode = ref<Mode>('build');
+      const formId = ref('form-1');
+      const components = ADD_COMPONENTS;
+      const wrapper = mount(FormAdd, {
+        attachTo: document.body,
+        global: {
+          provide: { components, mode, formId },
+        },
+      });
       expect(wrapper.text()).not.toBe('');
     });
 
     it('hides palette in read mode', () => {
-      const { wrapper } = mountFormAdd({ mode: ref<Mode>('read') });
+      const mode = ref<Mode>('read');
+      const formId = ref('form-1');
+      const components = ADD_COMPONENTS;
+      const wrapper = mount(FormAdd, {
+        attachTo: document.body,
+        global: {
+          provide: { components, mode, formId },
+        },
+      });
       expect(wrapper.text()).toBe('');
     });
 
     it('hides palette in edit mode', () => {
-      const { wrapper } = mountFormAdd({ mode: ref<Mode>('edit') });
+      const mode = ref<Mode>('edit');
+      const formId = ref('form-1');
+      const components = ADD_COMPONENTS;
+      const wrapper = mount(FormAdd, {
+        attachTo: document.body,
+        global: {
+          provide: { components, mode, formId },
+        },
+      });
       expect(wrapper.text()).toBe('');
     });
 
     it('hides palette when mode changes away from build', async () => {
       const mode = ref<Mode>('build');
-      const { wrapper } = mountFormAdd({ mode });
+      const formId = ref('form-1');
+      const components = ADD_COMPONENTS;
+      const wrapper = mount(FormAdd, {
+        attachTo: document.body,
+        global: {
+          provide: { components, mode, formId },
+        },
+      });
       expect(wrapper.find('.drag-handle').exists()).toBe(true);
       mode.value = 'edit';
       await nextTick();
@@ -132,19 +129,43 @@ describe('component FormAdd', () => {
 
   describe('catalog and previews', () => {
     it('omits internal component types', () => {
-      const { wrapper } = mountFormAdd();
+      const mode = ref<Mode>('build');
+      const formId = ref('form-1');
+      const components = ADD_COMPONENTS;
+      const wrapper = mount(FormAdd, {
+        attachTo: document.body,
+        global: {
+          provide: { components, mode, formId },
+        },
+      });
       expect(wrapper.text()).not.toContain('Should not list');
       expect(wrapper.find('[data-internal-never]').exists()).toBe(false);
     });
 
     it('renders labels for each public type', () => {
-      const { wrapper } = mountFormAdd();
+      const mode = ref<Mode>('build');
+      const formId = ref('form-1');
+      const components = ADD_COMPONENTS;
+      const wrapper = mount(FormAdd, {
+        attachTo: document.body,
+        global: {
+          provide: { components, mode, formId },
+        },
+      });
       expect(wrapper.text()).toContain('Text field');
       expect(wrapper.text()).toContain('Number field');
     });
 
     it('passes id, mode, and undefined modelValue to each preview field', () => {
-      const { wrapper } = mountFormAdd();
+      const mode = ref<Mode>('build');
+      const formId = ref('form-1');
+      const components = ADD_COMPONENTS;
+      const wrapper = mount(FormAdd, {
+        attachTo: document.body,
+        global: {
+          provide: { components, mode, formId },
+        },
+      });
       const stubs = wrapper.findAll('[data-field-stub]');
       expect(stubs).toHaveLength(2);
       expect(stubs[0]!.find('[data-field-id]').text()).toBe('text');
@@ -156,51 +177,99 @@ describe('component FormAdd', () => {
     });
 
     it('renders default slot inside each preview field', () => {
-      const { wrapper } = mountFormAdd({ withSlotProbe: true });
+      const mode = ref<Mode>('build');
+      const formId = ref('form-1');
+      const components = ADD_COMPONENTS;
+      const wrapper = mount(FormAdd, {
+        attachTo: document.body,
+        global: {
+          provide: { components, mode, formId },
+        },
+        slots: { default: () => h(SlotInjectProbe) },
+      });
       const probes = wrapper.findAll('[data-inject-data]');
       expect(probes).toHaveLength(2);
     });
 
     it('provides empty data and schema to preview descendants', () => {
-      const { wrapper } = mountFormAdd({ withSlotProbe: true });
+      const mode = ref<Mode>('build');
+      const formId = ref('form-1');
+      const components = ADD_COMPONENTS;
+      const wrapper = mount(FormAdd, {
+        attachTo: document.body,
+        global: {
+          provide: { components, mode, formId },
+        },
+        slots: { default: () => h(SlotInjectProbe) },
+      });
       const first = wrapper.find('[data-inject-data]');
       expect(first.attributes('data-inject-data')).toBe('{}');
       expect(first.attributes('data-inject-schema')).toBe('[]');
     });
 
     it('sets draggable on each palette row', () => {
-      const { wrapper } = mountFormAdd();
-      const draggables = wrapper.findAll('[draggable="true"]');
-      expect(draggables).toHaveLength(2);
+      const mode = ref<Mode>('build');
+      const formId = ref('form-1');
+      const components = ADD_COMPONENTS;
+      const wrapper = mount(FormAdd, {
+        attachTo: document.body,
+        global: {
+          provide: { components, mode, formId },
+        },
+      });
+      expect(wrapper.findAll('[draggable="true"]')).toHaveLength(2);
     });
   });
 
   describe('drag behavior', () => {
     it('does not call setDragEventData until dragstart', () => {
-      mountFormAdd();
-      expect(mockSetDragEventData).not.toHaveBeenCalled();
+      const mode = ref<Mode>('build');
+      const formId = ref('form-1');
+      const components = ADD_COMPONENTS;
+      mount(FormAdd, {
+        attachTo: document.body,
+        global: {
+          provide: { components, mode, formId },
+        },
+      });
+      expect(setDragEventDataSpy).not.toHaveBeenCalled();
     });
 
     it('calls setDragEventData with formId, new_node_type, and registry key on dragstart', async () => {
-      const { wrapper } = mountFormAdd({ formId: ref('my-form') });
+      const mode = ref<Mode>('build');
+      const formId = ref('my-form');
+      const components = ADD_COMPONENTS;
+      const wrapper = mount(FormAdd, {
+        attachTo: document.body,
+        global: {
+          provide: { components, mode, formId },
+        },
+      });
       const rows = wrapper.findAll('[draggable="true"]');
       await rows[0]!.trigger('dragstart');
-      expect(mockSetDragEventData).toHaveBeenCalledTimes(1);
-      expect(mockSetDragEventData).toHaveBeenCalledWith(expect.anything(), 'my-form', 'new_node_type', 'text');
-      mockSetDragEventData.mockClear();
+      expect(setDragEventDataSpy).toHaveBeenCalledTimes(1);
+      expect(setDragEventDataSpy).toHaveBeenCalledWith(expect.anything(), 'my-form', 'new_node_type', 'text');
+      setDragEventDataSpy.mockClear();
       await rows[1]!.trigger('dragstart');
-      expect(mockSetDragEventData).toHaveBeenCalledWith(expect.anything(), 'my-form', 'new_node_type', 'number');
+      expect(setDragEventDataSpy).toHaveBeenCalledWith(expect.anything(), 'my-form', 'new_node_type', 'number');
     });
 
     it('uses current formId ref value when dragstart fires', async () => {
+      const mode = ref<Mode>('build');
       const formId = ref('form-a');
-      const { wrapper } = mountFormAdd({ formId });
+      const components = ADD_COMPONENTS;
+      const wrapper = mount(FormAdd, {
+        attachTo: document.body,
+        global: {
+          provide: { components, mode, formId },
+        },
+      });
       await wrapper.find('[draggable="true"]').trigger('dragstart');
-      expect(mockSetDragEventData).toHaveBeenCalledWith(expect.anything(), 'form-a', 'new_node_type', 'text');
-      mockSetDragEventData.mockClear();
+      expect(setDragEventDataSpy).toHaveBeenCalledWith(expect.anything(), 'form-a', 'new_node_type', 'text');
+      setDragEventDataSpy.mockClear();
       formId.value = 'form-b';
       await wrapper.find('[draggable="true"]').trigger('dragstart');
-      expect(mockSetDragEventData).toHaveBeenCalledWith(expect.anything(), 'form-b', 'new_node_type', 'text');
+      expect(setDragEventDataSpy).toHaveBeenCalledWith(expect.anything(), 'form-b', 'new_node_type', 'text');
     });
   });
 });
