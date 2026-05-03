@@ -1,6 +1,6 @@
-import type { InternalSchemaNode, Mode, Texts } from '~/types';
+import type { Mode, Texts } from '~/types';
 import { mount } from '@vue/test-utils';
-import { afterEach, describe, expect, it } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import { h, nextTick, ref } from 'vue';
 
 import FormDragContainer from './FormDragContainer.vue';

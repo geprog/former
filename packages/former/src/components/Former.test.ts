@@ -1,7 +1,7 @@
 import type { FieldData, FormComponents, FormData, InternalSchemaNode, InternalShowIfPredicate, Mode, SchemaNode, ShowIfPredicate, Texts, Validator } from '~/types';
 import { mount } from '@vue/test-utils';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { defineComponent, h, nextTick, onBeforeUnmount, ref } from 'vue';
+import { defineComponent, h, nextTick, onBeforeUnmount } from 'vue';
 import { inject as formerInject } from '~/compositions/injectProvide';
 import { toInternalSchema } from '~/utils';
 

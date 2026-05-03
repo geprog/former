@@ -1,7 +1,7 @@
 import type { InternalSchemaNode } from '~/types';
 import { mount } from '@vue/test-utils';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { nextTick, ref, type Ref } from 'vue';
+import { nextTick, ref } from 'vue';
 import * as utils from '~/utils';
 
 import FormContent from './FormContent.vue';
