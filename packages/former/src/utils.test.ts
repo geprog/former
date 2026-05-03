@@ -465,6 +465,23 @@ describe('addNode', () => {
     const targetChildren = target.children as { default: InternalSchemaNode[] };
     expect(targetChildren.default.map(n => n._id)).toStrictEqual(['inserted', 'existing']);
   });
+
+  it('ignores flat nodes when recursing to nested parents', () => {
+    const schema = cloneDeep([
+      node('simple'),
+      node('outer', {
+        children: [node('inner', { children: [node('leaf')] })],
+      }),
+    ]);
+    addNode(
+      schema,
+      { parentId: 'inner', category: null, index: 1 },
+      node('buddy'),
+    );
+    const inner = (schema[1]!.children as InternalSchemaNode[])[0]!;
+    const innerChildren = inner.children as { default: InternalSchemaNode[] };
+    expect(innerChildren.default.map(n => n._id)).toStrictEqual(['leaf', 'buddy']);
+  });
 });
 
 describe('isNodeLayoutComponent', () => {
