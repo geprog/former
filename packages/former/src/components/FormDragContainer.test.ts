@@ -5,15 +5,6 @@ import { h, nextTick, ref } from 'vue';
 
 import FormDragContainer from './FormDragContainer.vue';
 
-function createNode(overrides: Partial<InternalSchemaNode> = {}): InternalSchemaNode {
-  return {
-    _id: 'parent-node-1',
-    type: 'group',
-    name: 'g',
-    ...overrides,
-  };
-}
-
 describe('component FormDragContainer', () => {
   it('throws when mode is not provided by an ancestor', () => {
     expect(() =>
@@ -87,7 +78,7 @@ describe('component FormDragContainer', () => {
   it('binds data-drag-hint, data-category, and data-parent-node', () => {
     const mode = ref<Mode>('build');
     const texts = ref<Texts>({ dragHint: 'Custom drop hint' });
-    const node = ref(createNode({ _id: 'schema-root' }));
+    const node = ref({ _id: 'schema-root', type: 'group', name: 'g' });
     const wrapper = mount(FormDragContainer, {
       attachTo: document.body,
       props: { category: 'fields' },
