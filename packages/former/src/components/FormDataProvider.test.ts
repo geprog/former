@@ -1,33 +1,14 @@
 import type { FormData } from '~/types';
 import { mount } from '@vue/test-utils';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { defineComponent, h, nextTick, provide, ref, type Ref, unref } from 'vue';
+import { defineComponent, h, nextTick, ref, type Ref, unref } from 'vue';
 import { inject } from '~/compositions/injectProvide';
+import * as utils from '~/utils';
 
 import FormDataProvider from './FormDataProvider.vue';
 
 const OUTER_ID = 'outer-fdp-id';
 const INNER_ID = 'inner-fdp-id';
-
-const { nanoidMock } = vi.hoisted(() => ({
-  nanoidMock: vi.fn(),
-}));
-
-vi.mock('~/utils', async (importOriginal) => {
-  const actual = await importOriginal<typeof import('~/utils')>();
-  return { ...actual, nanoid: nanoidMock };
-});
-
-const DataInjectProbe = defineComponent({
-  name: 'DataInjectProbe',
-  setup() {
-    const data = inject('data');
-    return () =>
-      h('span', {
-        'data-inject-data': JSON.stringify(unref(data)),
-      });
-  },
-});
 
 const ValidityChildSetter = defineComponent({
   name: 'ValidityChildSetter',
@@ -48,49 +29,16 @@ const ValidityChildSetter = defineComponent({
   },
 });
 
-const mountedWrappers: Array<ReturnType<typeof mount>> = [];
-
-function mountFormDataProvider(options?: {
-  formData?: Ref<FormData>;
-  defaultSlot?: () => ReturnType<typeof h>;
-}) {
-  const rootValidityMap = ref<Record<string, boolean | undefined>>({});
-  const formData = options?.formData ?? ref<FormData>({ item: 1 });
-  const slot = options?.defaultSlot;
-
-  const Parent = defineComponent({
-    setup() {
-      provide('validityMap', rootValidityMap);
-      return () =>
-        h(FormDataProvider, { data: formData.value }, {
-          default: slot ?? (() => h(DataInjectProbe)),
-        });
-    },
-  });
-
-  const wrapper = mount(Parent, { attachTo: document.body });
-  mountedWrappers.push(wrapper);
-  return { wrapper, rootValidityMap, formData };
-}
-
-function detachWrapper(wrapper: ReturnType<typeof mount>) {
-  const i = mountedWrappers.indexOf(wrapper);
-  if (i !== -1) {
-    mountedWrappers.splice(i, 1);
-  }
-}
-
 describe('component FormDataProvider', () => {
+  let nanoidSpy: ReturnType<typeof vi.spyOn>;
+
   beforeEach(() => {
     vi.clearAllMocks();
-    nanoidMock.mockReset();
-    nanoidMock.mockReturnValue(OUTER_ID);
+    nanoidSpy = vi.spyOn(utils, 'nanoid').mockReturnValue(OUTER_ID);
   });
 
   afterEach(() => {
-    for (const w of mountedWrappers.splice(0)) {
-      w.unmount();
-    }
+    vi.restoreAllMocks();
   });
 
   it('throws when validityMap is not provided by an ancestor', () => {
@@ -103,10 +51,30 @@ describe('component FormDataProvider', () => {
   });
 
   it('provides reactive data from the data prop to descendants', async () => {
+    const rootValidityMap = ref<Record<string, boolean | undefined>>({});
     const formData = ref<FormData>({ a: 1 });
-    const { wrapper } = mountFormDataProvider({ formData });
+    const DataInjectProbe = defineComponent({
+      name: 'DataInjectProbe',
+      setup() {
+        const data = inject('data');
+        return () =>
+          h('span', {
+            'data-inject-data': JSON.stringify(unref(data)),
+          });
+      },
+    });
+
+    const wrapper = mount(FormDataProvider, {
+      attachTo: document.body,
+      props: { data: formData.value },
+      global: {
+        provide: { validityMap: rootValidityMap },
+      },
+      slots: { default: () => h(DataInjectProbe) },
+    });
     expect(wrapper.find('[data-inject-data]').attributes('data-inject-data')).toBe(JSON.stringify({ a: 1 }));
     formData.value = { a: 2, b: 'x' };
+    await wrapper.setProps({ data: formData.value });
     await nextTick();
     expect(wrapper.find('[data-inject-data]').attributes('data-inject-data')).toBe(JSON.stringify({ a: 2, b: 'x' }));
   });
@@ -119,8 +87,15 @@ describe('component FormDataProvider', () => {
         return () => h('span', { 'data-map-probe': '1' });
       },
     });
-    const { wrapper, rootValidityMap } = mountFormDataProvider({
-      defaultSlot: () => h(MapRefProbe),
+    const rootValidityMap = ref<Record<string, boolean | undefined>>({});
+    const formData = ref<FormData>({ item: 1 });
+    const wrapper = mount(FormDataProvider, {
+      attachTo: document.body,
+      props: { data: formData.value },
+      global: {
+        provide: { validityMap: rootValidityMap },
+      },
+      slots: { default: () => h(MapRefProbe) },
     });
     expect(wrapper.find('[data-map-probe]').exists()).toBe(true);
     expect(slotInjected).toBeDefined();
@@ -128,8 +103,15 @@ describe('component FormDataProvider', () => {
   });
 
   it('writes aggregated validity to the root map on mount and when children map changes', async () => {
-    const { wrapper, rootValidityMap } = mountFormDataProvider({
-      defaultSlot: () => h(ValidityChildSetter),
+    const rootValidityMap = ref<Record<string, boolean | undefined>>({});
+    const formData = ref<FormData>({ item: 1 });
+    const wrapper = mount(FormDataProvider, {
+      attachTo: document.body,
+      props: { data: formData.value },
+      global: {
+        provide: { validityMap: rootValidityMap },
+      },
+      slots: { default: () => h(ValidityChildSetter) },
     });
     expect(rootValidityMap.value[OUTER_ID]).toBe(true);
     await wrapper.find('[data-set-invalid]').trigger('click');
@@ -141,19 +123,25 @@ describe('component FormDataProvider', () => {
   });
 
   it('removes its id from the root validityMap on unmount', () => {
-    const { wrapper, rootValidityMap } = mountFormDataProvider({
-      defaultSlot: () => h(ValidityChildSetter),
+    const rootValidityMap = ref<Record<string, boolean | undefined>>({});
+    const formData = ref<FormData>({ item: 1 });
+    const wrapper = mount(FormDataProvider, {
+      attachTo: document.body,
+      props: { data: formData.value },
+      global: {
+        provide: { validityMap: rootValidityMap },
+      },
+      slots: { default: () => h(ValidityChildSetter) },
     });
     expect(rootValidityMap.value[OUTER_ID]).toBe(true);
-    detachWrapper(wrapper);
     wrapper.unmount();
     expect(rootValidityMap.value[OUTER_ID]).toBeUndefined();
   });
 
   describe('nested FormDataProvider', () => {
     beforeEach(() => {
-      nanoidMock.mockReset();
-      nanoidMock.mockReturnValueOnce(OUTER_ID).mockReturnValueOnce(INNER_ID);
+      nanoidSpy.mockReset();
+      nanoidSpy.mockReturnValueOnce(OUTER_ID).mockReturnValueOnce(INNER_ID);
     });
 
     it('chains inject/provide and propagates inner invalidity to the root map', async () => {
@@ -188,24 +176,22 @@ describe('component FormDataProvider', () => {
       const outerData = ref<FormData>({ outer: 1 });
       const innerData = ref<FormData>({ inner: 1 });
 
-      const Parent = defineComponent({
-        setup() {
-          provide('validityMap', rootValidityMap);
-          return () =>
-            h(FormDataProvider, { data: outerData.value }, {
+      const wrapper = mount(FormDataProvider, {
+        attachTo: document.body,
+        props: { data: outerData.value },
+        global: {
+          provide: { validityMap: rootValidityMap },
+        },
+        slots: {
+          default: () =>
+            h(CaptureOuterChildrenMap, {}, {
               default: () =>
-                h(CaptureOuterChildrenMap, {}, {
-                  default: () =>
-                    h(FormDataProvider, { data: innerData.value }, {
-                      default: () => h(InnerValidityProbe),
-                    }),
+                h(FormDataProvider, { data: innerData.value }, {
+                  default: () => h(InnerValidityProbe),
                 }),
-            });
+            }),
         },
       });
-
-      const wrapper = mount(Parent, { attachTo: document.body });
-      mountedWrappers.push(wrapper);
 
       expect(capturedOuterChildrenMap).toBeDefined();
       expect(innerScopedMap).toBeDefined();
@@ -223,7 +209,6 @@ describe('component FormDataProvider', () => {
       expect(rootValidityMap.value[OUTER_ID]).toBe(false);
       expect(rootValidityMap.value[INNER_ID]).toBeUndefined();
 
-      detachWrapper(wrapper);
       wrapper.unmount();
       expect(rootValidityMap.value[OUTER_ID]).toBeUndefined();
       expect(capturedOuterChildrenMap!.value[INNER_ID]).toBeUndefined();
