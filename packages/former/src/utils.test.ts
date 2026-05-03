@@ -421,6 +421,13 @@ describe('addNode', () => {
     expect(children.default.map(n => n._id)).toStrictEqual(['inserted', 'existing']);
   });
 
+  it('creates children object when parent has empty children', () => {
+    const schema = cloneDeep([node('p', { children: { } })]);
+    addNode(schema, { parentId: 'p', category: 'main', index: 0 }, node('child'));
+    const children = schema[0]!.children as { main: InternalSchemaNode[] };
+    expect(children.main.map(n => n._id)).toStrictEqual(['child']);
+  });
+
   it('creates children object when parent has no children', () => {
     const schema = cloneDeep([node('p')]);
     addNode(schema, { parentId: 'p', category: 'main', index: 0 }, node('child'));
