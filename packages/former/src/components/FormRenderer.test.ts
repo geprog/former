@@ -1,19 +1,11 @@
 import type { InternalSchemaNode } from '~/types';
 import { mount } from '@vue/test-utils';
-import { afterEach, describe, expect, it } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import { ref } from 'vue';
 
 import FormDragContainer from './FormDragContainer.vue';
 import FormNode from './FormNode.vue';
 import FormRenderer from './FormRenderer.vue';
-
-const wrappers: Array<ReturnType<typeof mount>> = [];
-
-afterEach(() => {
-  for (const w of wrappers.splice(0)) {
-    w.unmount();
-  }
-});
 
 describe('component FormRenderer', () => {
   it('throws when schema is not provided by an ancestor', () => {
@@ -42,7 +34,6 @@ describe('component FormRenderer', () => {
         provide: { schema },
       },
     });
-    wrappers.push(wrapper);
     const stubs = wrapper.findAllComponents(FormNode);
     expect(stubs).toHaveLength(2);
     expect(stubs[0]!.props('node')).toBe(schema.value[0]);
@@ -59,7 +50,6 @@ describe('component FormRenderer', () => {
         provide: { schema },
       },
     });
-    wrappers.push(wrapper);
     expect(wrapper.findAllComponents(FormNode)).toHaveLength(0);
   });
 
@@ -73,7 +63,6 @@ describe('component FormRenderer', () => {
         provide: { schema },
       },
     });
-    wrappers.push(wrapper);
     expect(wrapper.findAllComponents(FormNode)).toHaveLength(0);
   });
 
@@ -91,7 +80,6 @@ describe('component FormRenderer', () => {
         provide: { schema },
       },
     });
-    wrappers.push(wrapper);
     expect(wrapper.findAllComponents(FormNode)).toHaveLength(0);
   });
 
@@ -109,7 +97,6 @@ describe('component FormRenderer', () => {
         provide: { schema },
       },
     });
-    wrappers.push(wrapper);
     expect(wrapper.findAllComponents(FormNode)).toHaveLength(2);
   });
 
@@ -127,7 +114,6 @@ describe('component FormRenderer', () => {
         provide: { schema },
       },
     });
-    wrappers.push(wrapper);
     const stubs = wrapper.findAllComponents(FormNode);
     expect(stubs).toHaveLength(1);
     expect(stubs[0]!.props('node')).toStrictEqual(categorized.default[0]);
@@ -148,7 +134,6 @@ describe('component FormRenderer', () => {
         provide: { schema },
       },
     });
-    wrappers.push(wrapper);
     const stubs = wrapper.findAllComponents(FormNode);
     expect(stubs).toHaveLength(1);
     expect(stubs[0]!.props('node')).toStrictEqual(categorized.extra[0]);
@@ -166,7 +151,6 @@ describe('component FormRenderer', () => {
         provide: { schema },
       },
     });
-    wrappers.push(wrapper);
     expect(wrapper.findAllComponents(FormNode)).toHaveLength(0);
   });
 
@@ -189,7 +173,6 @@ describe('component FormRenderer', () => {
         provide: { schema: rootSchema, node },
       },
     });
-    wrappers.push(wrapper);
     const stubs = wrapper.findAllComponents(FormNode);
     expect(stubs).toHaveLength(2);
     expect(stubs[0]!.props('node')).toBe(node.value.children[0]);
@@ -207,7 +190,6 @@ describe('component FormRenderer', () => {
         provide: { schema },
       },
     });
-    wrappers.push(wrapper);
     const drag = wrapper.findComponent(FormDragContainer);
     expect(drag.exists()).toBe(true);
     expect(drag.props('category')).toBe('my-cat');
