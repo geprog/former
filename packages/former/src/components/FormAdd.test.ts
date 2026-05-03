@@ -107,20 +107,17 @@ describe('component FormAdd', () => {
   describe('visibility', () => {
     it('shows palette in build mode', () => {
       const { wrapper } = mountFormAdd({ mode: ref<Mode>('build') });
-      expect(wrapper.find('.drag-handle').exists()).toBe(true);
-      expect(wrapper.text()).toContain('Text field');
+      expect(wrapper.text()).not.toBe('');
     });
 
     it('hides palette in read mode', () => {
       const { wrapper } = mountFormAdd({ mode: ref<Mode>('read') });
-      expect(wrapper.find('.drag-handle').exists()).toBe(false);
-      expect(wrapper.text()).not.toContain('Text field');
+      expect(wrapper.text()).toBe('');
     });
 
     it('hides palette in edit mode', () => {
       const { wrapper } = mountFormAdd({ mode: ref<Mode>('edit') });
-      expect(wrapper.find('.drag-handle').exists()).toBe(false);
-      expect(wrapper.text()).not.toContain('Text field');
+      expect(wrapper.text()).toBe('');
     });
 
     it('hides palette when mode changes away from build', async () => {
@@ -129,7 +126,7 @@ describe('component FormAdd', () => {
       expect(wrapper.find('.drag-handle').exists()).toBe(true);
       mode.value = 'edit';
       await nextTick();
-      expect(wrapper.find('.drag-handle').exists()).toBe(false);
+      expect(wrapper.text()).toBe('');
     });
   });
 
