@@ -386,6 +386,16 @@ describe('nodePosition', () => {
   it('returns null when the node id does not exist', () => {
     expect(nodePosition(cloneDeep(linear()), 'x', 'above')).toBeNull();
   });
+
+  it('returns null when the node id does not exist inside nested array children with parent id', () => {
+    const schema = cloneDeep([node('p', { children: [node('c')] })]);
+    expect(nodePosition(schema, 'x', 'above')).toBeNull();
+  });
+
+  it('returns null when the node id does not exist on categorized children path', () => {
+    const schema = cloneDeep([node('p', { children: { main: [node('leaf')] } })]);
+    expect(nodePosition(schema, 'x', 'below')).toBeNull();
+  });
 });
 
 describe('addNode', () => {
