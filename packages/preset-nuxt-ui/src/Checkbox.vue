@@ -9,7 +9,7 @@
 </template>
 
 <script setup lang="ts">
-import type { FormerProps } from 'former-ui';
+import type { FormerProps } from '@former-ui/former';
 import UCheckbox from '@nuxt/ui/components/Checkbox.vue';
 
 defineProps<{

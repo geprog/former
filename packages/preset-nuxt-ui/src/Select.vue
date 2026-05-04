@@ -13,7 +13,7 @@
 </template>
 
 <script setup lang="ts">
-import type { FormerProps } from 'former-ui';
+import type { FormerProps } from '@former-ui/former';
 import UFormField from '@nuxt/ui/components/FormField.vue';
 import USelect from '@nuxt/ui/components/Select.vue';
 

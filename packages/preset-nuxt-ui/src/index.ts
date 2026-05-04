@@ -1,4 +1,4 @@
-import type { FormComponents, SchemaNode } from 'former-ui';
+import type { FormComponents, SchemaNode } from '@former-ui/former';
 import { markRaw } from 'vue';
 import Checkbox from './Checkbox.vue';
 import Columns from './Columns.vue';

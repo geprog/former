@@ -12,7 +12,7 @@ export default defineConfig({
       /* Let the playground’s own `.dark` wrapper control theme; otherwise VueUse
        * color-mode adds `dark` on `<html>` from system preference and every `dark:` utility wins. */
       colorMode: false,
-      scanPackages: ['@former/preset-nuxt-ui'],
+      scanPackages: ['@former-ui/preset-nuxt-ui'],
       ui: {
         formField: {
           slots: {
@@ -58,5 +58,5 @@ export default defineConfig({
   server: {
     allowedHosts: ['.gitpod.io'],
   },
-  optimizeDeps: { exclude: ['former-ui', '@former/preset-nuxt-ui'] },
+  optimizeDeps: { exclude: ['@former-ui/former', '@former-ui/preset-nuxt-ui'] },
 });

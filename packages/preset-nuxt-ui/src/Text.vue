@@ -11,7 +11,7 @@
 </template>
 
 <script setup lang="ts">
-import type { FormerProps } from 'former-ui';
+import type { FormerProps } from '@former-ui/former';
 import UFormField from '@nuxt/ui/components/FormField.vue';
 import UInput from '@nuxt/ui/components/Input.vue';
 import { onMounted, toRef } from 'vue';

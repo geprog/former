@@ -1,27 +1,52 @@
 {
-  "name": "@former/preset-nuxt-ui",
+  "name": "@former-ui/preset-nuxt-ui",
   "type": "module",
   "version": "0.0.0",
-  "private": true,
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/geprog/former.git"
+  },
+  "keywords": [
+    "vue",
+    "vue3",
+    "former",
+    "nuxt-ui",
+    "form-builder"
+  ],
   "exports": {
     ".": {
-      "types": "./src/index.ts",
-      "import": "./src/index.ts"
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
     }
   },
+  "files": [
+    "dist"
+  ],
+  "engines": {
+    "pnpm": ">=9.0.0",
+    "node": ">=22.0.0"
+  },
   "scripts": {
-    "typecheck": "vue-tsc --noEmit -p tsconfig.json"
+    "build": "vite build",
+    "prepack": "pnpm build",
+    "typecheck": "vue-tsc --build --force"
   },
   "peerDependencies": {
+    "@former-ui/former": ">=0.0.0",
     "@nuxt/ui": "^4.7.0",
-    "former-ui": "workspace:*",
     "vue": "^3.5.0"
   },
   "devDependencies": {
+    "@former-ui/former": "workspace:*",
     "@nuxt/ui": "^4.7.1",
+    "@tsconfig/node22": "22.0.0",
+    "@types/node": "22.10.1",
+    "@vitejs/plugin-vue": "5.2.1",
     "@vue/tsconfig": "0.7.0",
-    "former-ui": "workspace:*",
     "typescript": "5.7.2",
+    "vite": "6.4.2",
+    "vite-plugin-dts": "4.3.0",
     "vue": "3.5.21",
     "vue-tsc": "3.0.7"
   }

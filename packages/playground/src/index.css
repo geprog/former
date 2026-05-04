@@ -4,6 +4,6 @@
 /*
  * Former UI utilities come from scanning the library (Option 2 in Former README),
  * not from importing `former-ui/former-ui.css`. Resolves via workspace symlink
- * `node_modules/former-ui` → `packages/former`.
+ * `node_modules/@former-ui/former` → `packages/former`.
  */
-@source '../node_modules/former-ui/src';
+@source '../node_modules/@former-ui/former/src';

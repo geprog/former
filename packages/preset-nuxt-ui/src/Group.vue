@@ -5,5 +5,5 @@
 </template>
 
 <script setup lang="ts">
-import { FormRenderer } from 'former-ui';
+import { FormRenderer } from '@former-ui/former';
 </script>
