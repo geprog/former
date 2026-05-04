@@ -13,7 +13,7 @@ export function schemaIterator(schema: InternalSchemaNode[]) {
           childrenIterator = null;
         }
         else {
-          return { value, done: childrenDone && done };
+          return { value, done: false };
         }
       }
       const node = schema[nextIndex];

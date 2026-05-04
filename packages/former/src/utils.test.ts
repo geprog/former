@@ -102,6 +102,44 @@ describe('schema iterator', () => {
     expect([...iter]).toStrictEqual([schemaNode, ...schemaNode.children.category1, ...schemaNode.children.category2]);
   });
 
+  it('should handle node with children at end', () => {
+    // given
+    const simpleNode = { _id: 'a', type: 'text' };
+    const schemaNode = {
+      _id: 'a',
+      type: 'text',
+      children: [
+        { _id: 'b', type: 'text' },
+        { _id: 'c', type: 'text' },
+      ],
+    };
+
+    // when
+    const iter = schemaIterator([simpleNode, schemaNode]);
+
+    // then
+    expect([...iter]).toStrictEqual([simpleNode, schemaNode, ...schemaNode.children]);
+  });
+
+  it('should handle node with children at start', () => {
+    // given
+    const simpleNode = { _id: 'a', type: 'text' };
+    const schemaNode = {
+      _id: 'a',
+      type: 'text',
+      children: [
+        { _id: 'b', type: 'text' },
+        { _id: 'c', type: 'text' },
+      ],
+    };
+
+    // when
+    const iter = schemaIterator([schemaNode, simpleNode]);
+
+    // then
+    expect([...iter]).toStrictEqual([schemaNode, ...schemaNode.children, simpleNode]);
+  });
+
   it('should handle complex schema', () => {
     // given
     const schemaNodeWithFlatChildren = {
@@ -348,6 +386,16 @@ describe('nodePosition', () => {
   it('returns null when the node id does not exist', () => {
     expect(nodePosition(cloneDeep(linear()), 'x', 'above')).toBeNull();
   });
+
+  it('returns null when the node id does not exist inside nested array children with parent id', () => {
+    const schema = cloneDeep([node('p', { children: [node('c')] })]);
+    expect(nodePosition(schema, 'x', 'above')).toBeNull();
+  });
+
+  it('returns null when the node id does not exist on categorized children path', () => {
+    const schema = cloneDeep([node('p', { children: { main: [node('leaf')] } })]);
+    expect(nodePosition(schema, 'x', 'below')).toBeNull();
+  });
 });
 
 describe('addNode', () => {
@@ -371,6 +419,13 @@ describe('addNode', () => {
     const children = schema[0]!.children as { default: InternalSchemaNode[] };
     expect(Array.isArray(children)).toBe(false);
     expect(children.default.map(n => n._id)).toStrictEqual(['inserted', 'existing']);
+  });
+
+  it('creates children object when parent has empty children', () => {
+    const schema = cloneDeep([node('p', { children: { } })]);
+    addNode(schema, { parentId: 'p', category: 'main', index: 0 }, node('child'));
+    const children = schema[0]!.children as { main: InternalSchemaNode[] };
+    expect(children.main.map(n => n._id)).toStrictEqual(['child']);
   });
 
   it('creates children object when parent has no children', () => {
@@ -409,6 +464,23 @@ describe('addNode', () => {
     const target = outerChildren.col[0]!;
     const targetChildren = target.children as { default: InternalSchemaNode[] };
     expect(targetChildren.default.map(n => n._id)).toStrictEqual(['inserted', 'existing']);
+  });
+
+  it('ignores flat nodes when recursing to nested parents', () => {
+    const schema = cloneDeep([
+      node('simple'),
+      node('outer', {
+        children: [node('inner', { children: [node('leaf')] })],
+      }),
+    ]);
+    addNode(
+      schema,
+      { parentId: 'inner', category: null, index: 1 },
+      node('buddy'),
+    );
+    const inner = (schema[1]!.children as InternalSchemaNode[])[0]!;
+    const innerChildren = inner.children as { default: InternalSchemaNode[] };
+    expect(innerChildren.default.map(n => n._id)).toStrictEqual(['leaf', 'buddy']);
   });
 });
 
@@ -467,6 +539,15 @@ describe('unsetDataOfNode', () => {
     });
     unsetDataOfNode(layout, data, components);
     expect(data).toStrictEqual({ keep: 1 });
+  });
+
+  it('ignores layout components without children', () => {
+    const data: FormData = { keep: 1, leaf: 2 };
+    const layout = node('L', {
+      type: 'bare',
+    });
+    unsetDataOfNode(layout, data, components);
+    expect(data).toStrictEqual({ keep: 1, leaf: 2 });
   });
 });
 
