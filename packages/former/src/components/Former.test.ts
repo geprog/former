@@ -1,3 +1,4 @@
+import type { Ref } from 'vue';
 import type { FieldData, FormComponents, FormData, InternalSchemaNode, InternalShowIfPredicate, Mode, SchemaNode, ShowIfPredicate, Texts, Validator } from '~/types';
 import { mount } from '@vue/test-utils';
 import { afterEach, describe, expect, it, vi } from 'vitest';
@@ -30,15 +31,15 @@ const COMPONENTS_FIXTURE: FormComponents = {
 };
 
 type FormerProbeBundle = {
-  schema: import('vue').Ref<InternalSchemaNode[]>;
-  data: import('vue').Ref<FormData | FieldData>;
-  rootSchema: import('vue').Ref<SchemaNode[]>;
-  validityMap: import('vue').Ref<Record<string, boolean | undefined>>;
-  selectedNode: import('vue').Ref<InternalSchemaNode | undefined>;
-  formerIsUpdating: import('vue').Ref<boolean>;
-  mode: import('vue').Ref<Mode>;
-  components: FormComponents;
-  texts: import('vue').Ref<Texts>;
+  schema: Ref<InternalSchemaNode[]>;
+  data: Ref<FormData | FieldData>;
+  rootSchema: Ref<SchemaNode[]>;
+  validityMap: Ref<Record<string, boolean | undefined>>;
+  selectedNode: Ref<InternalSchemaNode | undefined>;
+  formerIsUpdating: Ref<boolean>;
+  mode: Ref<Mode>;
+  components: Ref<FormComponents>;
+  texts: Ref<Texts>;
   showIf: InternalShowIfPredicate | undefined;
 };
 

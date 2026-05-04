@@ -124,14 +124,14 @@ import Group from '@/sample/Group.vue';
 import Repeater from '@/sample/Repeater.vue';
 import Select from '@/sample/Select.vue';
 import TextInput from '@/sample/TextInput.vue';
-import { formComponents } from '@former-ui/preset-nuxt-ui';
-import { useStorage } from '@vueuse/core';
 import {
   FormAdd,
   FormContent,
   Former,
   FormNodeProps,
 } from '@former-ui/former';
+import { formComponents } from '@former-ui/preset-nuxt-ui';
+import { useStorage } from '@vueuse/core';
 import { computed, markRaw, ref } from 'vue';
 
 type ComponentSetId = 'sample' | 'nuxt';

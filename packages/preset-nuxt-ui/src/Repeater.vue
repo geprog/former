@@ -17,8 +17,8 @@
 
 <script setup lang="ts">
 import type { FormData, FormerProps } from '@former-ui/former';
-import UButton from '@nuxt/ui/components/Button.vue';
 import { FormDataProvider, FormRenderer } from '@former-ui/former';
+import UButton from '@nuxt/ui/components/Button.vue';
 
 defineProps<{
   label?: string;
