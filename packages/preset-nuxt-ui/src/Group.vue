@@ -1,0 +1,9 @@
+<template>
+  <div class="flex flex-wrap gap-4 w-full">
+    <FormRenderer />
+  </div>
+</template>
+
+<script setup lang="ts">
+import { FormRenderer } from 'former-ui';
+</script>

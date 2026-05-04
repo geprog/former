@@ -35,3 +35,8 @@ test-results/
 playwright-report/
 
 .vite/
+
+# Nuxt UI (Vue + Vite) generated typings
+packages/playground/auto-imports.d.ts
+packages/playground/components.d.ts
+packages/playground/node_modules/.nuxt-ui/

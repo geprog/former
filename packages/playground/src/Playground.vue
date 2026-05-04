@@ -3,7 +3,7 @@
     <Former
       v-model:data="data"
       v-model:schema="schema"
-      :components
+      :components="activeComponents"
       :mode
       :show-if
       :validator="validator"
@@ -27,6 +27,7 @@
             <span :class="{ 'text-red-500': !isValid }">Data {{ isValid ? 'valid' : 'invalid' }}</span>,
             <span :class="{ 'text-red-500': !isSchemaValid }">Schema {{ isSchemaValid ? 'valid' : 'invalid' }}</span>
           </div>
+          <Select v-model="componentSet" :options="componentSetOptions" />
           <Select v-model="mode" :options />
         </div>
 
@@ -123,6 +124,7 @@ import Group from '@/sample/Group.vue';
 import Repeater from '@/sample/Repeater.vue';
 import Select from '@/sample/Select.vue';
 import TextInput from '@/sample/TextInput.vue';
+import { formComponents } from '@former/preset-nuxt-ui';
 import { useStorage } from '@vueuse/core';
 import {
   FormAdd,
@@ -132,9 +134,17 @@ import {
 } from 'former-ui';
 import { computed, markRaw, ref } from 'vue';
 
+type ComponentSetId = 'sample' | 'nuxt';
+
 const mode = useStorage<Mode>('former:mode', 'build');
+const componentSet = useStorage<ComponentSetId>('former:componentSet', 'sample');
 const activateShowIf = useStorage<boolean>('former:activateShowIf', false);
 const activateDarkMode = useStorage<boolean>('former:darkMode', false);
+
+const componentSetOptions: { label: string; value: ComponentSetId }[] = [
+  { label: 'Sample components', value: 'sample' },
+  { label: 'Nuxt UI preset', value: 'nuxt' },
+];
 
 const options = [
   { label: 'build', value: 'build' },
@@ -267,7 +277,7 @@ const schema = useStorage<SchemaNode[]>('former:schema', [
 ]);
 
 const debouncedSchema = (() => {
-  let timeout: number | null = null;
+  let timeout: ReturnType<typeof setTimeout> | null = null;
 
   return (_schema: SchemaNode[]) => {
     if (timeout) {
@@ -294,7 +304,7 @@ const data = useStorage<FormData>('former:data', {});
 
 const showIfProp = { type: 'text', name: 'showIf', props: { label: 'Show if', placeholder: 'If empty or "hello" then component is visible.' } };
 
-const components: FormComponents = {
+const sampleFormComponents: FormComponents = {
   text: {
     label: 'Text',
     component: markRaw(TextInput),
@@ -465,6 +475,10 @@ const components: FormComponents = {
     ],
   },
 };
+
+const activeComponents = computed<FormComponents>(() =>
+  componentSet.value === 'nuxt' ? formComponents : sampleFormComponents,
+);
 
 function showIf(node: SchemaNode, _data: FormData): boolean {
   if (!activateShowIf.value) {
