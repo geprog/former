@@ -38,7 +38,7 @@ const components = inject('components');
 
 const node = toRef(props, 'node');
 const { component, error, isShown, modelValue } = useNode(node);
-const isNodeValidFlag = computed(() => isNodeValid(node.value, validator, components));
+const isNodeValidFlag = computed(() => isNodeValid(node.value, validator, components.value));
 
 const mode = inject('mode');
 const selectedNode = inject('selectedNode');

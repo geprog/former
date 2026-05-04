@@ -75,7 +75,7 @@ provide('rootData', wrappedData);
 provide('rootSchema', schema);
 
 provide('mode', toRef(props, 'mode'));
-provide('components', props.components);
+provide('components', toRef(props, 'components'));
 
 provide('showIf', (node: SchemaNode) => {
   if (!props.showIf) {
