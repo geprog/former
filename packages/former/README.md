@@ -135,7 +135,7 @@ Just configure your form layout, define the components and let former do the res
 </template>
 
 <script setup lang="ts">
-import { FormAdd, type FormComponents, type FormData, Former, FormNodeProps, Mode, type SchemaNode } from 'former-ui';
+import { FormAdd, type FormComponents, type FormData, Former, FormNodeProps, Mode, type SchemaNode } from '@former-ui/former';
 import { markRaw, ref } from 'vue';
 
 import TextInput from './TextInput.vue';

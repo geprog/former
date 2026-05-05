@@ -1,41 +1,29 @@
 <template>
-  <UFormField :label="label" :name="id" :error="error" :required="required">
-    <UInput
-      :id="id"
-      v-model="modelValue"
-      :type="type ?? 'text'"
-      :placeholder="placeholder"
-      :disabled="mode === 'read'"
-    />
+  <UFormField v-if="!(mode === 'read' && !modelValue)" :label :required :description="help" :error class="w-full">
+    <UInput v-bind="$attrs" v-model:model-value="modelValue" type="text" size="lg" :disabled="mode === 'read'" />
   </UFormField>
 </template>
 
 <script setup lang="ts">
 import type { FormerProps } from '@former-ui/former';
-import UFormField from '@nuxt/ui/components/FormField.vue';
-import UInput from '@nuxt/ui/components/Input.vue';
 import { onMounted, toRef } from 'vue';
 
-const props = withDefaults(
-  defineProps<{
-    label?: string;
-    type?: 'text' | 'password' | 'email';
-    placeholder?: string;
-    initialValue?: string;
-    required?: boolean;
-  } & FormerProps>(),
-  {
-    type: 'text',
-  },
-);
+defineOptions({ inheritAttrs: false });
 
-const mode = toRef(props, 'mode');
-const initialValue = toRef(props, 'initialValue');
+const props = defineProps<
+  {
+    label?: string;
+    required?: boolean;
+    help?: string;
+    preset?: string;
+  } & FormerProps
+>();
+
 const modelValue = defineModel<string>();
+const preset = toRef(props, 'preset');
 
 onMounted(() => {
-  if (modelValue.value === undefined && initialValue.value) {
-    modelValue.value = initialValue.value;
-  }
+  if (modelValue.value === undefined && preset.value !== undefined)
+    modelValue.value = preset.value;
 });
 </script>

@@ -477,7 +477,7 @@ const sampleFormComponents: FormComponents = {
 };
 
 const activeComponents = computed<FormComponents>(() =>
-  componentSet.value === 'nuxt' ? formComponents : sampleFormComponents,
+  componentSet.value === 'nuxt' ? formComponents() : sampleFormComponents,
 );
 
 function showIf(node: SchemaNode, _data: FormData): boolean {

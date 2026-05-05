@@ -1,27 +1,41 @@
 <template>
-  <UFormField :label="label" :name="id" :error="error">
-    <USelect
-      :id="id"
-      v-model="modelValue"
-      :items="options ?? []"
-      value-key="value"
-      label-key="label"
-      :placeholder="placeholder"
-      :disabled="mode === 'read'"
-    />
+  <UFormField v-if="!(mode === 'read' && !modelValue)" :label :required :description="help" :error class="w-full">
+    <div class="flex w-full flex-col items-center justify-center gap-3">
+      <Image v-if="showImages" :id :image="selectedImage" :mode :error class="w-full" />
+      <USelect
+        v-bind="$attrs"
+        v-model:model-value="modelValue"
+        :items
+        size="lg"
+        :disabled="mode === 'read'"
+        class="w-full"
+      />
+    </div>
   </UFormField>
 </template>
 
 <script setup lang="ts">
 import type { FormerProps } from '@former-ui/former';
-import UFormField from '@nuxt/ui/components/FormField.vue';
-import USelect from '@nuxt/ui/components/Select.vue';
+import { computed, toRef } from 'vue';
 
-defineProps<{
-  label?: string;
-  options?: { label: string; value: string }[];
-  placeholder?: string;
-} & Partial<FormerProps>>();
+import { useOptions } from './composables/useOptions';
+import Image from './Image.vue';
 
+defineOptions({ inheritAttrs: false });
+
+const props = defineProps<
+  {
+    label?: string;
+    required?: boolean;
+    help?: string;
+    options?: { label?: string; value: string; image?: string; presetFormula?: string }[];
+  } & FormerProps
+>();
 const modelValue = defineModel<string>();
+const options = toRef(props, 'options');
+
+const { items } = useOptions(modelValue, options);
+
+const showImages = computed(() => items.value.some(option => option.image !== undefined));
+const selectedImage = computed(() => items.value.find(option => option.value === modelValue.value)?.image);
 </script>
