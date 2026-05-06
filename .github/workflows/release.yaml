@@ -47,15 +47,24 @@ jobs:
           run_install: true
 
       - name: Build
-        working-directory: packages/former/
         run: pnpm build
 
-      - name: Set version
+      - name: Set version @former-ui/former
         working-directory: packages/former/
         run: pnpm version ${GITHUB_REF#refs/*/} --no-commit-hooks --no-git-tag-version
         if: 'github.ref_type == ''tag'''
 
-      - name: Release
+      - name: Release @former-ui/former
         working-directory: packages/former/
+        run: pnpm publish --no-git-check --access public
+        if: 'github.ref_type == ''tag'''
+
+      - name: Set version @former-ui/preset-nuxt-ui
+        working-directory: packages/preset-nuxt-ui/
+        run: pnpm version ${GITHUB_REF#refs/*/} --no-commit-hooks --no-git-tag-version
+        if: 'github.ref_type == ''tag'''
+
+      - name: Release @former-ui/preset-nuxt-ui
+        working-directory: packages/preset-nuxt-ui/
         run: pnpm publish --no-git-check --access public
         if: 'github.ref_type == ''tag'''
