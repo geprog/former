@@ -2,10 +2,8 @@
   "extends": "@vue/tsconfig/tsconfig.dom.json",
   "compilerOptions": {
     "composite": true,
-    "paths": {
-      "~/*": ["./src/*"]
-    },
-    "noEmit": true
+    "noEmit": true,
+    "skipLibCheck": true
   },
   "include": ["env.d.ts", "src/**/*", "src/**/*.vue"]
 }

@@ -1,5 +1,7 @@
 <template>
-  <Playground />
+  <UApp>
+    <Playground />
+  </UApp>
 </template>
 
 <script lang="ts" setup>

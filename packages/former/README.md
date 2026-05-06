@@ -71,19 +71,31 @@ export default {
 
 This way, Tailwind will generate only the classes used by both your app and Former UI.
 
-### Dark Mode Configuration
+#### Tailwind v4 (CSS-first)
 
-**Important:** Former UI uses Tailwind's `selector`-based dark mode. If you're using Option 2 (building your own Tailwind CSS), you **must** configure your Tailwind config to use `selector`-based dark mode:
+If your app uses Tailwind v4’s CSS entry (for example `@import "tailwindcss"` in your main stylesheet), add Former as a **`@source`** so utilities referenced in Former’s components are generated. Paths are relative to that CSS file.
 
-```js
-// tailwind.config.js
-export default {
-  // ... other config
-  darkMode: 'selector', // Required for Former UI dark mode to work correctly
-};
+By default, Tailwind v4’s `dark` variant follows **`prefers-color-scheme`**. Former’s components expect **`dark:`** utilities to apply when a **`dark` class** sits on an ancestor (same idea as `darkMode: 'selector'` in v3). Override the variant if you toggle dark mode that way:
+
+```css
+@import 'tailwindcss';
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* Use `src` when linking the package in a monorepo; use `dist` if that is all your install contains. */
+@source '../node_modules/former-ui/src';
 ```
 
-This means dark mode is activated by adding a `dark` class to a parent element (typically `<html>` or a wrapper element), rather than using the system preference. If you're using Option 1 (importing the pre-built CSS), the dark mode classes are already included, but you still need to ensure your app's Tailwind config uses `darkMode: 'selector'` if you're also generating your own Tailwind CSS.
+You do **not** need `import 'former-ui/former-ui.css'` when Former is covered by your Tailwind build this way.
+
+### Dark Mode Configuration
+
+**Important:** Former UI uses Tailwind’s **selector**-based dark mode (`dark` class on an ancestor), not only `prefers-color-scheme`.
+
+- **Tailwind v3 (`tailwind.config.js`):** set `darkMode: 'selector'`.
+- **Tailwind v4 (CSS-first):** define a class-based `dark` variant as in the snippet above (for example `@custom-variant dark (&:where(.dark, .dark *));`). If another part of your stack also toggles a `dark` class on `<html>` from system settings, align that behavior with how you want Former to behave.
+
+If you’re using Option 1 (importing the pre-built CSS), dark utilities are already in that bundle; you still need selector-style `dark` on a parent if you toggle dark mode with a class (same as Option 2).
 
 ## Usage
 
@@ -123,7 +135,7 @@ Just configure your form layout, define the components and let former do the res
 </template>
 
 <script setup lang="ts">
-import { FormAdd, type FormComponents, type FormData, Former, FormNodeProps, Mode, type SchemaNode } from 'former-ui';
+import { FormAdd, type FormComponents, type FormData, Former, FormNodeProps, Mode, type SchemaNode } from '@former-ui/former';
 import { markRaw, ref } from 'vue';
 
 import TextInput from './TextInput.vue';

@@ -28,7 +28,7 @@ type MountUseNodeOptions = {
   node: Ref<InternalSchemaNode>;
   data?: Ref<FormData | unknown>;
   validityMap?: Ref<Record<string, boolean | undefined>>;
-  components?: FormComponents;
+  components?: Ref<FormComponents>;
   validator?: Validator;
   /** Omit key so `showIf` is not provided. Use `showIf: undefined` to call `provide('showIf', undefined)`. */
   showIf?: ((node: InternalSchemaNode) => boolean) | undefined;
@@ -38,7 +38,7 @@ type MountUseNodeOptions = {
 function mountUseNode(options: MountUseNodeOptions) {
   const data = options.data ?? ref<FormData>({});
   const validityMap = options.validityMap ?? ref<Record<string, boolean | undefined>>({});
-  const components = options.components ?? defaultComponents();
+  const components = options.components ?? ref(defaultComponents());
   const validator = options.validator ?? vi.fn<Validator>(() => true);
 
   const ValidityInjector = defineComponent({
@@ -102,19 +102,19 @@ describe('useNode', () => {
     it('resolves component from components[node.type].component', () => {
       const node = ref<InternalSchemaNode>({ _id: 'n1', type: FIELD_TYPE, name: 'a' });
       const { component } = mountUseNode({ node });
-      expect(component.value).toBe(StubField);
+      expect(component.value).toStrictEqual(StubField);
     });
 
     it('treats the node as layout when no propsSchema entry has name $name', () => {
       const node = ref<InternalSchemaNode>({ _id: 'n1', type: LAYOUT_TYPE });
       const { isLayoutComponent } = mountUseNode({ node });
-      expect(isLayoutComponent.value).toBe(true);
+      expect(isLayoutComponent.value).toStrictEqual(true);
     });
 
     it('treats the node as a field when some propsSchema has name $name', () => {
       const node = ref<InternalSchemaNode>({ _id: 'n1', type: FIELD_TYPE, name: 'x' });
       const { isLayoutComponent } = mountUseNode({ node });
-      expect(isLayoutComponent.value).toBe(false);
+      expect(isLayoutComponent.value).toStrictEqual(false);
     });
   });
 

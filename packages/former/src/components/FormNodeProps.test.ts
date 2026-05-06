@@ -1,7 +1,7 @@
 import type { FormComponents, InternalSchemaNode, Validator } from '~/types';
 import { mount } from '@vue/test-utils';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { defineComponent, h, nextTick, ref } from 'vue';
+import { defineComponent, h, nextTick, ref, type Ref } from 'vue';
 import * as utils from '~/utils';
 
 import Former from './Former.vue';
@@ -9,7 +9,7 @@ import FormNodeProps from './FormNodeProps.vue';
 
 const FIELD_DUMMY = defineComponent({ name: 'FieldDummy', template: '<span />' });
 
-const MINIMAL_COMPONENTS: FormComponents = {
+const MINIMAL_COMPONENTS: Ref<FormComponents> = ref({
   text: {
     label: 'Text',
     propsSchema: [{ type: 'text', name: 'title' }],
@@ -20,7 +20,7 @@ const MINIMAL_COMPONENTS: FormComponents = {
     propsSchema: [{ type: 'text', name: 'value' }],
     component: FIELD_DUMMY,
   },
-};
+});
 
 describe('component FormNodeProps', () => {
   let deleteNodeSpy: ReturnType<typeof vi.spyOn>;
@@ -162,7 +162,7 @@ describe('component FormNodeProps', () => {
         global: {
           renderStubDefaultSlot: true,
           provide: {
-            components: {},
+            components: ref({}),
             schema,
             validator,
             selectedNode,
@@ -254,11 +254,11 @@ describe('component FormNodeProps', () => {
           },
         },
       });
-      expect(toInternalSchemaSpy).toHaveBeenCalledWith(components.text.propsSchema);
+      expect(toInternalSchemaSpy).toHaveBeenCalledWith(components.value.text.propsSchema);
       toInternalSchemaSpy.mockClear();
       selectedNode.value = { _id: 'n2', type: 'number', name: 'n', props: {} };
       await nextTick();
-      expect(toInternalSchemaSpy).toHaveBeenCalledWith(components.number.propsSchema);
+      expect(toInternalSchemaSpy).toHaveBeenCalledWith(components.value.number.propsSchema);
     });
 
     it('renders the Former stub when propsSchema resolves', () => {
@@ -301,7 +301,7 @@ describe('component FormNodeProps', () => {
         global: {
           renderStubDefaultSlot: true,
           provide: {
-            components: {},
+            components: ref({}),
             schema,
             validator,
             selectedNode,

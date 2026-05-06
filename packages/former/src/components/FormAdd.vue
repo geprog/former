@@ -25,7 +25,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
 import { inject, provide } from '~/compositions/injectProvide';
 import { setDragEventData } from '~/utils';
 
@@ -40,5 +40,5 @@ function startDrag(e: DragEvent, nodeType: string) {
   setDragEventData(e, formId.value, 'new_node_type', nodeType);
 }
 
-const relevantComponents = Object.entries(components).filter(([, { internal }]) => !internal);
+const relevantComponents = computed(() => Object.entries(components.value).filter(([, { internal }]) => !internal));
 </script>

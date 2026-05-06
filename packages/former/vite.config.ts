@@ -21,7 +21,7 @@ export default defineConfig({
   },
   build: {
     lib: {
-      name: 'former-ui',
+      name: '@former-ui/former',
       fileName: 'index',
       entry: resolve(__dirname, 'src/index.ts'),
     },
