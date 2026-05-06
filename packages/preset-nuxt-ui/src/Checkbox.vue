@@ -13,7 +13,7 @@
 
 <script setup lang="ts">
 import type { FormerProps } from '@former-ui/former';
-import { computed, onMounted, ref, toRef, watch } from 'vue';
+import { onMounted, ref, toRef, watch } from 'vue';
 
 defineOptions({ inheritAttrs: false });
 

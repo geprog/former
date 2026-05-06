@@ -17,7 +17,8 @@
 </template>
 
 <script setup lang="ts">
-import { type FormData, type FormerProps, FormRenderer } from '@former-ui/former';
+import type { FormData, FormerProps } from '@former-ui/former';
+import { FormRenderer } from '@former-ui/former';
 import { computed } from 'vue';
 
 const props = defineProps<

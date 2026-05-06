@@ -14,7 +14,8 @@
 </template>
 
 <script setup lang="ts">
-import { FormRenderer, type FormData, type FormerProps } from '@former-ui/former';
+import type { FormData, FormerProps } from '@former-ui/former';
+import { FormRenderer } from '@former-ui/former';
 
 defineProps<
   {

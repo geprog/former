@@ -14,6 +14,8 @@
 <script setup lang="ts">
 import type { FormerProps } from '@former-ui/former';
 
+defineOptions({ inheritAttrs: false });
+
 defineProps<
   {
     label?: string;
@@ -21,5 +23,4 @@ defineProps<
     help?: string;
   } & FormerProps
 >();
-defineOptions({ inheritAttrs: false });
 </script>
