@@ -1,7 +1,7 @@
 import type { FormComponents, InternalSchemaNode, Validator } from '~/types';
 import { mount } from '@vue/test-utils';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { defineComponent, h, inject, nextTick, ref, type Ref } from 'vue';
+import { defineComponent, h, inject, markRaw, nextTick, ref, type Ref } from 'vue';
 import * as utils from '~/utils';
 
 import FormNode from './FormNode.vue';
@@ -41,7 +41,7 @@ const TEXT_COMPONENTS: Ref<FormComponents> = ref({
   text: {
     label: 'Text',
     propsSchema: [{ type: 'text', name: '$name' }],
-    component: DynamicComponent,
+    component: markRaw(DynamicComponent),
   },
 });
 

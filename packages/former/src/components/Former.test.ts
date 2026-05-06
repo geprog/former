@@ -2,7 +2,7 @@ import type { Ref } from 'vue';
 import type { FieldData, FormComponents, FormData, InternalSchemaNode, InternalShowIfPredicate, Mode, SchemaNode, ShowIfPredicate, Texts, Validator } from '~/types';
 import { mount } from '@vue/test-utils';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { defineComponent, h, nextTick, onBeforeUnmount } from 'vue';
+import { defineComponent, h, markRaw, nextTick, onBeforeUnmount } from 'vue';
 import { inject as formerInject } from '~/compositions/injectProvide';
 import { toInternalSchema } from '~/utils';
 
@@ -26,7 +26,7 @@ const COMPONENTS_FIXTURE: FormComponents = {
   text: {
     label: 'Text',
     propsSchema: [{ type: 'text', name: '$name' }],
-    component: DynamicComponent,
+    component: markRaw(DynamicComponent),
   },
 };
 

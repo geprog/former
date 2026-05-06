@@ -1,7 +1,7 @@
 import type { FormComponents, Mode } from '~/types';
 import { mount } from '@vue/test-utils';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { defineComponent, h, nextTick, ref, type Ref, unref } from 'vue';
+import { defineComponent, h, markRaw, nextTick, ref, type Ref, unref } from 'vue';
 import { inject } from '~/compositions/injectProvide';
 import * as utils from '~/utils';
 
@@ -30,17 +30,17 @@ const ADD_COMPONENTS: Ref<FormComponents> = ref({
   text: {
     label: 'Text field',
     propsSchema: [],
-    component: FieldStub,
+    component: markRaw(FieldStub),
   },
   number: {
     label: 'Number field',
     propsSchema: [],
-    component: FieldStub,
+    component: markRaw(FieldStub),
   },
   hiddenInternal: {
     label: 'Should not list',
     propsSchema: [],
-    component: InternalStub,
+    component: markRaw(InternalStub),
     internal: true,
   },
 });
