@@ -175,7 +175,7 @@ describe('component Former', () => {
       expect(activeFormerProbe).not.toBeNull();
       const probe = activeFormerProbe!;
       expect(probe.mode.value).toBe('build');
-      expect(probe.components).toEqual(COMPONENTS_FIXTURE);
+      expect(probe.components.value).toEqual(COMPONENTS_FIXTURE);
       expect(probe.formerIsUpdating.value).toBe(true);
       expect(probe.texts.value.dragHint).toBe('Custom hint');
     });

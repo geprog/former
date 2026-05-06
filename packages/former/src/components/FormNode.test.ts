@@ -37,13 +37,13 @@ const SlotProbe = defineComponent({
   },
 });
 
-const TEXT_COMPONENTS: FormComponents = {
+const TEXT_COMPONENTS: Ref<FormComponents> = ref({
   text: {
     label: 'Text',
     propsSchema: [{ type: 'text', name: '$name' }],
     component: DynamicComponent,
   },
-};
+});
 
 describe('component FormNode', () => {
   let setDragEventDataSpy: ReturnType<typeof vi.spyOn>;
@@ -176,13 +176,13 @@ describe('component FormNode', () => {
       const selectedNode = ref<InternalSchemaNode | undefined>(undefined);
       const formId = ref('form-123');
       const validator: Validator = () => true;
-      const componentsNoView: FormComponents = {
+      const componentsNoView: Ref<FormComponents> = ref({
         text: {
           label: 'Text',
           propsSchema: [{ type: 'text', name: '$name' }],
           component: undefined as unknown as (typeof DynamicComponent),
         },
-      };
+      });
       const wrapper = mount(FormNode, {
         props: { node },
         global: {
