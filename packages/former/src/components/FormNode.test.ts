@@ -1,7 +1,7 @@
 import type { FormComponents, InternalSchemaNode, Validator } from '~/types';
 import { mount } from '@vue/test-utils';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { defineComponent, h, inject, nextTick, ref, type Ref } from 'vue';
+import { defineComponent, h, inject, markRaw, nextTick, ref, type Ref } from 'vue';
 import * as utils from '~/utils';
 
 import FormNode from './FormNode.vue';
@@ -37,13 +37,13 @@ const SlotProbe = defineComponent({
   },
 });
 
-const TEXT_COMPONENTS: FormComponents = {
+const TEXT_COMPONENTS: Ref<FormComponents> = ref({
   text: {
     label: 'Text',
     propsSchema: [{ type: 'text', name: '$name' }],
-    component: DynamicComponent,
+    component: markRaw(DynamicComponent),
   },
-};
+});
 
 describe('component FormNode', () => {
   let setDragEventDataSpy: ReturnType<typeof vi.spyOn>;
@@ -176,13 +176,13 @@ describe('component FormNode', () => {
       const selectedNode = ref<InternalSchemaNode | undefined>(undefined);
       const formId = ref('form-123');
       const validator: Validator = () => true;
-      const componentsNoView: FormComponents = {
+      const componentsNoView: Ref<FormComponents> = ref({
         text: {
           label: 'Text',
           propsSchema: [{ type: 'text', name: '$name' }],
           component: undefined as unknown as (typeof DynamicComponent),
         },
-      };
+      });
       const wrapper = mount(FormNode, {
         props: { node },
         global: {

@@ -7,8 +7,8 @@ export default function useNode(node: Ref<InternalSchemaNode>) {
   const data = inject('data');
   const components = inject('components');
 
-  const component = computed(() => components[node.value.type]?.component);
-  const isLayoutComponent = computed(() => isNodeLayoutComponent(node.value, components));
+  const component = computed(() => components.value[node.value.type]?.component);
+  const isLayoutComponent = computed(() => isNodeLayoutComponent(node.value, components.value));
 
   const modelValue = computed({
     get() {
@@ -78,7 +78,7 @@ export default function useNode(node: Ref<InternalSchemaNode>) {
 
   watch(isShown, () => {
     if (!isShown.value) {
-      unsetDataOfNode(node.value, data.value, components);
+      unsetDataOfNode(node.value, data.value, components.value);
       delete validityMap.value[node.value._id];
     }
     else {

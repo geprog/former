@@ -6,7 +6,7 @@
 </template>
 
 <script setup lang="ts">
-import type { FormerProps } from 'former-ui';
+import type { FormerProps } from '@former-ui/former';
 import { genId } from '@/utils/id';
 import { ref } from 'vue';
 

@@ -5,10 +5,7 @@
     "jsx": "preserve",
     "lib": ["esnext", "dom"],
     "module": "esnext",
-    "moduleResolution": "node",
-    "paths": {
-      "~/*": ["./src/*"]
-    },
+    "moduleResolution": "bundler",
     "resolveJsonModule": true,
     "strict": true,
     "declaration": false,
