@@ -7,5 +7,5 @@
     },
     "noEmit": true
   },
-  "include": ["env.d.ts", "src/**/*", "src/**/*.vue"]
+  "include": ["src/**/*", "src/**/*.vue"]
 }
