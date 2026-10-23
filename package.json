@@ -8,7 +8,7 @@
     "node": "24"
   },
   "scripts": {
-    "dev": "pnpm -r --parallel dev",
+    "dev": "pnpm --filter @former-ui/former build && pnpm -r --parallel dev",
     "lint": "eslint .",
     "test": "pnpm -r test",
     "typecheck": "pnpm -r typecheck",
