@@ -18,7 +18,7 @@ export default function useNode(node: Ref<InternalSchemaNode>) {
       if (!node.value.name) {
         return undefined;
       }
-      if (Array.isArray(data.value) || typeof data.value !== 'object') {
+      if (data.value === null || Array.isArray(data.value) || typeof data.value !== 'object') {
         return data.value;
       }
       return data.value[node.value.name];
@@ -30,14 +30,17 @@ export default function useNode(node: Ref<InternalSchemaNode>) {
       if (!node.value.name) {
         return;
       }
+      // a cleared field is stored as `null` so that its key survives JSON serialization,
+      // otherwise e.g. its preset would be re-applied after the data was saved and loaded again
+      const value = newValue === undefined ? null : newValue;
       if (data.value === undefined || data.value === null) {
-        data.value = { [node.value.name]: newValue };
+        data.value = { [node.value.name]: value };
       }
       else if (Array.isArray(data.value)) {
         // Nothing to do for now
       }
       else if (typeof data.value === 'object') {
-        data.value[node.value.name] = newValue;
+        data.value[node.value.name] = value;
       }
     },
   });

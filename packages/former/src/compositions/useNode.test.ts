@@ -170,7 +170,7 @@ describe('useNode', () => {
       expect(hasDataKey.value).toBe(true);
     });
 
-    it('becomes true once the model value is set', () => {
+    it('becomes true once the model value is set, even to undefined', () => {
       const node = ref<InternalSchemaNode>({ _id: 'n1', type: FIELD_TYPE, name: 'email' });
       const data = ref<FormData>({});
       const { hasDataKey, modelValue } = mountUseNode({ node, data });
@@ -188,6 +188,15 @@ describe('useNode', () => {
   });
 
   describe('modelValue (setter)', () => {
+    it('stores undefined as null so the key survives JSON serialization', () => {
+      const node = ref<InternalSchemaNode>({ _id: 'n1', type: FIELD_TYPE, name: 'email' });
+      const data = ref<FormData>({ email: 'a@b.c' });
+      const { modelValue } = mountUseNode({ node, data });
+      modelValue.value = undefined;
+      expect(data.value).toStrictEqual({ email: null });
+      expect(JSON.parse(JSON.stringify(data.value))).toStrictEqual({ email: null });
+    });
+
     it('for a layout node, replaces the full data ref', () => {
       const node = ref<InternalSchemaNode>({ _id: 'n1', type: LAYOUT_TYPE });
       const data = ref<FormData>({ a: 1 });
@@ -214,10 +223,13 @@ describe('useNode', () => {
       expect(dataRef.value).toEqual({ x: 1 });
     });
 
-    it('when data is null for a named field, evaluating modelValue throws before setter can run', () => {
+    it('when data is null (e.g. a cleared group) for a named field, initializes an object and sets the field', () => {
       const node = ref<InternalSchemaNode>({ _id: 'n1', type: FIELD_TYPE, name: 'f' });
       const data = ref(null as unknown as FormData);
-      expect(() => mountUseNode({ node, data: data as Ref<FormData> })).toThrow();
+      const { modelValue } = mountUseNode({ node, data: data as Ref<FormData> });
+      expect(modelValue.value).toBeNull();
+      modelValue.value = 'x';
+      expect(data.value).toStrictEqual({ f: 'x' });
     });
 
     it('when data is undefined, initializes an object and sets the field', () => {

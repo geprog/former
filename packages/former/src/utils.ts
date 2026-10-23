@@ -242,7 +242,7 @@ export function isNodeLayoutComponent(node: InternalSchemaNode, components: Form
 }
 
 export function unsetDataOfNode(node: InternalSchemaNode, data: FormData | FieldData | undefined, components: FormComponents) {
-  if (data === undefined || typeof data !== 'object' || Array.isArray(data)) {
+  if (data === undefined || data === null || typeof data !== 'object' || Array.isArray(data)) {
     return;
   }
   if (node.name) {

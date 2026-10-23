@@ -1,3 +1,4 @@
+import type { Mode } from '~/types';
 import { mount } from '@vue/test-utils';
 import { describe, expect, it } from 'vitest';
 import { defineComponent, h, nextTick, provide, ref, type Ref } from 'vue';
@@ -5,8 +6,9 @@ import { usePresetValue } from './usePresetValue';
 
 function mountUsePresetValue(options: {
   modelValue: Ref<string | null | undefined>;
-  preset: Ref<string | undefined>;
+  preset: Ref<string | null | undefined>;
   hasDataKey?: Ref<boolean>;
+  mode?: Ref<Mode>;
 }) {
   const Field = defineComponent({
     setup() {
@@ -19,6 +21,9 @@ function mountUsePresetValue(options: {
     setup() {
       if (options.hasDataKey) {
         provide('hasDataKey', options.hasDataKey);
+      }
+      if (options.mode) {
+        provide('mode', options.mode);
       }
       return () => h(Field);
     },
@@ -57,6 +62,30 @@ describe('usePresetValue', () => {
     preset.value = 'second';
     await nextTick();
     expect(modelValue.value).toBeUndefined();
+  });
+
+  it('ignores a null preset', () => {
+    const modelValue = ref<string | null | undefined>(undefined);
+    mountUsePresetValue({ modelValue, preset: ref(null), hasDataKey: ref(false) });
+
+    expect(modelValue.value).toBeUndefined();
+  });
+
+  it('does not apply the preset in read mode', () => {
+    const modelValue = ref<string | null | undefined>(undefined);
+    mountUsePresetValue({ modelValue, preset: ref('preset'), hasDataKey: ref(false), mode: ref('read') });
+
+    expect(modelValue.value).toBeUndefined();
+  });
+
+  it('applies the preset when switching from read to edit mode while the key does not exist', async () => {
+    const modelValue = ref<string | null | undefined>(undefined);
+    const mode = ref<Mode>('read');
+    mountUsePresetValue({ modelValue, preset: ref('preset'), hasDataKey: ref(false), mode });
+
+    mode.value = 'edit';
+    await nextTick();
+    expect(modelValue.value).toBe('preset');
   });
 
   it('falls back to checking for an undefined model value outside of a form node', () => {

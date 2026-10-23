@@ -412,6 +412,36 @@ describe('component FormNodeProps', () => {
       });
       expect(selectedNode.value).toEqual(updated);
     });
+
+    it('removes cleared props instead of storing them as null', async () => {
+      const selectedNode = ref<InternalSchemaNode | undefined>({
+        _id: 'node-1',
+        type: 'text',
+        name: 'myField',
+        props: { label: 'Label', min: 1, keep: 0 },
+      });
+      const schema = ref<InternalSchemaNode[]>([
+        { _id: 'node-1', type: 'text', name: 'myField', props: { label: 'Label', min: 1, keep: 0 } },
+      ]);
+      const validator: Validator = () => true;
+      const wrapper = mount(FormNodeProps, {
+        shallow: true,
+        attachTo: document.body,
+        global: {
+          renderStubDefaultSlot: true,
+          provide: {
+            components: MINIMAL_COMPONENTS,
+            schema,
+            validator,
+            selectedNode,
+          },
+        },
+      });
+      const former = wrapper.findComponent(Former);
+      await former.vm.$emit('update:data', { $name: 'myField', label: null, min: undefined, keep: 0 });
+      const [, updated] = replaceNodeSpy.mock.calls[0]!;
+      expect(updated.props).toStrictEqual({ keep: 0 });
+    });
   });
 
   describe('valid forwarding', () => {
