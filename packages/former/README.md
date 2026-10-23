@@ -14,15 +14,15 @@ Create and test your own form at the [playground](https://geprog.github.io/forme
 ## Installation
 
 ```bash
-pnpm add former-ui
+pnpm add @former-ui/former
 ```
 
 ```bash
-npm install former-ui
+npm install @former-ui/former
 ```
 
 ```bash
-yarn add former-ui
+yarn add @former-ui/former
 ```
 
 ## Tailwind CSS Configuration
@@ -35,7 +35,7 @@ Import the pre-built CSS file in your app:
 
 ```js
 // In your main.js or main.ts
-import 'former-ui/former-ui.css';
+import '@former-ui/former/former-ui.css';
 ```
 
 Make sure your consuming app includes Tailwind's base reset in your own CSS:
@@ -49,7 +49,7 @@ Make sure your consuming app includes Tailwind's base reset in your own CSS:
 
 ### Option 2: Include Former UI in your Tailwind build
 
-If you want to include Former UI's classes in your own Tailwind build, add the library's source files to your Tailwind `content` configuration:
+If you want to include Former UI's classes in your own Tailwind build, add the library's build files to your Tailwind `content` configuration:
 
 ```js
 // tailwind.config.js
@@ -57,8 +57,8 @@ export default {
   content: [
     './index.html',
     './src/**/*.{vue,js,ts,jsx,tsx}',
-    // Include Former UI source files so Tailwind can scan them
-    './node_modules/former-ui/dist/**/*.{js,vue}',
+    // Include Former UI's build files so Tailwind can scan them
+    './node_modules/@former-ui/former/dist/**/*.js',
   ],
   theme: {
     extend: {
@@ -82,11 +82,10 @@ By default, Tailwind v4’s `dark` variant follows **`prefers-color-scheme`**. F
 
 @custom-variant dark (&:where(.dark, .dark *));
 
-/* Use `src` when linking the package in a monorepo; use `dist` if that is all your install contains. */
-@source '../node_modules/former-ui/src';
+@source '../node_modules/@former-ui/former/dist';
 ```
 
-You do **not** need `import 'former-ui/former-ui.css'` when Former is covered by your Tailwind build this way.
+You do **not** need `import '@former-ui/former/former-ui.css'` when Former is covered by your Tailwind build this way.
 
 ### Dark Mode Configuration
 
@@ -135,7 +134,7 @@ Just configure your form layout, define the components and let former do the res
 </template>
 
 <script setup lang="ts">
-import { FormAdd, type FormComponents, type FormData, Former, FormNodeProps, Mode, type SchemaNode } from '@former-ui/former';
+import { FormAdd, type FormComponents, FormContent, type FormData, Former, FormNodeProps, type Mode, type SchemaNode } from '@former-ui/former';
 import { markRaw, ref } from 'vue';
 
 import TextInput from './TextInput.vue';
@@ -234,9 +233,9 @@ Here is a sample text input implementation that is suitable for the above sample
 </template>
 
 <script setup lang="ts">
-import { toRef } from 'vue';
+import type { FormerProps } from '@former-ui/former';
 
-const props = withDefaults(
+withDefaults(
   defineProps<{
     label?: string;
     type?: 'text' | 'password' | 'email';
@@ -250,4 +249,8 @@ const modelValue = defineModel<string>();
 </script>
 ```
 
-For more detailed usage example check out the [Playground](https://github.com/geprog/former/blob/main/packages/former/src/Playground.vue) implementation.
+For more detailed usage example check out the [Playground](https://github.com/geprog/former/blob/main/packages/playground/src/Playground.vue) implementation.
+
+## Ready-to-use components
+
+If you use [Nuxt UI](https://ui.nuxt.com), [`@former-ui/preset-nuxt-ui`](https://github.com/geprog/former/blob/main/packages/preset-nuxt-ui/README.md) provides form components for text, numbers, dates, selections, file uploads, groups, columns, repeaters and more.
