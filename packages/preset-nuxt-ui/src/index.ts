@@ -39,7 +39,7 @@ function commonSchema(options: Partial<CommonSchemaOptions> & { t: (key: string)
     schema.push({
       type: 'text',
       name: '$name',
-      props: { label: t('technical_name'), required: true, mustBeTechnicalName: true },
+      props: { label: t('technical_name'), required: true },
     });
   }
   if (label) {
