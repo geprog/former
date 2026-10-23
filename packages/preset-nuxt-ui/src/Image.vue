@@ -25,11 +25,12 @@ const props = defineProps<
     label?: string;
   } & FormerProps
 >();
+const placeholderImage = new URL('./assets/image-placeholder.jpg', import.meta.url).href;
 const isOpen = ref(false);
 const mode = toRef(props, 'mode');
 const nodeId = toRef(props, 'id');
 const image = toRef(props, 'image');
-const src = computed(() => image.value || '/image-placeholder.jpg');
+const src = computed(() => image.value || placeholderImage);
 type SelectedNode = SchemaNode & { _id: string };
 const selectedNode = inject<Ref<SelectedNode | undefined>>('selectedNode', ref(undefined));
 
