@@ -1,6 +1,6 @@
 import { computed, onMounted, type Ref, watch } from 'vue';
 
-type Option = { label?: string; value: string; preset?: boolean };
+export type Option = { label?: string; value: string; preset?: boolean };
 
 type Config = {
   fallbackValueForLabel?: boolean;

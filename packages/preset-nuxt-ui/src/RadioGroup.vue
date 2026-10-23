@@ -6,8 +6,9 @@
 
 <script setup lang="ts">
 import type { FormerProps } from '@former-ui/former';
-import { toRef } from 'vue';
+import type { Option } from './composables/useOptions';
 
+import { toRef } from 'vue';
 import { useOptions } from './composables/useOptions';
 
 defineOptions({ inheritAttrs: false });
@@ -16,7 +17,7 @@ const props = defineProps<
   {
     label?: string;
     help?: string;
-    options?: { label?: string; value: string; presetFormula?: string }[];
+    options?: Option[];
   } & FormerProps
 >();
 

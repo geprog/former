@@ -2,6 +2,7 @@ import type { FormComponents, SchemaNode } from '@former-ui/former';
 import { markRaw } from 'vue';
 import Checkbox from './Checkbox.vue';
 import Columns from './Columns.vue';
+import ComboBox from './ComboBox.vue';
 import FileUpload from './FileUpload.vue';
 import Group from './Group.vue';
 import Image from './Image.vue';
@@ -235,6 +236,47 @@ export function formComponents(options?: { t: (key: string) => string }) {
       propsSchema: [
         ...commonSchema({ help: false, placeholder: false, t }),
         { type: 'text', name: 'accept', props: { label: t('accept') } },
+      ],
+    },
+    combo_box: {
+      label: t('combo_box'),
+      component: markRaw(ComboBox),
+      propsSchema: [
+        ...commonSchema({ t }),
+        {
+          type: 'repeater',
+          name: 'options',
+          children: [
+            {
+              type: 'text',
+              name: 'value',
+              props: {
+                label: t('technical_value'),
+                help: t('options_technical_value_help'),
+                required: true,
+              },
+            },
+            {
+              type: 'text',
+              name: 'label',
+              props: {
+                label: t('text'),
+                help: t('options_label_help'),
+                placeholder: t('optional'),
+              },
+            },
+            {
+              type: 'checkbox',
+              name: 'preset',
+              props: { label: t('preset_choice') },
+            },
+          ],
+          props: {
+            label: t('select_options'),
+            itemLabel: t('select_option'),
+          },
+        },
+        { type: 'checkbox', name: 'disableCustomValue', props: { label: t('disable_custom_value') } },
       ],
     },
   } satisfies FormComponents;
