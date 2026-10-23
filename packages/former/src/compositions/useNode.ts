@@ -75,6 +75,10 @@ export default function useNode(node: Ref<InternalSchemaNode>) {
     return true;
   });
 
+  // whether the node and all its parents are shown (e.g. hidden nodes stay mounted in build mode)
+  const parentIsShown = inject('isShown', false);
+  provide('isShown', computed(() => isShown.value && (parentIsShown?.value ?? true)));
+
   const validityMap = inject('validityMap');
 
   const childrenValidityMap = ref<Record<string, boolean | undefined>>({});

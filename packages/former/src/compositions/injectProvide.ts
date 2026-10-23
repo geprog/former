@@ -15,6 +15,7 @@ export type InjectKeys = {
   texts: Ref<Texts>;
   node: Ref<InternalSchemaNode>;
   hasDataKey?: Ref<boolean>;
+  isShown?: Ref<boolean>;
   rootData: Ref<FormData>;
   rootSchema: Ref<SchemaNode[]>;
 };
