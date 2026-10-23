@@ -8,8 +8,8 @@
     class="w-full"
   >
     <UInputMenu
-      v-bind="$attrs"
       v-model:model-value="modelValue"
+      :placeholder
       :items
       value-key="value"
       :create-item="disableCustomValue ? false : 'always'"
@@ -35,6 +35,7 @@ const props = defineProps<
     label?: string;
     required?: boolean;
     help?: string;
+    placeholder?: string;
     options?: Option[];
     disableCustomValue?: boolean;
   } & FormerProps

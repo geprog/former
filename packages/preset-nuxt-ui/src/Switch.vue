@@ -1,8 +1,9 @@
 <template>
-  <UFormField v-if="!(mode === 'read' && !$props.modelValue)" :error>
+  <UFormField v-if="!(mode === 'read' && !modelValue)" :error>
     <USwitch
       v-model:model-value="modelValue"
-      v-bind="$attrs"
+      :label
+      :required
       :disabled="mode === 'read'"
       :description="help"
     />
@@ -16,7 +17,14 @@ import { toRef } from 'vue';
 
 defineOptions({ inheritAttrs: false });
 
-const props = defineProps<{ help?: string; preset?: boolean } & FormerProps>();
+const props = defineProps<
+  {
+    label?: string;
+    required?: boolean;
+    help?: string;
+    preset?: boolean;
+  } & FormerProps
+>();
 
 const modelValue = defineModel<boolean | undefined>();
 const preset = toRef(props, 'preset');

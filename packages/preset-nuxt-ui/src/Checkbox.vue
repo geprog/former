@@ -1,8 +1,9 @@
 <template>
-  <UFormField v-if="!(mode === 'read' && !$props.modelValue)" :error>
+  <UFormField v-if="!(mode === 'read' && !modelValue)" :error>
     <UCheckbox
       v-model:model-value="modelValue"
-      v-bind="$attrs"
+      :label
+      :required
       :disabled="mode === 'read' || isUpdating"
       :description="help"
       @change="waitForUpdate"
@@ -17,7 +18,14 @@ import { ref, toRef } from 'vue';
 
 defineOptions({ inheritAttrs: false });
 
-const props = defineProps<{ help?: string; preset?: boolean } & FormerProps>();
+const props = defineProps<
+  {
+    label?: string;
+    required?: boolean;
+    help?: string;
+    preset?: boolean;
+  } & FormerProps
+>();
 
 const isUpdating = ref(false);
 

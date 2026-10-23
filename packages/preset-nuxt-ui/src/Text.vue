@@ -1,6 +1,6 @@
 <template>
   <UFormField v-if="!(mode === 'read' && !modelValue)" :label :required :description="help" :error class="w-full">
-    <UInput v-bind="$attrs" v-model:model-value="modelValue" type="text" size="lg" :disabled="mode === 'read'" />
+    <UInput v-model:model-value="modelValue" :placeholder type="text" size="lg" :disabled="mode === 'read'" />
   </UFormField>
 </template>
 
@@ -16,6 +16,7 @@ const props = defineProps<
     label?: string;
     required?: boolean;
     help?: string;
+    placeholder?: string;
     preset?: string;
   } & FormerProps
 >();

@@ -1,8 +1,8 @@
 <template>
   <UFormField v-if="!(mode === 'read' && (modelValue === undefined || modelValue === null))" :label :required :description="help" :error class="w-full">
     <UInputNumber
-      v-bind="$attrs"
       v-model:model-value="modelValue"
+      :placeholder
       :min
       :max
       :step="stepSize"
@@ -26,6 +26,7 @@ const props = defineProps<
     label?: string;
     required?: boolean;
     help?: string;
+    placeholder?: string;
     preset?: number;
     min?: number;
     max?: number;

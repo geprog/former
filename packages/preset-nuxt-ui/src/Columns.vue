@@ -21,6 +21,8 @@ import type { FormData, FormerProps } from '@former-ui/former';
 import { FormRenderer } from '@former-ui/former';
 import { computed } from 'vue';
 
+defineOptions({ inheritAttrs: false });
+
 const props = defineProps<
   {
     label?: string;

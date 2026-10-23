@@ -22,4 +22,20 @@ const UButton = defineComponent({
     h('button', { 'data-label': props.label, 'data-icon': props.icon, 'onClick': (event: MouseEvent) => emit('click', event) }, props.label),
 });
 
-export const nuxtUiStubs = { UFormField, UCard, UButton };
+// declares no props, so everything passed to it is rendered as attribute and can be checked
+function attributesStub(name: string) {
+  return defineComponent({
+    name,
+    setup: (_, { slots }) => () => h('div', { 'data-stub': name }, slots.default?.()),
+  });
+}
+
+export const nuxtUiStubs = {
+  UFormField,
+  UCard,
+  UButton,
+  ...Object.fromEntries(
+    ['UInput', 'UInputNumber', 'USelect', 'UInputMenu', 'UTextarea', 'UCheckbox', 'USwitch', 'URadioGroup', 'UInputDate', 'UFileUpload', 'UModal']
+      .map(name => [name, attributesStub(name)]),
+  ),
+};

@@ -1,7 +1,6 @@
 <template>
   <UFormField v-if="!(mode === 'read' && !modelValue)" :label :required :description="help" :error class="w-full">
     <UInputDate
-      v-bind="$attrs"
       :model-value="dateValue"
       :min-value="minValue"
       :max-value="maxValue"

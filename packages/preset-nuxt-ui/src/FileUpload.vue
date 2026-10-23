@@ -16,6 +16,8 @@
 import type { FormerProps } from '@former-ui/former';
 import { computed } from 'vue';
 
+defineOptions({ inheritAttrs: false });
+
 defineProps<
   {
     label?: string;

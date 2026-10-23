@@ -17,6 +17,8 @@
 import type { FormData, FormerProps } from '@former-ui/former';
 import { FormRenderer } from '@former-ui/former';
 
+defineOptions({ inheritAttrs: false });
+
 defineProps<
   {
     label?: string;

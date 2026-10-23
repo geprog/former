@@ -35,6 +35,8 @@ import { computed, toRaw } from 'vue';
 
 import RepeaterItem from './RepeaterItem.vue';
 
+defineOptions({ inheritAttrs: false });
+
 const props = defineProps<
   {
     label?: string;

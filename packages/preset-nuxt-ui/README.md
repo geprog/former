@@ -36,6 +36,8 @@ const components = formComponents({ t: key => key });
 
 Numbers and dates are formatted according to the locale of the surrounding `UApp`.
 
+The components only use the props that can be set in the form builder. Other props of a schema node (e.g. your own `showIf` condition) are ignored and not passed to the Nuxt UI components or the DOM.
+
 ## Storing form data
 
 Fields can have a preset value. A preset is applied as long as the field's key does not exist in the form data. This way a field that is newly added to a form, or that becomes visible again, gets its preset, while a field the user cleared on purpose stays empty.

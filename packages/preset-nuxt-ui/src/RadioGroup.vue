@@ -1,6 +1,6 @@
 <template>
   <UFormField v-if="!(mode === 'read' && !modelValue)" :description="help" :error>
-    <URadioGroup v-bind="$attrs" v-model:model-value="modelValue" :items :legend="label" :disabled="mode === 'read'" />
+    <URadioGroup v-model:model-value="modelValue" :items :legend="label" :required :disabled="mode === 'read'" />
   </UFormField>
 </template>
 
@@ -16,6 +16,7 @@ defineOptions({ inheritAttrs: false });
 const props = defineProps<
   {
     label?: string;
+    required?: boolean;
     help?: string;
     options?: Option[];
   } & FormerProps
