@@ -35,11 +35,13 @@
   },
   "peerDependencies": {
     "@former-ui/former": ">=0.0.0",
+    "@internationalized/date": "^3.0.0",
     "@nuxt/ui": "^4.7.0",
     "vue": "^3.5.0"
   },
   "devDependencies": {
     "@former-ui/former": "workspace:*",
+    "@internationalized/date": "3.12.1",
     "@nuxt/ui": "4.7.1",
     "@tsconfig/node22": "22.0.0",
     "@types/node": "22.10.1",

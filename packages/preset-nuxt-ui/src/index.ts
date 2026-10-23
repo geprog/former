@@ -3,6 +3,7 @@ import { markRaw } from 'vue';
 import Checkbox from './Checkbox.vue';
 import Columns from './Columns.vue';
 import ComboBox from './ComboBox.vue';
+import Date from './Date.vue';
 import FileUpload from './FileUpload.vue';
 import Group from './Group.vue';
 import Image from './Image.vue';
@@ -170,6 +171,16 @@ export function formComponents(options?: { t: (key: string) => string }) {
       propsSchema: [
         ...commonSchema({ placeholder: false, t }),
         { type: 'switch', name: 'preset', props: { label: t('preset_choice') } },
+      ],
+    },
+    date: {
+      label: t('date_field'),
+      component: markRaw(Date),
+      propsSchema: [
+        ...commonSchema({ placeholder: false, t }),
+        { type: 'date', name: 'min', props: { label: t('min_value') } },
+        { type: 'date', name: 'max', props: { label: t('max_value') } },
+        { type: 'date', name: 'preset', props: { label: t('preset_value') } },
       ],
     },
     radio_group: {

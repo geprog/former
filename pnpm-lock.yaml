@@ -133,6 +133,9 @@ importers:
       '@former-ui/former':
         specifier: workspace:*
         version: link:../former
+      '@internationalized/date':
+        specifier: 3.12.1
+        version: 3.12.1
       '@nuxt/ui':
         specifier: 4.7.1
         version: 4.7.1(@internationalized/date@3.12.1)(@internationalized/number@3.6.6)(@tiptap/extensions@3.22.5(@tiptap/core@3.22.5(@tiptap/pm@3.22.5))(@tiptap/pm@3.22.5))(@tiptap/y-tiptap@3.0.3(prosemirror-model@1.25.4)(prosemirror-state@1.4.4)(prosemirror-view@1.41.8)(y-protocols@1.0.7(yjs@13.6.30))(yjs@13.6.30))(embla-carousel@8.6.0)(magicast@0.5.2)(tailwindcss@4.2.4)(typescript@5.7.2)(vite@6.4.2(@types/node@22.10.1)(jiti@2.6.1)(lightningcss@1.32.0)(yaml@2.6.1))(vue@3.5.21(typescript@5.7.2))(yjs@13.6.30)
