@@ -187,7 +187,7 @@ export function formComponents(options?: { t: (key: string) => string }) {
       label: t('radio_group'),
       component: markRaw(RadioGroup),
       propsSchema: [
-        ...commonSchema({ placeholder: false, help: false, t }),
+        ...commonSchema({ placeholder: false, t }),
         optionsSchema({ t }),
       ],
     },
@@ -211,7 +211,7 @@ export function formComponents(options?: { t: (key: string) => string }) {
       label: t('image'),
       component: markRaw(Image),
       propsSchema: [
-        ...commonSchema({ name: false, label: true, t }),
+        ...commonSchema({ name: false, placeholder: false, help: false, required: false, t }),
         {
           type: 'file_upload',
           name: 'image',

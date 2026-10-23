@@ -38,7 +38,6 @@ import RepeaterItem from './RepeaterItem.vue';
 const props = defineProps<
   {
     label?: string;
-    placeholder?: string;
     required?: boolean;
     itemLabel?: string;
   } & FormerProps
