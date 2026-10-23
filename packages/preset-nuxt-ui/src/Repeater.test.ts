@@ -1,0 +1,84 @@
+import type { FormComponents, FormData, Mode, SchemaNode } from '@former-ui/former';
+import { Former } from '@former-ui/former';
+import { mount } from '@vue/test-utils';
+import { describe, expect, it } from 'vitest';
+import { defineComponent, h, markRaw, nextTick, ref } from 'vue';
+import { nuxtUiStubs } from '../test/nuxtUiStubs';
+import { formComponents } from './index';
+
+// keeps the value it was mounted with, like components with local state do
+const MountedValue = defineComponent({
+  props: { modelValue: { type: String, default: undefined } },
+  setup(props) {
+    const mountedValue = props.modelValue;
+    return () => h('span', { 'data-mounted-value': '' }, mountedValue);
+  },
+});
+
+const components: FormComponents = {
+  repeater: formComponents().repeater,
+  mounted_value: {
+    label: 'Mounted value',
+    propsSchema: [{ type: 'text', name: '$name' }],
+    component: markRaw(MountedValue),
+  },
+};
+
+const schema: SchemaNode[] = [
+  { type: 'repeater', name: 'items', children: [{ type: 'mounted_value', name: 'value' }] },
+];
+
+function mountRepeater(initialData: FormData, mode: Mode = 'edit') {
+  const data = ref<FormData>(initialData);
+  const wrapper = mount(Former, {
+    props: {
+      schema,
+      'data': data.value,
+      'onUpdate:data': (value: FormData) => (data.value = value),
+      components,
+      mode,
+    },
+    global: { components: nuxtUiStubs },
+  });
+  return { wrapper, data };
+}
+
+function mountedValues(wrapper: ReturnType<typeof mountRepeater>['wrapper']) {
+  return wrapper.findAll('[data-mounted-value]').map(element => element.text());
+}
+
+function deleteButtons(wrapper: ReturnType<typeof mountRepeater>['wrapper']) {
+  return wrapper.findAll('button').filter(button => button.attributes('data-icon') === 'i-heroicons-trash');
+}
+
+describe('repeater', () => {
+  it('renders an item for each entry', () => {
+    const { wrapper } = mountRepeater({ items: [{ value: 'a' }, { value: 'b' }] });
+
+    expect(mountedValues(wrapper)).toStrictEqual(['a', 'b']);
+  });
+
+  it('adds an empty item', async () => {
+    const { wrapper, data } = mountRepeater({ items: [{ value: 'a' }] });
+
+    await wrapper.find('button[data-label="Add item"]').trigger('click');
+    await nextTick();
+
+    expect(data.value.items).toStrictEqual([{ value: 'a' }, {}]);
+  });
+
+  it('deletes the clicked item', async () => {
+    const { wrapper, data } = mountRepeater({ items: [{ value: 'a' }, { value: 'b' }, { value: 'c' }] });
+
+    await deleteButtons(wrapper)[1]!.trigger('click');
+    await nextTick();
+
+    expect(data.value.items).toStrictEqual([{ value: 'a' }, { value: 'c' }]);
+  });
+
+  it('hides the add and delete buttons in read mode', () => {
+    const { wrapper } = mountRepeater({ items: [{ value: 'a' }] }, 'read');
+
+    expect(wrapper.findAll('button')).toHaveLength(0);
+  });
+});

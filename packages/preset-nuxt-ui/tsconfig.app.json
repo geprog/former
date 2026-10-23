@@ -5,5 +5,5 @@
     "noEmit": true,
     "skipLibCheck": true
   },
-  "include": ["src/**/*", "src/**/*.vue"]
+  "include": ["src/**/*", "src/**/*.vue", "test/**/*"]
 }
