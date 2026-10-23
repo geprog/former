@@ -1,4 +1,5 @@
-import { computed, onMounted, type Ref, watch } from 'vue';
+import { usePresetValue } from '@former-ui/former';
+import { computed, type Ref } from 'vue';
 
 export type Option = { label?: string; value: string; preset?: boolean };
 
@@ -26,17 +27,7 @@ export function useOptions<T extends Option>(
     return options.value?.map(option => ({ ...option, label: option.label ?? option.value })) ?? [];
   });
 
-  onMounted(() => {
-    if (presetOption.value && modelValue.value === undefined) {
-      modelValue.value = presetOption.value.value;
-    }
-  });
-
-  watch(presetOption, () => {
-    if (presetOption.value) {
-      modelValue.value = presetOption.value.value;
-    }
-  });
+  usePresetValue(modelValue, () => presetOption.value?.value);
 
   return {
     items,

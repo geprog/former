@@ -16,7 +16,8 @@
 
 <script setup lang="ts">
 import type { FormerProps } from '@former-ui/former';
-import { onMounted, ref, toRef, watch } from 'vue';
+import { usePresetValue } from '@former-ui/former';
+import { ref, toRef, watch } from 'vue';
 
 defineOptions({ inheritAttrs: false });
 
@@ -57,17 +58,7 @@ watch(
 
 const preset = toRef(props, 'preset');
 
-onMounted(() => {
-  if (modelValue.value === undefined) {
-    modelValue.value = preset.value;
-  }
-});
-
-watch(preset, () => {
-  if (preset.value !== undefined) {
-    modelValue.value = preset.value;
-  }
-});
+usePresetValue(modelValue, preset);
 
 function updateModelValue(value: string) {
   internalTextValue.value = value;

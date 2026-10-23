@@ -44,6 +44,15 @@ export default function useNode(node: Ref<InternalSchemaNode>) {
 
   provide('data', modelValue);
 
+  // whether the node's key exists in the data, regardless of its value (used e.g. for presets)
+  const hasDataKey = computed(() => {
+    if (!node.value.name || data.value === null || typeof data.value !== 'object' || Array.isArray(data.value)) {
+      return false;
+    }
+    return node.value.name in data.value;
+  });
+  provide('hasDataKey', hasDataKey);
+
   const validator = inject('validator', true);
   const error = computed(() => {
     const message = validator(node.value, modelValue.value);
@@ -102,5 +111,6 @@ export default function useNode(node: Ref<InternalSchemaNode>) {
     isShown,
     isValid,
     validityMap,
+    hasDataKey,
   };
 }

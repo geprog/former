@@ -6,7 +6,8 @@
 
 <script setup lang="ts">
 import type { FormerProps } from '@former-ui/former';
-import { onMounted, toRef } from 'vue';
+import { usePresetValue } from '@former-ui/former';
+import { toRef } from 'vue';
 
 defineOptions({ inheritAttrs: false });
 
@@ -22,8 +23,5 @@ const props = defineProps<
 const modelValue = defineModel<string>();
 const preset = toRef(props, 'preset');
 
-onMounted(() => {
-  if (modelValue.value === undefined && preset.value !== undefined)
-    modelValue.value = preset.value;
-});
+usePresetValue(modelValue, preset);
 </script>

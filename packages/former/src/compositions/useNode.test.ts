@@ -155,6 +155,38 @@ describe('useNode', () => {
     });
   });
 
+  describe('hasDataKey', () => {
+    it('is false when the key does not exist in the data', () => {
+      const node = ref<InternalSchemaNode>({ _id: 'n1', type: FIELD_TYPE, name: 'email' });
+      const data = ref<FormData>({ other: 1 });
+      const { hasDataKey } = mountUseNode({ node, data });
+      expect(hasDataKey.value).toBe(false);
+    });
+
+    it('is true when the key exists, even with an undefined value', () => {
+      const node = ref<InternalSchemaNode>({ _id: 'n1', type: FIELD_TYPE, name: 'email' });
+      const data = ref<FormData>({ email: undefined });
+      const { hasDataKey } = mountUseNode({ node, data });
+      expect(hasDataKey.value).toBe(true);
+    });
+
+    it('becomes true once the model value is set', () => {
+      const node = ref<InternalSchemaNode>({ _id: 'n1', type: FIELD_TYPE, name: 'email' });
+      const data = ref<FormData>({});
+      const { hasDataKey, modelValue } = mountUseNode({ node, data });
+      modelValue.value = undefined;
+      expect(hasDataKey.value).toBe(true);
+    });
+
+    it('is false for nodes without a name and for non-object data', () => {
+      const unnamed = ref<InternalSchemaNode>({ _id: 'n1', type: FIELD_TYPE });
+      expect(mountUseNode({ node: unnamed, data: ref<FormData>({ x: 1 }) }).hasDataKey.value).toBe(false);
+
+      const named = ref<InternalSchemaNode>({ _id: 'n2', type: FIELD_TYPE, name: 'length' });
+      expect(mountUseNode({ node: named, data: ref([1, 2]) }).hasDataKey.value).toBe(false);
+    });
+  });
+
   describe('modelValue (setter)', () => {
     it('for a layout node, replaces the full data ref', () => {
       const node = ref<InternalSchemaNode>({ _id: 'n1', type: LAYOUT_TYPE });

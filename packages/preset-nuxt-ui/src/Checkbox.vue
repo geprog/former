@@ -13,7 +13,8 @@
 
 <script setup lang="ts">
 import type { FormerProps } from '@former-ui/former';
-import { onMounted, ref, toRef, watch } from 'vue';
+import { usePresetValue } from '@former-ui/former';
+import { ref, toRef } from 'vue';
 
 defineOptions({ inheritAttrs: false });
 
@@ -25,18 +26,7 @@ const hasBlurred = ref(false);
 const modelValue = defineModel<boolean | undefined>();
 const preset = toRef(props, 'preset');
 
-// set the preset value to modelValue if modelValue is not set
-onMounted(() => {
-  if (preset.value && modelValue.value === undefined) {
-    modelValue.value = true;
-  }
-});
-
-watch(preset, () => {
-  if (preset.value !== undefined) {
-    modelValue.value = preset.value;
-  }
-});
+usePresetValue(modelValue, preset);
 
 function waitForUpdate() {
   isUpdating.value = true;

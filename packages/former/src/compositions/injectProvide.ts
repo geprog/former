@@ -14,6 +14,7 @@ export type InjectKeys = {
   validator: Validator;
   texts: Ref<Texts>;
   node: Ref<InternalSchemaNode>;
+  hasDataKey?: Ref<boolean>;
   rootData: Ref<FormData>;
   rootSchema: Ref<SchemaNode[]>;
 };
