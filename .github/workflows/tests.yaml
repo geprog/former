@@ -44,4 +44,6 @@ jobs:
       - uses: pnpm/action-setup@v4
         with:
           run_install: true
+      # the preset's tests use the built former package
+      - run: pnpm --filter @former-ui/former build
       - run: pnpm test

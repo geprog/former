@@ -30,6 +30,7 @@
     "node": ">=22.0.0"
   },
   "scripts": {
+    "dev": "vite build --watch",
     "build": "vite build",
     "prepack": "pnpm build",
     "test": "vitest --pass-with-no-tests",
