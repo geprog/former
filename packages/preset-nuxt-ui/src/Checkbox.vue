@@ -1,11 +1,10 @@
 <template>
-  <UFormField v-if="!(mode === 'read' && !$props.modelValue)" :error="hasBlurred && error">
+  <UFormField v-if="!(mode === 'read' && !$props.modelValue)" :error>
     <UCheckbox
       v-model:model-value="modelValue"
       v-bind="$attrs"
       :disabled="mode === 'read' || isUpdating"
       :description="help"
-      @blur="hasBlurred = true"
       @change="waitForUpdate"
     />
   </UFormField>
@@ -22,7 +21,6 @@ const props = defineProps<{ help?: string; preset?: boolean } & FormerProps>();
 
 const isUpdating = ref(false);
 
-const hasBlurred = ref(false);
 const modelValue = defineModel<boolean | undefined>();
 const preset = toRef(props, 'preset');
 
