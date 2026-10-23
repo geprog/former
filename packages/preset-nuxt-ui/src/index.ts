@@ -55,6 +55,42 @@ function commonSchema(options: Partial<CommonSchemaOptions> & { t: (key: string)
   return schema;
 }
 
+function optionsSchema({ t }: { t: (key: string) => string }): SchemaNode {
+  return {
+    type: 'repeater',
+    name: 'options',
+    children: [
+      {
+        type: 'text',
+        name: 'value',
+        props: {
+          label: t('technical_value'),
+          help: t('options_technical_value_help'),
+          required: true,
+        },
+      },
+      {
+        type: 'text',
+        name: 'label',
+        props: {
+          label: t('text'),
+          help: t('options_label_help'),
+          placeholder: t('optional'),
+        },
+      },
+      {
+        type: 'checkbox',
+        name: 'preset',
+        props: { label: t('preset_choice') },
+      },
+    ],
+    props: {
+      label: t('select_options'),
+      itemLabel: t('select_option'),
+    },
+  };
+}
+
 export function formComponents(options?: { t: (key: string) => string }) {
   const { t } = options || { t: (key: string) => key };
   return {
@@ -98,39 +134,7 @@ export function formComponents(options?: { t: (key: string) => string }) {
       component: markRaw(Select),
       propsSchema: [
         ...commonSchema({ t }),
-        {
-          type: 'repeater',
-          name: 'options',
-          children: [
-            {
-              type: 'text',
-              name: 'value',
-              props: {
-                label: t('technical_value'),
-                help: t('options_technical_value_help'),
-                required: true,
-              },
-            },
-            {
-              type: 'text',
-              name: 'label',
-              props: {
-                label: t('text'),
-                help: t('options_label_help'),
-                placeholder: t('optional'),
-              },
-            },
-            {
-              type: 'checkbox',
-              name: 'preset',
-              props: { label: t('preset_choice') },
-            },
-          ],
-          props: {
-            label: t('select_options'),
-            itemLabel: t('select_option'),
-          },
-        },
+        optionsSchema({ t }),
       ],
     },
     group: {
@@ -164,39 +168,7 @@ export function formComponents(options?: { t: (key: string) => string }) {
       component: markRaw(RadioGroup),
       propsSchema: [
         ...commonSchema({ placeholder: false, help: false, t }),
-        {
-          type: 'repeater',
-          name: 'options',
-          children: [
-            {
-              type: 'text',
-              name: 'value',
-              props: {
-                label: t('technical_value'),
-                help: t('options_technical_value_help'),
-                required: true,
-              },
-            },
-            {
-              type: 'text',
-              name: 'label',
-              props: {
-                label: t('text'),
-                help: t('options_label_help'),
-                placeholder: t('optional'),
-              },
-            },
-            {
-              type: 'checkbox',
-              name: 'preset',
-              props: { label: t('preset_choice') },
-            },
-          ],
-          props: {
-            label: t('select_options'),
-            itemLabel: t('select_option'),
-          },
-        },
+        optionsSchema({ t }),
       ],
     },
     textarea: {
@@ -243,39 +215,7 @@ export function formComponents(options?: { t: (key: string) => string }) {
       component: markRaw(ComboBox),
       propsSchema: [
         ...commonSchema({ t }),
-        {
-          type: 'repeater',
-          name: 'options',
-          children: [
-            {
-              type: 'text',
-              name: 'value',
-              props: {
-                label: t('technical_value'),
-                help: t('options_technical_value_help'),
-                required: true,
-              },
-            },
-            {
-              type: 'text',
-              name: 'label',
-              props: {
-                label: t('text'),
-                help: t('options_label_help'),
-                placeholder: t('optional'),
-              },
-            },
-            {
-              type: 'checkbox',
-              name: 'preset',
-              props: { label: t('preset_choice') },
-            },
-          ],
-          props: {
-            label: t('select_options'),
-            itemLabel: t('select_option'),
-          },
-        },
+        optionsSchema({ t }),
         { type: 'checkbox', name: 'disableCustomValue', props: { label: t('disable_custom_value') } },
       ],
     },
