@@ -8,7 +8,7 @@
       size="lg"
       :disabled="mode === 'read'"
       class="w-full"
-      @update:model-value="modelValue = $event?.toString() ?? null"
+      @update:model-value="modelValue = $event?.toString()"
     />
   </UFormField>
 </template>
@@ -33,7 +33,6 @@ const props = defineProps<
 >();
 
 // dates are stored as ISO strings (YYYY-MM-DD), formatting follows the locale of the surrounding UApp
-// a cleared field is `null` (not `undefined`) so the key survives JSON serialization
 const modelValue = defineModel<string | null | undefined>();
 const preset = toRef(props, 'preset');
 

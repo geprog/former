@@ -2,7 +2,7 @@
   <UFormField v-if="!(mode === 'read' && (modelValue === undefined || modelValue === null))" :label :required :description="help" :error class="w-full">
     <UInputNumber
       v-bind="$attrs"
-      :model-value="modelValue"
+      v-model:model-value="modelValue"
       :min
       :max
       :step="stepSize"
@@ -10,7 +10,6 @@
       size="lg"
       :disabled="mode === 'read'"
       class="w-full"
-      @update:model-value="modelValue = $event ?? null"
     />
   </UFormField>
 </template>
@@ -35,8 +34,6 @@ const props = defineProps<
 >();
 
 // formatting and parsing follow the locale of the surrounding UApp
-// a cleared field is `null` (not `undefined`) so the key survives JSON serialization
-// and the preset isn't re-applied after the data was saved and loaded again
 const modelValue = defineModel<number | null | undefined>();
 const preset = toRef(props, 'preset');
 

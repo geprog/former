@@ -1,0 +1,45 @@
+# 👩🏾‍🌾 Former – Nuxt UI preset
+
+Ready-to-use form components for [Former](../former/README.md) built with [Nuxt UI](https://ui.nuxt.com).
+
+## Installation
+
+```bash
+pnpm add @former-ui/former @former-ui/preset-nuxt-ui @nuxt/ui @internationalized/date
+```
+
+## Usage
+
+```vue
+<template>
+  <UApp :locale="de">
+    <Former v-model:schema="schema" v-model:data="data" :components mode="edit">
+      <FormContent />
+    </Former>
+  </UApp>
+</template>
+
+<script setup lang="ts">
+import type { FormData, SchemaNode } from '@former-ui/former';
+import { FormContent, Former } from '@former-ui/former';
+import { formComponents } from '@former-ui/preset-nuxt-ui';
+import { de } from '@nuxt/ui/locale';
+import { ref } from 'vue';
+
+const schema = ref<SchemaNode[]>([]);
+const data = ref<FormData>({});
+
+// `t` translates the labels of the components and their settings in the form builder
+const components = formComponents({ t: key => key });
+</script>
+```
+
+Numbers and dates are formatted according to the locale of the surrounding `UApp`.
+
+## Storing form data
+
+Fields can have a preset value. A preset is applied as long as the field's key does not exist in the form data. This way a field that is newly added to a form, or that becomes visible again, gets its preset, while a field the user cleared on purpose stays empty.
+
+A cleared field is therefore stored as `null`, never removed from the data. **Your backend must store and return `null` values unchanged.** If it drops them (e.g. `omitempty` in Go, `NON_NULL` in Jackson or `exclude_none` in Pydantic), cleared fields get their preset back the next time the form is opened.
+
+In read mode presets are never applied.
