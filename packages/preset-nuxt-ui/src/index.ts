@@ -112,7 +112,7 @@ export function formComponents(options?: { t: (key: string) => string }) {
         {
           type: 'number',
           name: 'stepSize',
-          props: { label: t('step_size'), preset: 1 },
+          props: { label: t('step_size'), min: 0, preset: 1 },
         },
         {
           type: 'number',
