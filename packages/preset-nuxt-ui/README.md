@@ -43,3 +43,5 @@ Fields can have a preset value. A preset is applied as long as the field's key d
 A cleared field is therefore stored as `null`, never removed from the data. **Your backend must store and return `null` values unchanged.** If it drops them (e.g. `omitempty` in Go, `NON_NULL` in Jackson or `exclude_none` in Pydantic), cleared fields get their preset back the next time the form is opened.
 
 In read mode presets are never applied.
+
+File uploads are stored as data URL with the file name as `name` parameter, e.g. `data:image/png;name=floor%20plan.png;base64,...`. Browsers ignore the parameter, so the value can be used as image source directly.

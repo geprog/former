@@ -1,18 +1,33 @@
 <template>
-  <UFormField :description="fileName">
-    <UFileUpload v-model:model-value="file" size="lg" variant="area" color="neutral" :accept />
+  <UFormField v-if="!(mode === 'read' && !modelValue)" :label :required :description="file?.name" :error class="w-full">
+    <UFileUpload
+      :model-value="file"
+      size="lg"
+      variant="area"
+      color="neutral"
+      :accept
+      :disabled="mode === 'read'"
+      @update:model-value="onSelect"
+    />
   </UFormField>
 </template>
 
 <script setup lang="ts">
 import type { FormerProps } from '@former-ui/former';
-import { onMounted, ref, watch } from 'vue';
+import { computed } from 'vue';
 
-defineProps<{
-  accept?: string;
-} & FormerProps>();
+defineProps<
+  {
+    label?: string;
+    required?: boolean;
+    accept?: string;
+  } & FormerProps
+>();
 
-function base64ToBytes(base64: string): Uint8Array {
+// the file is stored as data URL, its name is kept as `name` parameter: `data:image/png;name=plan.png;base64,...`
+const modelValue = defineModel<string | null>();
+
+function base64ToBytes(base64: string): Uint8Array<ArrayBuffer> {
   const bin = atob(base64);
   const out = new Uint8Array(bin.length);
   for (let i = 0; i < bin.length; i++) {
@@ -21,41 +36,34 @@ function base64ToBytes(base64: string): Uint8Array {
   return out;
 }
 
-const image = defineModel<string>();
-const fileName = ref('');
-
-const file = ref<File | null>(null);
-
-function dataURLtoFile(dataUrl: string, filename: string): File {
-  const [metaInformation, content] = dataUrl.split(',');
-  const mimeMatch = metaInformation?.match(/:(.*?);/);
-  const mime = mimeMatch?.[1];
-  const bytes = base64ToBytes(content ?? '');
-  return new File([bytes], filename, { type: mime });
+function dataUrlToFile(dataUrl: string): File {
+  const [metaInformation = '', content = ''] = dataUrl.split(',');
+  const [mime, ...parameters] = metaInformation.replace(/^data:/, '').split(';');
+  const nameParameter = parameters.find(parameter => parameter.startsWith('name='));
+  const name = nameParameter ? decodeURIComponent(nameParameter.slice('name='.length)) : '';
+  return new File([base64ToBytes(content)], name, { type: mime });
 }
 
-onMounted(() => {
-  if (image.value) {
-    file.value = dataURLtoFile(image.value, '');
-    if (!fileName.value)
-      fileName.value = file.value.name;
+function addFileName(dataUrl: string, name: string): string {
+  const index = dataUrl.indexOf(';base64,');
+  if (index === -1) {
+    return dataUrl;
   }
-});
+  return `${dataUrl.slice(0, index)};name=${encodeURIComponent(name)}${dataUrl.slice(index)}`;
+}
 
-watch(file, (newFile) => {
+const file = computed(() => (modelValue.value ? dataUrlToFile(modelValue.value) : null));
+
+function onSelect(newFile: File | null | undefined) {
   if (!newFile) {
-    image.value = '';
-    fileName.value = '';
+    modelValue.value = null;
     return;
   }
 
   const reader = new FileReader();
-
-  reader.onload = (e: ProgressEvent<FileReader>) => {
-    image.value = e.target?.result as string;
-    fileName.value = newFile.name;
+  reader.onload = () => {
+    modelValue.value = addFileName(reader.result as string, newFile.name);
   };
-
   reader.readAsDataURL(newFile);
-});
+}
 </script>
