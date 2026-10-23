@@ -34,6 +34,6 @@ const modelValue = defineModel<FormData | undefined>();
 const columns = computed(() =>
   typeof props.cols !== 'number' || props.cols < 0
     ? []
-    : [...Array.from({ length: props.cols })].map(column => `column-${column}`),
+    : Array.from({ length: props.cols }, (_, index) => `column-${index}`),
 );
 </script>
