@@ -10,6 +10,7 @@ import Number from './Number.vue';
 import RadioGroup from './RadioGroup.vue';
 import Repeater from './Repeater.vue';
 import Select from './Select.vue';
+import Switch from './Switch.vue';
 import Text from './Text.vue';
 import Textarea from './Textarea.vue';
 
@@ -161,6 +162,14 @@ export function formComponents(options?: { t: (key: string) => string }) {
       propsSchema: [
         ...commonSchema({ placeholder: false, t }),
         { type: 'checkbox', name: 'preset', props: { label: t('preset_choice') } },
+      ],
+    },
+    switch: {
+      label: t('switch'),
+      component: markRaw(Switch),
+      propsSchema: [
+        ...commonSchema({ placeholder: false, t }),
+        { type: 'switch', name: 'preset', props: { label: t('preset_choice') } },
       ],
     },
     radio_group: {
