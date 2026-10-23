@@ -27,7 +27,7 @@
             <span :class="{ 'text-red-500': !isValid }">Data {{ isValid ? 'valid' : 'invalid' }}</span>,
             <span :class="{ 'text-red-500': !isSchemaValid }">Schema {{ isSchemaValid ? 'valid' : 'invalid' }}</span>
           </div>
-          <Select v-model="componentSet" :options="componentSetOptions" />
+          <Select v-model="presetId" :options="presetOptions" />
           <Select v-model="mode" :options />
         </div>
 
@@ -109,42 +109,29 @@
 <script setup lang="ts">
 import type {
   FieldData,
-  FormComponents,
   FormData,
   Mode,
   SchemaNode,
 } from '@former-ui/former';
 import Button from '@/sample/Button.vue';
-
 import Checkbox from '@/sample/Checkbox.vue';
-
-import Columns from '@/sample/Columns.vue';
-
-import Group from '@/sample/Group.vue';
-import Repeater from '@/sample/Repeater.vue';
 import Select from '@/sample/Select.vue';
-import TextInput from '@/sample/TextInput.vue';
 import {
   FormAdd,
   FormContent,
   Former,
   FormNodeProps,
 } from '@former-ui/former';
-import { formComponents } from '@former-ui/preset-nuxt-ui';
 import { useStorage } from '@vueuse/core';
-import { computed, markRaw, ref } from 'vue';
-
-type ComponentSetId = 'sample' | 'nuxt';
+import { computed, ref } from 'vue';
+import { presets } from './presets';
 
 const mode = useStorage<Mode>('former:mode', 'build');
-const componentSet = useStorage<ComponentSetId>('former:componentSet', 'sample');
+const presetId = useStorage<string>('former:preset', presets[0].id);
 const activateShowIf = useStorage<boolean>('former:activateShowIf', false);
 const activateDarkMode = useStorage<boolean>('former:darkMode', false);
 
-const componentSetOptions: { label: string; value: ComponentSetId }[] = [
-  { label: 'Sample components', value: 'sample' },
-  { label: 'Nuxt UI preset', value: 'nuxt' },
-];
+const presetOptions = presets.map(preset => ({ label: preset.label, value: preset.id }));
 
 const options = [
   { label: 'build', value: 'build' },
@@ -302,183 +289,11 @@ const jsonSchema = computed<string>({
 
 const data = useStorage<FormData>('former:data', {});
 
-const showIfProp = { type: 'text', name: 'showIf', props: { label: 'Show if', placeholder: 'If empty or "hello" then component is visible.' } };
-
-const sampleFormComponents: FormComponents = {
-  text: {
-    label: 'Text',
-    component: markRaw(TextInput),
-    propsSchema: [
-      {
-        type: 'text',
-        name: '$name',
-        props: {
-          label: 'Name',
-          placeholder: 'Enter the name of the data field',
-          required: true,
-        },
-      },
-      {
-        type: 'text',
-        name: 'label',
-        props: {
-          label: 'Label',
-          placeholder: 'Enter a label',
-        },
-      },
-      {
-        type: 'text',
-        name: 'placeholder',
-        props: {
-          label: 'Placeholder',
-          placeholder: 'Enter a placeholder',
-        },
-      },
-      {
-        type: 'text',
-        name: 'initialValue',
-        props: {
-          label: 'Initial value',
-          placeholder: 'Enter an initial value here',
-        },
-      },
-      showIfProp,
-      {
-        type: 'checkbox',
-        name: 'required',
-        props: {
-          label: 'Is field required?',
-        },
-      },
-    ],
-  },
-  group: {
-    label: 'Group',
-    component: markRaw(Group),
-    propsSchema: [
-      {
-        type: 'text',
-        name: '$name',
-        props: {
-          label: 'Name',
-          placeholder: 'Enter the name of the data field',
-          required: true,
-        },
-      },
-      showIfProp,
-    ],
-  },
-  columns: {
-    label: 'Columns',
-    component: markRaw(Columns),
-    propsSchema: [
-      showIfProp,
-    ],
-  },
-  repeater: {
-    label: 'Repeater',
-    component: markRaw(Repeater),
-    propsSchema: [
-      {
-        type: 'text',
-        name: '$name',
-        props: {
-          label: 'Name',
-          placeholder: 'Enter the name of the data field',
-          required: true,
-        },
-      },
-      {
-        type: 'text',
-        name: 'label',
-        props: {
-          label: 'Label',
-          placeholder: 'Enter a label',
-        },
-      },
-      showIfProp,
-    ],
-  },
-  select: {
-    label: 'Select',
-    component: markRaw(Select),
-    propsSchema: [
-      {
-        type: 'text',
-        name: '$name',
-        props: {
-          label: 'Name',
-          placeholder: 'Enter the name of the data field',
-          required: true,
-        },
-      },
-      {
-        type: 'text',
-        name: 'label',
-        props: {
-          label: 'Label',
-          placeholder: 'Enter a label',
-        },
-      },
-      showIfProp,
-      {
-        type: 'repeater',
-        name: 'options',
-        children: [
-          {
-            type: 'text',
-            name: 'label',
-            props: {
-              type: 'text',
-              label: 'Label',
-              placeholder: 'Enter a label',
-            },
-          },
-          {
-            type: 'text',
-            name: 'value',
-            props: {
-              type: 'text',
-              label: 'Value',
-              placeholder: 'Enter a value',
-            },
-          },
-        ],
-        props: {
-          label: 'Options',
-        },
-      },
-    ],
-  },
-  checkbox: {
-    label: 'Checkbox',
-    component: markRaw(Checkbox),
-    propsSchema: [
-      {
-        type: 'text',
-        name: '$name',
-        props: {
-          label: 'Name',
-          placeholder: 'Enter the name of the data field',
-          required: true,
-        },
-      },
-      {
-        type: 'text',
-        name: 'label',
-        props: {
-          label: 'Label',
-          placeholder: 'Enter a label',
-        },
-      },
-      showIfProp,
-    ],
-  },
-};
-
-const activeComponents = computed<FormComponents>(() =>
-  componentSet.value === 'nuxt' ? formComponents() : sampleFormComponents,
-);
+const activeComponents = computed(() => {
+  // fall back to the first preset if the stored id doesn't exist (anymore)
+  const preset = presets.find(preset => preset.id === presetId.value) ?? presets[0];
+  return preset.components();
+});
 
 function showIf(node: SchemaNode, _data: FormData): boolean {
   if (!activateShowIf.value) {
