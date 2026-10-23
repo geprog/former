@@ -28,6 +28,7 @@
     "node": ">=22.0.0"
   },
   "scripts": {
+    "dev": "chokidar \"src/**/*\" --initial -c \"pnpm build\"",
     "build": "mkdist --src src --dist dist --declaration",
     "prepack": "pnpm build",
     "typecheck": "vue-tsc --build --force"
@@ -39,14 +40,15 @@
   },
   "devDependencies": {
     "@former-ui/former": "workspace:*",
-    "@nuxt/ui": "^4.7.1",
+    "@nuxt/ui": "4.7.1",
     "@tsconfig/node22": "22.0.0",
     "@types/node": "22.10.1",
     "@vue/tsconfig": "0.7.0",
-    "mkdist": "^2.4.1",
+    "chokidar-cli": "3.0.0",
+    "mkdist": "2.4.1",
     "typescript": "5.7.2",
     "vue": "3.5.21",
-    "vue-sfc-transformer": "^0.1.17",
+    "vue-sfc-transformer": "0.1.17",
     "vue-tsc": "3.0.7"
   }
 }
