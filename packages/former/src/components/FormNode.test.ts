@@ -229,6 +229,31 @@ describe('component FormNode', () => {
       expect(wrapper.find('[data-custom]').text()).toBe('abc');
     });
 
+    it('does not pass cleared (null) node props to the rendered component', () => {
+      const node: InternalSchemaNode = { _id: 'node-1', type: 'text', name: 'field', props: { custom: null } };
+      const data = ref<Record<string, unknown>>({ field: 'v' });
+      const validityMap = ref<Record<string, boolean | undefined>>({});
+      const mode = ref<'build' | 'read' | 'edit'>('build');
+      const selectedNode = ref<InternalSchemaNode | undefined>(undefined);
+      const formId = ref('form-123');
+      const validator: Validator = () => true;
+      const wrapper = mount(FormNode, {
+        props: { node },
+        global: {
+          provide: {
+            validator,
+            components: TEXT_COMPONENTS,
+            mode,
+            selectedNode,
+            formId,
+            data,
+            validityMap,
+          },
+        },
+      });
+      expect(wrapper.findComponent(DynamicComponent).props('custom')).toBeUndefined();
+    });
+
     it('passes id as node._id to the rendered component', () => {
       const node: InternalSchemaNode = { _id: 'node-42', type: 'text', name: 'field', props: { custom: 'x' } };
       const data = ref<Record<string, unknown>>({ field: 'v' });

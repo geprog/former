@@ -90,12 +90,6 @@ const data = computed({
     if (name !== undefined) {
       delete props.$name;
     }
-    // a cleared prop means the prop isn't set, so remove it instead of keeping it as `null`
-    for (const key of Object.keys(props)) {
-      if (props[key] === null || props[key] === undefined) {
-        delete props[key];
-      }
-    }
     const updatedNode = {
       ...selectedNode.value,
       name: name ?? selectedNode.value.name,

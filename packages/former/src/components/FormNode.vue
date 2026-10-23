@@ -14,7 +14,7 @@
     @dragstart.stop="startDrag($event, node._id)"
   >
     <span v-if="mode === 'build'" class="drag-handle !cursor-move p-2">::</span>
-    <component :is="component" v-if="component" v-bind="node.props" :id="node._id" v-model="modelValue" :mode :error>
+    <component :is="component" v-if="component" v-bind="componentProps" :id="node._id" v-model="modelValue" :mode :error>
       <slot />
     </component>
     <span v-else>Component type not found!</span>
@@ -39,6 +39,10 @@ const components = inject('components');
 const node = toRef(props, 'node');
 const { component, error, isShown, modelValue } = useNode(node);
 const isNodeValidFlag = computed(() => isNodeValid(node.value, validator, components.value));
+// cleared props are stored as `null` so their preset isn't applied again, but components should see them as not set
+const componentProps = computed(() =>
+  Object.fromEntries(Object.entries(node.value.props ?? {}).filter(([, value]) => value !== null)),
+);
 
 const mode = inject('mode');
 const selectedNode = inject('selectedNode');

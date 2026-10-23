@@ -413,7 +413,7 @@ describe('component FormNodeProps', () => {
       expect(selectedNode.value).toEqual(updated);
     });
 
-    it('removes cleared props instead of storing them as null', async () => {
+    it('keeps cleared props as null so their preset is not applied again', async () => {
       const selectedNode = ref<InternalSchemaNode | undefined>({
         _id: 'node-1',
         type: 'text',
@@ -440,7 +440,7 @@ describe('component FormNodeProps', () => {
       const former = wrapper.findComponent(Former);
       await former.vm.$emit('update:data', { $name: 'myField', label: null, min: undefined, keep: 0 });
       const [, updated] = replaceNodeSpy.mock.calls[0]!;
-      expect(updated.props).toStrictEqual({ keep: 0 });
+      expect(updated.props).toStrictEqual({ label: null, min: undefined, keep: 0 });
     });
   });
 
