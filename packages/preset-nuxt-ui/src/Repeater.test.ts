@@ -67,6 +67,15 @@ describe('repeater', () => {
     expect(data.value.items).toStrictEqual([{ value: 'a' }, {}]);
   });
 
+  it('adds an item when the repeater was cleared', async () => {
+    const { wrapper, data } = mountRepeater({ items: null });
+
+    await wrapper.find('button[data-label="Add item"]').trigger('click');
+    await nextTick();
+
+    expect(data.value.items).toStrictEqual([{}]);
+  });
+
   it('deletes the clicked item', async () => {
     const { wrapper, data } = mountRepeater({ items: [{ value: 'a' }, { value: 'b' }, { value: 'c' }] });
 
@@ -74,6 +83,15 @@ describe('repeater', () => {
     await nextTick();
 
     expect(data.value.items).toStrictEqual([{ value: 'a' }, { value: 'c' }]);
+  });
+
+  it('keeps the components of the remaining items when an item is deleted', async () => {
+    const { wrapper } = mountRepeater({ items: [{ value: 'a' }, { value: 'b' }, { value: 'c' }] });
+
+    await deleteButtons(wrapper)[0]!.trigger('click');
+    await nextTick();
+
+    expect(mountedValues(wrapper)).toStrictEqual(['b', 'c']);
   });
 
   it('hides the add and delete buttons in read mode', () => {

@@ -8,7 +8,7 @@
   >
     <RepeaterItem
       v-for="(item, index) in modelValue"
-      :key="index"
+      :key="itemKey(item, index)"
       :index
       :item
       :item-label
@@ -31,7 +31,7 @@
 
 <script setup lang="ts">
 import type { FormData, FormerProps } from '@former-ui/former';
-import { computed } from 'vue';
+import { computed, toRaw } from 'vue';
 
 import RepeaterItem from './RepeaterItem.vue';
 
@@ -49,14 +49,30 @@ const addButtonLabel = computed(() => {
   return `Add ${item}`;
 });
 
-const modelValue = defineModel<FormData[]>({
+const modelValue = defineModel<FormData[] | null>({
   default: () => [],
 });
 
+// items are keyed by their object, so the components of the remaining items are kept
+// when an item is deleted (keying by index would show other items in them)
+const itemKeys = new WeakMap<object, number>();
+let nextItemKey = 0;
+function itemKey(item: FormData, index: number) {
+  if (item === null || typeof item !== 'object') {
+    return `index-${index}`;
+  }
+  const raw = toRaw(item);
+  if (!itemKeys.has(raw)) {
+    itemKeys.set(raw, nextItemKey++);
+  }
+  return itemKeys.get(raw)!;
+}
+
 function addItem() {
-  modelValue.value = [...modelValue.value, {}];
+  modelValue.value = [...(modelValue.value ?? []), {}];
 }
 function deleteItem(index: number) {
-  modelValue.value = [...modelValue.value.slice(0, index), ...modelValue.value.slice(index + 1)];
+  const items = modelValue.value ?? [];
+  modelValue.value = [...items.slice(0, index), ...items.slice(index + 1)];
 }
 </script>
