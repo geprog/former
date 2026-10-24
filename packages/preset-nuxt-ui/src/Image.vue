@@ -17,6 +17,7 @@
 <script setup lang="ts">
 import type { FormerProps, SchemaNode } from '@former-ui/former';
 import { computed, inject, ref, type Ref, toRef } from 'vue';
+import { imagePlaceholder } from './imagePlaceholder';
 
 defineOptions({ inheritAttrs: false });
 const props = defineProps<
@@ -25,12 +26,11 @@ const props = defineProps<
     label?: string;
   } & FormerProps
 >();
-const placeholderImage = new URL('./assets/image-placeholder.jpg', import.meta.url).href;
 const isOpen = ref(false);
 const mode = toRef(props, 'mode');
 const nodeId = toRef(props, 'id');
 const image = toRef(props, 'image');
-const src = computed(() => image.value || placeholderImage);
+const src = computed(() => image.value || imagePlaceholder);
 type SelectedNode = SchemaNode & { _id: string };
 const selectedNode = inject<Ref<SelectedNode | undefined>>('selectedNode', ref(undefined));
 
