@@ -26,7 +26,7 @@ const props = defineProps<
   } & FormerProps
 >();
 
-const modelValue = defineModel<boolean | undefined>();
+const modelValue = defineModel<boolean | null>();
 const preset = toRef(props, 'preset');
 
 usePresetValue(modelValue, preset);

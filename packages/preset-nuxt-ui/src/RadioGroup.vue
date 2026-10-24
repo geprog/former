@@ -22,7 +22,7 @@ const props = defineProps<
   } & FormerProps
 >();
 
-const modelValue = defineModel<string>();
+const modelValue = defineModel<string | null>();
 
 const options = toRef(props, 'options');
 

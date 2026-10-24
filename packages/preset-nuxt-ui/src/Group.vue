@@ -25,5 +25,5 @@ defineProps<
     help?: string;
   } & FormerProps
 >();
-const modelValue = defineModel<FormData | undefined>();
+const modelValue = defineModel<FormData | null | undefined>();
 </script>

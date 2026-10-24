@@ -26,5 +26,5 @@ defineProps<
   } & FormerProps
 >();
 
-const modelValue = defineModel<string>();
+const modelValue = defineModel<string | null>();
 </script>

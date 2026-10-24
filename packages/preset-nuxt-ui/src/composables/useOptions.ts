@@ -8,7 +8,7 @@ type Config = {
 };
 
 export function useOptions<T extends Option>(
-  modelValue: Ref<string | undefined>,
+  modelValue: Ref<string | null | undefined>,
   options: Ref<T[] | undefined>,
   config?: Partial<Config>,
 ) {
