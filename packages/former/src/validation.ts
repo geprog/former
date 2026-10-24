@@ -1,55 +1,10 @@
+import type { StandardSchemaV1 } from '@standard-schema/spec';
 import type { FieldData, FormComponents, FormData, InternalSchemaNode, SchemaNode, Validator } from '~/types';
 import { cloneDeep } from 'lodash';
 import { type Ref, shallowRef, toRaw, watch } from 'vue';
 
-// The Standard Schema interface (https://standardschema.dev), copied as recommended by the spec
-// so that former works with any compliant library (e.g. Zod, Valibot, ArkType, Yup) without depending on one
-export interface StandardSchemaV1<Input = unknown, Output = Input> {
-  readonly '~standard': StandardSchemaV1.Props<Input, Output>;
-}
-
-// eslint-disable-next-line ts/no-namespace
-export declare namespace StandardSchemaV1 {
-  export interface Props<Input = unknown, Output = Input> {
-    readonly version: 1;
-    readonly vendor: string;
-    readonly validate: (value: unknown, options?: Options | undefined) => Result<Output> | Promise<Result<Output>>;
-    readonly types?: Types<Input, Output> | undefined;
-  }
-
-  export type Result<Output> = SuccessResult<Output> | FailureResult;
-
-  export interface SuccessResult<Output> {
-    readonly value: Output;
-    readonly issues?: undefined;
-  }
-
-  export interface Options {
-    readonly libraryOptions?: Record<string, unknown> | undefined;
-  }
-
-  export interface FailureResult {
-    readonly issues: ReadonlyArray<Issue>;
-  }
-
-  export interface Issue {
-    readonly message: string;
-    readonly path?: ReadonlyArray<PropertyKey | PathSegment> | undefined;
-  }
-
-  export interface PathSegment {
-    readonly key: PropertyKey;
-  }
-
-  export interface Types<Input = unknown, Output = Input> {
-    readonly input: Input;
-    readonly output: Output;
-  }
-
-  export type InferInput<Schema extends StandardSchemaV1> = NonNullable<Schema['~standard']['types']>['input'];
-
-  export type InferOutput<Schema extends StandardSchemaV1> = NonNullable<Schema['~standard']['types']>['output'];
-}
+// the Standard Schema (https://standardschema.dev) implemented by e.g. Zod, Valibot, ArkType and Yup
+export type { StandardSchemaV1 };
 
 export type MaybePromise<T> = T | Promise<T>;
 
