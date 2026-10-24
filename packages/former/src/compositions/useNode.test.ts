@@ -1,7 +1,8 @@
-import type { FormComponents, FormData, InternalSchemaNode, Validator } from '~/types';
+import type { FormComponents, FormData, FormFieldType, InternalSchemaNode } from '~/types';
 import { mount } from '@vue/test-utils';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { defineComponent, h, inject, nextTick, provide, ref, type Ref } from 'vue';
+import { z } from 'zod';
 import useNode from './useNode';
 
 const StubLayout = defineComponent({ name: 'StubLayout', template: '<div class="stub-layout" />' });
@@ -9,7 +10,7 @@ const StubField = defineComponent({ name: 'StubField', template: '<div class="st
 
 const LAYOUT_TYPE = 'box';
 const FIELD_TYPE = 'textField';
-function defaultComponents(): FormComponents {
+function defaultComponents(validation?: FormFieldType['validation']): FormComponents {
   return {
     [LAYOUT_TYPE]: {
       label: 'Box',
@@ -20,6 +21,7 @@ function defaultComponents(): FormComponents {
       label: 'Text field',
       propsSchema: [{ type: 'text', name: '$name' }],
       component: StubField,
+      validation,
     },
   };
 }
@@ -29,7 +31,7 @@ type MountUseNodeOptions = {
   data?: Ref<FormData | unknown>;
   validityMap?: Ref<Record<string, boolean | undefined>>;
   components?: Ref<FormComponents>;
-  validator?: Validator;
+  validation?: FormFieldType['validation'];
   /** Omit key so `showIf` is not provided. Use `showIf: undefined` to call `provide('showIf', undefined)`. */
   showIf?: ((node: InternalSchemaNode) => boolean) | undefined;
   injectChildValidity?: Record<string, boolean | undefined>;
@@ -38,8 +40,7 @@ type MountUseNodeOptions = {
 function mountUseNode(options: MountUseNodeOptions) {
   const data = options.data ?? ref<FormData>({});
   const validityMap = options.validityMap ?? ref<Record<string, boolean | undefined>>({});
-  const components = options.components ?? ref(defaultComponents());
-  const validator = options.validator ?? vi.fn<Validator>(() => true);
+  const components = options.components ?? ref(defaultComponents(options.validation));
 
   const ValidityInjector = defineComponent({
     name: 'ValidityInjector',
@@ -72,7 +73,6 @@ function mountUseNode(options: MountUseNodeOptions) {
       provide('data', data);
       provide('components', components);
       provide('validityMap', validityMap);
-      provide('validator', validator);
       if ('showIf' in options) {
         provide('showIf', options.showIf);
       }
@@ -86,7 +86,7 @@ function mountUseNode(options: MountUseNodeOptions) {
     throw new Error('useNodeResult is undefined');
   }
 
-  return { ...useNodeResult, data, validityMap, validator };
+  return { ...useNodeResult, data, validityMap };
 }
 
 describe('useNode', () => {
@@ -268,18 +268,39 @@ describe('useNode', () => {
   });
 
   describe('error', () => {
-    it('is undefined when the validator returns true', () => {
+    it('is undefined without a validation of the component', () => {
       const node = ref<InternalSchemaNode>({ _id: 'n1', type: FIELD_TYPE, name: 'a' });
-      const validator = vi.fn<Validator>(() => true);
-      const { error } = mountUseNode({ node, validator });
+      const { error } = mountUseNode({ node });
       expect(error.value).toBeUndefined();
     });
 
-    it('is the string message when the validator returns a string', () => {
+    it('is undefined when the data passes the schema of the component', () => {
       const node = ref<InternalSchemaNode>({ _id: 'n1', type: FIELD_TYPE, name: 'a' });
-      const validator: Validator = vi.fn(() => 'bad');
-      const { error } = mountUseNode({ node, validator });
+      const { error } = mountUseNode({ node, data: ref({ a: 'x' }), validation: () => z.string() });
+      expect(error.value).toBeUndefined();
+    });
+
+    it('is the message of the first issue of the schema of the component', () => {
+      const node = ref<InternalSchemaNode>({ _id: 'n1', type: FIELD_TYPE, name: 'a' });
+      const { error } = mountUseNode({ node, data: ref({ a: '' }), validation: () => z.string().min(1, 'bad') });
       expect(error.value).toBe('bad');
+    });
+
+    it('passes the props and the context of the node to the validation', () => {
+      const node = ref<InternalSchemaNode>({ _id: 'n1', type: FIELD_TYPE, name: 'a', props: { min: 1 } });
+      const data = ref({ a: 'x' });
+      const validation = vi.fn(() => undefined);
+      mountUseNode({ node, data, validation });
+      expect(validation).toHaveBeenCalledWith({ min: 1 }, { node: node.value, path: ['a'], scopes: [{ data: data.value, path: [] }] });
+    });
+
+    it('updates when the data changes', () => {
+      const node = ref<InternalSchemaNode>({ _id: 'n1', type: FIELD_TYPE, name: 'a' });
+      const data = ref<FormData>({ a: '' });
+      const { error } = mountUseNode({ node, data, validation: () => z.string().min(1, 'bad') });
+      expect(error.value).toBe('bad');
+      data.value.a = 'x';
+      expect(error.value).toBeUndefined();
     });
   });
 
@@ -308,8 +329,7 @@ describe('useNode', () => {
   describe('isValid and validityMap', () => {
     it('is invalid when the field error is set', () => {
       const node = ref<InternalSchemaNode>({ _id: 'n1', type: FIELD_TYPE, name: 'a' });
-      const validator: Validator = vi.fn(() => 'err');
-      const { isValid } = mountUseNode({ node, validator });
+      const { isValid } = mountUseNode({ node, validation: () => z.string('err') });
       expect(isValid.value).toBe(false);
     });
 
@@ -387,12 +407,11 @@ describe('useNode', () => {
   });
 
   describe('missing injection (errors)', () => {
-    function mountBrokenParent(provideKeys: Array<'data' | 'components' | 'validityMap' | 'validator'>) {
+    function mountBrokenParent(provideKeys: Array<'data' | 'components' | 'validityMap'>) {
       const node = ref<InternalSchemaNode>({ _id: 'n1', type: FIELD_TYPE, name: 'a' });
       const data = ref<FormData>({});
       const validityMap = ref<Record<string, boolean | undefined>>({});
       const components = defaultComponents();
-      const validator: Validator = () => true;
 
       const Harness = defineComponent({
         name: 'UseNodeHarness',
@@ -414,9 +433,6 @@ describe('useNode', () => {
           if (provideKeys.includes('validityMap')) {
             provide('validityMap', validityMap);
           }
-          if (provideKeys.includes('validator')) {
-            provide('validator', validator);
-          }
           return () => h(Harness);
         },
       });
@@ -426,25 +442,19 @@ describe('useNode', () => {
 
     it('throws when data is not provided (required inject)', () => {
       expect(() =>
-        mountBrokenParent(['components', 'validityMap', 'validator']),
+        mountBrokenParent(['components', 'validityMap']),
       ).toThrow('Please provide a value for data');
     });
 
     it('throws when components is not provided', () => {
       expect(() =>
-        mountBrokenParent(['data', 'validityMap', 'validator']),
+        mountBrokenParent(['data', 'validityMap']),
       ).toThrow('Please provide a value for components');
-    });
-
-    it('throws when validator is not provided', () => {
-      expect(() =>
-        mountBrokenParent(['data', 'components', 'validityMap']),
-      ).toThrow('Please provide a value for validator');
     });
 
     it('throws when validityMap is not provided', () => {
       expect(() =>
-        mountBrokenParent(['data', 'components', 'validator']),
+        mountBrokenParent(['data', 'components']),
       ).toThrow('Please provide a value for validityMap');
     });
   });

@@ -1,5 +1,4 @@
-import type { StandardSchemaV1 } from '@standard-schema/spec';
-import type { DataScope, FieldData, FormComponents, FormData, InternalSchemaNode, InternalShowIfPredicate, Mode, SchemaNode, Texts, Validator } from '~/types';
+import type { DataScope, FieldData, FormComponents, FormData, InternalSchemaNode, InternalShowIfPredicate, Mode, SchemaNode, Texts } from '~/types';
 import { getCurrentInstance, type InjectionKey, type Ref, inject as vueInject, provide as vueProvide } from 'vue';
 
 export type InjectKeys = {
@@ -12,9 +11,6 @@ export type InjectKeys = {
   selectedNode: Ref<InternalSchemaNode | undefined>;
   validityMap: Ref<Record<string, boolean | undefined>>;
   showIf?: InternalShowIfPredicate;
-  validator: Validator | StandardSchemaV1;
-  // the issues of validating the whole form data with a Standard Schema passed as `validator`
-  formIssues?: Ref<ReadonlyArray<StandardSchemaV1.Issue>>;
   // the scopes of data the nodes are relative to (e.g. groups or repeater items), closest first,
   // to find the issues of nodes and passed to the validation of components
   dataScopes?: Ref<DataScope[]>;

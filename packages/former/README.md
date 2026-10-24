@@ -253,50 +253,13 @@ For more detailed usage example check out the [Playground](https://github.com/ge
 
 ## Form data and validation
 
-Pass a `validator` to `Former` to validate the fields. It is called with the node and its value and returns `true` or an error message:
+Each component validates its data with a schema built from the props of its node, e.g. `required`, `min` or `max`. Add a `validation` to its definition in the `components`, which is applied to every node of the component, including the props of the nodes in build mode. The first issue of the schema is passed as `error` to the component, while a form with an error emits `valid` as `false`.
 
-```ts
-function validator(node: SchemaNode, data: FieldData | FormData): true | string {
-  if (node.props?.required && (data === undefined || data === null || data === '')) {
-    return 'Value is required';
-  }
-  return true;
-}
-```
-
-The validator may also be async and return a promise.
-
-### Standard Schema (Zod, Valibot, ArkType, Yup, ...)
-
-The validation supports [Standard Schema](https://standardschema.dev), so any compliant library like [Zod](https://zod.dev), [Valibot](https://valibot.dev), [ArkType](https://arktype.io) or [Yup](https://github.com/jquense/yup) can be used.
-
-Pass a schema of the whole form data as `validator`. Each issue is shown at the node its path points to, including nodes in groups and repeaters (e.g. `['items', 1, 'title']`):
+The validation supports [Standard Schema](https://standardschema.dev), so any compliant library like [Zod](https://zod.dev), [Valibot](https://valibot.dev), [ArkType](https://arktype.io) or [Yup](https://github.com/jquense/yup) can be used, also with async schemas:
 
 ```ts
 import { z } from 'zod';
 
-const validator = z.object({
-  name: z.string().min(1, 'Name is required'),
-  address: z.object({ street: z.string().min(1, 'Street is required') }),
-  items: z.array(z.object({ title: z.string().min(1, 'Title is required') })),
-});
-```
-
-Issues of hidden nodes (see `showIf`) are ignored, while issues without a path (e.g. of a refinement comparing multiple fields) make the form invalid. A schema of the form data isn't applied to the props of the nodes in build mode.
-
-For forms built by the user, a validator function can return a schema for each node instead of an error message:
-
-```ts
-function validator(node: SchemaNode): ValidationResult {
-  return node.props?.required ? z.string('Value is required').min(1, 'Value is required') : true;
-}
-```
-
-### Validation of components
-
-Instead of writing a validator for every form, a component can validate its data itself with a schema built from the props of its node, e.g. `required`, `min` or `max`. Add a `validation` to its definition in the `components`, which is applied to every node of the component, including the props of the nodes in build mode:
-
-```ts
 const components: FormComponents = {
   number: {
     label: 'Number',
@@ -316,7 +279,7 @@ const components: FormComponents = {
 };
 ```
 
-Its second parameter is the context of the node, so the validation can be relative to other data:
+The second parameter of the validation is the context of the node, so the validation can be relative to other data:
 
 - `scopes`: all scopes containing the node from the closest one to the form data, e.g. `[repeater item, group, form]` for a field in a repeater item inside of a group. Each scope has its `data`, its `path` and the `node` providing it (the group or repeater, unset for the form)
 - `path`: the path of the data of the node in the form data, e.g. `['periods', 1, 'end']`
@@ -330,15 +293,17 @@ const validation: FormFieldType['validation'] = (props, { scopes }) => {
 };
 ```
 
-The error of the component is shown before the one of the `validator`, which can still be used for additional rules of the form.
+Data from outside of the form (e.g. options loaded from a server) can be used by creating the `components` in a function receiving it.
+
+Hidden nodes (see `showIf`) are not validated.
 
 [Superstruct](https://docs.superstructjs.org) doesn't implement Standard Schema itself, so wrap its structs with `fromSuperstruct`:
 
 ```ts
 import { fromSuperstruct } from '@former-ui/former';
-import { object, string } from 'superstruct';
+import { string } from 'superstruct';
 
-const validator = fromSuperstruct(object({ name: string() }));
+const validation: FormFieldType['validation'] = () => fromSuperstruct(string());
 ```
 
 When the user clears a field, its value is set to `null` instead of being removed from the data. This way the key survives JSON serialization and e.g. a preset value is not applied again after the data was saved and loaded. A field that was never filled in is `undefined`, so check for both when testing for an empty value. The exported `hasValue` helper treats `undefined`, `null`, `''`, `false` and empty lists and objects without any filled in value as empty, while a list with items counts as filled in even if its items are empty. With a schema, optional fields therefore need to accept `null` as well, e.g. with `.nullish()` of Zod.

@@ -1,8 +1,9 @@
 import type { Ref } from 'vue';
-import type { FieldData, FormComponents, FormData, InternalSchemaNode, InternalShowIfPredicate, Mode, SchemaNode, ShowIfPredicate, Texts, Validator } from '~/types';
+import type { FieldData, FormComponents, FormData, InternalSchemaNode, InternalShowIfPredicate, Mode, SchemaNode, ShowIfPredicate, Texts } from '~/types';
 import { mount } from '@vue/test-utils';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { defineComponent, h, markRaw, nextTick, onBeforeUnmount } from 'vue';
+import { z } from 'zod';
 import { inject as formerInject } from '~/compositions/injectProvide';
 import { toInternalSchema } from '~/utils';
 
@@ -401,8 +402,8 @@ describe('component Former', () => {
     });
   });
 
-  describe('validator and schemaValid', () => {
-    it('emits schemaValid true for an empty schema with default validator', async () => {
+  describe('schemaValid', () => {
+    it('emits schemaValid true for an empty schema', async () => {
       const onSchemaValid = vi.fn();
       mount(Former, {
         shallow: true,
@@ -423,9 +424,14 @@ describe('component Former', () => {
       expect(schemaCalls[schemaCalls.length - 1]?.[0]).toBe(true);
     });
 
-    it('emits schemaValid false when validator returns an error string', async () => {
-      const validator: Validator = (propsNode, value) =>
-        propsNode.name === '$name' && value === '' ? 'required' : true;
+    it('emits schemaValid false when the validation of a props component fails', async () => {
+      const components: FormComponents = {
+        text: {
+          ...COMPONENTS_FIXTURE.text,
+          validation: ({ required }) => (required ? z.string().min(1, 'required') : undefined),
+          propsSchema: [{ type: 'text', name: '$name', props: { required: true } }],
+        },
+      };
       const onSchemaValid = vi.fn();
       mount(Former, {
         shallow: true,
@@ -434,11 +440,10 @@ describe('component Former', () => {
         props: {
           schema: [{ type: 'text', name: '' }],
           data: {},
-          components: COMPONENTS_FIXTURE,
+          components,
           mode: 'edit',
           texts: {},
           isUpdating: false,
-          validator,
           onSchemaValid,
         },
       });

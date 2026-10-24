@@ -20,12 +20,6 @@ export type ShowIfPredicate = (node: SchemaNode, data: FormData, schema: SchemaN
 
 export type InternalShowIfPredicate = (node: SchemaNode) => boolean;
 
-// `true` if the data is valid, otherwise an error message or a Standard Schema (e.g. of Zod) to validate the data with
-export type ValidationResult = true | string | StandardSchemaV1;
-
-// `data` is `null` for a cleared field and `undefined` for a field that was never filled in
-export type Validator = (node: SchemaNode, data: FieldData | FormData) => ValidationResult | Promise<ValidationResult>;
-
 // the path of data in the form data, e.g. `['items', 1, 'title']`
 export type DataPath = ReadonlyArray<string | number>;
 

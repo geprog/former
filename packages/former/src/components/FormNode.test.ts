@@ -1,7 +1,8 @@
-import type { FormComponents, InternalSchemaNode, Validator } from '~/types';
+import type { FormComponents, InternalSchemaNode } from '~/types';
 import { mount } from '@vue/test-utils';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { defineComponent, h, inject, markRaw, nextTick, ref, type Ref } from 'vue';
+import { z } from 'zod';
 import * as utils from '~/utils';
 
 import FormNode from './FormNode.vue';
@@ -40,8 +41,14 @@ const SlotProbe = defineComponent({
 const TEXT_COMPONENTS: Ref<FormComponents> = ref({
   text: {
     label: 'Text',
-    propsSchema: [{ type: 'text', name: '$name' }],
+    propsSchema: [{ type: 'text', name: '$name', props: { required: true } }],
     component: markRaw(DynamicComponent),
+    validation: ({ required, errorMessage }) => {
+      if (errorMessage) {
+        return z.never(errorMessage);
+      }
+      return required ? z.string().min(1, 'required') : undefined;
+    },
   },
 });
 
@@ -66,12 +73,10 @@ describe('component FormNode', () => {
       const mode = ref<'build' | 'read' | 'edit'>('build');
       const selectedNode = ref<InternalSchemaNode | undefined>(undefined);
       const formId = ref('form-123');
-      const validator: Validator = () => true;
       const wrapper = mount(FormNode, {
         props: { node },
         global: {
           provide: {
-            validator,
             components: TEXT_COMPONENTS,
             mode,
             selectedNode,
@@ -93,12 +98,10 @@ describe('component FormNode', () => {
       const mode = ref<'build' | 'read' | 'edit'>('build');
       const selectedNode = ref<InternalSchemaNode | undefined>(undefined);
       const formId = ref('form-123');
-      const validator: Validator = () => true;
       const wrapper = mount(FormNode, {
         props: { node },
         global: {
           provide: {
-            validator,
             components: TEXT_COMPONENTS,
             mode,
             selectedNode,
@@ -125,7 +128,6 @@ describe('component FormNode', () => {
         props: { node },
         global: {
           provide: {
-            validator: () => true,
             components: TEXT_COMPONENTS,
             mode: ref(modeValue),
             selectedNode: ref(undefined),
@@ -146,12 +148,10 @@ describe('component FormNode', () => {
       const mode = ref<'build' | 'read' | 'edit'>('read');
       const selectedNode = ref<InternalSchemaNode | undefined>(undefined);
       const formId = ref('form-123');
-      const validator: Validator = () => true;
       const wrapper = mount(FormNode, {
         props: { node },
         global: {
           provide: {
-            validator,
             components: TEXT_COMPONENTS,
             mode,
             selectedNode,
@@ -175,12 +175,10 @@ describe('component FormNode', () => {
       const mode = ref<'build' | 'read' | 'edit'>('build');
       const selectedNode = ref<InternalSchemaNode | undefined>(undefined);
       const formId = ref('form-123');
-      const validator: Validator = () => true;
       const wrapper = mount(FormNode, {
         props: { node },
         global: {
           provide: {
-            validator,
             components: TEXT_COMPONENTS,
             mode,
             selectedNode,
@@ -201,7 +199,6 @@ describe('component FormNode', () => {
       const mode = ref<'build' | 'read' | 'edit'>('build');
       const selectedNode = ref<InternalSchemaNode | undefined>(undefined);
       const formId = ref('form-123');
-      const validator: Validator = () => true;
       const componentsNoView: Ref<FormComponents> = ref({
         text: {
           label: 'Text',
@@ -213,7 +210,6 @@ describe('component FormNode', () => {
         props: { node },
         global: {
           provide: {
-            validator,
             components: componentsNoView,
             mode,
             selectedNode,
@@ -236,12 +232,10 @@ describe('component FormNode', () => {
       const mode = ref<'build' | 'read' | 'edit'>('build');
       const selectedNode = ref<InternalSchemaNode | undefined>(undefined);
       const formId = ref('form-123');
-      const validator: Validator = () => true;
       const wrapper = mount(FormNode, {
         props: { node },
         global: {
           provide: {
-            validator,
             components: TEXT_COMPONENTS,
             mode,
             selectedNode,
@@ -262,12 +256,10 @@ describe('component FormNode', () => {
       const mode = ref<'build' | 'read' | 'edit'>('build');
       const selectedNode = ref<InternalSchemaNode | undefined>(undefined);
       const formId = ref('form-123');
-      const validator: Validator = () => true;
       const wrapper = mount(FormNode, {
         props: { node },
         global: {
           provide: {
-            validator,
             components: TEXT_COMPONENTS,
             mode,
             selectedNode,
@@ -287,12 +279,10 @@ describe('component FormNode', () => {
       const mode = ref<'build' | 'read' | 'edit'>('build');
       const selectedNode = ref<InternalSchemaNode | undefined>(undefined);
       const formId = ref('form-123');
-      const validator: Validator = () => true;
       const wrapper = mount(FormNode, {
         props: { node },
         global: {
           provide: {
-            validator,
             components: TEXT_COMPONENTS,
             mode,
             selectedNode,
@@ -313,12 +303,10 @@ describe('component FormNode', () => {
       const mode = ref<'build' | 'read' | 'edit'>('read');
       const selectedNode = ref<InternalSchemaNode | undefined>(undefined);
       const formId = ref('form-123');
-      const validator: Validator = () => true;
       const wrapper = mount(FormNode, {
         props: { node },
         global: {
           provide: {
-            validator,
             components: TEXT_COMPONENTS,
             mode,
             selectedNode,
@@ -333,18 +321,16 @@ describe('component FormNode', () => {
     });
 
     it('passes error prop from useNode to the rendered component', () => {
-      const node: InternalSchemaNode = { _id: 'node-1', type: 'text', name: 'field', props: { custom: 'x' } };
+      const node: InternalSchemaNode = { _id: 'node-1', type: 'text', name: 'field', props: { custom: 'x', errorMessage: 'bad input' } };
       const data = ref<Record<string, unknown>>({ field: 'v' });
       const validityMap = ref<Record<string, boolean | undefined>>({});
       const mode = ref<'build' | 'read' | 'edit'>('build');
       const selectedNode = ref<InternalSchemaNode | undefined>(undefined);
       const formId = ref('form-123');
-      const validator: Validator = () => 'bad input';
       const wrapper = mount(FormNode, {
         props: { node },
         global: {
           provide: {
-            validator,
             components: TEXT_COMPONENTS,
             mode,
             selectedNode,
@@ -365,12 +351,10 @@ describe('component FormNode', () => {
       const mode = ref<'build' | 'read' | 'edit'>('build');
       const selectedNode = ref<InternalSchemaNode | undefined>(undefined);
       const formId = ref('form-123');
-      const validator: Validator = () => true;
       const wrapper = mount(FormNode, {
         props: { node },
         global: {
           provide: {
-            validator,
             components: TEXT_COMPONENTS,
             mode,
             selectedNode,
@@ -394,12 +378,10 @@ describe('component FormNode', () => {
       const mode = ref<'build' | 'read' | 'edit'>('build');
       const selectedNode = ref<InternalSchemaNode | undefined>(undefined);
       const formId = ref('form-123');
-      const validator: Validator = () => true;
       const wrapper = mount(FormNode, {
         props: { node },
         global: {
           provide: {
-            validator,
             components: TEXT_COMPONENTS,
             mode,
             selectedNode,
@@ -422,12 +404,10 @@ describe('component FormNode', () => {
       const mode = ref<'build' | 'read' | 'edit'>('build');
       const selectedNode = ref<InternalSchemaNode | undefined>(undefined);
       const formId = ref('form-123');
-      const validator: Validator = () => true;
       const wrapper = mount(FormNode, {
         props: { node },
         global: {
           provide: {
-            validator,
             components: TEXT_COMPONENTS,
             mode,
             selectedNode,
@@ -452,12 +432,10 @@ describe('component FormNode', () => {
       const mode = ref<'build' | 'read' | 'edit'>('build');
       const selectedNode = ref<InternalSchemaNode | undefined>(undefined);
       const formId = ref('form-123');
-      const validator: Validator = () => true;
       const wrapper = mount(FormNode, {
         props: { node },
         global: {
           provide: {
-            validator,
             components: TEXT_COMPONENTS,
             mode,
             selectedNode,
@@ -481,12 +459,10 @@ describe('component FormNode', () => {
       const mode = ref<'build' | 'read' | 'edit'>('build');
       const selectedNode = ref<InternalSchemaNode | undefined>(undefined);
       const formId = ref('form-123');
-      const validator: Validator = () => true;
       const wrapper = mount(FormNode, {
         props: { node },
         global: {
           provide: {
-            validator,
             components: TEXT_COMPONENTS,
             mode,
             selectedNode,
@@ -509,12 +485,10 @@ describe('component FormNode', () => {
       const mode = ref<'build' | 'read' | 'edit'>('build');
       const selectedNode = ref<InternalSchemaNode | undefined>(node);
       const formId = ref('form-123');
-      const validator: Validator = () => true;
       const wrapper = mount(FormNode, {
         props: { node },
         global: {
           provide: {
-            validator,
             components: TEXT_COMPONENTS,
             mode,
             selectedNode,
@@ -537,12 +511,10 @@ describe('component FormNode', () => {
       const mode = ref<'build' | 'read' | 'edit'>('build');
       const selectedNode = ref<InternalSchemaNode | undefined>(undefined);
       const formId = ref('form-123');
-      const validator: Validator = () => true;
       const wrapper = mount(FormNode, {
         props: { node },
         global: {
           provide: {
-            validator,
             components: TEXT_COMPONENTS,
             mode,
             selectedNode,
@@ -566,13 +538,10 @@ describe('component FormNode', () => {
       const mode = ref<'build' | 'read' | 'edit'>('build');
       const selectedNode = ref<InternalSchemaNode | undefined>(undefined);
       const formId = ref('form-123');
-      const validator: Validator = (propsNode, value) =>
-        propsNode.name === '$name' && value === '' ? 'required' : true;
       const wrapper = mount(FormNode, {
         props: { node },
         global: {
           provide: {
-            validator,
             components: TEXT_COMPONENTS,
             mode,
             selectedNode,
@@ -595,13 +564,10 @@ describe('component FormNode', () => {
       const mode = ref<'build' | 'read' | 'edit'>('read');
       const selectedNode = ref<InternalSchemaNode | undefined>(undefined);
       const formId = ref('form-123');
-      const validator: Validator = (propsNode, value) =>
-        propsNode.name === '$name' && value === '' ? 'required' : true;
       const wrapper = mount(FormNode, {
         props: { node },
         global: {
           provide: {
-            validator,
             components: TEXT_COMPONENTS,
             mode,
             selectedNode,
@@ -628,12 +594,10 @@ describe('component FormNode', () => {
       const mode = ref<'build' | 'read' | 'edit'>('build');
       const selectedNode = ref<InternalSchemaNode | undefined>(undefined);
       const formId = ref('form-123');
-      const validator: Validator = () => true;
       const wrapper = mount(FormNode, {
         props: { node },
         global: {
           provide: {
-            validator,
             components: TEXT_COMPONENTS,
             mode,
             selectedNode,
@@ -655,7 +619,6 @@ describe('component FormNode', () => {
       const mode = ref<'build' | 'read' | 'edit'>('build');
       const selectedNode = ref<InternalSchemaNode | undefined>(undefined);
       const formId = ref('form-123');
-      const validator: Validator = () => true;
       const parentClickSpy = vi.fn();
       const host = document.createElement('div');
       document.body.appendChild(host);
@@ -665,7 +628,6 @@ describe('component FormNode', () => {
         props: { node },
         global: {
           provide: {
-            validator,
             components: TEXT_COMPONENTS,
             mode,
             selectedNode,
@@ -691,12 +653,10 @@ describe('component FormNode', () => {
       const mode = ref<'build' | 'read' | 'edit'>('build');
       const selectedNode = ref<InternalSchemaNode | undefined>(undefined);
       const formId = ref('form-xyz');
-      const validator: Validator = () => true;
       const wrapper = mount(FormNode, {
         props: { node },
         global: {
           provide: {
-            validator,
             components: TEXT_COMPONENTS,
             mode,
             selectedNode,
@@ -723,7 +683,6 @@ describe('component FormNode', () => {
       const mode = ref<'build' | 'read' | 'edit'>('build');
       const selectedNode = ref<InternalSchemaNode | undefined>(undefined);
       const formId = ref('form-123');
-      const validator: Validator = () => true;
       const parentDragSpy = vi.fn();
       const host = document.createElement('div');
       document.body.appendChild(host);
@@ -733,7 +692,6 @@ describe('component FormNode', () => {
         props: { node },
         global: {
           provide: {
-            validator,
             components: TEXT_COMPONENTS,
             mode,
             selectedNode,
@@ -757,12 +715,10 @@ describe('component FormNode', () => {
       const mode = ref<'build' | 'read' | 'edit'>('build');
       const selectedNode = ref<InternalSchemaNode | undefined>(undefined);
       const formId = ref('form-123');
-      const validator: Validator = () => true;
       mount(FormNode, {
         props: { node },
         global: {
           provide: {
-            validator,
             components: TEXT_COMPONENTS,
             mode,
             selectedNode,
@@ -785,12 +741,10 @@ describe('component FormNode', () => {
       const mode = ref<'build' | 'read' | 'edit'>('build');
       const selectedNode = ref<InternalSchemaNode | undefined>(undefined);
       const formId = ref('form-123');
-      const validator: Validator = () => true;
       const wrapper = mount(FormNode, {
         props: { node },
         global: {
           provide: {
-            validator,
             components: TEXT_COMPONENTS,
             mode,
             selectedNode,
@@ -811,12 +765,10 @@ describe('component FormNode', () => {
       const mode = ref<'build' | 'read' | 'edit'>('build');
       const selectedNode = ref<InternalSchemaNode | undefined>(undefined);
       const formId = ref('form-123');
-      const validator: Validator = () => true;
       const wrapper = mount(FormNode, {
         props: { node },
         global: {
           provide: {
-            validator,
             components: TEXT_COMPONENTS,
             mode,
             selectedNode,
@@ -840,12 +792,10 @@ describe('component FormNode', () => {
       const mode = ref<'build' | 'read' | 'edit'>('build');
       const selectedNode = ref<InternalSchemaNode | undefined>(undefined);
       const formId = ref('form-123');
-      const validator: Validator = () => true;
       const wrapper = mount(FormNode, {
         props: { node },
         global: {
           provide: {
-            validator,
             components: TEXT_COMPONENTS,
             mode,
             selectedNode,
@@ -864,30 +814,6 @@ describe('component FormNode', () => {
   });
 
   describe('error paths (required injections)', () => {
-    it('throws when validator injection is missing', () => {
-      const node: InternalSchemaNode = { _id: 'node-1', type: 'text', name: 'field', props: {} };
-      const data = ref<Record<string, unknown>>({ field: 'v' });
-      const validityMap = ref<Record<string, boolean | undefined>>({});
-      const mode = ref<'build' | 'read' | 'edit'>('build');
-      const selectedNode = ref<InternalSchemaNode | undefined>(undefined);
-      const formId = ref('form-123');
-      expect(() =>
-        mount(FormNode, {
-          props: { node },
-          global: {
-            provide: {
-              components: TEXT_COMPONENTS,
-              mode,
-              selectedNode,
-              formId,
-              data,
-              validityMap,
-            },
-          },
-        }),
-      ).toThrow('Please provide a value for validator');
-    });
-
     it('throws when components injection is missing', () => {
       const node: InternalSchemaNode = { _id: 'node-1', type: 'text', name: 'field', props: {} };
       const data = ref<Record<string, unknown>>({ field: 'v' });
@@ -895,13 +821,11 @@ describe('component FormNode', () => {
       const mode = ref<'build' | 'read' | 'edit'>('build');
       const selectedNode = ref<InternalSchemaNode | undefined>(undefined);
       const formId = ref('form-123');
-      const validator: Validator = () => true;
       expect(() =>
         mount(FormNode, {
           props: { node },
           global: {
             provide: {
-              validator,
               mode,
               selectedNode,
               formId,
@@ -919,13 +843,11 @@ describe('component FormNode', () => {
       const validityMap = ref<Record<string, boolean | undefined>>({});
       const selectedNode = ref<InternalSchemaNode | undefined>(undefined);
       const formId = ref('form-123');
-      const validator: Validator = () => true;
       expect(() =>
         mount(FormNode, {
           props: { node },
           global: {
             provide: {
-              validator,
               components: TEXT_COMPONENTS,
               selectedNode,
               formId,
@@ -943,13 +865,11 @@ describe('component FormNode', () => {
       const validityMap = ref<Record<string, boolean | undefined>>({});
       const mode = ref<'build' | 'read' | 'edit'>('build');
       const formId = ref('form-123');
-      const validator: Validator = () => true;
       expect(() =>
         mount(FormNode, {
           props: { node },
           global: {
             provide: {
-              validator,
               components: TEXT_COMPONENTS,
               mode,
               formId,
@@ -967,13 +887,11 @@ describe('component FormNode', () => {
       const validityMap = ref<Record<string, boolean | undefined>>({});
       const mode = ref<'build' | 'read' | 'edit'>('build');
       const selectedNode = ref<InternalSchemaNode | undefined>(undefined);
-      const validator: Validator = () => true;
       expect(() =>
         mount(FormNode, {
           props: { node },
           global: {
             provide: {
-              validator,
               components: TEXT_COMPONENTS,
               mode,
               selectedNode,

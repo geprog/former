@@ -20,11 +20,9 @@ export type {
   SchemaNode,
   ShowIfPredicate,
   ValidationContext,
-  ValidationResult,
-  Validator,
 } from './types';
 
 export { hasValue, isNodeLayoutComponent, nodeChildren } from './utils';
 export type { StandardSchemaV1 } from './validation';
 
-export { fromSuperstruct, isStandardSchema } from './validation';
+export { fromSuperstruct } from './validation';

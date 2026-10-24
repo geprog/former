@@ -1,7 +1,7 @@
 import type { DataPath, DataScope, InternalSchemaNode, ValidationContext } from '~/types';
 import { computed, ref, type Ref, watch } from 'vue';
 import { isNodeLayoutComponent, unsetDataOfNode } from '~/utils';
-import { firstError, isStandardSchema, issueMessageAt, useMaybeAsync, validateComponent, validateNode } from '~/validation';
+import { useMaybeAsync, validateComponent } from '~/validation';
 import { inject, provide } from './injectProvide';
 import { useHasContent } from './useHasContent';
 
@@ -82,20 +82,10 @@ export default function useNode(node: Ref<InternalSchemaNode>) {
     scopes: dataScopes.value,
   }));
 
-  const validator = inject('validator', true);
-  const formIssues = inject('formIssues', false);
-  const error = useMaybeAsync(() => {
-    const componentError = validateComponent(components.value, node.value, modelValue.value, validationContext.value);
-    if (isStandardSchema(validator)) {
-      // the issues of the whole form data are only attributed to nodes with data of their own
-      if (isLayoutComponent.value || !node.value.name) {
-        return componentError;
-      }
-      return firstError([componentError, issueMessageAt(formIssues?.value ?? [], dataPath.value, !node.value.children)]);
-    }
-    // both are evaluated right away, so that all reactive dependencies are tracked even if one of them is async
-    return firstError([componentError, validateNode(validator, node.value, modelValue.value)]);
-  }, undefined);
+  const error = useMaybeAsync(
+    () => validateComponent(components.value, node.value, modelValue.value, validationContext.value),
+    undefined,
+  );
 
   const showIf = inject('showIf', false);
   const isShown = computed(() => {
