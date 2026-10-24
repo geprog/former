@@ -7,13 +7,15 @@ export type InjectKeys = {
   formerIsUpdating: Ref<boolean>;
   schema: Ref<InternalSchemaNode[]>;
   data: Ref<FormData | FieldData>;
-  components: FormComponents;
+  components: Ref<FormComponents>;
   selectedNode: Ref<InternalSchemaNode | undefined>;
   validityMap: Ref<Record<string, boolean | undefined>>;
   showIf?: InternalShowIfPredicate;
   validator: Validator;
   texts: Ref<Texts>;
   node: Ref<InternalSchemaNode>;
+  hasDataKey?: Ref<boolean>;
+  isShown?: Ref<boolean>;
   rootData: Ref<FormData>;
   rootSchema: Ref<SchemaNode[]>;
 };

@@ -1,0 +1,65 @@
+{
+  "name": "@former-ui/preset-nuxt-ui",
+  "type": "module",
+  "version": "0.0.0",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/geprog/former.git"
+  },
+  "keywords": [
+    "vue",
+    "vue3",
+    "former",
+    "nuxt-ui",
+    "form-builder"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs"
+    },
+    "./en.json": "./dist/locales/en.json"
+  },
+  "files": [
+    "dist"
+  ],
+  "engines": {
+    "pnpm": ">=9.0.0",
+    "node": ">=22.0.0"
+  },
+  "scripts": {
+    "dev": "chokidar \"src/**/*\" --initial -c \"pnpm build\"",
+    "build": "mkdist --src src --dist dist --declaration --pattern='**' --pattern='!**/*.test.ts'",
+    "test": "vitest --pass-with-no-tests",
+    "prepack": "pnpm build",
+    "typecheck": "vue-tsc --build --force"
+  },
+  "peerDependencies": {
+    "@former-ui/former": ">=0.1.0 <1.0.0",
+    "@internationalized/date": "^3.0.0",
+    "@nuxt/ui": "^4.7.0",
+    "vue": "^3.5.0",
+    "vue-i18n": "^11.0.0"
+  },
+  "devDependencies": {
+    "@former-ui/former": "workspace:*",
+    "@internationalized/date": "3.12.1",
+    "@nuxt/ui": "4.7.1",
+    "@tsconfig/node22": "22.0.0",
+    "@types/node": "22.10.1",
+    "@vitejs/plugin-vue": "5.2.1",
+    "@vue/test-utils": "2.4.8",
+    "@vue/tsconfig": "0.7.0",
+    "chokidar-cli": "3.0.0",
+    "happy-dom": "20.9.0",
+    "mkdist": "2.4.1",
+    "typescript": "5.7.2",
+    "vite": "6.4.2",
+    "vitest": "4.1.5",
+    "vue": "3.5.21",
+    "vue-i18n": "11.2.2",
+    "vue-sfc-transformer": "0.1.17",
+    "vue-tsc": "3.0.7"
+  }
+}

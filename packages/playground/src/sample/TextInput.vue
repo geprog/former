@@ -11,7 +11,7 @@
 </template>
 
 <script setup lang="ts">
-import type { FormerProps } from 'former-ui';
+import type { FormerProps } from '@former-ui/former';
 import { onMounted, toRef } from 'vue';
 
 const props = withDefaults(

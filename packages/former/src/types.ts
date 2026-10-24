@@ -19,13 +19,14 @@ export type ShowIfPredicate = (node: SchemaNode, data: FormData, schema: SchemaN
 
 export type InternalShowIfPredicate = (node: SchemaNode) => boolean;
 
+// `data` is `null` for a cleared field and `undefined` for a field that was never filled in
 export type Validator = (node: SchemaNode, data: FieldData | FormData) => true | string;
 
 export type Mode = 'edit' | 'read' | 'build';
 
 export type FormData = { [field: string]: FieldData | FormData };
 
-export type FieldData = string | number | boolean | undefined | FormData[];
+export type FieldData = string | number | boolean | null | undefined | FormData[];
 
 export type FormerProps = { id: string; mode: Mode; error?: string; };
 
@@ -36,6 +37,10 @@ export type FormFieldType = {
   propsSchema: SchemaNode[];
   component: FormFieldComponent | Raw<FormFieldComponent>;
   internal?: boolean;
+  // whether the data of the component is a list whose items each render its children (e.g. a repeater)
+  isList?: boolean;
+  // the children the component renders, if it doesn't render all of them (e.g. columns only render the children of their columns)
+  shownChildren?: (node: SchemaNode) => SchemaNode[];
 };
 
 export type FormComponents = { [key: string]: FormFieldType };

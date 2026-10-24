@@ -57,7 +57,7 @@ const validator = inject('validator');
 
 const selectedNode = inject('selectedNode');
 
-const selectedNodeType = computed(() => (selectedNode.value ? components[selectedNode.value.type] : undefined));
+const selectedNodeType = computed(() => (selectedNode.value ? components.value[selectedNode.value.type] : undefined));
 
 const selectedNodePropsSchema = ref<InternalSchemaNode[]>();
 
@@ -85,7 +85,7 @@ const data = computed({
       return;
     }
 
-    const props = _data as { $name?: string };
+    const props = _data as { $name?: string } & Record<string, unknown>;
     const name = props.$name;
     if (name !== undefined) {
       delete props.$name;

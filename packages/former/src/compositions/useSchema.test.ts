@@ -55,11 +55,12 @@ describe('useSchema', () => {
       expect(validator).toHaveBeenCalledWith(expect.objectContaining({ name: 'placeholder' }), undefined);
     });
 
-    it('throws when components[node.type] is undefined', () => {
+    it('returns false when components[node.type] is undefined', () => {
       const validator = vi.fn<Validator>(() => true);
       const node = { _id: 'n1', type: 'missing' } as InternalSchemaNode;
 
-      expect(() => isNodeValid(node, validator, {})).toThrow();
+      expect(isNodeValid(node, validator, {})).toBe(false);
+      expect(validator).not.toHaveBeenCalled();
     });
 
     it('ignores props when components[node.type].propsSchema.name is missing', () => {
@@ -116,6 +117,18 @@ describe('useSchema', () => {
       expect(isValid.value).toBe(true);
 
       schema.value = [{ _id: 'n1', type: 'text', props: { foo: 'bad' } }];
+      expect(isValid.value).toBe(false);
+    });
+
+    it('re-evaluates isValid when the components ref changes', () => {
+      const validator = vi.fn<Validator>(() => true);
+      const schema = ref<InternalSchemaNode[]>([{ _id: 'n1', type: 'text' }]);
+      const components = ref<FormComponents>(createComponents());
+      const { isValid } = useSchema(schema, validator, components);
+
+      expect(isValid.value).toBe(true);
+
+      components.value = {};
       expect(isValid.value).toBe(false);
     });
   });

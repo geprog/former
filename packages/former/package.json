@@ -1,5 +1,5 @@
 {
-  "name": "former-ui",
+  "name": "@former-ui/former",
   "type": "module",
   "version": "0.0.0",
   "license": "MIT",
@@ -30,6 +30,7 @@
     "node": ">=22.0.0"
   },
   "scripts": {
+    "dev": "vite build --watch --no-emptyOutDir",
     "build": "vite build",
     "prepack": "pnpm build",
     "test": "vitest --pass-with-no-tests",
@@ -37,10 +38,10 @@
     "typecheck": "vue-tsc --build --force"
   },
   "peerDependencies": {
-    "vue": "^3.0.0"
+    "vue": "^3.3.0"
   },
   "dependencies": {
-    "lodash": "4.18.1"
+    "lodash": "^4.18.1"
   },
   "devDependencies": {
     "@tsconfig/node22": "22.0.0",
@@ -48,17 +49,16 @@
     "@types/node": "22.10.1",
     "@vitejs/plugin-vue": "5.2.1",
     "@vitest/coverage-v8": "4.1.5",
-    "@vue/test-utils": "^2.4.8",
+    "@vue/test-utils": "2.4.8",
     "@vue/tsconfig": "0.7.0",
-    "@vueuse/core": "12.0.0",
     "autoprefixer": "10.4.20",
-    "happy-dom": "^20.9.0",
+    "happy-dom": "20.9.0",
     "tailwindcss": "3.4.16",
     "typescript": "5.7.2",
     "vite": "6.4.2",
     "vite-plugin-dts": "4.3.0",
     "vitest": "4.1.5",
-    "vue": "3.5.13",
+    "vue": "3.5.21",
     "vue-tsc": "3.0.7"
   }
 }

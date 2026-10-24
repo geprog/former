@@ -14,15 +14,15 @@ Create and test your own form at the [playground](https://geprog.github.io/forme
 ## Installation
 
 ```bash
-pnpm add former-ui
+pnpm add @former-ui/former
 ```
 
 ```bash
-npm install former-ui
+npm install @former-ui/former
 ```
 
 ```bash
-yarn add former-ui
+yarn add @former-ui/former
 ```
 
 ## Tailwind CSS Configuration
@@ -35,7 +35,7 @@ Import the pre-built CSS file in your app:
 
 ```js
 // In your main.js or main.ts
-import 'former-ui/former-ui.css';
+import '@former-ui/former/former-ui.css';
 ```
 
 Make sure your consuming app includes Tailwind's base reset in your own CSS:
@@ -49,7 +49,7 @@ Make sure your consuming app includes Tailwind's base reset in your own CSS:
 
 ### Option 2: Include Former UI in your Tailwind build
 
-If you want to include Former UI's classes in your own Tailwind build, add the library's source files to your Tailwind `content` configuration:
+If you want to include Former UI's classes in your own Tailwind build, add the library's build files to your Tailwind `content` configuration:
 
 ```js
 // tailwind.config.js
@@ -57,8 +57,8 @@ export default {
   content: [
     './index.html',
     './src/**/*.{vue,js,ts,jsx,tsx}',
-    // Include Former UI source files so Tailwind can scan them
-    './node_modules/former-ui/dist/**/*.{js,vue}',
+    // Include Former UI's build files so Tailwind can scan them
+    './node_modules/@former-ui/former/dist/**/*.js',
   ],
   theme: {
     extend: {
@@ -71,19 +71,30 @@ export default {
 
 This way, Tailwind will generate only the classes used by both your app and Former UI.
 
-### Dark Mode Configuration
+#### Tailwind v4 (CSS-first)
 
-**Important:** Former UI uses Tailwind's `selector`-based dark mode. If you're using Option 2 (building your own Tailwind CSS), you **must** configure your Tailwind config to use `selector`-based dark mode:
+If your app uses Tailwind v4’s CSS entry (for example `@import "tailwindcss"` in your main stylesheet), add Former as a **`@source`** so utilities referenced in Former’s components are generated. Paths are relative to that CSS file.
 
-```js
-// tailwind.config.js
-export default {
-  // ... other config
-  darkMode: 'selector', // Required for Former UI dark mode to work correctly
-};
+By default, Tailwind v4’s `dark` variant follows **`prefers-color-scheme`**. Former’s components expect **`dark:`** utilities to apply when a **`dark` class** sits on an ancestor (same idea as `darkMode: 'selector'` in v3). Override the variant if you toggle dark mode that way:
+
+```css
+@import 'tailwindcss';
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@source '../node_modules/@former-ui/former/dist';
 ```
 
-This means dark mode is activated by adding a `dark` class to a parent element (typically `<html>` or a wrapper element), rather than using the system preference. If you're using Option 1 (importing the pre-built CSS), the dark mode classes are already included, but you still need to ensure your app's Tailwind config uses `darkMode: 'selector'` if you're also generating your own Tailwind CSS.
+You do **not** need `import '@former-ui/former/former-ui.css'` when Former is covered by your Tailwind build this way.
+
+### Dark Mode Configuration
+
+**Important:** Former UI uses Tailwind’s **selector**-based dark mode (`dark` class on an ancestor), not only `prefers-color-scheme`.
+
+- **Tailwind v3 (`tailwind.config.js`):** set `darkMode: 'selector'`.
+- **Tailwind v4 (CSS-first):** define a class-based `dark` variant as in the snippet above (for example `@custom-variant dark (&:where(.dark, .dark *));`). If another part of your stack also toggles a `dark` class on `<html>` from system settings, align that behavior with how you want Former to behave.
+
+If you’re using Option 1 (importing the pre-built CSS), dark utilities are already in that bundle; you still need selector-style `dark` on a parent if you toggle dark mode with a class (same as Option 2).
 
 ## Usage
 
@@ -123,7 +134,7 @@ Just configure your form layout, define the components and let former do the res
 </template>
 
 <script setup lang="ts">
-import { FormAdd, type FormComponents, type FormData, Former, FormNodeProps, Mode, type SchemaNode } from 'former-ui';
+import { FormAdd, type FormComponents, FormContent, type FormData, Former, FormNodeProps, type Mode, type SchemaNode } from '@former-ui/former';
 import { markRaw, ref } from 'vue';
 
 import TextInput from './TextInput.vue';
@@ -222,9 +233,9 @@ Here is a sample text input implementation that is suitable for the above sample
 </template>
 
 <script setup lang="ts">
-import { toRef } from 'vue';
+import type { FormerProps } from '@former-ui/former';
 
-const props = withDefaults(
+withDefaults(
   defineProps<{
     label?: string;
     type?: 'text' | 'password' | 'email';
@@ -238,4 +249,23 @@ const modelValue = defineModel<string>();
 </script>
 ```
 
-For more detailed usage example check out the [Playground](https://github.com/geprog/former/blob/main/packages/former/src/Playground.vue) implementation.
+For more detailed usage example check out the [Playground](https://github.com/geprog/former/blob/main/packages/playground/src/Playground.vue) implementation.
+
+## Form data and validation
+
+Pass a `validator` to `Former` to validate the fields. It is called with the node and its value and returns `true` or an error message:
+
+```ts
+function validator(node: SchemaNode, data: FieldData | FormData): true | string {
+  if (node.props?.required && (data === undefined || data === null || data === '')) {
+    return 'Value is required';
+  }
+  return true;
+}
+```
+
+When the user clears a field, its value is set to `null` instead of being removed from the data. This way the key survives JSON serialization and e.g. a preset value is not applied again after the data was saved and loaded. A field that was never filled in is `undefined`, so check for both when testing for an empty value. The exported `hasValue` helper treats `undefined`, `null`, `''`, `false` and empty lists and objects without any filled in value as empty, while a list with items counts as filled in even if its items are empty.
+
+## Ready-to-use components
+
+If you use [Nuxt UI](https://ui.nuxt.com), [`@former-ui/preset-nuxt-ui`](https://github.com/geprog/former/blob/main/packages/preset-nuxt-ui/README.md) provides form components for text, numbers, dates, selections, file uploads, groups, columns, repeaters and more.

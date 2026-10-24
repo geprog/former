@@ -28,7 +28,7 @@ type MountUseNodeOptions = {
   node: Ref<InternalSchemaNode>;
   data?: Ref<FormData | unknown>;
   validityMap?: Ref<Record<string, boolean | undefined>>;
-  components?: FormComponents;
+  components?: Ref<FormComponents>;
   validator?: Validator;
   /** Omit key so `showIf` is not provided. Use `showIf: undefined` to call `provide('showIf', undefined)`. */
   showIf?: ((node: InternalSchemaNode) => boolean) | undefined;
@@ -38,7 +38,7 @@ type MountUseNodeOptions = {
 function mountUseNode(options: MountUseNodeOptions) {
   const data = options.data ?? ref<FormData>({});
   const validityMap = options.validityMap ?? ref<Record<string, boolean | undefined>>({});
-  const components = options.components ?? defaultComponents();
+  const components = options.components ?? ref(defaultComponents());
   const validator = options.validator ?? vi.fn<Validator>(() => true);
 
   const ValidityInjector = defineComponent({
@@ -102,19 +102,19 @@ describe('useNode', () => {
     it('resolves component from components[node.type].component', () => {
       const node = ref<InternalSchemaNode>({ _id: 'n1', type: FIELD_TYPE, name: 'a' });
       const { component } = mountUseNode({ node });
-      expect(component.value).toBe(StubField);
+      expect(component.value).toStrictEqual(StubField);
     });
 
     it('treats the node as layout when no propsSchema entry has name $name', () => {
       const node = ref<InternalSchemaNode>({ _id: 'n1', type: LAYOUT_TYPE });
       const { isLayoutComponent } = mountUseNode({ node });
-      expect(isLayoutComponent.value).toBe(true);
+      expect(isLayoutComponent.value).toStrictEqual(true);
     });
 
     it('treats the node as a field when some propsSchema has name $name', () => {
       const node = ref<InternalSchemaNode>({ _id: 'n1', type: FIELD_TYPE, name: 'x' });
       const { isLayoutComponent } = mountUseNode({ node });
-      expect(isLayoutComponent.value).toBe(false);
+      expect(isLayoutComponent.value).toStrictEqual(false);
     });
   });
 
@@ -155,7 +155,48 @@ describe('useNode', () => {
     });
   });
 
+  describe('hasDataKey', () => {
+    it('is false when the key does not exist in the data', () => {
+      const node = ref<InternalSchemaNode>({ _id: 'n1', type: FIELD_TYPE, name: 'email' });
+      const data = ref<FormData>({ other: 1 });
+      const { hasDataKey } = mountUseNode({ node, data });
+      expect(hasDataKey.value).toBe(false);
+    });
+
+    it('is true when the key exists, even with an undefined value', () => {
+      const node = ref<InternalSchemaNode>({ _id: 'n1', type: FIELD_TYPE, name: 'email' });
+      const data = ref<FormData>({ email: undefined });
+      const { hasDataKey } = mountUseNode({ node, data });
+      expect(hasDataKey.value).toBe(true);
+    });
+
+    it('becomes true once the model value is set, even to undefined', () => {
+      const node = ref<InternalSchemaNode>({ _id: 'n1', type: FIELD_TYPE, name: 'email' });
+      const data = ref<FormData>({});
+      const { hasDataKey, modelValue } = mountUseNode({ node, data });
+      modelValue.value = undefined;
+      expect(hasDataKey.value).toBe(true);
+    });
+
+    it('is false for nodes without a name and for non-object data', () => {
+      const unnamed = ref<InternalSchemaNode>({ _id: 'n1', type: FIELD_TYPE });
+      expect(mountUseNode({ node: unnamed, data: ref<FormData>({ x: 1 }) }).hasDataKey.value).toBe(false);
+
+      const named = ref<InternalSchemaNode>({ _id: 'n2', type: FIELD_TYPE, name: 'length' });
+      expect(mountUseNode({ node: named, data: ref([1, 2]) }).hasDataKey.value).toBe(false);
+    });
+  });
+
   describe('modelValue (setter)', () => {
+    it('stores undefined as null so the key survives JSON serialization', () => {
+      const node = ref<InternalSchemaNode>({ _id: 'n1', type: FIELD_TYPE, name: 'email' });
+      const data = ref<FormData>({ email: 'a@b.c' });
+      const { modelValue } = mountUseNode({ node, data });
+      modelValue.value = undefined;
+      expect(data.value).toStrictEqual({ email: null });
+      expect(JSON.parse(JSON.stringify(data.value))).toStrictEqual({ email: null });
+    });
+
     it('for a layout node, replaces the full data ref', () => {
       const node = ref<InternalSchemaNode>({ _id: 'n1', type: LAYOUT_TYPE });
       const data = ref<FormData>({ a: 1 });
@@ -182,10 +223,13 @@ describe('useNode', () => {
       expect(dataRef.value).toEqual({ x: 1 });
     });
 
-    it('when data is null for a named field, evaluating modelValue throws before setter can run', () => {
+    it('when data is null (e.g. a cleared group) for a named field, initializes an object and sets the field', () => {
       const node = ref<InternalSchemaNode>({ _id: 'n1', type: FIELD_TYPE, name: 'f' });
       const data = ref(null as unknown as FormData);
-      expect(() => mountUseNode({ node, data: data as Ref<FormData> })).toThrow();
+      const { modelValue } = mountUseNode({ node, data: data as Ref<FormData> });
+      expect(modelValue.value).toBeNull();
+      modelValue.value = 'x';
+      expect(data.value).toStrictEqual({ f: 'x' });
     });
 
     it('when data is undefined, initializes an object and sets the field', () => {

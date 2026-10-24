@@ -1,7 +1,7 @@
 import type { FormComponents, InternalSchemaNode, Validator } from '~/types';
 import { mount } from '@vue/test-utils';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { defineComponent, h, inject, nextTick, ref, type Ref } from 'vue';
+import { defineComponent, h, inject, markRaw, nextTick, ref, type Ref } from 'vue';
 import * as utils from '~/utils';
 
 import FormNode from './FormNode.vue';
@@ -37,13 +37,13 @@ const SlotProbe = defineComponent({
   },
 });
 
-const TEXT_COMPONENTS: FormComponents = {
+const TEXT_COMPONENTS: Ref<FormComponents> = ref({
   text: {
     label: 'Text',
     propsSchema: [{ type: 'text', name: '$name' }],
-    component: DynamicComponent,
+    component: markRaw(DynamicComponent),
   },
-};
+});
 
 describe('component FormNode', () => {
   let setDragEventDataSpy: ReturnType<typeof vi.spyOn>;
@@ -113,6 +113,32 @@ describe('component FormNode', () => {
       expect(wrapper.find('[data-node="node-1"]').exists()).toBe(true);
     });
 
+    it.each([
+      ['read', { field: 'v' }, true],
+      ['read', { field: null }, false],
+      ['read', {}, false],
+      ['edit', {}, true],
+      ['build', {}, true],
+    ] as const)('in %s mode with data %j renders the root wrapper: %s', (modeValue, dataValue, rendered) => {
+      const node: InternalSchemaNode = { _id: 'node-1', type: 'text', name: 'field' };
+      const wrapper = mount(FormNode, {
+        props: { node },
+        global: {
+          provide: {
+            validator: () => true,
+            components: TEXT_COMPONENTS,
+            mode: ref(modeValue),
+            selectedNode: ref(undefined),
+            formId: ref('form-123'),
+            data: ref({ ...dataValue }),
+            validityMap: ref({}),
+            showIf: () => true,
+          },
+        },
+      });
+      expect(wrapper.find('[data-node="node-1"]').exists()).toBe(rendered);
+    });
+
     it('does not render root wrapper when isShown is false and mode is not build', () => {
       const node: InternalSchemaNode = { _id: 'node-1', type: 'text', name: 'field', props: { custom: 'from-node-props' } };
       const data = ref<Record<string, unknown>>({ field: 'v' });
@@ -176,13 +202,13 @@ describe('component FormNode', () => {
       const selectedNode = ref<InternalSchemaNode | undefined>(undefined);
       const formId = ref('form-123');
       const validator: Validator = () => true;
-      const componentsNoView: FormComponents = {
+      const componentsNoView: Ref<FormComponents> = ref({
         text: {
           label: 'Text',
           propsSchema: [{ type: 'text', name: '$name' }],
           component: undefined as unknown as (typeof DynamicComponent),
         },
-      };
+      });
       const wrapper = mount(FormNode, {
         props: { node },
         global: {
@@ -227,6 +253,31 @@ describe('component FormNode', () => {
         slots: { default: () => h(SlotProbe) },
       });
       expect(wrapper.find('[data-custom]').text()).toBe('abc');
+    });
+
+    it('does not pass cleared (null) node props to the rendered component', () => {
+      const node: InternalSchemaNode = { _id: 'node-1', type: 'text', name: 'field', props: { custom: null } };
+      const data = ref<Record<string, unknown>>({ field: 'v' });
+      const validityMap = ref<Record<string, boolean | undefined>>({});
+      const mode = ref<'build' | 'read' | 'edit'>('build');
+      const selectedNode = ref<InternalSchemaNode | undefined>(undefined);
+      const formId = ref('form-123');
+      const validator: Validator = () => true;
+      const wrapper = mount(FormNode, {
+        props: { node },
+        global: {
+          provide: {
+            validator,
+            components: TEXT_COMPONENTS,
+            mode,
+            selectedNode,
+            formId,
+            data,
+            validityMap,
+          },
+        },
+      });
+      expect(wrapper.findComponent(DynamicComponent).props('custom')).toBeUndefined();
     });
 
     it('passes id as node._id to the rendered component', () => {

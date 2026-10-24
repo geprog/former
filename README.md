@@ -14,3 +14,8 @@ Create and test your own form at the [playground](https://geprog.github.io/forme
 ## Documentation
 
 For detailed documentation including installation, usage, Tailwind CSS configuration, and API reference, please see the [package README](./packages/former/README.md).
+
+## Packages
+
+- [`@former-ui/former`](./packages/former/README.md): the headless form builder
+- [`@former-ui/preset-nuxt-ui`](./packages/preset-nuxt-ui/README.md): ready-to-use form components built with [Nuxt UI](https://ui.nuxt.com)
