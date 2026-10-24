@@ -64,6 +64,23 @@ describe('form components', () => {
     expect(Object.keys(en)).toEqual(expect.arrayContaining([...keys]));
   });
 
+  it.each([
+    [undefined, 2],
+    [3, 3],
+  ])('columns with cols %o render %i columns', (cols, count) => {
+    const schema: SchemaNode[] = [{ type: 'columns', props: cols === undefined ? {} : { cols } }];
+    const wrapper = mount(Former, {
+      props: { schema, data: {} as FormData, components, mode: 'edit' },
+      global: { components: nuxtUiStubs },
+    });
+
+    expect(wrapper.findAll('.flex-grow')).toHaveLength(count);
+  });
+
+  it('presets the column count to 2 in the settings', () => {
+    expect(components.columns.propsSchema.find(node => node.name === 'cols')?.props?.preset).toBe(2);
+  });
+
   describe('columns in read mode', () => {
     const schema: SchemaNode[] = [{
       type: 'columns',

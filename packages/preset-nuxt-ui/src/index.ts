@@ -155,7 +155,7 @@ export function formComponents(options?: { t: (key: string) => string }) {
         {
           type: 'number',
           name: 'cols',
-          props: { label: t('columns'), min: 1, preset: 1, required: true },
+          props: { label: t('columns'), min: 1, preset: 2, required: true },
         },
         { type: 'checkbox', name: 'border', props: { label: t('show_border') } },
       ],

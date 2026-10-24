@@ -23,14 +23,18 @@ import { computed, inject, type Ref } from 'vue';
 
 defineOptions({ inheritAttrs: false });
 
-const props = defineProps<
-  {
-    label?: string;
-    help?: string;
-    cols?: number | '';
-    border?: boolean;
-  } & FormerProps
->();
+const props = withDefaults(
+  defineProps<
+    {
+      label?: string;
+      help?: string;
+      cols?: number | '';
+      border?: boolean;
+    } & FormerProps
+  >(),
+  // also used before the settings of a new columns node were opened, which apply the preset of `cols`
+  { cols: 2 },
+);
 
 // columns are a layout component, so their model value is the data of the surrounding node
 const modelValue = defineModel<FormData | null | undefined>();
