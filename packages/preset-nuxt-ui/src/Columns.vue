@@ -20,6 +20,7 @@
 import type { FormData, FormerProps, SchemaNode } from '@former-ui/former';
 import { FormRenderer, nodeChildren, useHasContent } from '@former-ui/former';
 import { computed, inject, type Ref } from 'vue';
+import { useIsRepeater } from './composables/useIsRepeater';
 
 defineOptions({ inheritAttrs: false });
 
@@ -45,5 +46,5 @@ const columns = computed(() =>
     : Array.from({ length: props.cols }, (_, index) => `column-${index}`),
 );
 
-const hasContent = useHasContent(() => (node ? nodeChildren(node.value) : []), modelValue);
+const hasContent = useHasContent(() => (node ? nodeChildren(node.value) : []), modelValue, { isList: useIsRepeater() });
 </script>

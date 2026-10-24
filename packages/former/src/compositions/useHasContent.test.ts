@@ -2,8 +2,8 @@ import type { FieldData, FormData, SchemaNode } from '~/types';
 import { describe, expect, it } from 'vitest';
 import { useHasContent } from './useHasContent';
 
-function hasContent(nodes: SchemaNode[], data: FieldData | FormData) {
-  return useHasContent(nodes, data).value;
+function hasContent(nodes: SchemaNode[], data: FieldData | FormData, isList?: (node: SchemaNode) => boolean) {
+  return useHasContent(nodes, data, { isList }).value;
 }
 
 const text: SchemaNode = { type: 'text', name: 'a' };
@@ -46,5 +46,14 @@ describe('useHasContent', () => {
 
     expect(hasContent([list], { l: [] })).toBe(false);
     expect(hasContent([list], { l: [{}] })).toBe(true);
+  });
+
+  it('only counts the items of lists without data that are detected by isList', () => {
+    const list: SchemaNode = { type: 'repeater', name: 'l', children: [image] };
+    const isList = (node: SchemaNode) => node.type === 'repeater';
+
+    expect(hasContent([list], {}, isList)).toBe(false);
+    expect(hasContent([list], { l: null }, isList)).toBe(false);
+    expect(hasContent([list], { l: [{}] }, isList)).toBe(true);
   });
 });

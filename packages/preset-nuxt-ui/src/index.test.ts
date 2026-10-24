@@ -121,6 +121,12 @@ describe('form components', () => {
 
       expect(mountColumns({ r: [] }, withRepeater).find('[data-label="Columns"]').exists()).toBe(false);
     });
+
+    it('are hidden when a repeater in them has no data', () => {
+      const withRepeater: SchemaNode[] = [{ ...schema[0]!, children: { 'column-0': [{ type: 'repeater', name: 'r', children: [{ type: 'image' }] }] } }];
+
+      expect(mountColumns({}, withRepeater).find('[data-label="Columns"]').exists()).toBe(false);
+    });
   });
 
   describe('group in read mode', () => {
@@ -138,6 +144,10 @@ describe('form components', () => {
 
     it('is hidden when its fields were cleared', () => {
       expect(mountGroup({ g: { a: null } }).find('[data-label="Group"]').exists()).toBe(false);
+    });
+
+    it('is hidden when a repeater in it has no data', () => {
+      expect(mountGroup({}, [{ type: 'repeater', name: 'r', children: [{ type: 'image' }] }]).find('[data-label="Group"]').exists()).toBe(false);
     });
 
     it('is shown when it contains an image', () => {

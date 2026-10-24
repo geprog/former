@@ -17,6 +17,7 @@
 import type { FormData, FormerProps, SchemaNode } from '@former-ui/former';
 import { FormRenderer, nodeChildren, useHasContent } from '@former-ui/former';
 import { inject, type Ref } from 'vue';
+import { useIsRepeater } from './composables/useIsRepeater';
 
 defineOptions({ inheritAttrs: false });
 
@@ -28,5 +29,5 @@ defineProps<
 >();
 const modelValue = defineModel<FormData | null | undefined>();
 const node = inject<Ref<SchemaNode> | undefined>('node', undefined);
-const hasContent = useHasContent(() => (node ? nodeChildren(node.value) : []), modelValue);
+const hasContent = useHasContent(() => (node ? nodeChildren(node.value) : []), modelValue, { isList: useIsRepeater() });
 </script>
