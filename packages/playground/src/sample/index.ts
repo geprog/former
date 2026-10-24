@@ -1,4 +1,4 @@
-import type { FormComponents } from '@former-ui/former';
+import type { FormComponents, SchemaNode } from '@former-ui/former';
 import { markRaw } from 'vue';
 import Checkbox from './Checkbox.vue';
 import Columns from './Columns.vue';
@@ -7,7 +7,7 @@ import Repeater from './Repeater.vue';
 import Select from './Select.vue';
 import TextInput from './TextInput.vue';
 
-const showIfProp = { type: 'text', name: 'showIf', props: { label: 'Show if', placeholder: 'If empty or "hello" then component is visible.' } };
+export const showIfProp: SchemaNode = { type: 'text', name: 'showIf', props: { label: 'Show if', placeholder: 'If empty or "hello" then component is visible.' } };
 
 export const sampleFormComponents: FormComponents = {
   text: {
