@@ -33,7 +33,6 @@ const COMPONENTS_FIXTURE: FormComponents = {
 type FormerProbeBundle = {
   schema: Ref<InternalSchemaNode[]>;
   data: Ref<FormData | FieldData>;
-  rootSchema: Ref<SchemaNode[]>;
   validityMap: Ref<Record<string, boolean | undefined>>;
   selectedNode: Ref<InternalSchemaNode | undefined>;
   formerIsUpdating: Ref<boolean>;
@@ -51,7 +50,6 @@ const FormerInjectProbe = defineComponent({
     const bundle = {
       schema: formerInject('schema'),
       data: formerInject('data'),
-      rootSchema: formerInject('rootSchema'),
       validityMap: formerInject('validityMap'),
       selectedNode: formerInject('selectedNode'),
       formerIsUpdating: formerInject('formerIsUpdating'),

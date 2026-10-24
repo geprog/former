@@ -1,5 +1,5 @@
 import type { StandardSchemaV1 } from '@standard-schema/spec';
-import type { FieldData, FormComponents, FormData, InternalSchemaNode, SchemaNode, Validator } from '~/types';
+import type { DataPath, FieldData, FormComponents, FormData, InternalSchemaNode, SchemaNode, ValidationContext, Validator } from '~/types';
 import { cloneDeep } from 'lodash';
 import { type Ref, shallowRef, toRaw, watch } from 'vue';
 
@@ -7,8 +7,6 @@ import { type Ref, shallowRef, toRaw, watch } from 'vue';
 export type { StandardSchemaV1 };
 
 export type MaybePromise<T> = T | Promise<T>;
-
-export type DataPath = ReadonlyArray<string | number>;
 
 export function isStandardSchema(value: unknown): value is StandardSchemaV1 {
   // schemas can be functions as well (e.g. ArkType types)
@@ -29,6 +27,27 @@ export function validateWithSchema(schema: StandardSchemaV1, data: unknown): May
   return then(toRaw(schema)['~standard'].validate(cloneDeep(data)), result => result.issues ?? []);
 }
 
+function firstIssueMessage(schema: StandardSchemaV1, data: unknown): MaybePromise<string | undefined> {
+  return then(validateWithSchema(schema, data), issues => issues[0]?.message);
+}
+
+/**
+ * Validates the data of a node with the `validation` of its component.
+ * Returns the error message or `undefined` if the data is valid, or a promise of it for async validation.
+ */
+export function validateComponent(components: FormComponents, node: SchemaNode, data: FieldData | FormData, context: ValidationContext): MaybePromise<string | undefined> {
+  const schema = components[node.type]?.validation?.(node.props ?? {}, context);
+  return schema ? firstIssueMessage(schema, data) : undefined;
+}
+
+// the first error message of the results
+export function firstError(results: MaybePromise<string | undefined>[]): MaybePromise<string | undefined> {
+  if (results.some(result => result instanceof Promise)) {
+    return Promise.all(results).then(messages => messages.find(message => message !== undefined));
+  }
+  return (results as Array<string | undefined>).find(message => message !== undefined);
+}
+
 /**
  * Validates the data of a node with a `Validator` function.
  * Returns the error message or `undefined` if the data is valid, or a promise of it for async validation.
@@ -40,7 +59,7 @@ export function validateNode(validator: Validator | StandardSchemaV1, node: Sche
   }
   return then(validator(node, data), (result) => {
     if (isStandardSchema(result)) {
-      return then(validateWithSchema(result, data), issues => issues[0]?.message);
+      return firstIssueMessage(result, data);
     }
     return result === true || result === undefined ? undefined : result;
   });
@@ -60,8 +79,18 @@ export function isNodeValid(node: InternalSchemaNode, validator: Validator | Sta
   if (!component) {
     return false;
   }
-  return allValid(component.propsSchema.map(propsNode =>
-    validateNode(validator, propsNode, propsNode.name === '$name' ? node.name : (node.props || {})[propsNode.name || ''])));
+  // the props are edited in a form of their own (see `FormNodeProps`), so they are the root data of their validation
+  const propsData: FormData = { $name: node.name, ...node.props };
+  return allValid(component.propsSchema.map((propsNode) => {
+    const data = propsNode.name === '$name' ? node.name : (node.props || {})[propsNode.name || ''];
+    const context: ValidationContext = {
+      node: propsNode,
+      path: propsNode.name ? [propsNode.name] : [],
+      scopes: [{ data: propsData, path: [] }],
+    };
+    // both are evaluated right away, so that all reactive dependencies are tracked even if one of them is async
+    return firstError([validateComponent(components, propsNode, data, context), validateNode(validator, propsNode, data)]);
+  }));
 }
 
 export function issuePath(issue: StandardSchemaV1.Issue): DataPath {

@@ -292,6 +292,46 @@ function validator(node: SchemaNode): ValidationResult {
 }
 ```
 
+### Validation of components
+
+Instead of writing a validator for every form, a component can validate its data itself with a schema built from the props of its node, e.g. `required`, `min` or `max`. Add a `validation` to its definition in the `components`, which is applied to every node of the component, including the props of the nodes in build mode:
+
+```ts
+const components: FormComponents = {
+  number: {
+    label: 'Number',
+    component: NumberField,
+    propsSchema: [/* ... */],
+    validation: ({ required, min, max }) => {
+      let schema = z.number('Not a number');
+      if (min !== undefined) {
+        schema = schema.min(min, `At least ${min}`);
+      }
+      if (max !== undefined) {
+        schema = schema.max(max, `At most ${max}`);
+      }
+      return required ? schema : schema.nullish();
+    },
+  },
+};
+```
+
+Its second parameter is the context of the node, so the validation can be relative to other data:
+
+- `scopes`: all scopes containing the node from the closest one to the form data, e.g. `[repeater item, group, form]` for a field in a repeater item inside of a group. Each scope has its `data`, its `path` and the `node` providing it (the group or repeater, unset for the form)
+- `path`: the path of the data of the node in the form data, e.g. `['periods', 1, 'end']`
+- `node`: the node itself
+
+```ts
+// the end of a period must not be before the start of the same repeater item
+const validation: FormFieldType['validation'] = (props, { scopes }) => {
+  const { start } = scopes[0].data as FormData;
+  return typeof start === 'number' ? z.number().min(start, 'The end must be after the start') : z.number();
+};
+```
+
+The error of the component is shown before the one of the `validator`, which can still be used for additional rules of the form.
+
 [Superstruct](https://docs.superstructjs.org) doesn't implement Standard Schema itself, so wrap its structs with `fromSuperstruct`:
 
 ```ts

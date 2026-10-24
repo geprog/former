@@ -12,13 +12,18 @@ import { nanoid } from '~/utils';
 const props = defineProps<{ data: FormData; index?: number }>();
 const data = toRef(props, 'data');
 
+// the data is the scope of the nodes inside of it, e.g. of the fields of a repeater item
 const parentData = inject('data', false);
-const parentDataPath = inject('dataPath', false);
-provide('dataPath', computed(() => {
-  const path = parentDataPath?.value ?? [];
+const parentNode = inject('node', false);
+const parentDataScopes = inject('dataScopes', false);
+provide('dataScopes', computed(() => {
+  const scopes = parentDataScopes?.value ?? [];
+  // the list (e.g. of a repeater) is in the closest scope of the node rendering it
+  const listPath = [...(scopes[0]?.path ?? []), ...(parentNode?.value.name ? [parentNode.value.name] : [])];
   const list = parentData?.value;
   const index = props.index ?? (Array.isArray(list) ? list.findIndex(item => toRaw(item) === toRaw(props.data)) : -1);
-  return index === -1 ? path : [...path, index];
+  const path = index === -1 ? listPath : [...listPath, index];
+  return [{ node: parentNode?.value, data: props.data, path }, ...scopes];
 }));
 
 provide('data', data);

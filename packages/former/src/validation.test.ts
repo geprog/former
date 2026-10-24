@@ -6,6 +6,7 @@ import * as yup from 'yup';
 import { z } from 'zod';
 import {
   allValid,
+  firstError,
   fromSuperstruct,
   isNodeValid,
   isStandardSchema,
@@ -13,6 +14,7 @@ import {
   issuePath,
   type StandardSchemaV1,
   useMaybeAsync,
+  validateComponent,
   validateNode,
   validateWithSchema,
 } from './validation';
@@ -107,6 +109,42 @@ describe('validation', () => {
       validateWithSchema({ '~standard': { version: 1, vendor: 'x', validate } }, data);
       expect(validate.mock.calls[0]).toEqual([{ a: 'x' }]);
       expect((validate.mock.calls[0] as unknown[])[0]).not.toBe(data);
+    });
+  });
+
+  describe('validateComponent', () => {
+    const context = { node, path: ['a'], scopes: [{ data: {}, path: [] }] };
+
+    it('validates the data with the schema of the component', () => {
+      const components: FormComponents = {
+        text: { label: 'Text', component: {}, propsSchema: [], validation: ({ min }) => z.string().min(min, 'too short') },
+      };
+      expect(validateComponent(components, { ...node, props: { min: 3 } }, 'ab', context)).toBe('too short');
+      expect(validateComponent(components, { ...node, props: { min: 3 } }, 'abc', context)).toBeUndefined();
+    });
+
+    it('passes the props and the context to the validation', () => {
+      const validation = vi.fn(() => undefined);
+      const components: FormComponents = { text: { label: 'Text', component: {}, propsSchema: [], validation } };
+      validateComponent(components, { ...node, props: { min: 3 } }, 'x', context);
+      expect(validation).toHaveBeenCalledWith({ min: 3 }, context);
+    });
+
+    it('is valid without a validation or an unknown component', () => {
+      expect(validateComponent({ text: { label: 'Text', component: {}, propsSchema: [] } }, node, 'x', context)).toBeUndefined();
+      expect(validateComponent({}, node, 'x', context)).toBeUndefined();
+    });
+  });
+
+  describe('firstError', () => {
+    it('is the first error message', () => {
+      expect(firstError([undefined, 'first', 'second'])).toBe('first');
+      expect(firstError([undefined, undefined])).toBeUndefined();
+    });
+
+    it('keeps the order for async results', async () => {
+      await expect(firstError([Promise.resolve('first'), 'second'])).resolves.toBe('first');
+      await expect(firstError([Promise.resolve(undefined), 'second'])).resolves.toBe('second');
     });
   });
 

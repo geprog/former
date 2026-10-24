@@ -1,7 +1,7 @@
-import type { InternalSchemaNode } from '~/types';
+import type { DataPath, DataScope, InternalSchemaNode, ValidationContext } from '~/types';
 import { computed, ref, type Ref, watch } from 'vue';
 import { isNodeLayoutComponent, unsetDataOfNode } from '~/utils';
-import { type DataPath, isStandardSchema, issueMessageAt, useMaybeAsync, validateNode } from '~/validation';
+import { firstError, isStandardSchema, issueMessageAt, useMaybeAsync, validateComponent, validateNode } from '~/validation';
 import { inject, provide } from './injectProvide';
 import { useHasContent } from './useHasContent';
 
@@ -59,25 +59,42 @@ export default function useNode(node: Ref<InternalSchemaNode>) {
   });
   provide('hasDataKey', hasDataKey);
 
-  // layout components pass the data of their parent through
-  const parentDataPath = inject('dataPath', false);
+  const parentDataScopes = inject('dataScopes', false);
+  const dataScopes = computed<DataScope[]>(() => parentDataScopes?.value ?? [{ data: data.value, path: [] }]);
+  // the data of a node is always in the closest scope, as only scopes (e.g. groups) contain nested data,
+  // while layout components pass the data of their parent through
   const dataPath = computed<DataPath>(() => {
-    const path = parentDataPath?.value ?? [];
+    const path = dataScopes.value[0].path;
     return isLayoutComponent.value || !node.value.name ? path : [...path, node.value.name];
   });
-  provide('dataPath', dataPath);
+  // the data of a named node with children (e.g. a group) is the scope of its children,
+  // while the items of lists (e.g. repeaters) provide their scopes themselves (see `FormDataProvider`)
+  provide('dataScopes', computed(() => {
+    if (isLayoutComponent.value || !node.value.name || !node.value.children || components.value[node.value.type]?.isList) {
+      return dataScopes.value;
+    }
+    return [{ node: node.value, data: modelValue.value, path: dataPath.value }, ...dataScopes.value];
+  }));
+
+  const validationContext = computed<ValidationContext>(() => ({
+    node: node.value,
+    path: dataPath.value,
+    scopes: dataScopes.value,
+  }));
 
   const validator = inject('validator', true);
   const formIssues = inject('formIssues', false);
   const error = useMaybeAsync(() => {
+    const componentError = validateComponent(components.value, node.value, modelValue.value, validationContext.value);
     if (isStandardSchema(validator)) {
       // the issues of the whole form data are only attributed to nodes with data of their own
       if (isLayoutComponent.value || !node.value.name) {
-        return undefined;
+        return componentError;
       }
-      return issueMessageAt(formIssues?.value ?? [], dataPath.value, !node.value.children);
+      return firstError([componentError, issueMessageAt(formIssues?.value ?? [], dataPath.value, !node.value.children)]);
     }
-    return validateNode(validator, node.value, modelValue.value);
+    // both are evaluated right away, so that all reactive dependencies are tracked even if one of them is async
+    return firstError([componentError, validateNode(validator, node.value, modelValue.value)]);
   }, undefined);
 
   const showIf = inject('showIf', false);

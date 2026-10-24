@@ -73,8 +73,6 @@ watch(wrappedData, () => {
 }, { deep: true });
 
 provide('data', wrappedData);
-provide('rootData', wrappedData);
-provide('rootSchema', schema);
 
 provide('mode', toRef(props, 'mode'));
 provide('components', toRef(props, 'components'));
@@ -95,8 +93,8 @@ const formIssues = useMaybeAsync(
   [] as ReadonlyArray<StandardSchemaV1.Issue>,
 );
 provide('formIssues', formIssues);
-// reset the path for nested forms (e.g. the props form of the selected node)
-provide('dataPath', computed(() => []));
+// reset the scopes for nested forms (e.g. the props form of the selected node)
+provide('dataScopes', computed(() => [{ data: wrappedData.value, path: [] }]));
 // issues of the whole form data (e.g. comparing multiple fields) can't be attributed to a node
 const hasFormIssues = computed(() => formIssues.value.some(issue => issuePath(issue).length === 0));
 
