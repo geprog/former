@@ -1,6 +1,6 @@
 <template>
   <UFormField
-    v-if="!(mode === 'read' && (!modelValue || Object.keys(modelValue).length === 0))"
+    v-if="!(mode === 'read' && !hasContent)"
     :label
     :error
     :description="help"
@@ -14,8 +14,9 @@
 </template>
 
 <script setup lang="ts">
-import type { FormData, FormerProps } from '@former-ui/former';
-import { FormRenderer } from '@former-ui/former';
+import type { FormData, FormerProps, SchemaNode } from '@former-ui/former';
+import { FormRenderer, nodeChildren, useHasContent } from '@former-ui/former';
+import { inject, type Ref } from 'vue';
 
 defineOptions({ inheritAttrs: false });
 
@@ -26,4 +27,6 @@ defineProps<
   } & FormerProps
 >();
 const modelValue = defineModel<FormData | null | undefined>();
+const node = inject<Ref<SchemaNode> | undefined>('node', undefined);
+const hasContent = useHasContent(() => (node ? nodeChildren(node.value) : []), modelValue);
 </script>

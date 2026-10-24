@@ -19,6 +19,7 @@ export type ShowIfPredicate = (node: SchemaNode, data: FormData, schema: SchemaN
 
 export type InternalShowIfPredicate = (node: SchemaNode) => boolean;
 
+// `data` is `null` for a cleared field and `undefined` for a field that was never filled in
 export type Validator = (node: SchemaNode, data: FieldData | FormData) => true | string;
 
 export type Mode = 'edit' | 'read' | 'build';

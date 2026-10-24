@@ -7,8 +7,10 @@ import {
   generateFormId,
   getFormIdFromEvent,
   getNode,
+  hasValue,
   isNodeLayoutComponent,
   nanoid,
+  nodeChildren,
   nodePosition,
   replaceNode,
   schemaIterator,
@@ -548,6 +550,32 @@ describe('unsetDataOfNode', () => {
     });
     unsetDataOfNode(layout, data, components);
     expect(data).toStrictEqual({ keep: 1, leaf: 2 });
+  });
+});
+
+describe('nodeChildren', () => {
+  it('is empty for nodes without children', () => {
+    expect(nodeChildren(node('1'))).toStrictEqual([]);
+  });
+
+  it('returns a list of children as is', () => {
+    const child = node('c1');
+    expect(nodeChildren(node('1', { children: [child] }))).toStrictEqual([child]);
+  });
+
+  it('flattens children stored by category', () => {
+    const [c1, c2, c3] = [node('c1'), node('c2'), node('c3')];
+    expect(nodeChildren(node('1', { children: { a: [c1, c2], b: [c3] } }))).toStrictEqual([c1, c2, c3]);
+  });
+});
+
+describe('hasValue', () => {
+  it.each([undefined, null, '', false, [], {}, { a: null, b: '' }, { a: { b: false } }])('is false for %j', (value) => {
+    expect(hasValue(value)).toBe(false);
+  });
+
+  it.each(['a', 0, 1, true, [{}], { a: null, b: 'x' }, { a: { b: 0 } }])('is true for %j', (value) => {
+    expect(hasValue(value)).toBe(true);
   });
 });
 

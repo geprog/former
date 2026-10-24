@@ -125,7 +125,7 @@ import {
 import { useStorage } from '@vueuse/core';
 import { computed, provide, ref } from 'vue';
 import { presets } from './presets';
-import { hasValue, playgroundSchemaKey } from './showIf';
+import { hasValueAt, playgroundSchemaKey } from './showIf';
 
 const mode = useStorage<Mode>('former:mode', 'build');
 const presetId = useStorage<string>('former:preset', presets[0].id);
@@ -306,7 +306,7 @@ function showIf(node: SchemaNode, data: FormData): boolean {
   const path = node.props?.showIf;
   if (!path)
     return true;
-  return hasValue(data, path);
+  return hasValueAt(data, path);
 }
 
 function validator(node: SchemaNode, data: FieldData | FormData): string | true {

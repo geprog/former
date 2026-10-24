@@ -251,6 +251,21 @@ const modelValue = defineModel<string>();
 
 For more detailed usage example check out the [Playground](https://github.com/geprog/former/blob/main/packages/playground/src/Playground.vue) implementation.
 
+## Form data and validation
+
+Pass a `validator` to `Former` to validate the fields. It is called with the node and its value and returns `true` or an error message:
+
+```ts
+function validator(node: SchemaNode, data: FieldData | FormData): true | string {
+  if (node.props?.required && (data === undefined || data === null || data === '')) {
+    return 'Value is required';
+  }
+  return true;
+}
+```
+
+When the user clears a field, its value is set to `null` instead of being removed from the data. This way the key survives JSON serialization and e.g. a preset value is not applied again after the data was saved and loaded. A field that was never filled in is `undefined`, so check for both when testing for an empty value. The exported `hasValue` helper treats `undefined`, `null`, `''`, `false` and empty lists and objects as empty.
+
 ## Ready-to-use components
 
 If you use [Nuxt UI](https://ui.nuxt.com), [`@former-ui/preset-nuxt-ui`](https://github.com/geprog/former/blob/main/packages/preset-nuxt-ui/README.md) provides form components for text, numbers, dates, selections, file uploads, groups, columns, repeaters and more.

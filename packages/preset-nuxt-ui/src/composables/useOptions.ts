@@ -3,34 +3,10 @@ import { computed, type Ref } from 'vue';
 
 export type Option = { label?: string; value: string; preset?: boolean };
 
-type Config = {
-  fallbackValueForLabel?: boolean;
-};
+export function useOptions<T extends Option>(modelValue: Ref<string | null | undefined>, options: Ref<T[] | undefined>) {
+  const items = computed(() => options.value?.map(option => ({ ...option, label: option.label || option.value })) ?? []);
 
-export function useOptions<T extends Option>(
-  modelValue: Ref<string | null | undefined>,
-  options: Ref<T[] | undefined>,
-  config?: Partial<Config>,
-) {
-  const fallbackValueForLabel = config?.fallbackValueForLabel ?? true;
+  usePresetValue(modelValue, () => options.value?.find(option => option.preset)?.value);
 
-  const presetOption = computed(() => {
-    return (options.value || []).find(option =>
-      option.preset ?? false,
-    );
-  });
-
-  const items = computed(() => {
-    if (!fallbackValueForLabel) {
-      return options.value ?? [];
-    }
-    return options.value?.map(option => ({ ...option, label: option.label || option.value })) ?? [];
-  });
-
-  usePresetValue(modelValue, () => presetOption.value?.value);
-
-  return {
-    items,
-    presetOption,
-  };
+  return { items };
 }

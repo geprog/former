@@ -3,6 +3,7 @@ import type { Component } from 'vue';
 import { Former } from '@former-ui/former';
 import { mount } from '@vue/test-utils';
 import { describe, expect, it } from 'vitest';
+import { nextTick } from 'vue';
 import { nuxtUiStubs } from '../test/nuxtUiStubs';
 import { formComponents } from './index';
 
@@ -108,5 +109,66 @@ describe('form components', () => {
 
       expect(mountColumns({}, withImage).find('[data-label="Columns"]').exists()).toBe(true);
     });
+
+    it('are hidden when a group in them only has cleared fields', () => {
+      const withGroup: SchemaNode[] = [{ ...schema[0]!, children: { 'column-0': [{ type: 'group', name: 'g', children: [{ type: 'text', name: 'a' }] }] } }];
+
+      expect(mountColumns({ g: { a: null } }, withGroup).find('[data-label="Columns"]').exists()).toBe(false);
+    });
+
+    it('are hidden when a repeater in them has no items', () => {
+      const withRepeater: SchemaNode[] = [{ ...schema[0]!, children: { 'column-0': [{ type: 'repeater', name: 'r', children: [{ type: 'image' }] }] } }];
+
+      expect(mountColumns({ r: [] }, withRepeater).find('[data-label="Columns"]').exists()).toBe(false);
+    });
+  });
+
+  describe('group in read mode', () => {
+    function mountGroup(data: FormData, children: SchemaNode[] = [{ type: 'text', name: 'a' }]) {
+      const schema: SchemaNode[] = [{ type: 'group', name: 'g', props: { label: 'Group' }, children }];
+      return mount(Former, {
+        props: { schema, data, components, mode: 'read' },
+        global: { components: nuxtUiStubs },
+      });
+    }
+
+    it('is shown when a child has a value', () => {
+      expect(mountGroup({ g: { a: 'value' } }).find('[data-label="Group"]').exists()).toBe(true);
+    });
+
+    it('is hidden when its fields were cleared', () => {
+      expect(mountGroup({ g: { a: null } }).find('[data-label="Group"]').exists()).toBe(false);
+    });
+
+    it('is shown when it contains an image', () => {
+      expect(mountGroup({}, [{ type: 'image' }]).find('[data-label="Group"]').exists()).toBe(true);
+    });
+  });
+
+  it.each(['checkbox', 'switch'] as const)('%s without preset does not change the data', async (type) => {
+    let data: FormData = {};
+    mount(Former, {
+      props: { 'schema': [{ type, name: 'field' }], data, components, 'mode': 'edit', 'onUpdate:data': (value: FormData) => (data = value) },
+      global: { components: nuxtUiStubs },
+    });
+    await nextTick();
+
+    expect(data).toStrictEqual({});
+  });
+
+  it.each([['checkbox', 'UCheckbox'], ['switch', 'USwitch']] as const)('%s stores `true` when checked and clears the value when unchecked', async (type, stub) => {
+    let data: FormData = {};
+    const wrapper = mount(Former, {
+      props: { 'schema': [{ type, name: 'field' }], data, components, 'mode': 'edit', 'onUpdate:data': (value: FormData) => (data = value) },
+      global: { components: nuxtUiStubs },
+    });
+
+    wrapper.findComponent({ name: stub }).vm.$emit('update:modelValue', true);
+    await nextTick();
+    expect(data).toStrictEqual({ field: true });
+
+    wrapper.findComponent({ name: stub }).vm.$emit('update:modelValue', false);
+    await nextTick();
+    expect(data).toStrictEqual({ field: null });
   });
 });

@@ -1,5 +1,27 @@
 import type { FieldData, FormComponents, FormData, InternalSchemaNode, SchemaNode } from './types';
 
+// the children of a node, regardless of whether they are a list or grouped by category
+export function nodeChildren<Node extends SchemaNode | InternalSchemaNode>(node: Node): Node[] {
+  if (!node.children) {
+    return [];
+  }
+  return (Array.isArray(node.children) ? node.children : Object.values(node.children).flat()) as Node[];
+}
+
+// whether a value counts as filled in, e.g. a cleared field (`null`) or an unchecked checkbox doesn't
+export function hasValue(value: FieldData | FormData): boolean {
+  if (value === undefined || value === null || value === '' || value === false) {
+    return false;
+  }
+  if (Array.isArray(value)) {
+    return value.length > 0;
+  }
+  if (typeof value === 'object') {
+    return Object.values(value).some(hasValue);
+  }
+  return true;
+}
+
 export function schemaIterator(schema: InternalSchemaNode[]) {
   let nextIndex = 0;
   let childrenIterator: Iterator<InternalSchemaNode> | null = null;
@@ -18,10 +40,7 @@ export function schemaIterator(schema: InternalSchemaNode[]) {
       }
       const node = schema[nextIndex];
       if (node && node.children) {
-        const children = Array.isArray(node.children)
-          ? node.children
-          : Object.values(node.children).flatMap(childrenOfCategory => childrenOfCategory);
-        childrenIterator = schemaIterator(children);
+        childrenIterator = schemaIterator(nodeChildren(node));
       }
       const result = { value: node, done: childrenIterator === null && done };
       nextIndex++;
@@ -248,12 +267,8 @@ export function unsetDataOfNode(node: InternalSchemaNode, data: FormData | Field
   if (node.name) {
     delete data[node.name];
   }
-  else if (isNodeLayoutComponent(node, components) && node.children) {
-    let children = node.children;
-    if (!Array.isArray(children)) {
-      children = Object.values(children).flatMap(childrenOfCategory => childrenOfCategory);
-    }
-    children.forEach((child) => {
+  else if (isNodeLayoutComponent(node, components)) {
+    nodeChildren(node).forEach((child) => {
       unsetDataOfNode(child, data, components);
     });
   }

@@ -59,7 +59,7 @@ Pass `t` to `formComponents` to translate the labels of the components and their
 
 Fields can have a preset value. A preset is applied as long as the field's key does not exist in the form data. This way a field that is newly added to a form, or that becomes visible again, gets its preset, while a field the user cleared on purpose stays empty.
 
-A cleared field is therefore stored as `null`, never removed from the data. **Your backend must store and return `null` values unchanged.** If it drops them (e.g. `omitempty` in Go, `NON_NULL` in Jackson or `exclude_none` in Pydantic), cleared fields get their preset back the next time the form is opened.
+A cleared field is therefore stored as `null`, never removed from the data. An unchecked checkbox or switch counts as cleared, so it is `null` as well and only checked ones are stored as `true`. **Your backend must store and return `null` values unchanged.** If it drops them (e.g. `omitempty` in Go, `NON_NULL` in Jackson or `exclude_none` in Pydantic), cleared fields get their preset back the next time the form is opened.
 
 In read mode presets are never applied.
 

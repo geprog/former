@@ -17,8 +17,8 @@
 </template>
 
 <script setup lang="ts">
-import type { FieldData, FormData, FormerProps, SchemaNode } from '@former-ui/former';
-import { FormRenderer } from '@former-ui/former';
+import type { FormData, FormerProps, SchemaNode } from '@former-ui/former';
+import { FormRenderer, nodeChildren, useHasContent } from '@former-ui/former';
 import { computed, inject, type Ref } from 'vue';
 
 defineOptions({ inheritAttrs: false });
@@ -45,26 +45,5 @@ const columns = computed(() =>
     : Array.from({ length: props.cols }, (_, index) => `column-${index}`),
 );
 
-function hasValue(value: FieldData | FormData) {
-  if (value === undefined || value === null || value === '') {
-    return false;
-  }
-  if (Array.isArray(value)) {
-    return value.length > 0;
-  }
-  return typeof value !== 'object' || Object.keys(value).length > 0;
-}
-
-// whether any child has data, children without name (e.g. images) are always shown
-function hasChildContent(children: SchemaNode['children']): boolean {
-  const nodes = Array.isArray(children) ? children : Object.values(children ?? {}).flat();
-  return nodes.some((child) => {
-    if (child.name) {
-      return hasValue(modelValue.value?.[child.name]);
-    }
-    return child.children ? hasChildContent(child.children) : true;
-  });
-}
-
-const hasContent = computed(() => hasChildContent(node?.value.children));
+const hasContent = useHasContent(() => (node ? nodeChildren(node.value) : []), modelValue);
 </script>
