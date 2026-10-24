@@ -124,15 +124,16 @@ import {
 } from '@former-ui/former';
 import { useStorage } from '@vueuse/core';
 import { computed, provide, ref } from 'vue';
-import { presets } from './presets';
+import { usePresets } from './presets';
 import { hasValueAt, playgroundSchemaKey } from './showIf';
 
 const mode = useStorage<Mode>('former:mode', 'build');
-const presetId = useStorage<string>('former:preset', presets[0].id);
+const presets = usePresets();
+const presetId = useStorage<string>('former:preset', presets.value[0].id);
 const activateShowIf = useStorage<boolean>('former:activateShowIf', false);
 const activateDarkMode = useStorage<boolean>('former:darkMode', false);
 
-const presetOptions = presets.map(preset => ({ label: preset.label, value: preset.id }));
+const presetOptions = computed(() => presets.value.map(preset => ({ label: preset.label, value: preset.id })));
 
 const options = [
   { label: 'build', value: 'build' },
@@ -294,8 +295,8 @@ const data = useStorage<FormData>('former:data', {});
 
 const activeComponents = computed(() => {
   // fall back to the first preset if the stored id doesn't exist (anymore)
-  const preset = presets.find(preset => preset.id === presetId.value) ?? presets[0];
-  return preset.components();
+  const preset = presets.value.find(preset => preset.id === presetId.value) ?? presets.value[0];
+  return preset.components;
 });
 
 // shows the node only if the field selected in its show if prop has a value

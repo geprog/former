@@ -3,11 +3,13 @@ import type { Component } from 'vue';
 import { Former } from '@former-ui/former';
 import { mount } from '@vue/test-utils';
 import { describe, expect, it } from 'vitest';
-import { nextTick } from 'vue';
+import { defineComponent, h, nextTick } from 'vue';
+import { createI18n } from 'vue-i18n';
 import { nuxtUiStubs } from '../test/nuxtUiStubs';
-import { formComponents } from './index';
+import { createFormComponents } from './formComponents';
+import { useFormComponents } from './index';
 
-const components = formComponents();
+const components = createFormComponents(key => key);
 const types = Object.keys(components) as (keyof typeof components)[];
 
 function declaredProps(component: Component) {
@@ -57,12 +59,30 @@ describe('form components', () => {
   it('has an english text for each text key', async () => {
     const { default: en } = await import('./locales/en.json');
     const keys = new Set<string>();
-    formComponents({ t: (key) => {
+    createFormComponents((key) => {
       keys.add(key);
       return key;
-    } });
+    });
 
     expect(Object.keys(en)).toEqual(expect.arrayContaining([...keys]));
+  });
+
+  it('translates the labels with the i18n instance of the app and follows its locale', async () => {
+    const i18n = createI18n({ legacy: false, locale: 'en', messages: { en: { text_field: 'Text' }, de: { text_field: 'Textfeld' } } });
+    let components: ReturnType<typeof useFormComponents> | undefined;
+    mount(defineComponent({
+      setup() {
+        components = useFormComponents();
+        return () => h('div');
+      },
+    }), { global: { plugins: [i18n] } });
+
+    expect(components?.value.text.label).toBe('Text');
+
+    i18n.global.locale.value = 'de';
+    await nextTick();
+
+    expect(components?.value.text.label).toBe('Textfeld');
   });
 
   it.each([

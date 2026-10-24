@@ -22,16 +22,14 @@ pnpm add @former-ui/former @former-ui/preset-nuxt-ui @nuxt/ui @internationalized
 <script setup lang="ts">
 import type { FormData, SchemaNode } from '@former-ui/former';
 import { FormContent, Former } from '@former-ui/former';
-import { formComponents } from '@former-ui/preset-nuxt-ui';
+import { useFormComponents } from '@former-ui/preset-nuxt-ui';
 import { de } from '@nuxt/ui/locale';
 import { ref } from 'vue';
-import { useI18n } from 'vue-i18n';
 
 const schema = ref<SchemaNode[]>([]);
 const data = ref<FormData>({});
 
-const { t } = useI18n();
-const components = formComponents({ t });
+const components = useFormComponents();
 </script>
 ```
 
@@ -53,7 +51,7 @@ export const i18n = createI18n({
 });
 ```
 
-Pass `t` to `formComponents` to translate the labels of the components and their settings in the form builder: `formComponents({ t: key => i18n.global.t(key) })`.
+`useFormComponents` uses this i18n instance for the labels of the components and their settings in the form builder as well, and updates them when the locale changes. As it uses `useI18n`, call it in the `setup` of a component.
 
 ## Storing form data
 

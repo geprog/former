@@ -1,6 +1,5 @@
-import type { FormComponents, SchemaNode } from '@former-ui/former';
+import type { FormComponents } from '@former-ui/former';
 import { markRaw } from 'vue';
-import ShowIfSelect from '../ShowIfSelect.vue';
 import Checkbox from './Checkbox.vue';
 import Columns from './Columns.vue';
 import Group from './Group.vue';
@@ -8,18 +7,7 @@ import Repeater from './Repeater.vue';
 import Select from './Select.vue';
 import TextInput from './TextInput.vue';
 
-export const showIfProp: SchemaNode = { type: 'showIf', name: 'showIf', props: { label: 'Show if the field has a value' } };
-
-// selects the field the visibility of an element depends on, only used in the props form
-export const showIfComponent: FormComponents[string] = {
-  label: 'Show if',
-  component: markRaw(ShowIfSelect),
-  propsSchema: [{ type: 'text', name: '$name' }],
-  internal: true,
-};
-
 export const sampleFormComponents: FormComponents = {
-  showIf: showIfComponent,
   text: {
     label: 'Text',
     component: markRaw(TextInput),
@@ -57,7 +45,6 @@ export const sampleFormComponents: FormComponents = {
           placeholder: 'Enter an initial value here',
         },
       },
-      showIfProp,
       {
         type: 'checkbox',
         name: 'required',
@@ -80,15 +67,12 @@ export const sampleFormComponents: FormComponents = {
           required: true,
         },
       },
-      showIfProp,
     ],
   },
   columns: {
     label: 'Columns',
     component: markRaw(Columns),
-    propsSchema: [
-      showIfProp,
-    ],
+    propsSchema: [],
   },
   repeater: {
     label: 'Repeater',
@@ -111,7 +95,6 @@ export const sampleFormComponents: FormComponents = {
           placeholder: 'Enter a label',
         },
       },
-      showIfProp,
     ],
   },
   select: {
@@ -135,7 +118,6 @@ export const sampleFormComponents: FormComponents = {
           placeholder: 'Enter a label',
         },
       },
-      showIfProp,
       {
         type: 'repeater',
         name: 'options',
@@ -186,7 +168,6 @@ export const sampleFormComponents: FormComponents = {
           placeholder: 'Enter a label',
         },
       },
-      showIfProp,
     ],
   },
 };

@@ -5,7 +5,7 @@ import { mount } from '@vue/test-utils';
 import { describe, expect, it, vi } from 'vitest';
 import { type Component, nextTick, ref } from 'vue';
 import { nuxtUiStubs } from '../test/nuxtUiStubs';
-import { formComponents } from './index';
+import { createFormComponents } from './formComponents';
 
 // icons are loaded from the network, which isn't needed here
 vi.mock('@nuxt/ui/runtime/vue/components/Icon.vue', async () => {
@@ -13,7 +13,7 @@ vi.mock('@nuxt/ui/runtime/vue/components/Icon.vue', async () => {
   return { default: defineComponent(() => () => h('span')) };
 });
 
-const components: FormComponents = { combo_box: formComponents().combo_box };
+const components: FormComponents = { combo_box: createFormComponents(key => key).combo_box };
 
 const schema: SchemaNode[] = [
   { type: 'combo_box', name: 'fruit', props: { options: [{ value: 'apple', label: 'Apple' }, { value: 'pear' }] } },

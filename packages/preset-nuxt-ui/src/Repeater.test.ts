@@ -4,7 +4,7 @@ import { mount } from '@vue/test-utils';
 import { describe, expect, it } from 'vitest';
 import { defineComponent, h, markRaw, nextTick, ref } from 'vue';
 import { nuxtUiStubs } from '../test/nuxtUiStubs';
-import { formComponents } from './index';
+import { createFormComponents } from './formComponents';
 
 // keeps the value it was mounted with, like components with local state do
 const MountedValue = defineComponent({
@@ -16,7 +16,7 @@ const MountedValue = defineComponent({
 });
 
 const components: FormComponents = {
-  repeater: formComponents().repeater,
+  repeater: createFormComponents(key => key).repeater,
   mounted_value: {
     label: 'Mounted value',
     propsSchema: [{ type: 'text', name: '$name' }],
