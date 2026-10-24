@@ -58,9 +58,6 @@ export default defineConfig({
     reloadOnPackageBuild(packageEntries),
     ui({
       router: false,
-      /* Let the playground’s own `.dark` wrapper control theme; otherwise VueUse
-       * color-mode adds `dark` on `<html>` from system preference and every `dark:` utility wins. */
-      colorMode: false,
       scanPackages: ['@former-ui/preset-nuxt-ui'],
       ui: {
         formField: {
