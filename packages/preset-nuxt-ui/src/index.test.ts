@@ -52,4 +52,33 @@ describe('form components', () => {
 
     expect(wrapper.find(`[data-stub="${stub}"]`).html()).toContain(attribute);
   });
+
+  describe('columns in read mode', () => {
+    const schema: SchemaNode[] = [{
+      type: 'columns',
+      props: { cols: 2, label: 'Columns' },
+      children: { 'column-0': [{ type: 'text', name: 'a' }], 'column-1': [{ type: 'text', name: 'b' }] },
+    }];
+
+    function mountColumns(data: FormData, columnsSchema = schema) {
+      return mount(Former, {
+        props: { schema: columnsSchema, data, components, mode: 'read' },
+        global: { components: nuxtUiStubs },
+      });
+    }
+
+    it('are shown when a child has a value', () => {
+      expect(mountColumns({ b: 'value' }).find('[data-label="Columns"]').exists()).toBe(true);
+    });
+
+    it('are hidden when only fields outside of them have a value', () => {
+      expect(mountColumns({ other: 'value', a: null, b: '' }).find('[data-label="Columns"]').exists()).toBe(false);
+    });
+
+    it('are shown when they contain an image', () => {
+      const withImage: SchemaNode[] = [{ ...schema[0]!, children: { 'column-0': [{ type: 'image' }] } }];
+
+      expect(mountColumns({}, withImage).find('[data-label="Columns"]').exists()).toBe(true);
+    });
+  });
 });

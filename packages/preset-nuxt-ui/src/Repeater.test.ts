@@ -99,4 +99,11 @@ describe('repeater', () => {
 
     expect(wrapper.findAll('button')).toHaveLength(0);
   });
+
+  it('is hidden in read mode when it has no items', () => {
+    const { wrapper } = mountRepeater({ items: [] }, 'read');
+
+    expect(wrapper.find('[data-label="Add item"]').exists()).toBe(false);
+    expect(wrapper.text()).not.toContain('Item');
+  });
 });
