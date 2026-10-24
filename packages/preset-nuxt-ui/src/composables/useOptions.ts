@@ -24,7 +24,7 @@ export function useOptions<T extends Option>(
     if (!fallbackValueForLabel) {
       return options.value ?? [];
     }
-    return options.value?.map(option => ({ ...option, label: option.label ?? option.value })) ?? [];
+    return options.value?.map(option => ({ ...option, label: option.label || option.value })) ?? [];
   });
 
   usePresetValue(modelValue, () => presetOption.value?.value);
