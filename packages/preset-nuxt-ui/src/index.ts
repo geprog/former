@@ -3,11 +3,11 @@ import { markRaw } from 'vue';
 import Checkbox from './Checkbox.vue';
 import Columns from './Columns.vue';
 import ComboBox from './ComboBox.vue';
-import Date from './Date.vue';
+import DateField from './Date.vue';
 import FileUpload from './FileUpload.vue';
 import Group from './Group.vue';
 import Image from './Image.vue';
-import Number from './Number.vue';
+import NumberField from './Number.vue';
 import RadioGroup from './RadioGroup.vue';
 import Repeater from './Repeater.vue';
 import Select from './Select.vue';
@@ -32,8 +32,7 @@ const defaultOptions: CommonSchemaOptions = {
 };
 
 function commonSchema(options: Partial<CommonSchemaOptions> & { t: (key: string) => string }): SchemaNode[] {
-  const { t } = options || { t: (key: string) => key };
-  const { name, label, help, required, placeholder } = { ...defaultOptions, ...options };
+  const { t, name, label, help, required, placeholder } = { ...defaultOptions, ...options };
   const schema: SchemaNode[] = [];
   if (name) {
     schema.push({
@@ -106,7 +105,7 @@ export function formComponents(options?: { t: (key: string) => string }) {
     },
     number: {
       label: t('number_field'),
-      component: markRaw(Number),
+      component: markRaw(NumberField),
       propsSchema: [
         ...commonSchema({ t }),
         {
@@ -175,7 +174,7 @@ export function formComponents(options?: { t: (key: string) => string }) {
     },
     date: {
       label: t('date_field'),
-      component: markRaw(Date),
+      component: markRaw(DateField),
       propsSchema: [
         ...commonSchema({ placeholder: false, t }),
         { type: 'date', name: 'min', props: { label: t('min_value') } },
