@@ -8,6 +8,46 @@ Ready-to-use form components for [Former](../former/README.md) built with [Nuxt 
 pnpm add @former-ui/former @former-ui/preset-nuxt-ui @nuxt/ui @internationalized/date vue-i18n
 ```
 
+Set up [Nuxt UI for Vue](https://ui.nuxt.com/docs/getting-started/installation/vue) and let its Vite plugin scan the preset. The preset uses the Nuxt UI components (`UInput`, `UFormField`, …) without importing them, so they are only resolved if the preset is listed in `scanPackages`:
+
+```ts
+// vite.config.ts
+import ui from '@nuxt/ui/vite';
+import vue from '@vitejs/plugin-vue';
+import { defineConfig } from 'vite';
+
+export default defineConfig({
+  plugins: [
+    vue(),
+    ui({
+      scanPackages: ['@former-ui/preset-nuxt-ui'],
+    }),
+  ],
+});
+```
+
+```ts
+// main.ts
+import ui from '@nuxt/ui/vue-plugin';
+import { createApp } from 'vue';
+import App from './App.vue';
+import { i18n } from './i18n'; // see "Texts" below
+import './main.css';
+
+createApp(App).use(ui).use(i18n).mount('#app');
+```
+
+Tailwind does not scan `node_modules`, so add the preset as a source to the CSS file that imports Nuxt UI. Former's own classes can be included the same way (see [Styling](../former/README.md#option-2-include-former-ui-in-your-tailwind-build) for the alternatives):
+
+```css
+/* main.css */
+@import 'tailwindcss';
+@import '@nuxt/ui';
+
+@source '../node_modules/@former-ui/preset-nuxt-ui/dist';
+@source '../node_modules/@former-ui/former/dist';
+```
+
 ## Usage
 
 ```vue
