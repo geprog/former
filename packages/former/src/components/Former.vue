@@ -87,7 +87,7 @@ provide('showIf', (node: SchemaNode) => {
 const validator = props.validator || (() => true);
 provide('validator', validator);
 
-const { isValid: isSchemaValid } = useSchema(internalSchema, validator, props.components);
+const { isValid: isSchemaValid } = useSchema(internalSchema, validator, toRef(props, 'components'));
 watch(isSchemaValid, () => {
   emit('schemaValid', isSchemaValid.value);
 }, { immediate: true });
