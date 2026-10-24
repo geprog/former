@@ -1,21 +1,18 @@
 import type { FormComponents, InternalSchemaNode, Validator } from '~/types';
-import { computed, type MaybeRefOrGetter, type Ref, toValue } from 'vue';
+import { type MaybeRefOrGetter, type Ref, toValue } from 'vue';
 import { schemaIterator } from '~/utils';
+import { isNodeValid, type StandardSchemaV1, useMaybeAsync } from '~/validation';
 
-export function isNodeValid(node: InternalSchemaNode, validator: Validator, components: FormComponents) {
-  const component = components[node.type];
-  // nodes of unknown components (e.g. after switching the components) can't be rendered or validated
-  if (!component) {
-    return false;
-  }
-  return component.propsSchema.every(propsNode =>
-    validator(propsNode, propsNode.name === '$name' ? node.name : (node.props || {})[propsNode.name || '']) === true);
-}
+export { isNodeValid };
 
-export default function useSchema(schema: Ref<InternalSchemaNode[]>, validator: Validator, components: MaybeRefOrGetter<FormComponents>) {
-  const isValid = computed(() => {
-    return [...schemaIterator(schema.value)].every(node => isNodeValid(node, validator, toValue(components)));
-  });
+export default function useSchema(schema: Ref<InternalSchemaNode[]>, validator: Validator | StandardSchemaV1, components: MaybeRefOrGetter<FormComponents>) {
+  const isValid = useMaybeAsync(() => {
+    const results = [...schemaIterator(schema.value)].map(node => isNodeValid(node, validator, toValue(components)));
+    if (results.some(result => result instanceof Promise)) {
+      return Promise.all(results).then(valid => valid.every(Boolean));
+    }
+    return results.every(Boolean);
+  }, true);
 
   return { isValid };
 }

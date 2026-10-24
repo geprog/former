@@ -1,4 +1,5 @@
 import type { Component, Raw } from 'vue';
+import type { StandardSchemaV1 } from './validation';
 
 export type NodeChildren<NodeType> = NodeType[] | { [category: string]: NodeType[] };
 
@@ -19,8 +20,11 @@ export type ShowIfPredicate = (node: SchemaNode, data: FormData, schema: SchemaN
 
 export type InternalShowIfPredicate = (node: SchemaNode) => boolean;
 
+// `true` if the data is valid, otherwise an error message or a Standard Schema (e.g. of Zod) to validate the data with
+export type ValidationResult = true | string | StandardSchemaV1;
+
 // `data` is `null` for a cleared field and `undefined` for a field that was never filled in
-export type Validator = (node: SchemaNode, data: FieldData | FormData) => true | string;
+export type Validator = (node: SchemaNode, data: FieldData | FormData) => ValidationResult | Promise<ValidationResult>;
 
 export type Mode = 'edit' | 'read' | 'build';
 

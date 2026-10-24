@@ -7,16 +7,18 @@
 <script setup lang="ts">
 import type { FormComponents, FormData, InternalSchemaNode, Mode, SchemaNode, ShowIfPredicate, Texts, Validator } from '~/types';
 import { cloneDeep, isEqual } from 'lodash';
-import { computed, ref, toRef, watch } from 'vue';
+import { computed, ref, toRaw, toRef, watch } from 'vue';
 import { provide } from '~/compositions/injectProvide';
 import useSchema from '~/compositions/useSchema';
 import { generateFormId, toInternalSchema, toSchema } from '~/utils';
+import { isStandardSchema, issuePath, type StandardSchemaV1, useMaybeAsync, validateWithSchema } from '~/validation';
 import FormContent from './FormContent.vue';
 
 const props = withDefaults(defineProps<{
   components: FormComponents;
   showIf?: ShowIfPredicate;
-  validator?: Validator;
+  // a function validating each node or a Standard Schema (e.g. of Zod) validating the whole form data
+  validator?: Validator | StandardSchemaV1;
   mode?: Mode;
   texts?: Partial<Texts>;
   isUpdating?: boolean;
@@ -84,8 +86,19 @@ provide('showIf', (node: SchemaNode) => {
   return props.showIf(node, wrappedData.value, schema.value);
 });
 
-const validator = props.validator || (() => true);
+// schemas mustn't be reactive, e.g. zod schemas break when they are proxied
+const validator = toRaw(props.validator) || (() => true);
 provide('validator', validator);
+
+const formIssues = useMaybeAsync(
+  () => (isStandardSchema(validator) ? validateWithSchema(validator, wrappedData.value) : []),
+  [] as ReadonlyArray<StandardSchemaV1.Issue>,
+);
+provide('formIssues', formIssues);
+// reset the path for nested forms (e.g. the props form of the selected node)
+provide('dataPath', computed(() => []));
+// issues of the whole form data (e.g. comparing multiple fields) can't be attributed to a node
+const hasFormIssues = computed(() => formIssues.value.some(issue => issuePath(issue).length === 0));
 
 const { isValid: isSchemaValid } = useSchema(internalSchema, validator, toRef(props, 'components'));
 watch(isSchemaValid, () => {
@@ -96,7 +109,7 @@ const validityMap = ref<Record<string, boolean | undefined>>({});
 provide('validityMap', validityMap);
 
 const isValid = computed(() => {
-  return Object.values(validityMap.value).every(
+  return !hasFormIssues.value && Object.values(validityMap.value).every(
     validFlag => validFlag !== false,
   );
 });

@@ -32,7 +32,7 @@
       :schema="selectedNodePropsSchema"
       mode="edit"
       :components
-      :validator
+      :validator="propsValidator"
       @valid="$emit('valid', $event)"
     />
     <pre v-else>{{ selectedNode }}</pre>
@@ -45,6 +45,7 @@ import type { InternalSchemaNode, SchemaNode } from '~/types';
 import { computed, ref, watch } from 'vue';
 import { inject } from '~/compositions/injectProvide';
 import { deleteNode, addNode as insertNodeAt, nodePosition, replaceNode, toInternalSchema, toInternalSchemaNode, toSchemaNode } from '~/utils';
+import { isStandardSchema } from '~/validation';
 import Former from './Former.vue';
 
 defineEmits<{
@@ -54,6 +55,8 @@ defineEmits<{
 const components = inject('components');
 const schema = inject('schema');
 const validator = inject('validator');
+// a schema of the form data doesn't apply to the props of a node
+const propsValidator = isStandardSchema(validator) ? undefined : validator;
 
 const selectedNode = inject('selectedNode');
 

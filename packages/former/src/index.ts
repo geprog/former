@@ -17,7 +17,11 @@ export type {
   Mode,
   SchemaNode,
   ShowIfPredicate,
+  ValidationResult,
   Validator,
 } from './types';
 
 export { hasValue, isNodeLayoutComponent, nodeChildren } from './utils';
+export type { StandardSchemaV1 } from './validation';
+
+export { fromSuperstruct, isStandardSchema } from './validation';

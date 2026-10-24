@@ -26,8 +26,8 @@ import type { InternalSchemaNode } from '~/types';
 import { computed, toRef } from 'vue';
 import { inject, provide } from '~/compositions/injectProvide';
 import useNode from '~/compositions/useNode';
-import { isNodeValid } from '~/compositions/useSchema';
 import { setDragEventData } from '~/utils';
+import { isNodeValid, useMaybeAsync } from '~/validation';
 
 const props = defineProps<{
   node: InternalSchemaNode;
@@ -38,7 +38,7 @@ const components = inject('components');
 
 const node = toRef(props, 'node');
 const { component, error, hasContent, isShown, modelValue } = useNode(node);
-const isNodeValidFlag = computed(() => isNodeValid(node.value, validator, components.value));
+const isNodeValidFlag = useMaybeAsync(() => isNodeValid(node.value, validator, components.value), true);
 // cleared props are stored as `null` so their preset isn't applied again, but components should see them as not set
 const componentProps = computed(() =>
   Object.fromEntries(Object.entries(node.value.props ?? {}).filter(([, value]) => value !== null)),

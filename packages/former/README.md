@@ -264,7 +264,44 @@ function validator(node: SchemaNode, data: FieldData | FormData): true | string 
 }
 ```
 
-When the user clears a field, its value is set to `null` instead of being removed from the data. This way the key survives JSON serialization and e.g. a preset value is not applied again after the data was saved and loaded. A field that was never filled in is `undefined`, so check for both when testing for an empty value. The exported `hasValue` helper treats `undefined`, `null`, `''`, `false` and empty lists and objects without any filled in value as empty, while a list with items counts as filled in even if its items are empty.
+The validator may also be async and return a promise.
+
+### Standard Schema (Zod, Valibot, ArkType, Yup, ...)
+
+The validation supports [Standard Schema](https://standardschema.dev), so any compliant library like [Zod](https://zod.dev), [Valibot](https://valibot.dev), [ArkType](https://arktype.io) or [Yup](https://github.com/jquense/yup) can be used.
+
+Pass a schema of the whole form data as `validator`. Each issue is shown at the node its path points to, including nodes in groups and repeaters (e.g. `['items', 1, 'title']`):
+
+```ts
+import { z } from 'zod';
+
+const validator = z.object({
+  name: z.string().min(1, 'Name is required'),
+  address: z.object({ street: z.string().min(1, 'Street is required') }),
+  items: z.array(z.object({ title: z.string().min(1, 'Title is required') })),
+});
+```
+
+Issues of hidden nodes (see `showIf`) are ignored, while issues without a path (e.g. of a refinement comparing multiple fields) make the form invalid. A schema of the form data isn't applied to the props of the nodes in build mode.
+
+For forms built by the user, a validator function can return a schema for each node instead of an error message:
+
+```ts
+function validator(node: SchemaNode): ValidationResult {
+  return node.props?.required ? z.string('Value is required').min(1, 'Value is required') : true;
+}
+```
+
+[Superstruct](https://docs.superstructjs.org) doesn't implement Standard Schema itself, so wrap its structs with `fromSuperstruct`:
+
+```ts
+import { fromSuperstruct } from '@former-ui/former';
+import { object, string } from 'superstruct';
+
+const validator = fromSuperstruct(object({ name: string() }));
+```
+
+When the user clears a field, its value is set to `null` instead of being removed from the data. This way the key survives JSON serialization and e.g. a preset value is not applied again after the data was saved and loaded. A field that was never filled in is `undefined`, so check for both when testing for an empty value. The exported `hasValue` helper treats `undefined`, `null`, `''`, `false` and empty lists and objects without any filled in value as empty, while a list with items counts as filled in even if its items are empty. With a schema, optional fields therefore need to accept `null` as well, e.g. with `.nullish()` of Zod.
 
 ## Ready-to-use components
 

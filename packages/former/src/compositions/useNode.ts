@@ -1,12 +1,14 @@
 import type { InternalSchemaNode } from '~/types';
 import { computed, ref, type Ref, watch } from 'vue';
 import { isNodeLayoutComponent, unsetDataOfNode } from '~/utils';
+import { type DataPath, isStandardSchema, issueMessageAt, useMaybeAsync, validateNode } from '~/validation';
 import { inject, provide } from './injectProvide';
 import { useHasContent } from './useHasContent';
 
 export default function useNode(node: Ref<InternalSchemaNode>) {
   const data = inject('data');
   const components = inject('components');
+  const validityMap = inject('validityMap');
 
   const component = computed(() => components.value[node.value.type]?.component);
   const isLayoutComponent = computed(() => isNodeLayoutComponent(node.value, components.value));
@@ -57,14 +59,26 @@ export default function useNode(node: Ref<InternalSchemaNode>) {
   });
   provide('hasDataKey', hasDataKey);
 
-  const validator = inject('validator', true);
-  const error = computed(() => {
-    const message = validator(node.value, modelValue.value);
-    if (message === true) {
-      return undefined;
-    }
-    return message;
+  // layout components pass the data of their parent through
+  const parentDataPath = inject('dataPath', false);
+  const dataPath = computed<DataPath>(() => {
+    const path = parentDataPath?.value ?? [];
+    return isLayoutComponent.value || !node.value.name ? path : [...path, node.value.name];
   });
+  provide('dataPath', dataPath);
+
+  const validator = inject('validator', true);
+  const formIssues = inject('formIssues', false);
+  const error = useMaybeAsync(() => {
+    if (isStandardSchema(validator)) {
+      // the issues of the whole form data are only attributed to nodes with data of their own
+      if (isLayoutComponent.value || !node.value.name) {
+        return undefined;
+      }
+      return issueMessageAt(formIssues?.value ?? [], dataPath.value, !node.value.children);
+    }
+    return validateNode(validator, node.value, modelValue.value);
+  }, undefined);
 
   const showIf = inject('showIf', false);
   const isShown = computed(() => {
@@ -82,8 +96,6 @@ export default function useNode(node: Ref<InternalSchemaNode>) {
 
   // whether the node shows something in read mode, e.g. not a field without value or a group with only such fields
   const hasContent = useHasContent(() => [node.value], data);
-
-  const validityMap = inject('validityMap');
 
   const childrenValidityMap = ref<Record<string, boolean | undefined>>({});
   provide('validityMap', childrenValidityMap);
