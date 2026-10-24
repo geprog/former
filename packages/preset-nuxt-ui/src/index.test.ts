@@ -122,6 +122,22 @@ describe('form components', () => {
       expect(mountColumns({ r: [] }, withRepeater).find('[data-label="Columns"]').exists()).toBe(false);
     });
 
+    it('are hidden when they only contain images hidden by their show if condition', () => {
+      const withImage: SchemaNode[] = [{ ...schema[0]!, children: { 'column-0': [{ type: 'image', showIf: 'hidden' }] } }];
+      const wrapper = mount(Former, {
+        props: { schema: withImage, data: {}, components, mode: 'read', showIf: node => node.showIf !== 'hidden' },
+        global: { components: nuxtUiStubs },
+      });
+
+      expect(wrapper.find('[data-label="Columns"]').exists()).toBe(false);
+    });
+
+    it('ignore children of columns beyond their count', () => {
+      const withRemovedColumn: SchemaNode[] = [{ ...schema[0]!, props: { cols: 1, label: 'Columns' } }];
+
+      expect(mountColumns({ b: 'value' }, withRemovedColumn).find('[data-label="Columns"]').exists()).toBe(false);
+    });
+
     it('are hidden when a repeater in them has no data', () => {
       const withRepeater: SchemaNode[] = [{ ...schema[0]!, children: { 'column-0': [{ type: 'repeater', name: 'r', children: [{ type: 'image' }] }] } }];
 

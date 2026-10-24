@@ -1,5 +1,5 @@
 <template>
-  <UFormField v-if="!(mode === 'read' && !modelValue)" :description="help" :error>
+  <UFormField :description="help" :error>
     <URadioGroup v-model:model-value="modelValue" :items :legend="label" :required :disabled="mode === 'read'" />
   </UFormField>
 </template>

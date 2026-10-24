@@ -1,6 +1,5 @@
 <template>
   <UFormField
-    v-if="!(mode === 'read' && !hasContent)"
     :label
     :description="help"
     class="flex w-full flex-col"
@@ -17,10 +16,10 @@
 </template>
 
 <script setup lang="ts">
-import type { FormData, FormerProps, SchemaNode } from '@former-ui/former';
-import { FormRenderer, nodeChildren, useHasContent } from '@former-ui/former';
-import { computed, inject, type Ref } from 'vue';
-import { useIsRepeater } from './composables/useIsRepeater';
+import type { FormData, FormerProps } from '@former-ui/former';
+import { FormRenderer } from '@former-ui/former';
+import { computed } from 'vue';
+import { columnCategories, DEFAULT_COLUMN_COUNT } from './columns';
 
 defineOptions({ inheritAttrs: false });
 
@@ -33,18 +32,10 @@ const props = withDefaults(
       border?: boolean;
     } & FormerProps
   >(),
-  // also used before the settings of a new columns node were opened, which apply the preset of `cols`
-  { cols: 2 },
+  { cols: DEFAULT_COLUMN_COUNT },
 );
 
 // columns are a layout component, so their model value is the data of the surrounding node
-const modelValue = defineModel<FormData | null | undefined>();
-const node = inject<Ref<SchemaNode> | undefined>('node', undefined);
-const columns = computed(() =>
-  typeof props.cols !== 'number' || props.cols < 0
-    ? []
-    : Array.from({ length: props.cols }, (_, index) => `column-${index}`),
-);
-
-const hasContent = useHasContent(() => (node ? nodeChildren(node.value) : []), modelValue, { isList: useIsRepeater() });
+defineModel<FormData | null | undefined>();
+const columns = computed(() => columnCategories(props.cols));
 </script>

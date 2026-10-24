@@ -1,6 +1,5 @@
 <template>
   <UFormField
-    v-if="!(mode === 'read' && !modelValue?.length)"
     :label
     :required
     :error

@@ -8,7 +8,8 @@ export function nodeChildren<Node extends SchemaNode | InternalSchemaNode>(node:
   return (Array.isArray(node.children) ? node.children : Object.values(node.children).flat()) as Node[];
 }
 
-// whether a value counts as filled in, e.g. a cleared field (`null`) or an unchecked checkbox doesn't
+// whether a value counts as filled in, e.g. a cleared field (`null`) or an unchecked checkbox doesn't,
+// while a list with items does even if they are empty (e.g. added but not filled in repeater items)
 export function hasValue(value: FieldData | FormData): boolean {
   if (value === undefined || value === null || value === '' || value === false) {
     return false;
@@ -256,7 +257,7 @@ export function getNode(schema: InternalSchemaNode[], nodeId: string): InternalS
   return null;
 }
 
-export function isNodeLayoutComponent(node: InternalSchemaNode, components: FormComponents): boolean {
+export function isNodeLayoutComponent(node: SchemaNode, components: FormComponents): boolean {
   return !(components[node.type]?.propsSchema || []).some(prop => prop.name === '$name');
 }
 

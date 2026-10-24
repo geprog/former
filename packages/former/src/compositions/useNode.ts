@@ -2,6 +2,7 @@ import type { InternalSchemaNode } from '~/types';
 import { computed, ref, type Ref, watch } from 'vue';
 import { isNodeLayoutComponent, unsetDataOfNode } from '~/utils';
 import { inject, provide } from './injectProvide';
+import { useHasContent } from './useHasContent';
 
 export default function useNode(node: Ref<InternalSchemaNode>) {
   const data = inject('data');
@@ -79,6 +80,9 @@ export default function useNode(node: Ref<InternalSchemaNode>) {
   const parentIsShown = inject('isShown', false);
   provide('isShown', computed(() => isShown.value && (parentIsShown?.value ?? true)));
 
+  // whether the node shows something in read mode, e.g. not a field without value or a group with only such fields
+  const hasContent = useHasContent(() => [node.value], data);
+
   const validityMap = inject('validityMap');
 
   const childrenValidityMap = ref<Record<string, boolean | undefined>>({});
@@ -119,5 +123,6 @@ export default function useNode(node: Ref<InternalSchemaNode>) {
     isValid,
     validityMap,
     hasDataKey,
+    hasContent,
   };
 }

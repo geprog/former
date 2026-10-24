@@ -113,6 +113,32 @@ describe('component FormNode', () => {
       expect(wrapper.find('[data-node="node-1"]').exists()).toBe(true);
     });
 
+    it.each([
+      ['read', { field: 'v' }, true],
+      ['read', { field: null }, false],
+      ['read', {}, false],
+      ['edit', {}, true],
+      ['build', {}, true],
+    ] as const)('in %s mode with data %j renders the root wrapper: %s', (modeValue, dataValue, rendered) => {
+      const node: InternalSchemaNode = { _id: 'node-1', type: 'text', name: 'field' };
+      const wrapper = mount(FormNode, {
+        props: { node },
+        global: {
+          provide: {
+            validator: () => true,
+            components: TEXT_COMPONENTS,
+            mode: ref(modeValue),
+            selectedNode: ref(undefined),
+            formId: ref('form-123'),
+            data: ref({ ...dataValue }),
+            validityMap: ref({}),
+            showIf: () => true,
+          },
+        },
+      });
+      expect(wrapper.find('[data-node="node-1"]').exists()).toBe(rendered);
+    });
+
     it('does not render root wrapper when isShown is false and mode is not build', () => {
       const node: InternalSchemaNode = { _id: 'node-1', type: 'text', name: 'field', props: { custom: 'from-node-props' } };
       const data = ref<Record<string, unknown>>({ field: 'v' });

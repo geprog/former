@@ -1,6 +1,5 @@
 <template>
   <UFormField
-    v-if="!(mode === 'read' && !hasContent)"
     :label
     :error
     :description="help"
@@ -14,10 +13,8 @@
 </template>
 
 <script setup lang="ts">
-import type { FormData, FormerProps, SchemaNode } from '@former-ui/former';
-import { FormRenderer, nodeChildren, useHasContent } from '@former-ui/former';
-import { inject, type Ref } from 'vue';
-import { useIsRepeater } from './composables/useIsRepeater';
+import type { FormData, FormerProps } from '@former-ui/former';
+import { FormRenderer } from '@former-ui/former';
 
 defineOptions({ inheritAttrs: false });
 
@@ -27,7 +24,5 @@ defineProps<
     help?: string;
   } & FormerProps
 >();
-const modelValue = defineModel<FormData | null | undefined>();
-const node = inject<Ref<SchemaNode> | undefined>('node', undefined);
-const hasContent = useHasContent(() => (node ? nodeChildren(node.value) : []), modelValue, { isList: useIsRepeater() });
+defineModel<FormData | null | undefined>();
 </script>

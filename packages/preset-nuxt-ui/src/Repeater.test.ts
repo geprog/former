@@ -107,6 +107,13 @@ describe('repeater', () => {
     expect(wrapper.text()).not.toContain('Item');
   });
 
+  it('keeps items without content in read mode', () => {
+    const { wrapper } = mountRepeater({ items: [{}, { value: 'b' }] }, 'read');
+
+    expect(wrapper.text()).toContain('Item 1');
+    expect(wrapper.text()).toContain('Item 2');
+  });
+
   it('prefers the item label of the repeater', () => {
     const wrapper = mount(Former, {
       props: {

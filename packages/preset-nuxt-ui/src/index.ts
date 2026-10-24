@@ -1,6 +1,7 @@
 import type { FormComponents, SchemaNode } from '@former-ui/former';
 import { markRaw } from 'vue';
 import Checkbox from './Checkbox.vue';
+import { shownColumnChildren } from './columns';
 import Columns from './Columns.vue';
 import ComboBox from './ComboBox.vue';
 import DateField from './Date.vue';
@@ -150,6 +151,7 @@ export function formComponents(options?: { t: (key: string) => string }) {
     columns: {
       label: t('column_layout'),
       component: markRaw(Columns),
+      shownChildren: shownColumnChildren,
       propsSchema: [
         ...commonSchema({ name: false, required: false, placeholder: false, t }),
         {
@@ -205,6 +207,7 @@ export function formComponents(options?: { t: (key: string) => string }) {
     repeater: {
       label: t('repeater'),
       component: markRaw(Repeater),
+      isList: true,
       propsSchema: [
         ...commonSchema({ help: false, placeholder: false, t }),
         { type: 'text', name: 'itemLabel', props: { label: t('item_label') } },

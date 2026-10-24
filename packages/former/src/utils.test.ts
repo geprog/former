@@ -574,7 +574,7 @@ describe('hasValue', () => {
     expect(hasValue(value)).toBe(false);
   });
 
-  it.each(['a', 0, 1, true, [{}], { a: null, b: 'x' }, { a: { b: 0 } }])('is true for %j', (value) => {
+  it.each(['a', 0, 1, true, [{}], [{ a: null }], { a: null, b: 'x' }, { a: { b: 0 } }])('is true for %j', (value) => {
     expect(hasValue(value)).toBe(true);
   });
 });

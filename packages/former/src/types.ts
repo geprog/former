@@ -37,6 +37,10 @@ export type FormFieldType = {
   propsSchema: SchemaNode[];
   component: FormFieldComponent | Raw<FormFieldComponent>;
   internal?: boolean;
+  // whether the data of the component is a list whose items each render its children (e.g. a repeater)
+  isList?: boolean;
+  // the children the component renders, if it doesn't render all of them (e.g. columns only render the children of their columns)
+  shownChildren?: (node: SchemaNode) => SchemaNode[];
 };
 
 export type FormComponents = { [key: string]: FormFieldType };

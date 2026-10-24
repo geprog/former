@@ -1,6 +1,6 @@
 <template>
   <div
-    v-if="isShown || mode === 'build'"
+    v-if="mode === 'build' || (isShown && (mode !== 'read' || hasContent))"
     :data-node="node._id"
     :draggable="mode === 'build'"
     class="relative flex items-center duration-0 w-full rounded empty:hidden"
@@ -37,7 +37,7 @@ const validator = inject('validator');
 const components = inject('components');
 
 const node = toRef(props, 'node');
-const { component, error, isShown, modelValue } = useNode(node);
+const { component, error, hasContent, isShown, modelValue } = useNode(node);
 const isNodeValidFlag = computed(() => isNodeValid(node.value, validator, components.value));
 // cleared props are stored as `null` so their preset isn't applied again, but components should see them as not set
 const componentProps = computed(() =>

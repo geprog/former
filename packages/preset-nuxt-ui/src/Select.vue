@@ -1,5 +1,5 @@
 <template>
-  <UFormField v-if="!(mode === 'read' && !modelValue)" :label :required :description="help" :error class="w-full">
+  <UFormField :label :required :description="help" :error class="w-full">
     <USelect
       v-model:model-value="modelValue"
       :placeholder

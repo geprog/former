@@ -1,9 +1,23 @@
-import type { FieldData, FormData, SchemaNode } from '~/types';
+import type { FieldData, FormComponents, FormData, SchemaNode } from '~/types';
+import { mount } from '@vue/test-utils';
 import { describe, expect, it } from 'vitest';
+import { defineComponent, h, ref } from 'vue';
 import { useHasContent } from './useHasContent';
 
-function hasContent(nodes: SchemaNode[], data: FieldData | FormData, isList?: (node: SchemaNode) => boolean) {
-  return useHasContent(nodes, data, { isList }).value;
+function hasContent(nodes: SchemaNode[], data: FieldData | FormData) {
+  return useHasContent(nodes, data).value;
+}
+
+// evaluates the content check in a component, so it can inject what the form provides
+function hasContentInForm(nodes: SchemaNode[], data: FieldData | FormData, provide: Record<string, unknown>) {
+  let result: boolean | undefined;
+  mount(defineComponent({
+    setup() {
+      result = useHasContent(nodes, data).value;
+      return () => h('div');
+    },
+  }), { global: { provide } });
+  return result;
 }
 
 const text: SchemaNode = { type: 'text', name: 'a' };
@@ -48,12 +62,48 @@ describe('useHasContent', () => {
     expect(hasContent([list], { l: [{}] })).toBe(true);
   });
 
-  it('only counts the items of lists without data that are detected by isList', () => {
-    const list: SchemaNode = { type: 'repeater', name: 'l', children: [image] };
-    const isList = (node: SchemaNode) => node.type === 'repeater';
+  it('counts list items even if they are empty', () => {
+    const list: SchemaNode = { type: 'repeater', name: 'l', children: [text] };
 
-    expect(hasContent([list], {}, isList)).toBe(false);
-    expect(hasContent([list], { l: null }, isList)).toBe(false);
-    expect(hasContent([list], { l: [{}] }, isList)).toBe(true);
+    expect(hasContent([list], { l: [{}, { a: null }] })).toBe(true);
+  });
+
+  it('only counts the items of lists without data whose component is a list', () => {
+    const list: SchemaNode = { type: 'repeater', name: 'l', children: [image] };
+    const components = ref<FormComponents>({ repeater: { label: 'Repeater', propsSchema: [], component: {}, isList: true } });
+
+    expect(hasContentInForm([list], {}, { components })).toBe(false);
+    expect(hasContentInForm([list], { l: null }, { components })).toBe(false);
+    expect(hasContentInForm([list], { l: [{}] }, { components })).toBe(true);
+    // without the component, the list is treated like a group whose image shows something
+    expect(hasContent([list], {})).toBe(true);
+  });
+});
+
+describe('useHasContent in a form', () => {
+  it('only checks the children a component shows', () => {
+    const layout: SchemaNode = { type: 'layout', children: { shown: [{ ...text, name: 'a' }], removed: [{ ...text, name: 'b' }] } };
+    const components = ref<FormComponents>({
+      layout: { label: 'Layout', propsSchema: [], component: {}, shownChildren: node => (node.children as Record<string, SchemaNode[]>).shown! },
+    });
+
+    expect(hasContentInForm([layout], { a: 'value' }, { components })).toBe(true);
+    expect(hasContentInForm([layout], { b: 'value' }, { components })).toBe(false);
+  });
+
+  it('is false for components without shown children even if they have no children at all', () => {
+    const components = ref<FormComponents>({
+      layout: { label: 'Layout', propsSchema: [], component: {}, shownChildren: () => [] },
+    });
+
+    expect(hasContentInForm([{ type: 'layout' }], {}, { components })).toBe(false);
+  });
+
+  it('ignores nodes hidden by their show if condition', () => {
+    const hiddenImage: SchemaNode = { ...image, showIf: 'hidden' };
+    const hiddenText: SchemaNode = { ...text, showIf: 'hidden' };
+    const showIf = (node: SchemaNode) => node.showIf !== 'hidden';
+
+    expect(hasContentInForm([hiddenImage, hiddenText], { a: 'value' }, { showIf })).toBe(false);
   });
 });

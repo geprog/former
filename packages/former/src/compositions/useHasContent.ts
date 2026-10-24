@@ -1,34 +1,44 @@
 import type { FieldData, FormData, SchemaNode } from '~/types';
 import { computed, type MaybeRefOrGetter, toValue } from 'vue';
 import { hasValue, nodeChildren } from '~/utils';
-
-type Options = {
-  // whether the data of the node is a list whose items each render its children (e.g. a repeater),
-  // needed for lists without data as only an array tells them apart from e.g. groups otherwise
-  isList?: (node: SchemaNode) => boolean;
-};
+import { inject } from './injectProvide';
 
 // whether any of the nodes shows something in read mode for the given data,
-// nodes without name and children (e.g. images) always show something
+// nodes hidden by their show if condition show nothing, while other nodes without name and children (e.g. images) always do
 export function useHasContent(
   nodes: MaybeRefOrGetter<SchemaNode[]>,
   data: MaybeRefOrGetter<FieldData | FormData>,
-  options: Options = {},
 ) {
+  const showIf = inject('showIf', false);
+  const components = inject('components', false);
+
+  function shownChildren(node: SchemaNode): SchemaNode[] | undefined {
+    const shownChildrenOfComponent = components?.value[node.type]?.shownChildren;
+    if (shownChildrenOfComponent) {
+      return shownChildrenOfComponent(node);
+    }
+    return node.children ? nodeChildren(node) : undefined;
+  }
+
   function hasContent(nodes: SchemaNode[], data: FieldData | FormData): boolean {
     const fields = data !== null && typeof data === 'object' && !Array.isArray(data) ? data : {};
     return nodes.some((node) => {
+      if (showIf && !showIf(node)) {
+        return false;
+      }
+      const children = shownChildren(node);
       if (!node.name) {
-        return node.children ? hasContent(nodeChildren(node), fields) : true;
+        return children ? hasContent(children, fields) : true;
       }
       const value = fields[node.name];
-      if (hasValue(value)) {
-        return true;
-      }
       // the children of a list (e.g. a repeater) are only shown for its items, so an empty list shows nothing,
-      // while e.g. a group can show images without data
-      const isList = Array.isArray(value) || (options.isList?.(node) ?? false);
-      return !isList && hasContent(nodeChildren(node), value);
+      // while each item is shown even if it is empty,
+      // lists without data are detected by their component, as only an array tells them apart from e.g. groups otherwise
+      if (Array.isArray(value) || components?.value[node.type]?.isList) {
+        return Array.isArray(value) && value.length > 0;
+      }
+      // e.g. a group can show images without data
+      return hasValue(value) || hasContent(children ?? [], value);
     });
   }
 

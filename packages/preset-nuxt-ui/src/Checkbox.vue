@@ -1,5 +1,5 @@
 <template>
-  <UFormField v-if="!(mode === 'read' && !modelValue)" :error>
+  <UFormField :error>
     <UCheckbox
       v-model:model-value="checked"
       :label

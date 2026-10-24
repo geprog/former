@@ -6,7 +6,6 @@ export { default as FormDataProvider } from './components/FormDataProvider.vue';
 export { default as Former } from './components/Former.vue';
 export { default as FormNodeProps } from './components/FormNodeProps.vue';
 export { default as FormRenderer } from './components/FormRenderer.vue';
-export { useHasContent } from './compositions/useHasContent';
 export { usePresetValue } from './compositions/usePresetValue';
 
 export type {
@@ -21,4 +20,4 @@ export type {
   Validator,
 } from './types';
 
-export { hasValue, nodeChildren } from './utils';
+export { hasValue, isNodeLayoutComponent, nodeChildren } from './utils';

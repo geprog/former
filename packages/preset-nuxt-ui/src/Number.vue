@@ -1,5 +1,5 @@
 <template>
-  <UFormField v-if="!(mode === 'read' && (modelValue === undefined || modelValue === null))" :label :required :description="help" :error class="w-full">
+  <UFormField :label :required :description="help" :error class="w-full">
     <UInputNumber
       v-model:model-value="modelValue"
       :placeholder

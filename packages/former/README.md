@@ -264,7 +264,7 @@ function validator(node: SchemaNode, data: FieldData | FormData): true | string 
 }
 ```
 
-When the user clears a field, its value is set to `null` instead of being removed from the data. This way the key survives JSON serialization and e.g. a preset value is not applied again after the data was saved and loaded. A field that was never filled in is `undefined`, so check for both when testing for an empty value. The exported `hasValue` helper treats `undefined`, `null`, `''`, `false` and empty lists and objects as empty.
+When the user clears a field, its value is set to `null` instead of being removed from the data. This way the key survives JSON serialization and e.g. a preset value is not applied again after the data was saved and loaded. A field that was never filled in is `undefined`, so check for both when testing for an empty value. The exported `hasValue` helper treats `undefined`, `null`, `''`, `false` and empty lists and objects without any filled in value as empty, while a list with items counts as filled in even if its items are empty.
 
 ## Ready-to-use components
 
