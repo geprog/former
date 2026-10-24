@@ -92,6 +92,10 @@ function optionsSchema({ t }: { t: (key: string) => string }): SchemaNode {
   };
 }
 
+/**
+ * Returns the form components of the preset. `t` translates the labels of the components and
+ * their settings in the form builder, e.g. `useI18n().t`. The english texts are in `en.json`.
+ */
 export function formComponents(options?: { t: (key: string) => string }) {
   const { t } = options || { t: (key: string) => key };
   return {

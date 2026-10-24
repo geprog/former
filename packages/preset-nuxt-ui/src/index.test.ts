@@ -53,6 +53,17 @@ describe('form components', () => {
     expect(wrapper.find(`[data-stub="${stub}"]`).html()).toContain(attribute);
   });
 
+  it('has an english text for each text key', async () => {
+    const { default: en } = await import('./locales/en.json');
+    const keys = new Set<string>();
+    formComponents({ t: (key) => {
+      keys.add(key);
+      return key;
+    } });
+
+    expect(Object.keys(en)).toEqual(expect.arrayContaining([...keys]));
+  });
+
   describe('columns in read mode', () => {
     const schema: SchemaNode[] = [{
       type: 'columns',

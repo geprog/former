@@ -32,6 +32,7 @@
 <script setup lang="ts">
 import type { FormData, FormerProps } from '@former-ui/former';
 import { computed, toRaw } from 'vue';
+import { useI18n } from 'vue-i18n';
 
 import RepeaterItem from './RepeaterItem.vue';
 
@@ -45,10 +46,9 @@ const props = defineProps<
   } & FormerProps
 >();
 
-const addButtonLabel = computed(() => {
-  const item = props.itemLabel ?? 'item';
-  return `Add ${item}`;
-});
+const { t } = useI18n();
+
+const addButtonLabel = computed(() => t('add_item', { item: props.itemLabel ?? t('repeater_item') }));
 
 const modelValue = defineModel<FormData[] | null>({
   default: () => [],

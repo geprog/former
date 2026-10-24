@@ -61,7 +61,7 @@ describe('repeater', () => {
   it('adds an empty item', async () => {
     const { wrapper, data } = mountRepeater({ items: [{ value: 'a' }] });
 
-    await wrapper.find('button[data-label="Add item"]').trigger('click');
+    await wrapper.find('button[data-label="Add Item"]').trigger('click');
     await nextTick();
 
     expect(data.value.items).toStrictEqual([{ value: 'a' }, {}]);
@@ -70,7 +70,7 @@ describe('repeater', () => {
   it('adds an item when the repeater was cleared', async () => {
     const { wrapper, data } = mountRepeater({ items: null });
 
-    await wrapper.find('button[data-label="Add item"]').trigger('click');
+    await wrapper.find('button[data-label="Add Item"]').trigger('click');
     await nextTick();
 
     expect(data.value.items).toStrictEqual([{}]);
@@ -103,7 +103,22 @@ describe('repeater', () => {
   it('is hidden in read mode when it has no items', () => {
     const { wrapper } = mountRepeater({ items: [] }, 'read');
 
-    expect(wrapper.find('[data-label="Add item"]').exists()).toBe(false);
+    expect(wrapper.find('[data-label="Add Item"]').exists()).toBe(false);
     expect(wrapper.text()).not.toContain('Item');
+  });
+
+  it('prefers the item label of the repeater', () => {
+    const wrapper = mount(Former, {
+      props: {
+        schema: [{ ...schema[0]!, props: { itemLabel: 'Room' } }],
+        data: { items: [{ value: 'a' }] },
+        components,
+        mode: 'edit',
+      },
+      global: { components: nuxtUiStubs },
+    });
+
+    expect(wrapper.text()).toContain('Room 1');
+    expect(wrapper.find('button[data-label="Add Room"]').exists()).toBe(true);
   });
 });

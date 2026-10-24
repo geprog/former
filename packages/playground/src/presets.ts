@@ -1,5 +1,6 @@
 import type { FormComponents } from '@former-ui/former';
 import { formComponents as nuxtUiFormComponents } from '@former-ui/preset-nuxt-ui';
+import { i18n } from './i18n';
 import { sampleFormComponents } from './sample';
 
 export type PlaygroundPreset = {
@@ -11,5 +12,5 @@ export type PlaygroundPreset = {
 // presets the user can choose from in the playground; add new presets here
 export const presets: [PlaygroundPreset, ...PlaygroundPreset[]] = [
   { id: 'sample', label: 'Sample components', components: () => sampleFormComponents },
-  { id: 'nuxt-ui', label: 'Nuxt UI preset', components: () => nuxtUiFormComponents() },
+  { id: 'nuxt-ui', label: 'Nuxt UI preset', components: () => nuxtUiFormComponents({ t: key => i18n.global.t(key) }) },
 ];

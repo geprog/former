@@ -8,7 +8,7 @@
     <template #header>
       <div class="flex items-center justify-between gap-4">
         <span class="block font-medium text-gray-700 dark:text-gray-200">{{
-          `${itemLabel ?? 'Item'} ${index + 1}`
+          `${itemLabel ?? t('repeater_item')} ${index + 1}`
         }}</span>
         <UButton
           v-if="mode !== 'read'"
@@ -25,6 +25,7 @@
 <script setup lang="ts">
 import type { FormData, Mode } from '@former-ui/former';
 import { FormDataProvider, FormRenderer } from '@former-ui/former';
+import { useI18n } from 'vue-i18n';
 
 defineProps<{
   item: FormData;
@@ -36,4 +37,6 @@ defineProps<{
 defineEmits<{
   delete: [index: number];
 }>();
+
+const { t } = useI18n();
 </script>

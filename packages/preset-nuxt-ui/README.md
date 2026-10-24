@@ -5,7 +5,7 @@ Ready-to-use form components for [Former](../former/README.md) built with [Nuxt 
 ## Installation
 
 ```bash
-pnpm add @former-ui/former @former-ui/preset-nuxt-ui @nuxt/ui @internationalized/date
+pnpm add @former-ui/former @former-ui/preset-nuxt-ui @nuxt/ui @internationalized/date vue-i18n
 ```
 
 ## Usage
@@ -25,18 +25,35 @@ import { FormContent, Former } from '@former-ui/former';
 import { formComponents } from '@former-ui/preset-nuxt-ui';
 import { de } from '@nuxt/ui/locale';
 import { ref } from 'vue';
+import { useI18n } from 'vue-i18n';
 
 const schema = ref<SchemaNode[]>([]);
 const data = ref<FormData>({});
 
-// `t` translates the labels of the components and their settings in the form builder
-const components = formComponents({ t: key => key });
+const { t } = useI18n();
+const components = formComponents({ t });
 </script>
 ```
 
-Numbers and dates are formatted according to the locale of the surrounding `UApp`.
+## Texts
 
-The components only use the props that can be set in the form builder. Other props of a schema node (e.g. your own `showIf` condition) are ignored and not passed to the Nuxt UI components or the DOM.
+The preset uses [vue-i18n](https://vue-i18n.intlify.dev) for its texts. It ships english texts in `@former-ui/preset-nuxt-ui/en.json`. Add them to the messages of your i18n instance and overwrite or translate the keys you need:
+
+```ts
+import en from '@former-ui/preset-nuxt-ui/en.json';
+import { createI18n } from 'vue-i18n';
+
+export const i18n = createI18n({
+  legacy: false,
+  locale: 'en',
+  messages: {
+    en: { ...en, text_field: 'Short text' },
+    de: { add_item: '{item} hinzufügen', repeater_item: 'Element', /* ... */ },
+  },
+});
+```
+
+Pass `t` to `formComponents` to translate the labels of the components and their settings in the form builder: `formComponents({ t: key => i18n.global.t(key) })`.
 
 ## Storing form data
 
