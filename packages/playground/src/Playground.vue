@@ -8,7 +8,6 @@
       :components="activeComponents"
       :mode
       :show-if
-      :validator="validator"
       @valid="isValid = $event"
       @schema-valid="isSchemaValid = $event"
     >
@@ -107,7 +106,6 @@
 
 <script setup lang="ts">
 import type {
-  FieldData,
   FormData,
   Mode,
   SchemaNode,
@@ -306,16 +304,6 @@ function showIf(node: SchemaNode, data: FormData): boolean {
   if (!path)
     return true;
   return hasValueAt(data, path);
-}
-
-function validator(node: SchemaNode, data: FieldData | FormData): string | true {
-  if (!node.props)
-    return true;
-  const requiredFlag = node.props.required;
-  if (requiredFlag === true && !data) {
-    return 'Value is required';
-  }
-  return true;
 }
 
 function submit() {
