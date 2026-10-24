@@ -123,8 +123,9 @@ import {
   FormNodeProps,
 } from '@former-ui/former';
 import { useStorage } from '@vueuse/core';
-import { computed, ref } from 'vue';
+import { computed, provide, ref } from 'vue';
 import { presets } from './presets';
+import { hasValue, playgroundSchemaKey } from './showIf';
 
 const mode = useStorage<Mode>('former:mode', 'build');
 const presetId = useStorage<string>('former:preset', presets[0].id);
@@ -228,7 +229,7 @@ const schema = useStorage<SchemaNode[]>('former:schema', [
     type: 'select',
     name: 'select',
     props: {
-      showIf: 'hallo',
+      showIf: 'name',
       label: 'Select',
       options: [
         { label: 'Option 1', value: 'option1' },
@@ -263,6 +264,8 @@ const schema = useStorage<SchemaNode[]>('former:schema', [
   },
 ]);
 
+provide(playgroundSchemaKey, schema);
+
 const debouncedSchema = (() => {
   let timeout: ReturnType<typeof setTimeout> | null = null;
 
@@ -295,16 +298,15 @@ const activeComponents = computed(() => {
   return preset.components();
 });
 
-function showIf(node: SchemaNode, _data: FormData): boolean {
+// shows the node only if the field selected in its show if prop has a value
+function showIf(node: SchemaNode, data: FormData): boolean {
   if (!activateShowIf.value) {
     return true;
   }
-  if (!node.props)
+  const path = node.props?.showIf;
+  if (!path)
     return true;
-  const condition = node.props.showIf;
-  if (!condition)
-    return true;
-  return condition === 'hello';
+  return hasValue(data, path);
 }
 
 function validator(node: SchemaNode, data: FieldData | FormData): string | true {

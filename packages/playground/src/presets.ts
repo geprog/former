@@ -1,7 +1,7 @@
 import type { FormComponents } from '@former-ui/former';
 import { formComponents as nuxtUiFormComponents } from '@former-ui/preset-nuxt-ui';
 import { i18n } from './i18n';
-import { sampleFormComponents, showIfProp } from './sample';
+import { sampleFormComponents, showIfComponent, showIfProp } from './sample';
 
 export type PlaygroundPreset = {
   id: string;
@@ -11,12 +11,15 @@ export type PlaygroundPreset = {
 
 // adds the playground's show if setting to the components of a preset
 function withShowIf(components: FormComponents): FormComponents {
-  return Object.fromEntries(
-    Object.entries(components).map(([type, component]) => [
-      type,
-      { ...component, propsSchema: [...(component.propsSchema ?? []), showIfProp] },
-    ]),
-  );
+  return {
+    ...Object.fromEntries(
+      Object.entries(components).map(([type, component]) => [
+        type,
+        { ...component, propsSchema: [...(component.propsSchema ?? []), showIfProp] },
+      ]),
+    ),
+    showIf: showIfComponent,
+  };
 }
 
 // presets the user can choose from in the playground; add new presets here

@@ -1,5 +1,6 @@
 import type { FormComponents, SchemaNode } from '@former-ui/former';
 import { markRaw } from 'vue';
+import ShowIfSelect from '../ShowIfSelect.vue';
 import Checkbox from './Checkbox.vue';
 import Columns from './Columns.vue';
 import Group from './Group.vue';
@@ -7,9 +8,18 @@ import Repeater from './Repeater.vue';
 import Select from './Select.vue';
 import TextInput from './TextInput.vue';
 
-export const showIfProp: SchemaNode = { type: 'text', name: 'showIf', props: { label: 'Show if', placeholder: 'If empty or "hello" then component is visible.' } };
+export const showIfProp: SchemaNode = { type: 'showIf', name: 'showIf', props: { label: 'Show if the field has a value' } };
+
+// selects the field the visibility of an element depends on, only used in the props form
+export const showIfComponent: FormComponents[string] = {
+  label: 'Show if',
+  component: markRaw(ShowIfSelect),
+  propsSchema: [{ type: 'text', name: '$name' }],
+  internal: true,
+};
 
 export const sampleFormComponents: FormComponents = {
+  showIf: showIfComponent,
   text: {
     label: 'Text',
     component: markRaw(TextInput),
