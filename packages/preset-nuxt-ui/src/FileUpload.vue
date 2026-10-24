@@ -1,5 +1,5 @@
 <template>
-  <UFormField v-if="!(mode === 'read' && !modelValue)" :label :required :description="file?.name" :error class="w-full">
+  <UFormField :label :required :description="file?.name" :error class="w-full">
     <UFileUpload
       :model-value="file"
       size="lg"
@@ -56,14 +56,25 @@ function addFileName(dataUrl: string, name: string): string {
 
 const file = computed(() => (modelValue.value ? dataUrlToFile(modelValue.value) : null));
 
+// only the latest selection is stored, so a slow read of a previously selected file can't overwrite it
+let currentReader: FileReader | null = null;
+
 function onSelect(newFile: File | null | undefined) {
+  currentReader?.abort();
+  currentReader = null;
+
   if (!newFile) {
     modelValue.value = null;
     return;
   }
 
   const reader = new FileReader();
+  currentReader = reader;
   reader.onload = () => {
+    if (reader !== currentReader) {
+      return;
+    }
+    currentReader = null;
     modelValue.value = addFileName(reader.result as string, newFile.name);
   };
   reader.readAsDataURL(newFile);
