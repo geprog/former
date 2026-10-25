@@ -14,7 +14,7 @@
   "dependencies": {
     "@former-ui/former": "workspace:*",
     "@former-ui/preset-nuxt-ui": "workspace:*",
-    "@nuxt/ui": "4.7.1",
+    "@nuxt/ui": "4.8.1",
     "@vueuse/core": "12.0.0",
     "vue": "3.5.21",
     "vue-i18n": "11.2.2"
