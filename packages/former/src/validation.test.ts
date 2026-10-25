@@ -1,5 +1,4 @@
 import type { FormComponents, FormFieldType } from '~/types';
-import { array, number, object, refine, string } from 'superstruct';
 import * as v from 'valibot';
 import { describe, expect, it, vi } from 'vitest';
 import { nextTick, ref } from 'vue';
@@ -7,7 +6,6 @@ import * as yup from 'yup';
 import { z } from 'zod';
 import {
   allValid,
-  fromSuperstruct,
   type StandardSchemaV1,
   useMaybeAsync,
   validateComponent,
@@ -62,12 +60,6 @@ describe('validation', () => {
     function componentsWith(validation: FormFieldType['validation']): FormComponents {
       return { text: { label: 'Text', component: {}, propsSchema: [], validation } };
     }
-
-    it('validates the data with a superstruct struct', () => {
-      const components = componentsWith(() => fromSuperstruct(refine(string(), 'min', value => value.length >= 3 || 'too short')));
-      expect(validateComponent(components, node, 'ab', context)).toBe('too short');
-      expect(validateComponent(components, node, 'abc', context)).toBeUndefined();
-    });
 
     it('validates the data with a valibot schema', () => {
       const components = componentsWith(() => v.pipe(v.string(), v.minLength(3, 'too short')));
@@ -139,25 +131,6 @@ describe('validation', () => {
       resolvers[0]('old');
       await Promise.resolve();
       expect(result.value).toBe('new');
-    });
-  });
-
-  describe('fromSuperstruct', () => {
-    const struct = object({ name: string(), items: array(object({ count: number() })) });
-
-    it('returns the value of valid data', () => {
-      const data = { name: 'x', items: [{ count: 1 }] };
-      expect(fromSuperstruct(struct)['~standard'].validate(data)).toEqual({ value: data });
-    });
-
-    it('returns all failures as issues with their path', () => {
-      const result = fromSuperstruct(struct)['~standard'].validate({ name: 1, items: [{ count: 'x' }] }) as StandardSchemaV1.FailureResult;
-      expect(result.issues.map(issue => issue.path)).toEqual([['name'], ['items', 0, 'count']]);
-      expect(result.issues[0].message).toContain('Expected a string');
-    });
-
-    it('identifies as superstruct', () => {
-      expect(fromSuperstruct(struct)['~standard']).toMatchObject({ version: 1, vendor: 'superstruct' });
     });
   });
 });

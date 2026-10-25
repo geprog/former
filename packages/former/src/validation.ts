@@ -77,28 +77,3 @@ export function useMaybeAsync<T>(getter: () => MaybePromise<T>, initial: T): Ref
   }, { immediate: true, flush: 'sync' });
   return result;
 }
-
-type SuperstructFailure = { message: string; path: ReadonlyArray<PropertyKey> };
-type SuperstructStruct<T> = {
-  validate: (value: unknown, options?: { coerce?: boolean }) => [{ failures: () => SuperstructFailure[] } | undefined, T | undefined];
-};
-
-/**
- * Wraps a Superstruct struct as a Standard Schema, as Superstruct doesn't implement the spec itself.
- * Coercions (e.g. `defaulted`) are applied to the output, like `create` does.
- */
-export function fromSuperstruct<T>(struct: SuperstructStruct<T>): StandardSchemaV1<unknown, T> {
-  return {
-    '~standard': {
-      version: 1,
-      vendor: 'superstruct',
-      validate(value) {
-        const [error, output] = struct.validate(value, { coerce: true });
-        if (error) {
-          return { issues: error.failures().map(failure => ({ message: failure.message, path: failure.path })) };
-        }
-        return { value: output as T };
-      },
-    },
-  };
-}

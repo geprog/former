@@ -54,9 +54,6 @@ importers:
       happy-dom:
         specifier: 20.9.0
         version: 20.9.0
-      superstruct:
-        specifier: 2.0.2
-        version: 2.0.2
       tailwindcss:
         specifier: 3.4.16
         version: 3.4.16
@@ -8537,7 +8534,8 @@ snapshots:
       pirates: 4.0.6
       ts-interface-checker: 0.1.13
 
-  superstruct@2.0.2: {}
+  superstruct@2.0.2:
+    optional: true
 
   supports-color@7.2.0:
     dependencies:

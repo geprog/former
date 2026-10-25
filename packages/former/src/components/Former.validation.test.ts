@@ -1,13 +1,11 @@
 import type { FormComponents, FormData, FormFieldType, SchemaNode, ValidationContext } from '~/types';
 import type { StandardSchemaV1 } from '~/validation';
 import { flushPromises, mount } from '@vue/test-utils';
-import * as superstruct from 'superstruct';
 import * as v from 'valibot';
 import { describe, expect, it, vi } from 'vitest';
 import { defineComponent, h, markRaw, type PropType } from 'vue';
 import * as yup from 'yup';
 import { z } from 'zod';
-import { fromSuperstruct } from '~/validation';
 import FormDataProvider from './FormDataProvider.vue';
 import Former from './Former.vue';
 import FormRenderer from './FormRenderer.vue';
@@ -47,15 +45,6 @@ const textValidations: Record<string, FormFieldType['validation']> = {
       return z.email('Invalid email').nullish();
     }
     return required ? z.string('Value is required').min(1, 'Value is required') : undefined;
-  },
-  superstruct: ({ required, email }) => {
-    const { define, nullable, optional, refine, string } = superstruct;
-    if (email) {
-      return fromSuperstruct(optional(nullable(refine(string(), 'email', value => value.includes('@') || 'Invalid email'))));
-    }
-    return required
-      ? fromSuperstruct(define('required', value => (typeof value === 'string' && value.length > 0) || 'Value is required'))
-      : undefined;
   },
   yup: ({ required, email }) => {
     if (email) {

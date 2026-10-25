@@ -24,5 +24,3 @@ export type {
 
 export { hasValue, isNodeLayoutComponent, nodeChildren } from './utils';
 export type { StandardSchemaV1 } from './validation';
-
-export { fromSuperstruct } from './validation';
