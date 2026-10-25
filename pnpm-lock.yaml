@@ -196,6 +196,9 @@ importers:
       vue-tsc:
         specifier: 3.0.7
         version: 3.0.7(typescript@5.7.2)
+      zod:
+        specifier: 4.6.7
+        version: 4.6.7
 
 packages:
 

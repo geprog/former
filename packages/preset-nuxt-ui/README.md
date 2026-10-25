@@ -5,7 +5,7 @@ Ready-to-use form components for [Former](../former/README.md) built with [Nuxt 
 ## Installation
 
 ```bash
-pnpm add @former-ui/former @former-ui/preset-nuxt-ui @nuxt/ui @internationalized/date vue-i18n
+pnpm add @former-ui/former @former-ui/preset-nuxt-ui @nuxt/ui @internationalized/date vue-i18n zod
 ```
 
 Set up [Nuxt UI for Vue](https://ui.nuxt.com/docs/getting-started/installation/vue) and let its Vite plugin scan the preset. The preset uses the Nuxt UI components (`UInput`, `UFormField`, …) without importing them, so they are only resolved if the preset is listed in `scanPackages`:
@@ -92,6 +92,37 @@ export const i18n = createI18n({
 ```
 
 `useFormComponents` uses this i18n instance for the labels of the components and their settings in the form builder as well, and updates them when the locale changes. As it uses `useI18n`, call it in the `setup` of a component.
+
+## Validation
+
+The components validate their data with the settings of the form builder: a field with `required` needs a value (a checkbox or switch needs to be checked, a repeater needs an item), and number and date fields check their `min` and `max`. This applies to the settings of the nodes in build mode as well, e.g. the required technical name. The error messages are texts of the preset (`error_required`, `error_min_value`, …), so they can be translated like the others.
+
+The validation is built with [Zod](https://zod.dev). To validate more, replace the `validation` of a component and fall back to the one of the preset:
+
+```ts
+import type { FormComponents } from '@former-ui/former';
+import { useFormComponents } from '@former-ui/preset-nuxt-ui';
+import { computed } from 'vue';
+import { z } from 'zod';
+
+const presetComponents = useFormComponents();
+const components = computed<FormComponents>(() => {
+  const { text } = presetComponents.value;
+  return {
+    ...presetComponents.value,
+    text: {
+      ...text,
+      validation: (props) => {
+        if (!props.email) {
+          return text.validation(props);
+        }
+        const email = z.email('Not an email');
+        return props.required ? email : email.nullish();
+      },
+    },
+  };
+});
+```
 
 ## Storing form data
 

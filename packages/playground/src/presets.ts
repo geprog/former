@@ -37,6 +37,7 @@ function withShowIf(components: FormComponents): FormComponents {
 }
 
 // validates the `required` prop of the nodes of all components, including their props in build mode
+// (the nuxt ui preset brings its own validation)
 function withRequiredValidation(components: FormComponents, t: (key: string) => string): FormComponents {
   return Object.fromEntries(
     Object.entries(components).map(([type, component]) => [
@@ -58,6 +59,6 @@ export function usePresets() {
 
   return computed<[PlaygroundPreset, ...PlaygroundPreset[]]>(() => [
     { id: 'sample', label: 'Sample components', components: withRequiredValidation(withShowIf(sampleFormComponents), t) },
-    { id: 'nuxt-ui', label: 'Nuxt UI preset', components: withRequiredValidation(withShowIf(nuxtUiFormComponents.value), t) },
+    { id: 'nuxt-ui', label: 'Nuxt UI preset', components: withShowIf(nuxtUiFormComponents.value) },
   ]);
 }
