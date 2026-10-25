@@ -1,4 +1,4 @@
-import type { FormData } from '~/types';
+import type { DataScope, FormData } from '~/types';
 import { mount } from '@vue/test-utils';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { defineComponent, h, nextTick, ref, type Ref, unref } from 'vue';
@@ -136,6 +136,44 @@ describe('component FormDataProvider', () => {
     expect(rootValidityMap.value[OUTER_ID]).toBe(true);
     wrapper.unmount();
     expect(rootValidityMap.value[OUTER_ID]).toBeUndefined();
+  });
+
+  describe('scope of the data', () => {
+    function mountItem(props: { data: FormData; index?: number }, list: FormData[]) {
+      let scopes: DataScope[] | undefined;
+      const ScopesProbe = defineComponent({
+        setup() {
+          scopes = inject('dataScopes', false)?.value;
+          return () => h('span');
+        },
+      });
+      mount(FormDataProvider, {
+        attachTo: document.body,
+        props,
+        global: {
+          provide: {
+            validityMap: ref({}),
+            data: ref(list),
+            node: ref({ _id: 'r', type: 'repeater', name: 'items' }),
+            dataScopes: ref([{ data: { items: list }, path: [] }]),
+          },
+        },
+        slots: { default: () => h(ScopesProbe) },
+      });
+      return scopes!;
+    }
+
+    it('finds the index of the item in the list of the parent', () => {
+      const item = { a: 1 };
+      expect(mountItem({ data: item }, [{ a: 0 }, item])[0].path).toEqual(['items', 1]);
+    });
+
+    it('uses the passed index, e.g. for an item contained twice in the list', () => {
+      const item = { a: 1 };
+      const scopes = mountItem({ data: item, index: 1 }, [item, item]);
+      expect(scopes[0]).toMatchObject({ data: item, path: ['items', 1] });
+      expect(scopes[1].path).toEqual([]);
+    });
   });
 
   describe('nested FormDataProvider', () => {

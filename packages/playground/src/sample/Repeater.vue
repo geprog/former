@@ -2,7 +2,7 @@
   <div class="flex flex-col gap-2 w-full items-start">
     <label v-if="label" class="p-1">{{ label }}</label>
     <div v-for="(item, index) in modelValue" :key="index" class="flex gap-2 w-full">
-      <FormDataProvider :data="item">
+      <FormDataProvider :data="item" :index>
         <FormRenderer />
       </FormDataProvider>
       <Button v-if="mode !== 'read'" @click.prevent="deleteItem(index)">

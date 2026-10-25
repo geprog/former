@@ -28,11 +28,12 @@ export function validateComponent(components: FormComponents, node: SchemaNode, 
   return schema ? then(validateWithSchema(schema, data), issues => issues[0]?.message) : undefined;
 }
 
-export function allValid(results: MaybePromise<string | undefined>[]): MaybePromise<boolean> {
+// whether all results match the predicate, only asynchronous if one of the results is a promise
+export function every<T>(results: MaybePromise<T>[], predicate: (result: T) => boolean): MaybePromise<boolean> {
   if (results.some(result => result instanceof Promise)) {
-    return Promise.all(results).then(messages => messages.every(message => message === undefined));
+    return Promise.all(results).then(resolved => resolved.every(predicate));
   }
-  return results.every(result => result === undefined);
+  return (results as T[]).every(predicate);
 }
 
 // whether the props of the node are valid (used to validate the schema in build mode)
@@ -44,7 +45,7 @@ export function isNodeValid(node: InternalSchemaNode, components: FormComponents
   }
   // the props are edited in a form of their own (see `FormNodeProps`), so they are the only scope of their validation
   const propsData: FormData = { $name: node.name, ...node.props };
-  return allValid(component.propsSchema.map((propsNode) => {
+  return every(component.propsSchema.map((propsNode) => {
     const data = propsNode.name === '$name' ? node.name : (node.props || {})[propsNode.name || ''];
     const context: ValidationContext = {
       node: propsNode,
@@ -52,7 +53,7 @@ export function isNodeValid(node: InternalSchemaNode, components: FormComponents
       scopes: [{ data: propsData, path: [] }],
     };
     return validateComponent(components, propsNode, data, context);
-  }));
+  }), message => message === undefined);
 }
 
 /**

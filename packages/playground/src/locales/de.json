@@ -39,5 +39,10 @@
   "options_label_help": "Der angezeigte Text, bei leerem Text wird der technische Wert angezeigt",
   "optional": "Optional",
   "repeater_item": "Element",
-  "add_item": "{item} hinzufügen"
+  "add_item": "{item} hinzufügen",
+  "error_required": "Dieses Feld ist erforderlich",
+  "error_min_value": "Muss mindestens {min} sein",
+  "error_max_value": "Darf höchstens {max} sein",
+  "error_min_date": "Muss am oder nach dem {min} sein",
+  "error_max_date": "Muss am oder vor dem {max} sein"
 }

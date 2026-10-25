@@ -8,7 +8,8 @@ import { computed, onUnmounted, ref, toRaw, toRef, watch } from 'vue';
 import { inject, provide } from '~/compositions/injectProvide';
 import { nanoid } from '~/utils';
 
-// `index` is the position of the data in the list of the parent (e.g. a repeater), found by itself if not passed
+// `index` is the position of the data in the list of the parent (e.g. a repeater) for the path of its scope,
+// it is searched in the list if not passed, which fails if the list contains the same item more than once
 const props = defineProps<{ data: FormData; index?: number }>();
 const data = toRef(props, 'data');
 

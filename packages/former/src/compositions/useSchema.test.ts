@@ -1,8 +1,8 @@
 import type { FormComponents, InternalSchemaNode } from '~/types';
-import type { StandardSchemaV1 } from '~/validation';
 import { describe, expect, it, vi } from 'vitest';
 import { ref } from 'vue';
-import useSchema, { isNodeValid } from './useSchema';
+import { isNodeValid, type StandardSchemaV1 } from '~/validation';
+import useSchema from './useSchema';
 
 // a schema recording the validated values, the values are invalid if they are 'bad'
 function createSchema() {

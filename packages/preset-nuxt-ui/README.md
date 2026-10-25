@@ -97,10 +97,10 @@ export const i18n = createI18n({
 
 The components validate their data with the settings of the form builder: a field with `required` needs a value (a checkbox or switch needs to be checked, a repeater needs an item), and number and date fields check their `min` and `max`. This applies to the settings of the nodes in build mode as well, e.g. the required technical name. The error messages are texts of the preset (`error_required`, `error_min_value`, …), so they can be translated like the others.
 
-The validation is built with [Zod](https://zod.dev). To validate more, replace the `validation` of a component and fall back to the one of the preset:
+The validation is built with [Zod](https://zod.dev). To validate more, replace the `validation` of a component and fall back to the one of the preset. The second parameter is the context of the node with its `path` and the `scopes` of data containing it (see [Former](../former/README.md#form-data-and-validation)), e.g. to compare it to a field next to it:
 
 ```ts
-import type { FormComponents } from '@former-ui/former';
+import type { FormComponents, FormData } from '@former-ui/former';
 import { useFormComponents } from '@former-ui/preset-nuxt-ui';
 import { computed } from 'vue';
 import { z } from 'zod';
@@ -112,12 +112,13 @@ const components = computed<FormComponents>(() => {
     ...presetComponents.value,
     text: {
       ...text,
-      validation: (props) => {
-        if (!props.email) {
-          return text.validation(props);
+      validation: (props, context) => {
+        // `confirms` is the name of the field to repeat, e.g. an email in the same group or repeater item
+        if (!props.confirms) {
+          return text.validation(props, context);
         }
-        const email = z.email('Not an email');
-        return props.required ? email : email.nullish();
+        const confirmed = (context.scopes[0].data as FormData)[props.confirms];
+        return z.custom(value => value === confirmed, 'The values do not match');
       },
     },
   };

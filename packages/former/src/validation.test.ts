@@ -5,7 +5,7 @@ import { nextTick, ref } from 'vue';
 import * as yup from 'yup';
 import { z } from 'zod';
 import {
-  allValid,
+  every,
   type StandardSchemaV1,
   useMaybeAsync,
   validateComponent,
@@ -84,15 +84,17 @@ describe('validation', () => {
     });
   });
 
-  describe('allValid', () => {
+  describe('every', () => {
+    const isValid = (message: string | undefined) => message === undefined;
+
     it('is synchronous for synchronous results', () => {
-      expect(allValid([undefined, undefined])).toBe(true);
-      expect(allValid([undefined, 'bad'])).toBe(false);
+      expect(every([undefined, undefined], isValid)).toBe(true);
+      expect(every([undefined, 'bad'], isValid)).toBe(false);
     });
 
     it('resolves async results', async () => {
-      await expect(allValid([undefined, Promise.resolve(undefined)])).resolves.toBe(true);
-      await expect(allValid([undefined, Promise.resolve('bad')])).resolves.toBe(false);
+      await expect(every([undefined, Promise.resolve(undefined)], isValid)).resolves.toBe(true);
+      await expect(every([undefined, Promise.resolve('bad')], isValid)).resolves.toBe(false);
     });
   });
 

@@ -1,4 +1,4 @@
-import type { FormComponents, SchemaNode } from '@former-ui/former';
+import type { FormComponents, SchemaNode, StandardSchemaV1, ValidationContext } from '@former-ui/former';
 import { markRaw } from 'vue';
 import { z } from 'zod';
 import Checkbox from './Checkbox.vue';
@@ -96,15 +96,47 @@ function optionsSchema({ t }: { t: (key: string) => string }): SchemaNode {
 
 type Translate = (key: string, named?: Record<string, unknown>) => string;
 
+// the validations of the preset don't depend on the context, but take it so a replacing validation can pass it on,
+// while their zod schemas are kept to be extended
+function validation<Schema extends StandardSchemaV1 | undefined>(
+  fn: (props: { [key: string]: any }, context?: ValidationContext) => Schema,
+) {
+  return fn;
+}
+
 // the form components of the preset, `t` translates the labels of the components, their settings in the form builder
 // and the error messages of their validation
 export function createFormComponents(t: Translate) {
   const requiredMessage = t('error_required');
   // fields storing a string are cleared to `null`, so only required ones are validated
-  const stringValidation = ({ required }: { required?: boolean }) =>
-    (required ? z.string(requiredMessage).min(1, requiredMessage) : undefined);
-  const checkedValidation = ({ required }: { required?: boolean }) =>
-    (required ? z.literal(true, requiredMessage) : undefined);
+  const stringValidation = validation(({ required }) =>
+    (required ? z.string(requiredMessage).min(1, requiredMessage) : undefined));
+  const checkedValidation = validation(({ required }) =>
+    (required ? z.literal(true, requiredMessage) : undefined));
+  const numberValidation = validation(({ required, min, max }) => {
+    // limits cleared in the props form are `null`
+    let schema = z.number(requiredMessage);
+    if (typeof min === 'number') {
+      schema = schema.min(min, t('error_min_value', { min }));
+    }
+    if (typeof max === 'number') {
+      schema = schema.max(max, t('error_max_value', { max }));
+    }
+    return required ? schema : schema.nullish();
+  });
+  const dateValidation = validation(({ required, min, max }) => {
+    // dates are ISO strings (YYYY-MM-DD), so they compare like the dates they represent
+    let schema = z.string(requiredMessage).min(1, requiredMessage);
+    if (min) {
+      schema = schema.refine(value => value >= min, t('error_min_date', { min }));
+    }
+    if (max) {
+      schema = schema.refine(value => value <= max, t('error_max_date', { max }));
+    }
+    return required ? schema : schema.nullish();
+  });
+  const listValidation = validation(({ required }) =>
+    (required ? z.array(z.unknown(), requiredMessage).min(1, requiredMessage) : undefined));
 
   return {
     text: {
@@ -119,17 +151,7 @@ export function createFormComponents(t: Translate) {
     number: {
       label: t('number_field'),
       component: markRaw(NumberField),
-      validation: ({ required, min, max }) => {
-        // limits cleared in the props form are `null`
-        let schema = z.number(requiredMessage);
-        if (typeof min === 'number') {
-          schema = schema.min(min, t('error_min_value', { min }));
-        }
-        if (typeof max === 'number') {
-          schema = schema.max(max, t('error_max_value', { max }));
-        }
-        return required ? schema : schema.nullish();
-      },
+      validation: numberValidation,
       propsSchema: [
         ...commonSchema({ t }),
         {
@@ -203,17 +225,7 @@ export function createFormComponents(t: Translate) {
     date: {
       label: t('date_field'),
       component: markRaw(DateField),
-      validation: ({ required, min, max }) => {
-        // dates are ISO strings (YYYY-MM-DD), so they compare like the dates they represent
-        let schema = z.string(requiredMessage).min(1, requiredMessage);
-        if (min) {
-          schema = schema.refine(value => value >= min, t('error_min_date', { min }));
-        }
-        if (max) {
-          schema = schema.refine(value => value <= max, t('error_max_date', { max }));
-        }
-        return required ? schema : schema.nullish();
-      },
+      validation: dateValidation,
       propsSchema: [
         ...commonSchema({ placeholder: false, t }),
         { type: 'date', name: 'min', props: { label: t('min_value') } },
@@ -242,7 +254,7 @@ export function createFormComponents(t: Translate) {
     repeater: {
       label: t('repeater'),
       component: markRaw(Repeater),
-      validation: ({ required }) => (required ? z.array(z.unknown(), requiredMessage).min(1, requiredMessage) : undefined),
+      validation: listValidation,
       isList: true,
       propsSchema: [
         ...commonSchema({ help: false, placeholder: false, t }),

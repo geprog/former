@@ -33,8 +33,8 @@ const Group = defineComponent({
 const Repeater = defineComponent({
   props: { label: String, error: String, modelValue: Array as PropType<FormData[]> },
   setup(props) {
-    return () => h('div', { 'data-label': props.label, 'data-error': props.error ?? '' }, (props.modelValue ?? []).map(item =>
-      h(FormDataProvider, { data: item }, () => h(FormRenderer))));
+    return () => h('div', { 'data-label': props.label, 'data-error': props.error ?? '' }, (props.modelValue ?? []).map((item, index) =>
+      h(FormDataProvider, { data: item, index }, () => h(FormRenderer))));
   },
 });
 
