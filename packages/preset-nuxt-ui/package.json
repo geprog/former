@@ -45,7 +45,7 @@
   "devDependencies": {
     "@former-ui/former": "workspace:*",
     "@internationalized/date": "3.12.1",
-    "@nuxt/ui": "4.7.1",
+    "@nuxt/ui": "4.8.1",
     "@tsconfig/node22": "22.0.0",
     "@types/node": "22.10.1",
     "@vitejs/plugin-vue": "5.2.1",
