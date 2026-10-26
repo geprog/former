@@ -165,6 +165,18 @@ describe.each(Object.keys(textValidations))('validation with %s', (library) => {
     expect(last(valid)).toBe(true);
   });
 
+  it('doesn\'t validate hidden nodes, which are still shown in build mode', async () => {
+    const { wrapper } = mountFormer({
+      data: { ...validData(), name: '' },
+      components: componentsOf(library),
+      showIf: (node: SchemaNode) => node.name !== 'name',
+      mode: 'build',
+    });
+    await settle();
+
+    expect(errorOf(wrapper, 'Name')).toBe('');
+  });
+
   it('validates the props of the nodes in build mode', async () => {
     const schemaValid: boolean[] = [];
     const propsComponents = componentsOf(library);

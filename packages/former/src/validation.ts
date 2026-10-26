@@ -30,7 +30,9 @@ export function validateWithSchema(schema: StandardSchemaV1, data: unknown): May
  * Returns the error message or `undefined` if the data is valid, or a promise of it for async validation.
  */
 export function validateComponent(components: FormComponents, node: SchemaNode, data: FieldData | FormData, context: ValidationContext): MaybePromise<string | undefined> {
-  const schema = components[node.type]?.validation?.(node.props ?? {}, context);
+  // cleared props are stored as `null`, but validations should see them as not set like the components (see `FormNode`)
+  const props = Object.fromEntries(Object.entries(node.props ?? {}).filter(([, value]) => value !== null));
+  const schema = components[node.type]?.validation?.(props, context);
   return schema ? then(validateWithSchema(schema, data), issues => issues[0]?.message) : undefined;
 }
 
@@ -54,7 +56,8 @@ function areNodesValid(nodes: SchemaNode[], data: FieldData | FormData, scopes: 
     }
     const path = isNested ? [...scopes[0].path, node.name!] : scopes[0].path;
     const results: MaybePromise<string | boolean | undefined>[] = [validateComponent(components, node, nodeData, { node, path, scopes })];
-    const children = nodeChildren(node);
+    // only the shown children are rendered, e.g. not the ones of removed columns
+    const children = components[node.type]?.shownChildren?.(node) ?? nodeChildren(node);
     if (children.length) {
       if (!isNested) {
         results.push(areNodesValid(children, nodeData, scopes, components));

@@ -37,13 +37,14 @@ const components = inject('components');
 
 const node = toRef(props, 'node');
 const { component, error, hasContent, isShown, modelValue } = useNode(node);
-const { result: isNodeValidFlag } = useMaybeAsync(() => isNodeValid(node.value, components.value), true, () => false);
 // cleared props are stored as `null` so their preset isn't applied again, but components should see them as not set
 const componentProps = computed(() =>
   Object.fromEntries(Object.entries(node.value.props ?? {}).filter(([, value]) => value !== null)),
 );
 
 const mode = inject('mode');
+// the props of the nodes are only edited (and shown as invalid) in build mode
+const { result: isNodeValidFlag } = useMaybeAsync(() => mode.value !== 'build' || isNodeValid(node.value, components.value), true, () => false);
 const selectedNode = inject('selectedNode');
 const formId = inject('formId');
 

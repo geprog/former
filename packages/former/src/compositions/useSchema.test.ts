@@ -1,4 +1,4 @@
-import type { FormComponents, InternalSchemaNode, ValidationContext } from '~/types';
+import type { FormComponents, InternalSchemaNode, SchemaNode, ValidationContext } from '~/types';
 import { describe, expect, it, vi } from 'vitest';
 import { ref } from 'vue';
 import { z } from 'zod';
@@ -132,6 +132,22 @@ describe('useSchema', () => {
 
       expect(isNodeValid({ ...node, props: { group: { a: 'x' }, options: [{ value: 'y' }] } }, components)).toBe(true);
       expect(isNodeValid({ ...node, props: { group: {}, options: [] } }, components)).toBe(false);
+    });
+
+    it('validates only the shown children of the props', () => {
+      const { schema } = createSchema();
+      const components: FormComponents = {
+        ...createComponents([], schema),
+        text: {
+          label: 'Text',
+          component: {} as any,
+          propsSchema: [{ type: 'columns', children: { shown: [{ type: 'field', name: 'a' }], removed: [{ type: 'field', name: 'b' }] } }],
+        },
+        columns: { label: 'Columns', component: {} as any, propsSchema: [], shownChildren: node => (node.children as { shown: SchemaNode[] }).shown },
+      };
+
+      expect(isNodeValid({ _id: 'n1', type: 'text', props: { a: 'ok', b: 'bad' } } as InternalSchemaNode, components)).toBe(true);
+      expect(isNodeValid({ _id: 'n1', type: 'text', props: { a: 'bad', b: 'ok' } } as InternalSchemaNode, components)).toBe(false);
     });
 
     it('resolves async validation', async () => {

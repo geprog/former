@@ -110,7 +110,6 @@ export function createFormComponents(t: Translate) {
   const checkedValidation = ({ required }: ValidationProps, _context?: ValidationContext) =>
     (required ? z.literal(true, requiredMessage) : undefined);
   const numberValidation = ({ required, min, max }: ValidationProps, _context?: ValidationContext) => {
-    // limits cleared in the props form are `null`
     let schema = z.number(requiredMessage);
     if (typeof min === 'number') {
       schema = schema.min(min, t('error_min_value', { min }));

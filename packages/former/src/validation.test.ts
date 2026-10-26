@@ -81,6 +81,13 @@ describe('validation', () => {
       expect(validateComponent(components, node, {}, context)).toBe('first');
     });
 
+    it('passes cleared props (`null`) as not set to the validation', () => {
+      const validation = vi.fn(() => undefined);
+      const components: FormComponents = { text: { label: 'Text', component: {}, propsSchema: [], validation } };
+      validateComponent(components, { ...node, props: { min: null, max: 3 } }, 'x', context);
+      expect(validation).toHaveBeenCalledWith({ max: 3 }, context);
+    });
+
     it('is valid without a validation or an unknown component', () => {
       expect(validateComponent({ text: { label: 'Text', component: {}, propsSchema: [] } }, node, 'x', context)).toBeUndefined();
       expect(validateComponent({}, node, 'x', context)).toBeUndefined();
