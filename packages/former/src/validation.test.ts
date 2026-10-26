@@ -1,11 +1,14 @@
 import type { FormComponents, FormFieldType } from '~/types';
+import { flushPromises } from '@vue/test-utils';
 import * as v from 'valibot';
 import { describe, expect, it, vi } from 'vitest';
-import { nextTick, ref } from 'vue';
+import { ref } from 'vue';
 import * as yup from 'yup';
 import { z } from 'zod';
 import {
+  errorMessage,
   every,
+  isPromiseLike,
   type StandardSchemaV1,
   useMaybeAsync,
   validateComponent,
@@ -98,41 +101,82 @@ describe('validation', () => {
     });
   });
 
+  describe('isPromiseLike', () => {
+    it('detects promises and other thenables', () => {
+      expect(isPromiseLike(Promise.resolve())).toBe(true);
+      expect(isPromiseLike({ then: () => {} })).toBe(true);
+      expect(isPromiseLike(undefined)).toBe(false);
+      expect(isPromiseLike(null)).toBe(false);
+      expect(isPromiseLike('x')).toBe(false);
+    });
+
+    it('validates with a schema returning a thenable', async () => {
+      const schema: StandardSchemaV1 = {
+        '~standard': {
+          version: 1,
+          vendor: 'test',
+          validate: () => ({ then: (resolve: (result: StandardSchemaV1.Result<unknown>) => void) => resolve({ issues: [{ message: 'bad' }] }) }) as any,
+        },
+      };
+      await expect(validateWithSchema(schema, 'x')).resolves.toEqual([{ message: 'bad' }]);
+    });
+  });
+
   describe('useMaybeAsync', () => {
     it('updates synchronously for synchronous results', () => {
       const source = ref(1);
-      const result = useMaybeAsync(() => source.value * 2, 0);
+      const { result, isPending } = useMaybeAsync(() => source.value * 2, 0, () => -1);
       expect(result.value).toBe(2);
       source.value = 2;
       expect(result.value).toBe(4);
+      expect(isPending.value).toBe(false);
     });
 
     it('keeps the previous value while a promise is pending', async () => {
       const source = ref('a');
-      const result = useMaybeAsync(() => validateWithSchema(asyncSchema(source.value || undefined), undefined), []);
-      await nextTick();
-      await Promise.resolve();
+      const { result, isPending } = useMaybeAsync(() => validateWithSchema(asyncSchema(source.value || undefined), undefined), [], () => []);
+      expect(isPending.value).toBe(true);
+      await flushPromises();
       expect(result.value).toEqual([{ message: 'a' }]);
+      expect(isPending.value).toBe(false);
       source.value = '';
       expect(result.value).toEqual([{ message: 'a' }]);
-      await Promise.resolve();
-      await Promise.resolve();
+      expect(isPending.value).toBe(true);
+      await flushPromises();
       expect(result.value).toEqual([]);
+      expect(isPending.value).toBe(false);
     });
 
     it('drops results of outdated promises', async () => {
       const resolvers: Array<(value: string) => void> = [];
       const source = ref(0);
-      const result = useMaybeAsync(() => {
+      const { result, isPending } = useMaybeAsync(() => {
         void source.value;
         return new Promise<string>(resolve => resolvers.push(resolve));
-      }, 'initial');
+      }, 'initial', () => 'error');
       source.value = 1;
       resolvers[1]('new');
-      await Promise.resolve();
+      await flushPromises();
       resolvers[0]('old');
-      await Promise.resolve();
+      await flushPromises();
       expect(result.value).toBe('new');
+      expect(isPending.value).toBe(false);
+    });
+
+    it('turns rejected promises and thrown errors into results', async () => {
+      const source = ref<'reject' | 'throw'>('reject');
+      const { result, isPending } = useMaybeAsync(() => {
+        if (source.value === 'throw') {
+          throw new Error('thrown');
+        }
+        return Promise.reject(new Error('rejected'));
+      }, 'initial', errorMessage);
+      await flushPromises();
+      expect(result.value).toBe('rejected');
+      expect(isPending.value).toBe(false);
+      source.value = 'throw';
+      await flushPromises();
+      expect(result.value).toBe('thrown');
     });
   });
 });

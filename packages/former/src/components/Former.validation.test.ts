@@ -350,6 +350,32 @@ describe('validation of components', () => {
     expect(last(valid)).toBe(false);
   });
 
+  it('is invalid while an async schema is pending', async () => {
+    const resolvers: Array<() => void> = [];
+    const pendingSchema: StandardSchemaV1 = {
+      '~standard': { version: 1, vendor: 'test', validate: value => new Promise(resolve => resolvers.push(() => resolve({ value }))) },
+    };
+    const pendingComponents: FormComponents = { text: { ...components.text, validation: () => pendingSchema } };
+    const { valid } = mountFormer({ schema: [schema[0]], components: pendingComponents, data: { name: 'Jane' } });
+    await settle();
+    expect(last(valid)).toBe(false);
+
+    resolvers.forEach(resolve => resolve());
+    await settle();
+    expect(last(valid)).toBe(true);
+  });
+
+  it('shows the error of a failing async schema', async () => {
+    const failingComponents: FormComponents = {
+      text: { ...components.text, validation: () => yup.string().test('server', 'unused', () => Promise.reject(new Error('Server not reachable'))) },
+    };
+    const { wrapper, valid } = mountFormer({ schema: [schema[0]], components: failingComponents, data: { name: 'Jane' } });
+    await settle();
+
+    expect(errorOf(wrapper, 'Name')).toBe('Server not reachable');
+    expect(last(valid)).toBe(false);
+  });
+
   it('validates the props of the nodes in build mode', async () => {
     const schemaValid: boolean[] = [];
     mount(Former, {
@@ -372,7 +398,9 @@ describe('validation of components', () => {
       ...validatedComponents,
       number: {
         ...validatedComponents.number,
+        // the technical name makes the number a field, so its props are validated as fields as well
         propsSchema: [
+          { type: 'text', name: '$name' },
           { type: 'number', name: 'min', props: { label: 'Min' } },
           { type: 'number', name: 'max', props: { label: 'Max', minField: 'min' } },
         ],

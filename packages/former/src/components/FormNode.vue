@@ -37,7 +37,7 @@ const components = inject('components');
 
 const node = toRef(props, 'node');
 const { component, error, hasContent, isShown, modelValue } = useNode(node);
-const isNodeValidFlag = useMaybeAsync(() => isNodeValid(node.value, components.value), true);
+const { result: isNodeValidFlag } = useMaybeAsync(() => isNodeValid(node.value, components.value), true, () => false);
 // cleared props are stored as `null` so their preset isn't applied again, but components should see them as not set
 const componentProps = computed(() =>
   Object.fromEntries(Object.entries(node.value.props ?? {}).filter(([, value]) => value !== null)),

@@ -1,7 +1,7 @@
 import type { DataPath, DataScope, InternalSchemaNode, ValidationContext } from '~/types';
 import { computed, ref, type Ref, watch } from 'vue';
 import { isNodeLayoutComponent, unsetDataOfNode } from '~/utils';
-import { useMaybeAsync, validateComponent } from '~/validation';
+import { errorMessage, useMaybeAsync, validateComponent } from '~/validation';
 import { inject, provide } from './injectProvide';
 import { useHasContent } from './useHasContent';
 
@@ -82,9 +82,10 @@ export default function useNode(node: Ref<InternalSchemaNode>) {
     scopes: dataScopes.value,
   }));
 
-  const error = useMaybeAsync(
+  const { result: error, isPending: isValidating } = useMaybeAsync(
     () => validateComponent(components.value, node.value, modelValue.value, validationContext.value),
     undefined,
+    errorMessage,
   );
 
   const showIf = inject('showIf', false);
@@ -113,7 +114,8 @@ export default function useNode(node: Ref<InternalSchemaNode>) {
     );
   });
 
-  const isValid = computed(() => !isShown.value || (error.value === undefined && areChildrenValid.value));
+  // the node isn't valid until its async validation is done
+  const isValid = computed(() => !isShown.value || (error.value === undefined && !isValidating.value && areChildrenValid.value));
 
   watch(isShown, () => {
     if (!isShown.value) {

@@ -267,10 +267,11 @@ const components: FormComponents = {
     propsSchema: [/* ... */],
     validation: ({ required, min, max }) => {
       let schema = z.number('Not a number');
-      if (min !== undefined) {
+      // limits cleared in the props form are `null`
+      if (typeof min === 'number') {
         schema = schema.min(min, `At least ${min}`);
       }
-      if (max !== undefined) {
+      if (typeof max === 'number') {
         schema = schema.max(max, `At most ${max}`);
       }
       return required ? schema : schema.nullish();
@@ -296,6 +297,8 @@ const validation: FormFieldType['validation'] = (props, { scopes }) => {
 Data from outside of the form (e.g. options loaded from a server) can be used by creating the `components` in a function receiving it.
 
 Hidden nodes (see `showIf`) are not validated.
+
+While an async schema is pending, the form emits `valid` as `false`. If the validation throws or its promise rejects (e.g. a server isn't reachable), the message of the error is passed as `error` to the component.
 
 When the user clears a field, its value is set to `null` instead of being removed from the data. This way the key survives JSON serialization and e.g. a preset value is not applied again after the data was saved and loaded. A field that was never filled in is `undefined`, so check for both when testing for an empty value. The exported `hasValue` helper treats `undefined`, `null`, `''`, `false` and empty lists and objects without any filled in value as empty, while a list with items counts as filled in even if its items are empty. With a schema, optional fields therefore need to accept `null` as well, e.g. with `.nullish()` of Zod.
 

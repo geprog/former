@@ -1,6 +1,7 @@
-import type { FormComponents, InternalSchemaNode } from '~/types';
+import type { FormComponents, InternalSchemaNode, ValidationContext } from '~/types';
 import { describe, expect, it, vi } from 'vitest';
 import { ref } from 'vue';
+import { z } from 'zod';
 import { isNodeValid, type StandardSchemaV1 } from '~/validation';
 import useSchema from './useSchema';
 
@@ -11,12 +12,17 @@ function createSchema() {
   return { schema, validate };
 }
 
-// the props of the component are text nodes as well, so they are validated with its validation
+// the props of the component are fields (having a technical name), so they are validated with the validation of the fields
 function createComponents(propsSchema: Array<{ name?: string }> = [], schema?: StandardSchemaV1): FormComponents {
   return {
     text: {
       label: 'Text',
-      propsSchema: propsSchema.map(prop => ({ type: 'text', ...prop })),
+      propsSchema: propsSchema.map(prop => ({ type: 'field', ...prop })),
+      component: {} as any,
+    },
+    field: {
+      label: 'Field',
+      propsSchema: [{ type: 'field', name: '$name' }],
       component: {} as any,
       validation: schema ? () => schema : undefined,
     },
@@ -89,7 +95,8 @@ describe('useSchema', () => {
       const validation = vi.fn(() => undefined);
       const node = { _id: 'n1', type: 'text', name: 'fieldA', props: { placeholder: 'abc' } } as InternalSchemaNode;
       const components: FormComponents = {
-        text: { label: 'Text', component: {} as any, validation, propsSchema: [{ type: 'text', name: 'placeholder', props: { required: true } }] },
+        text: { label: 'Text', component: {} as any, propsSchema: [{ type: 'field', name: 'placeholder', props: { required: true } }] },
+        field: { label: 'Field', component: {} as any, validation, propsSchema: [{ type: 'field', name: '$name' }] },
       };
 
       isNodeValid(node, components);
@@ -98,6 +105,33 @@ describe('useSchema', () => {
         path: ['placeholder'],
         scopes: [{ data: { $name: 'fieldA', placeholder: 'abc' }, path: [] }],
       });
+    });
+
+    it('validates the props nested in groups and the items of lists like they are rendered', () => {
+      const validation = vi.fn(({ required }) => (required ? z.string('required') : undefined));
+      const field = { label: 'Field', component: {} as any, validation, propsSchema: [{ type: 'field', name: '$name' }] };
+      const components: FormComponents = {
+        text: {
+          label: 'Text',
+          component: {} as any,
+          propsSchema: [
+            { type: 'group', name: 'group', children: [{ type: 'field', name: 'a', props: { required: true } }] },
+            { type: 'list', name: 'options', children: [{ type: 'field', name: 'value', props: { required: true } }] },
+          ],
+        },
+        field,
+        group: { ...field, validation: undefined },
+        list: { ...field, validation: undefined, isList: true },
+      };
+      const node = { _id: 'n1', type: 'text', props: { group: { a: 'x' }, options: [{ value: 'y' }, { value: null }] } } as InternalSchemaNode;
+
+      expect(isNodeValid(node, components)).toBe(false);
+      const contexts = validation.mock.calls.map(call => (call as unknown[])[1] as ValidationContext);
+      expect(contexts.map(context => context.path)).toEqual([['group', 'a'], ['options', 0, 'value'], ['options', 1, 'value']]);
+      expect(contexts[2].scopes.map(scope => scope.data)).toEqual([{ value: null }, node.props]);
+
+      expect(isNodeValid({ ...node, props: { group: { a: 'x' }, options: [{ value: 'y' }] } }, components)).toBe(true);
+      expect(isNodeValid({ ...node, props: { group: {}, options: [] } }, components)).toBe(false);
     });
 
     it('resolves async validation', async () => {

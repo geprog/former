@@ -1,15 +1,21 @@
 import type { StandardSchemaV1 } from '@standard-schema/spec';
-import type { FieldData, FormComponents, FormData, InternalSchemaNode, SchemaNode, ValidationContext } from '~/types';
+import type { DataScope, FieldData, FormComponents, FormData, InternalSchemaNode, SchemaNode, ValidationContext } from '~/types';
 import { cloneDeep } from 'lodash';
 import { type Ref, shallowRef, toRaw, watch } from 'vue';
+import { isNodeLayoutComponent, nodeChildren } from '~/utils';
 
 // the Standard Schema (https://standardschema.dev) implemented by e.g. Zod, Valibot, ArkType and Yup
 export type { StandardSchemaV1 };
 
-export type MaybePromise<T> = T | Promise<T>;
+export type MaybePromise<T> = T | PromiseLike<T>;
+
+// not only native promises, as schema libraries may return other thenables or promises of another realm
+export function isPromiseLike<T>(value: MaybePromise<T>): value is PromiseLike<T> {
+  return typeof (value as PromiseLike<T> | null)?.then === 'function';
+}
 
 function then<T, R>(value: MaybePromise<T>, fn: (value: T) => MaybePromise<R>): MaybePromise<R> {
-  return value instanceof Promise ? value.then(fn) : fn(value);
+  return isPromiseLike(value) ? Promise.resolve(value).then(fn) : fn(value);
 }
 
 // the data is cloned, so that a schema validating asynchronously still tracks all reactive dependencies
@@ -30,10 +36,41 @@ export function validateComponent(components: FormComponents, node: SchemaNode, 
 
 // whether all results match the predicate, only asynchronous if one of the results is a promise
 export function every<T>(results: MaybePromise<T>[], predicate: (result: T) => boolean): MaybePromise<boolean> {
-  if (results.some(result => result instanceof Promise)) {
+  if (results.some(isPromiseLike)) {
     return Promise.all(results).then(resolved => resolved.every(predicate));
   }
   return (results as T[]).every(predicate);
+}
+
+// validates the nodes with their data like they are rendered (see `useNode` and `FormDataProvider`),
+// returning whether all of them are valid
+function areNodesValid(nodes: SchemaNode[], data: FieldData | FormData, scopes: DataScope[], components: FormComponents): MaybePromise<boolean> {
+  return every(nodes.map((node) => {
+    const isLayoutComponent = isNodeLayoutComponent(node, components);
+    const isNested = !isLayoutComponent && !!node.name;
+    let nodeData: FieldData | FormData | undefined = isLayoutComponent ? data : undefined;
+    if (isNested) {
+      nodeData = data !== null && typeof data === 'object' && !Array.isArray(data) ? data[node.name!] : data;
+    }
+    const path = isNested ? [...scopes[0].path, node.name!] : scopes[0].path;
+    const results: MaybePromise<string | boolean | undefined>[] = [validateComponent(components, node, nodeData, { node, path, scopes })];
+    const children = nodeChildren(node);
+    if (children.length) {
+      if (!isNested) {
+        results.push(areNodesValid(children, nodeData, scopes, components));
+      }
+      // every item of a list (e.g. a repeater) is the scope of the children
+      else if (components[node.type]?.isList) {
+        const items = Array.isArray(nodeData) ? nodeData : [];
+        results.push(...items.map((item, index) =>
+          areNodesValid(children, item, [{ node, data: item, path: [...path, index] }, ...scopes], components)));
+      }
+      else {
+        results.push(areNodesValid(children, nodeData, [{ node, data: nodeData, path }, ...scopes], components));
+      }
+    }
+    return every(results, result => result === undefined || result === true);
+  }), Boolean);
 }
 
 // whether the props of the node are valid (used to validate the schema in build mode)
@@ -45,36 +82,46 @@ export function isNodeValid(node: InternalSchemaNode, components: FormComponents
   }
   // the props are edited in a form of their own (see `FormNodeProps`), so they are the only scope of their validation
   const propsData: FormData = { $name: node.name, ...node.props };
-  return every(component.propsSchema.map((propsNode) => {
-    const data = propsNode.name === '$name' ? node.name : (node.props || {})[propsNode.name || ''];
-    const context: ValidationContext = {
-      node: propsNode,
-      path: propsNode.name ? [propsNode.name] : [],
-      scopes: [{ data: propsData, path: [] }],
-    };
-    return validateComponent(components, propsNode, data, context);
-  }), message => message === undefined);
+  return areNodesValid(component.propsSchema, propsData, [{ data: propsData, path: [] }], components);
+}
+
+// the message of an error thrown by a validation, e.g. of an async schema failing to reach a server
+export function errorMessage(error: unknown): string {
+  return error instanceof Error ? error.message : String(error);
 }
 
 /**
  * A ref with the result of `getter`, which may be a promise (e.g. for async schemas).
- * While a promise is pending the previous result is kept, results of outdated promises are dropped.
+ * While a promise is pending the previous result is kept and `isPending` is set, results of outdated promises are dropped.
+ * A thrown error or rejected promise is turned into a result by `onError`.
  */
-export function useMaybeAsync<T>(getter: () => MaybePromise<T>, initial: T): Ref<T> {
+export function useMaybeAsync<T>(getter: () => MaybePromise<T>, initial: T, onError: (error: unknown) => T) {
   const result = shallowRef<T>(initial);
+  const isPending = shallowRef(false);
   let latestRun = 0;
-  watch(getter, (value) => {
+  // the result is wrapped, as vue would handle the rejection of a promise returned by the getter of the watcher itself
+  watch(() => {
+    try {
+      return { value: getter() };
+    }
+    catch (error) {
+      return { value: Promise.reject(error) as MaybePromise<T> };
+    }
+  }, ({ value }) => {
     const run = ++latestRun;
-    if (value instanceof Promise) {
-      value.then((resolved) => {
+    if (isPromiseLike(value)) {
+      isPending.value = true;
+      Promise.resolve(value).then(resolved => resolved, onError).then((resolved) => {
         if (run === latestRun) {
           result.value = resolved;
+          isPending.value = false;
         }
       });
     }
     else {
       result.value = value;
+      isPending.value = false;
     }
   }, { immediate: true, flush: 'sync' });
-  return result;
+  return { result: result as Ref<T>, isPending: isPending as Ref<boolean> };
 }
