@@ -1,9 +1,6 @@
-import type { FieldData, FormComponents, FormData, SchemaNode } from '@former-ui/former';
-import { hasValue } from '@former-ui/former';
+import type { FormComponents, SchemaNode } from '@former-ui/former';
 import { useFormComponents as useNuxtUiFormComponents } from '@former-ui/preset-nuxt-ui';
 import { computed, markRaw } from 'vue';
-import { useI18n } from 'vue-i18n';
-import { z } from 'zod';
 import { sampleFormComponents } from './sample';
 import ShowIfSelect from './ShowIfSelect.vue';
 
@@ -36,29 +33,12 @@ function withShowIf(components: FormComponents): FormComponents {
   };
 }
 
-// validates the `required` prop of the nodes of all components, including their props in build mode
-// (the nuxt ui preset brings its own validation)
-function withRequiredValidation(components: FormComponents, t: (key: string) => string): FormComponents {
-  return Object.fromEntries(
-    Object.entries(components).map(([type, component]) => [
-      type,
-      {
-        ...component,
-        validation: (props, context) => (props.required
-          ? z.custom(value => hasValue(value as FieldData | FormData), t('value_is_required'))
-          : component.validation?.(props, context)),
-      },
-    ]),
-  );
-}
-
 // presets the user can choose from in the playground; add new presets here
 export function usePresets() {
-  const { t } = useI18n();
   const nuxtUiFormComponents = useNuxtUiFormComponents();
 
   return computed<[PlaygroundPreset, ...PlaygroundPreset[]]>(() => [
-    { id: 'sample', label: 'Sample components', components: withRequiredValidation(withShowIf(sampleFormComponents), t) },
+    { id: 'sample', label: 'Sample components', components: withShowIf(sampleFormComponents) },
     { id: 'nuxt-ui', label: 'Nuxt UI preset', components: withShowIf(nuxtUiFormComponents.value) },
   ]);
 }
