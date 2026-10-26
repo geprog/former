@@ -139,7 +139,9 @@ describe('component FormDataProvider', () => {
   });
 
   describe('scope of the data', () => {
-    function mountItem(props: { data: FormData; index?: number }, list: FormData[]) {
+    const repeater = { _id: 'r', type: 'repeater', name: 'items' };
+
+    function mountItem(props: { data: FormData; index?: number }, list: FormData[], dataScopes?: DataScope[]) {
       let scopes: DataScope[] | undefined;
       const ScopesProbe = defineComponent({
         setup() {
@@ -154,8 +156,8 @@ describe('component FormDataProvider', () => {
           provide: {
             validityMap: ref({}),
             data: ref(list),
-            node: ref({ _id: 'r', type: 'repeater', name: 'items' }),
-            dataScopes: ref([{ data: { items: list }, path: [] }]),
+            node: ref(repeater),
+            dataScopes: ref(dataScopes ?? [{ data: { items: list }, path: [] }]),
           },
         },
         slots: { default: () => h(ScopesProbe) },
@@ -173,6 +175,13 @@ describe('component FormDataProvider', () => {
       const scopes = mountItem({ data: item, index: 1 }, [item, item]);
       expect(scopes[0]).toMatchObject({ data: item, path: ['items', 1] });
       expect(scopes[1].path).toEqual([]);
+    });
+
+    it('replaces the scope of a list not marked as list (`isList`), which is provided by the list itself', () => {
+      const item = { a: 1 };
+      const list = [item];
+      const scopes = mountItem({ data: item, index: 0 }, list, [{ node: repeater, data: list, path: ['items'] }, { data: { items: list }, path: [] }]);
+      expect(scopes.map(scope => scope.path)).toEqual([['items', 0], []]);
     });
   });
 

@@ -18,9 +18,14 @@ const parentData = inject('data', false);
 const parentNode = inject('node', false);
 const parentDataScopes = inject('dataScopes', false);
 provide('dataScopes', computed(() => {
-  const scopes = parentDataScopes?.value ?? [];
-  // the list (e.g. of a repeater) is in the closest scope of the node rendering it
-  const listPath = [...(scopes[0]?.path ?? []), ...(parentNode?.value.name ? [parentNode.value.name] : [])];
+  let scopes = parentDataScopes?.value ?? [];
+  // the list (e.g. of a repeater) is in the closest scope of the node rendering it,
+  // unless the node already provides the list as a scope of its own as it isn't marked as a list (`isList`)
+  let listPath = [...(scopes[0]?.path ?? []), ...(parentNode?.value.name ? [parentNode.value.name] : [])];
+  if (parentNode && scopes[0]?.node === parentNode.value) {
+    listPath = [...scopes[0].path];
+    scopes = scopes.slice(1);
+  }
   const list = parentData?.value;
   const index = props.index ?? (Array.isArray(list) ? list.findIndex(item => toRaw(item) === toRaw(props.data)) : -1);
   const path = index === -1 ? listPath : [...listPath, index];

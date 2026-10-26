@@ -289,7 +289,8 @@ The second parameter of the validation is the context of the node, so the valida
 // the end of a period must not be before the start of the same repeater item
 const validation: FormFieldType['validation'] = (props, { scopes }) => {
   const { start } = scopes[0].data as FormData;
-  return typeof start === 'number' ? z.number().min(start, 'The end must be after the start') : z.number();
+  const end = typeof start === 'number' ? z.number().min(start, 'The end must be after the start') : z.number();
+  return end.nullish();
 };
 ```
 
