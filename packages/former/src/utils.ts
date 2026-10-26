@@ -257,6 +257,11 @@ export function getNode(schema: InternalSchemaNode[], nodeId: string): InternalS
   return null;
 }
 
+// cleared props are stored as `null` so their preset isn't applied again, but components and validations should see them as not set
+export function propsOf(node: SchemaNode): { [key: string]: any } {
+  return Object.fromEntries(Object.entries(node.props ?? {}).filter(([, value]) => value !== null));
+}
+
 export function isNodeLayoutComponent(node: SchemaNode, components: FormComponents): boolean {
   return !(components[node.type]?.propsSchema || []).some(prop => prop.name === '$name');
 }

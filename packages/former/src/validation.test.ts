@@ -40,6 +40,15 @@ describe('validation', () => {
       expect(validate.mock.calls[0]).toEqual([{ a: 'x' }]);
       expect((validate.mock.calls[0] as unknown[])[0]).not.toBe(data);
     });
+
+    it('keeps values which can\'t be cloned, e.g. files', () => {
+      const file = new Blob(['x']);
+      const validate = vi.fn(() => ({ value: file }));
+      validateWithSchema({ '~standard': { version: 1, vendor: 'x', validate } }, file);
+      validateWithSchema({ '~standard': { version: 1, vendor: 'x', validate } }, { file });
+      expect(validate.mock.calls).toEqual([[file], [{ file }]]);
+      expect((validate.mock.calls[0] as unknown[])[0]).toBe(file);
+    });
   });
 
   describe('validateComponent', () => {

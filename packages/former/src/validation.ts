@@ -1,8 +1,8 @@
 import type { StandardSchemaV1 } from '@standard-schema/spec';
 import type { DataScope, FieldData, FormComponents, FormData, InternalSchemaNode, SchemaNode, ValidationContext } from '~/types';
-import { cloneDeep } from 'lodash';
+import { cloneDeepWith, isObject, isPlainObject } from 'lodash';
 import { type Ref, shallowRef, toRaw, watch } from 'vue';
-import { isNodeLayoutComponent, nodeChildren } from '~/utils';
+import { isNodeLayoutComponent, nodeChildren, propsOf } from '~/utils';
 
 // the Standard Schema (https://standardschema.dev) implemented by e.g. Zod, Valibot, ArkType and Yup
 export type { StandardSchemaV1 };
@@ -18,11 +18,16 @@ function then<T, R>(value: MaybePromise<T>, fn: (value: T) => MaybePromise<R>): 
   return isPromiseLike(value) ? Promise.resolve(value).then(fn) : fn(value);
 }
 
-// the data is cloned, so that a schema validating asynchronously still tracks all reactive dependencies
-// and schema libraries don't get to see (or mutate) the reactive proxies
+// the plain data (objects and lists) is cloned, so that a schema validating asynchronously still tracks all reactive
+// dependencies and schema libraries don't get to see (or mutate) the reactive proxies,
+// while other values (e.g. files or dates) are kept, as lodash would turn the ones it can't clone into `{}`
+function cloneData(data: unknown) {
+  return cloneDeepWith(data, value => (isObject(value) && !Array.isArray(value) && !isPlainObject(value) ? toRaw(value) : undefined));
+}
+
 export function validateWithSchema(schema: StandardSchemaV1, data: unknown): MaybePromise<ReadonlyArray<StandardSchemaV1.Issue>> {
   // schemas mustn't be reactive, e.g. zod schemas break when they are proxied
-  return then(toRaw(schema)['~standard'].validate(cloneDeep(data)), result => result.issues ?? []);
+  return then(toRaw(schema)['~standard'].validate(cloneData(data)), result => result.issues ?? []);
 }
 
 /**
@@ -30,9 +35,7 @@ export function validateWithSchema(schema: StandardSchemaV1, data: unknown): May
  * Returns the error message or `undefined` if the data is valid, or a promise of it for async validation.
  */
 export function validateComponent(components: FormComponents, node: SchemaNode, data: FieldData | FormData, context: ValidationContext): MaybePromise<string | undefined> {
-  // cleared props are stored as `null`, but validations should see them as not set like the components (see `FormNode`)
-  const props = Object.fromEntries(Object.entries(node.props ?? {}).filter(([, value]) => value !== null));
-  const schema = components[node.type]?.validation?.(props, context);
+  const schema = components[node.type]?.validation?.(propsOf(node), context);
   return schema ? then(validateWithSchema(schema, data), issues => issues[0]?.message) : undefined;
 }
 
