@@ -49,6 +49,15 @@ describe('validation', () => {
       expect(validate.mock.calls).toEqual([[file], [{ file }]]);
       expect((validate.mock.calls[0] as unknown[])[0]).toBe(file);
     });
+
+    it('validates a copy of dates', () => {
+      const date = new Date('2026-01-01');
+      const validate = vi.fn(() => ({ value: date }));
+      validateWithSchema({ '~standard': { version: 1, vendor: 'x', validate } }, { date });
+      const validated = (validate.mock.calls[0] as unknown[])[0] as { date: Date };
+      expect(validated.date).toEqual(date);
+      expect(validated.date).not.toBe(date);
+    });
   });
 
   describe('validateComponent', () => {

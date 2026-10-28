@@ -1,6 +1,6 @@
 import type { StandardSchemaV1 } from '@standard-schema/spec';
 import type { DataScope, FieldData, FormComponents, FormData, InternalSchemaNode, SchemaNode, ValidationContext } from '~/types';
-import { cloneDeepWith, isObject, isPlainObject } from 'lodash';
+import { cloneDeepWith, isDate, isObject, isPlainObject } from 'lodash';
 import { type Ref, shallowRef, toRaw, watch } from 'vue';
 import { isNodeLayoutComponent, nodeChildren, propsOf } from '~/utils';
 
@@ -18,11 +18,16 @@ function then<T, R>(value: MaybePromise<T>, fn: (value: T) => MaybePromise<R>): 
   return isPromiseLike(value) ? Promise.resolve(value).then(fn) : fn(value);
 }
 
-// the plain data (objects and lists) is cloned, so that a schema validating asynchronously still tracks all reactive
-// dependencies and schema libraries don't get to see (or mutate) the reactive proxies,
-// while other values (e.g. files or dates) are kept, as lodash would turn the ones it can't clone into `{}`
+// the data is cloned, so that a schema validating asynchronously still tracks all reactive dependencies
+// and schema libraries don't get to see (or mutate) the reactive proxies,
+// while other values which aren't plain (e.g. files) are kept, as lodash would turn the ones it can't clone into `{}`
 function cloneData(data: unknown) {
-  return cloneDeepWith(data, value => (isObject(value) && !Array.isArray(value) && !isPlainObject(value) ? toRaw(value) : undefined));
+  return cloneDeepWith(data, (value) => {
+    if (isDate(value)) {
+      return new Date(value.getTime());
+    }
+    return isObject(value) && !Array.isArray(value) && !isPlainObject(value) ? toRaw(value) : undefined;
+  });
 }
 
 export function validateWithSchema(schema: StandardSchemaV1, data: unknown): MaybePromise<ReadonlyArray<StandardSchemaV1.Issue>> {
