@@ -1,8 +1,12 @@
-import type { FormComponents, FormData, InternalSchemaNode, SchemaNode } from './types';
+import type { DataScope, FormComponents, FormData, InternalSchemaNode, SchemaNode } from './types';
 import { cloneDeep } from 'lodash';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import {
   addNode,
+  dataOfNode,
+  dataPathOfNode,
+  dataScopesOfChildren,
+  dataScopesOfListItem,
   deleteNode,
   generateFormId,
   getFormIdFromEvent,
@@ -500,6 +504,45 @@ describe('isNodeLayoutComponent', () => {
   it('is true for empty propsSchema and for unknown types', () => {
     expect(isNodeLayoutComponent(node('1', { type: 'bare' }), components)).toBe(true);
     expect(isNodeLayoutComponent(node('1', { type: 'unknown-type' }), components)).toBe(true);
+  });
+});
+
+describe('data and scopes of nodes', () => {
+  const components: FormComponents = {
+    ...formComponentsFixture(),
+    list: { label: 'List', propsSchema: [{ type: 'text', name: '$name' }], component: {} as any, isList: true },
+  };
+  const form = { data: { group: { a: 1 } }, path: [] };
+  const group = node('g', { name: 'group', children: [node('a', { name: 'a' })] });
+
+  it('is the field of named nodes, the data of the parent for layout components and unset for unnamed nodes', () => {
+    expect(dataOfNode(node('1', { name: 'a' }), { a: 1 }, components)).toBe(1);
+    expect(dataOfNode(node('1', { type: 'layout' }), { a: 1 }, components)).toEqual({ a: 1 });
+    expect(dataOfNode(node('1'), { a: 1 }, components)).toBeUndefined();
+    expect(dataOfNode(node('1', { name: 'a' }), null, components)).toBeNull();
+  });
+
+  it('is the path of the data in the closest scope', () => {
+    const scopes: DataScope[] = [{ data: {}, path: ['group'] }, form];
+    expect(dataPathOfNode(node('1', { name: 'a' }), scopes, components)).toEqual(['group', 'a']);
+    expect(dataPathOfNode(node('1', { type: 'layout', name: 'a' }), scopes, components)).toEqual(['group']);
+    expect(dataPathOfNode(node('1'), scopes, components)).toEqual(['group']);
+  });
+
+  it('adds the data of a named node with children as scope of its children', () => {
+    expect(dataScopesOfChildren(group, form.data, [form], components)).toEqual([{ node: group, data: { a: 1 }, path: ['group'] }, form]);
+    expect(dataScopesOfChildren(node('1', { type: 'layout', children: [] }), form.data, [form], components)).toEqual([form]);
+    expect(dataScopesOfChildren(node('1', { type: 'list', name: 'items', children: [] }), form.data, [form], components)).toEqual([form]);
+  });
+
+  it('adds the items of lists as scope of their children', () => {
+    const list = node('l', { type: 'list', name: 'items' });
+    expect(dataScopesOfListItem(list, { a: 1 }, 2, [form])).toEqual([{ node: list, data: { a: 1 }, path: ['items', 2] }, form]);
+  });
+
+  it('replaces the scope of a list not marked as list (`isList`) by the scope of the item', () => {
+    const scopes = dataScopesOfChildren(group, form.data, [form], components);
+    expect(dataScopesOfListItem(group, { a: 2 }, 0, scopes)).toEqual([{ node: group, data: { a: 2 }, path: ['group', 0] }, form]);
   });
 });
 

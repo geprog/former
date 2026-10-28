@@ -1,6 +1,6 @@
-import type { DataPath, DataScope, InternalSchemaNode, ValidationContext } from '~/types';
+import type { DataScope, InternalSchemaNode, ValidationContext } from '~/types';
 import { computed, ref, type Ref, watch } from 'vue';
-import { isNodeLayoutComponent, unsetDataOfNode } from '~/utils';
+import { dataOfNode, dataPathOfNode, dataScopesOfChildren, isNodeLayoutComponent, unsetDataOfNode } from '~/utils';
 import { errorMessage, useMaybeAsync, validateComponent } from '~/validation';
 import { inject, provide } from './injectProvide';
 import { useHasContent } from './useHasContent';
@@ -15,16 +15,7 @@ export default function useNode(node: Ref<InternalSchemaNode>) {
 
   const modelValue = computed({
     get() {
-      if (isLayoutComponent.value) {
-        return data.value;
-      }
-      if (!node.value.name) {
-        return undefined;
-      }
-      if (data.value === null || Array.isArray(data.value) || typeof data.value !== 'object') {
-        return data.value;
-      }
-      return data.value[node.value.name];
+      return dataOfNode(node.value, data.value, components.value);
     },
     set(newValue) {
       if (isLayoutComponent.value) {
@@ -61,20 +52,9 @@ export default function useNode(node: Ref<InternalSchemaNode>) {
 
   const parentDataScopes = inject('dataScopes', false);
   const dataScopes = computed<DataScope[]>(() => parentDataScopes?.value ?? [{ data: data.value, path: [] }]);
-  // the data of a node is always in the closest scope, as only scopes (e.g. groups) contain nested data,
-  // while layout components pass the data of their parent through
-  const dataPath = computed<DataPath>(() => {
-    const path = dataScopes.value[0].path;
-    return isLayoutComponent.value || !node.value.name ? path : [...path, node.value.name];
-  });
-  // the data of a named node with children (e.g. a group) is the scope of its children,
-  // while the items of lists (e.g. repeaters) provide their scopes themselves (see `FormDataProvider`)
-  provide('dataScopes', computed(() => {
-    if (isLayoutComponent.value || !node.value.name || !node.value.children || components.value[node.value.type]?.isList) {
-      return dataScopes.value;
-    }
-    return [{ node: node.value, data: modelValue.value, path: dataPath.value }, ...dataScopes.value];
-  }));
+  const dataPath = computed(() => dataPathOfNode(node.value, dataScopes.value, components.value));
+  // the items of lists (e.g. repeaters) provide their scopes themselves (see `FormDataProvider`)
+  provide('dataScopes', computed(() => dataScopesOfChildren(node.value, data.value, dataScopes.value, components.value)));
 
   const validationContext = computed<ValidationContext>(() => ({
     node: node.value,

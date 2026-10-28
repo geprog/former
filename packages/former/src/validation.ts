@@ -2,7 +2,7 @@ import type { StandardSchemaV1 } from '@standard-schema/spec';
 import type { DataScope, FieldData, FormComponents, FormData, InternalSchemaNode, SchemaNode, ValidationContext } from '~/types';
 import { cloneDeepWith, isDate, isObject, isPlainObject } from 'lodash';
 import { type Ref, shallowRef, toRaw, watch } from 'vue';
-import { isNodeLayoutComponent, nodeChildren, propsOf } from '~/utils';
+import { dataOfNode, dataPathOfNode, dataScopesOfChildren, dataScopesOfListItem, nodeChildren, propsOf } from '~/utils';
 
 // the Standard Schema (https://standardschema.dev) implemented by e.g. Zod, Valibot, ArkType and Yup
 export type { StandardSchemaV1 };
@@ -56,29 +56,19 @@ export function every<T>(results: MaybePromise<T>[], predicate: (result: T) => b
 // returning whether all of them are valid
 function areNodesValid(nodes: SchemaNode[], data: FieldData | FormData, scopes: DataScope[], components: FormComponents): MaybePromise<boolean> {
   return every(nodes.map((node) => {
-    const isLayoutComponent = isNodeLayoutComponent(node, components);
-    const isNested = !isLayoutComponent && !!node.name;
-    let nodeData: FieldData | FormData | undefined = isLayoutComponent ? data : undefined;
-    if (isNested) {
-      nodeData = data !== null && typeof data === 'object' && !Array.isArray(data) ? data[node.name!] : data;
-    }
-    const path = isNested ? [...scopes[0].path, node.name!] : scopes[0].path;
-    const results: MaybePromise<string | boolean | undefined>[] = [validateComponent(components, node, nodeData, { node, path, scopes })];
+    const nodeData = dataOfNode(node, data, components);
+    const results: MaybePromise<string | boolean | undefined>[] = [
+      validateComponent(components, node, nodeData, { node, path: dataPathOfNode(node, scopes, components), scopes }),
+    ];
     // only the shown children are rendered, e.g. not the ones of removed columns
     const children = components[node.type]?.shownChildren?.(node) ?? nodeChildren(node);
-    if (children.length) {
-      if (!isNested) {
-        results.push(areNodesValid(children, nodeData, scopes, components));
-      }
-      // every item of a list (e.g. a repeater) is the scope of the children
-      else if (components[node.type]?.isList) {
-        const items = Array.isArray(nodeData) ? nodeData : [];
-        results.push(...items.map((item, index) =>
-          areNodesValid(children, item, [{ node, data: item, path: [...path, index] }, ...scopes], components)));
-      }
-      else {
-        results.push(areNodesValid(children, nodeData, [{ node, data: nodeData, path }, ...scopes], components));
-      }
+    if (components[node.type]?.isList) {
+      const items = Array.isArray(nodeData) ? nodeData : [];
+      results.push(...items.map((item, index) =>
+        areNodesValid(children, item, dataScopesOfListItem(node, item, index, scopes), components)));
+    }
+    else if (children.length) {
+      results.push(areNodesValid(children, nodeData, dataScopesOfChildren(node, data, scopes, components), components));
     }
     return every(results, result => result === undefined || result === true);
   }), Boolean);

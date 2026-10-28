@@ -44,7 +44,7 @@ describe('component FormDataProvider', () => {
   it('throws when validityMap is not provided by an ancestor', () => {
     expect(() =>
       mount(FormDataProvider, {
-        props: { data: {} },
+        props: { data: {}, index: 0 },
         attachTo: document.body,
       }),
     ).toThrow('Please provide a value for validityMap');
@@ -66,7 +66,7 @@ describe('component FormDataProvider', () => {
 
     const wrapper = mount(FormDataProvider, {
       attachTo: document.body,
-      props: { data: formData.value },
+      props: { data: formData.value, index: 0 },
       global: {
         provide: { validityMap: rootValidityMap },
       },
@@ -91,7 +91,7 @@ describe('component FormDataProvider', () => {
     const formData = ref<FormData>({ item: 1 });
     const wrapper = mount(FormDataProvider, {
       attachTo: document.body,
-      props: { data: formData.value },
+      props: { data: formData.value, index: 0 },
       global: {
         provide: { validityMap: rootValidityMap },
       },
@@ -107,7 +107,7 @@ describe('component FormDataProvider', () => {
     const formData = ref<FormData>({ item: 1 });
     const wrapper = mount(FormDataProvider, {
       attachTo: document.body,
-      props: { data: formData.value },
+      props: { data: formData.value, index: 0 },
       global: {
         provide: { validityMap: rootValidityMap },
       },
@@ -127,7 +127,7 @@ describe('component FormDataProvider', () => {
     const formData = ref<FormData>({ item: 1 });
     const wrapper = mount(FormDataProvider, {
       attachTo: document.body,
-      props: { data: formData.value },
+      props: { data: formData.value, index: 0 },
       global: {
         provide: { validityMap: rootValidityMap },
       },
@@ -141,7 +141,7 @@ describe('component FormDataProvider', () => {
   describe('scope of the data', () => {
     const repeater = { _id: 'r', type: 'repeater', name: 'items' };
 
-    function mountItem(props: { data: FormData; index?: number }, list: FormData[], dataScopes?: DataScope[]) {
+    function mountItem(props: { data: FormData; index: number }, list: FormData[], dataScopes?: DataScope[]) {
       let scopes: DataScope[] | undefined;
       const ScopesProbe = defineComponent({
         setup() {
@@ -164,11 +164,6 @@ describe('component FormDataProvider', () => {
       });
       return scopes!;
     }
-
-    it('finds the index of the item in the list of the parent', () => {
-      const item = { a: 1 };
-      expect(mountItem({ data: item }, [{ a: 0 }, item])[0].path).toEqual(['items', 1]);
-    });
 
     it('uses the passed index, e.g. for an item contained twice in the list', () => {
       const item = { a: 1 };
@@ -225,7 +220,7 @@ describe('component FormDataProvider', () => {
 
       const wrapper = mount(FormDataProvider, {
         attachTo: document.body,
-        props: { data: outerData.value },
+        props: { data: outerData.value, index: 0 },
         global: {
           provide: { validityMap: rootValidityMap },
         },
@@ -233,7 +228,7 @@ describe('component FormDataProvider', () => {
           default: () =>
             h(CaptureOuterChildrenMap, {}, {
               default: () =>
-                h(FormDataProvider, { data: innerData.value }, {
+                h(FormDataProvider, { data: innerData.value, index: 0 }, {
                   default: () => h(InnerValidityProbe),
                 }),
             }),
