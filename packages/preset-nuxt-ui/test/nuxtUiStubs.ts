@@ -14,6 +14,12 @@ const UCard = defineComponent({
   setup: (_, { slots }) => () => h('div', [slots.header?.(), slots.default?.()]),
 });
 
+const UCollapsible = defineComponent({
+  name: 'UCollapsible',
+  props: { open: { type: Boolean, default: false } },
+  setup: (props, { slots }) => () => h('div', { 'data-open': String(props.open) }, [slots.default?.(), slots.content?.()]),
+});
+
 const UButton = defineComponent({
   name: 'UButton',
   props: { label: { type: String, default: undefined }, icon: { type: String, default: undefined } },
@@ -34,6 +40,7 @@ export const nuxtUiStubs = {
   UFormField,
   UCard,
   UButton,
+  UCollapsible,
   ...Object.fromEntries(
     ['UInput', 'UInputNumber', 'USelect', 'USelectMenu', 'UInputMenu', 'UTextarea', 'UInputTags', 'UCheckbox', 'USwitch', 'USlider', 'URadioGroup', 'UCheckboxGroup', 'UInputDate', 'UInputTime', 'UFileUpload', 'UModal', 'UPopover', 'UColorPicker', 'USeparator', 'UAlert']
       .map(name => [name, attributesStub(name)]),

@@ -4,6 +4,7 @@ import { z } from 'zod';
 import Alert from './Alert.vue';
 import Checkbox from './Checkbox.vue';
 import CheckboxGroup from './CheckboxGroup.vue';
+import Collapsible from './Collapsible.vue';
 import Color from './Color.vue';
 import { shownColumnChildren } from './columns';
 import Columns from './Columns.vue';
@@ -313,6 +314,14 @@ export function createFormComponents(t: Translate) {
           props: { label: t('columns'), min: 1, preset: 2, required: true },
         },
         { type: 'checkbox', name: 'border', props: { label: t('show_border') } },
+      ],
+    },
+    collapsible: {
+      label: t('collapsible'),
+      component: markRaw(Collapsible),
+      propsSchema: [
+        ...commonSchema({ name: false, required: false, placeholder: false, t }),
+        { type: 'checkbox', name: 'defaultOpen', props: { label: t('default_open') } },
       ],
     },
     tabs: {
