@@ -21,7 +21,7 @@
       <slot />
     </component>
     <span v-else>Component type not found!</span>
-    <div v-if="mode === 'build' && propsError" data-props-error class="mt-2 col-start-2 text-sm text-error">
+    <div v-if="mode === 'build' && propsError" data-props-error class="mt-2 col-start-2 text-sm text-red-500">
       {{ propsError }}
     </div>
   </div>
