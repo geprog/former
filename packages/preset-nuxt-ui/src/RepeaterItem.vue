@@ -1,7 +1,7 @@
 <template>
   <UCard>
     <div class="flex w-full gap-2">
-      <FormDataProvider :data="item">
+      <FormDataProvider :data="item" :index>
         <FormRenderer class="w-full" />
       </FormDataProvider>
     </div>

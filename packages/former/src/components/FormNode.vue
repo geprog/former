@@ -3,8 +3,10 @@
     v-if="mode === 'build' || (isShown && (mode !== 'read' || hasContent))"
     :data-node="node._id"
     :draggable="mode === 'build'"
-    class="relative flex items-center duration-0 w-full rounded empty:hidden"
+    class="relative items-center duration-0 w-full rounded empty:hidden"
     :class="{
+      'grid grid-cols-[auto_1fr]': mode === 'build',
+      'flex': mode !== 'build',
       'border-2 !border-blue-600': mode === 'build' && selectedNode?._id === node._id,
       'bg-zinc-300 dark:bg-zinc-700 rounded': mode === 'build' && !isShown,
       'former-draggable p-2': mode === 'build',
@@ -13,11 +15,15 @@
     @click.stop="selectedNode = node"
     @dragstart.stop="startDrag($event, node._id)"
   >
+    <!-- in build mode the drag handle is next to the node, while the error of its props is below the node -->
     <span v-if="mode === 'build'" class="drag-handle !cursor-move p-2">::</span>
     <component :is="component" v-if="component" v-bind="componentProps" :id="node._id" v-model="modelValue" :mode :error>
       <slot />
     </component>
     <span v-else>Component type not found!</span>
+    <div v-if="mode === 'build' && propsError" data-props-error class="mt-2 col-start-2 text-sm text-red-500">
+      {{ propsError }}
+    </div>
   </div>
 </template>
 
@@ -26,25 +32,32 @@ import type { InternalSchemaNode } from '~/types';
 import { computed, toRef } from 'vue';
 import { inject, provide } from '~/compositions/injectProvide';
 import useNode from '~/compositions/useNode';
-import { isNodeValid } from '~/compositions/useSchema';
-import { setDragEventData } from '~/utils';
+import { propsOf, setDragEventData } from '~/utils';
 
 const props = defineProps<{
   node: InternalSchemaNode;
 }>();
 
-const validator = inject('validator');
-const components = inject('components');
+const propsValidity = inject('propsValidity');
+const texts = inject('texts');
 
 const node = toRef(props, 'node');
 const { component, error, hasContent, isShown, modelValue } = useNode(node);
-const isNodeValidFlag = computed(() => isNodeValid(node.value, validator, components.value));
-// cleared props are stored as `null` so their preset isn't applied again, but components should see them as not set
-const componentProps = computed(() =>
-  Object.fromEntries(Object.entries(node.value.props ?? {}).filter(([, value]) => value !== null)),
-);
+const componentProps = computed(() => propsOf(node.value));
 
 const mode = inject('mode');
+// the props of the nodes are only edited (and shown as invalid) in build mode, they are validated once for the
+// whole schema (see `useSchema`), a validation failing (e.g. an async schema not reaching a server) is shown with
+// its message, as it is otherwise only visible in the props of the node once it is selected
+const propsValidation = computed(() => (mode.value === 'build' ? propsValidity.value[node.value._id] ?? true : true));
+const isNodeValidFlag = computed(() => propsValidation.value === true);
+// the message of a failing validation, otherwise a general message, as the issues are shown in the props of the node
+const propsError = computed(() => {
+  if (typeof propsValidation.value === 'string') {
+    return propsValidation.value;
+  }
+  return isNodeValidFlag.value ? undefined : texts.value.invalidSchema;
+});
 const selectedNode = inject('selectedNode');
 const formId = inject('formId');
 

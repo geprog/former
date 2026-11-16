@@ -1,5 +1,6 @@
-import type { FormComponents, SchemaNode } from '@former-ui/former';
+import type { FormComponents, SchemaNode, ValidationContext } from '@former-ui/former';
 import { markRaw } from 'vue';
+import { z } from 'zod';
 import Checkbox from './Checkbox.vue';
 import { shownColumnChildren } from './columns';
 import Columns from './Columns.vue';
@@ -93,12 +94,50 @@ function optionsSchema({ t }: { t: (key: string) => string }): SchemaNode {
   };
 }
 
-// the form components of the preset, `t` translates the labels of the components and their settings in the form builder
-export function createFormComponents(t: (key: string) => string) {
+type Translate = (key: string, named?: Record<string, unknown>) => string;
+
+// the validations of the preset don't depend on the context, but take it so a replacing validation can pass it on,
+// while their return types are kept as zod schemas to be extended
+type ValidationProps = { [key: string]: any };
+
+// the form components of the preset, `t` translates the labels of the components, their settings in the form builder
+// and the error messages of their validation
+export function createFormComponents(t: Translate) {
+  const requiredMessage = t('error_required');
+  // fields storing a string are cleared to `null`, so only required ones are validated
+  const stringValidation = ({ required }: ValidationProps, _context?: ValidationContext) =>
+    (required ? z.string(requiredMessage).min(1, requiredMessage) : undefined);
+  const checkedValidation = ({ required }: ValidationProps, _context?: ValidationContext) =>
+    (required ? z.literal(true, requiredMessage) : undefined);
+  const numberValidation = ({ required, min, max }: ValidationProps, _context?: ValidationContext) => {
+    let schema = z.number(requiredMessage);
+    if (typeof min === 'number') {
+      schema = schema.min(min, t('error_min_value', { min }));
+    }
+    if (typeof max === 'number') {
+      schema = schema.max(max, t('error_max_value', { max }));
+    }
+    return required ? schema : schema.nullish();
+  };
+  const dateValidation = ({ required, min, max }: ValidationProps, _context?: ValidationContext) => {
+    // dates are ISO strings (YYYY-MM-DD), so they compare like the dates they represent
+    let schema = z.string(requiredMessage).min(1, requiredMessage);
+    if (min) {
+      schema = schema.refine(value => value >= min, t('error_min_date', { min }));
+    }
+    if (max) {
+      schema = schema.refine(value => value <= max, t('error_max_date', { max }));
+    }
+    return required ? schema : schema.nullish();
+  };
+  const listValidation = ({ required }: ValidationProps, _context?: ValidationContext) =>
+    (required ? z.array(z.unknown(), requiredMessage).min(1, requiredMessage) : undefined);
+
   return {
     text: {
       label: t('text_field'),
       component: markRaw(Text),
+      validation: stringValidation,
       propsSchema: [
         ...commonSchema({ t }),
         { type: 'text', name: 'preset', props: { label: t('preset_text') } },
@@ -107,6 +146,7 @@ export function createFormComponents(t: (key: string) => string) {
     number: {
       label: t('number_field'),
       component: markRaw(NumberField),
+      validation: numberValidation,
       propsSchema: [
         ...commonSchema({ t }),
         {
@@ -134,6 +174,7 @@ export function createFormComponents(t: (key: string) => string) {
     select: {
       label: t('select_field'),
       component: markRaw(Select),
+      validation: stringValidation,
       propsSchema: [
         ...commonSchema({ t }),
         optionsSchema({ t }),
@@ -161,6 +202,7 @@ export function createFormComponents(t: (key: string) => string) {
     checkbox: {
       label: t('checkbox'),
       component: markRaw(Checkbox),
+      validation: checkedValidation,
       propsSchema: [
         ...commonSchema({ placeholder: false, t }),
         { type: 'checkbox', name: 'preset', props: { label: t('preset_choice') } },
@@ -169,6 +211,7 @@ export function createFormComponents(t: (key: string) => string) {
     switch: {
       label: t('switch'),
       component: markRaw(Switch),
+      validation: checkedValidation,
       propsSchema: [
         ...commonSchema({ placeholder: false, t }),
         { type: 'switch', name: 'preset', props: { label: t('preset_choice') } },
@@ -177,6 +220,7 @@ export function createFormComponents(t: (key: string) => string) {
     date: {
       label: t('date_field'),
       component: markRaw(DateField),
+      validation: dateValidation,
       propsSchema: [
         ...commonSchema({ placeholder: false, t }),
         { type: 'date', name: 'min', props: { label: t('min_value') } },
@@ -187,6 +231,7 @@ export function createFormComponents(t: (key: string) => string) {
     radio_group: {
       label: t('radio_group'),
       component: markRaw(RadioGroup),
+      validation: stringValidation,
       propsSchema: [
         ...commonSchema({ placeholder: false, t }),
         optionsSchema({ t }),
@@ -195,6 +240,7 @@ export function createFormComponents(t: (key: string) => string) {
     textarea: {
       label: t('free_text'),
       component: markRaw(Textarea),
+      validation: stringValidation,
       propsSchema: [
         ...commonSchema({ t }),
         { type: 'number', name: 'rows', props: { label: t('rows'), min: 1 } },
@@ -203,6 +249,7 @@ export function createFormComponents(t: (key: string) => string) {
     repeater: {
       label: t('repeater'),
       component: markRaw(Repeater),
+      validation: listValidation,
       isList: true,
       propsSchema: [
         ...commonSchema({ help: false, placeholder: false, t }),
@@ -227,6 +274,7 @@ export function createFormComponents(t: (key: string) => string) {
     file_upload: {
       label: t('file_upload'),
       component: markRaw(FileUpload),
+      validation: stringValidation,
       propsSchema: [
         ...commonSchema({ help: false, placeholder: false, t }),
         { type: 'text', name: 'accept', props: { label: t('accept') } },
@@ -235,6 +283,7 @@ export function createFormComponents(t: (key: string) => string) {
     combo_box: {
       label: t('combo_box'),
       component: markRaw(ComboBox),
+      validation: stringValidation,
       propsSchema: [
         ...commonSchema({ t }),
         optionsSchema({ t }),

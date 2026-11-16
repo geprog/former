@@ -6,10 +6,16 @@
 import type { FormData } from '~/types';
 import { computed, onUnmounted, ref, toRef, watch } from 'vue';
 import { inject, provide } from '~/compositions/injectProvide';
-import { nanoid } from '~/utils';
+import { dataScopesOfListItem, nanoid } from '~/utils';
 
-const props = defineProps<{ data: FormData }>();
+// `index` is the position of the data in the list of the parent (e.g. a repeater) for the path of its scope
+const props = defineProps<{ data: FormData; index: number }>();
 const data = toRef(props, 'data');
+
+// the data is the scope of the nodes inside of it, e.g. of the fields of a repeater item
+const parentNode = inject('node', false);
+const parentDataScopes = inject('dataScopes', false);
+provide('dataScopes', computed(() => dataScopesOfListItem(parentNode?.value, props.data, props.index, parentDataScopes?.value ?? [])));
 
 provide('data', data);
 

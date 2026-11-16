@@ -9,6 +9,8 @@ export { default as FormRenderer } from './components/FormRenderer.vue';
 export { usePresetValue } from './compositions/usePresetValue';
 
 export type {
+  DataPath,
+  DataScope,
   FieldData,
   FormComponents,
   FormData,
@@ -17,7 +19,8 @@ export type {
   Mode,
   SchemaNode,
   ShowIfPredicate,
-  Validator,
+  ValidationContext,
 } from './types';
 
 export { hasValue, isNodeLayoutComponent, nodeChildren } from './utils';
+export type { StandardSchemaV1 } from './validation';

@@ -1,6 +1,6 @@
 import type { FieldData, FormData, SchemaNode } from '~/types';
 import { computed, type MaybeRefOrGetter, toValue } from 'vue';
-import { hasValue, nodeChildren } from '~/utils';
+import { hasValue, isListNode, nodeChildren } from '~/utils';
 import { inject } from './injectProvide';
 
 // whether any of the nodes shows something in read mode for the given data,
@@ -32,9 +32,8 @@ export function useHasContent(
       }
       const value = fields[node.name];
       // the children of a list (e.g. a repeater) are only shown for its items, so an empty list shows nothing,
-      // while each item is shown even if it is empty,
-      // lists without data are detected by their component, as only an array tells them apart from e.g. groups otherwise
-      if (Array.isArray(value) || components?.value[node.type]?.isList) {
+      // while each item is shown even if it is empty
+      if (isListNode(node, value, components?.value ?? {})) {
         return Array.isArray(value) && value.length > 0;
       }
       // e.g. a group can show images without data

@@ -1,5 +1,7 @@
-import type { FormComponents } from '@former-ui/former';
+import type { FieldData, FormComponents, FormData } from '@former-ui/former';
+import { hasValue } from '@former-ui/former';
 import { markRaw } from 'vue';
+import { z } from 'zod';
 import Checkbox from './Checkbox.vue';
 import Columns from './Columns.vue';
 import Group from './Group.vue';
@@ -7,10 +9,15 @@ import Repeater from './Repeater.vue';
 import Select from './Select.vue';
 import TextInput from './TextInput.vue';
 
+// validates the `required` prop of the nodes, including the props of the nodes in build mode
+const requiredValidation: FormComponents[string]['validation'] = ({ required }) =>
+  (required ? z.custom(value => hasValue(value as FieldData | FormData), 'Value is required') : undefined);
+
 export const sampleFormComponents: FormComponents = {
   text: {
     label: 'Text',
     component: markRaw(TextInput),
+    validation: requiredValidation,
     propsSchema: [
       {
         type: 'text',
@@ -57,6 +64,7 @@ export const sampleFormComponents: FormComponents = {
   group: {
     label: 'Group',
     component: markRaw(Group),
+    validation: requiredValidation,
     propsSchema: [
       {
         type: 'text',
@@ -77,6 +85,8 @@ export const sampleFormComponents: FormComponents = {
   repeater: {
     label: 'Repeater',
     component: markRaw(Repeater),
+    validation: requiredValidation,
+    isList: true,
     propsSchema: [
       {
         type: 'text',
@@ -100,6 +110,7 @@ export const sampleFormComponents: FormComponents = {
   select: {
     label: 'Select',
     component: markRaw(Select),
+    validation: requiredValidation,
     propsSchema: [
       {
         type: 'text',
@@ -150,6 +161,7 @@ export const sampleFormComponents: FormComponents = {
   checkbox: {
     label: 'Checkbox',
     component: markRaw(Checkbox),
+    validation: requiredValidation,
     propsSchema: [
       {
         type: 'text',

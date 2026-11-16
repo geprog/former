@@ -1,4 +1,4 @@
-import type { FormData } from '~/types';
+import type { DataScope, FormData } from '~/types';
 import { mount } from '@vue/test-utils';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { defineComponent, h, nextTick, ref, type Ref, unref } from 'vue';
@@ -44,7 +44,7 @@ describe('component FormDataProvider', () => {
   it('throws when validityMap is not provided by an ancestor', () => {
     expect(() =>
       mount(FormDataProvider, {
-        props: { data: {} },
+        props: { data: {}, index: 0 },
         attachTo: document.body,
       }),
     ).toThrow('Please provide a value for validityMap');
@@ -66,7 +66,7 @@ describe('component FormDataProvider', () => {
 
     const wrapper = mount(FormDataProvider, {
       attachTo: document.body,
-      props: { data: formData.value },
+      props: { data: formData.value, index: 0 },
       global: {
         provide: { validityMap: rootValidityMap },
       },
@@ -91,7 +91,7 @@ describe('component FormDataProvider', () => {
     const formData = ref<FormData>({ item: 1 });
     const wrapper = mount(FormDataProvider, {
       attachTo: document.body,
-      props: { data: formData.value },
+      props: { data: formData.value, index: 0 },
       global: {
         provide: { validityMap: rootValidityMap },
       },
@@ -107,7 +107,7 @@ describe('component FormDataProvider', () => {
     const formData = ref<FormData>({ item: 1 });
     const wrapper = mount(FormDataProvider, {
       attachTo: document.body,
-      props: { data: formData.value },
+      props: { data: formData.value, index: 0 },
       global: {
         provide: { validityMap: rootValidityMap },
       },
@@ -127,7 +127,7 @@ describe('component FormDataProvider', () => {
     const formData = ref<FormData>({ item: 1 });
     const wrapper = mount(FormDataProvider, {
       attachTo: document.body,
-      props: { data: formData.value },
+      props: { data: formData.value, index: 0 },
       global: {
         provide: { validityMap: rootValidityMap },
       },
@@ -136,6 +136,41 @@ describe('component FormDataProvider', () => {
     expect(rootValidityMap.value[OUTER_ID]).toBe(true);
     wrapper.unmount();
     expect(rootValidityMap.value[OUTER_ID]).toBeUndefined();
+  });
+
+  describe('scope of the data', () => {
+    const repeater = { _id: 'r', type: 'repeater', name: 'items' };
+
+    function mountItem(props: { data: FormData; index: number }, list: FormData[]) {
+      let scopes: DataScope[] | undefined;
+      const ScopesProbe = defineComponent({
+        setup() {
+          scopes = inject('dataScopes', false)?.value;
+          return () => h('span');
+        },
+      });
+      mount(FormDataProvider, {
+        attachTo: document.body,
+        props,
+        global: {
+          provide: {
+            validityMap: ref({}),
+            data: ref(list),
+            node: ref(repeater),
+            dataScopes: ref([{ data: { items: list }, path: [] }]),
+          },
+        },
+        slots: { default: () => h(ScopesProbe) },
+      });
+      return scopes!;
+    }
+
+    it('uses the passed index, e.g. for an item contained twice in the list', () => {
+      const item = { a: 1 };
+      const scopes = mountItem({ data: item, index: 1 }, [item, item]);
+      expect(scopes[0]).toMatchObject({ data: item, path: ['items', 1] });
+      expect(scopes[1].path).toEqual([]);
+    });
   });
 
   describe('nested FormDataProvider', () => {
@@ -178,7 +213,7 @@ describe('component FormDataProvider', () => {
 
       const wrapper = mount(FormDataProvider, {
         attachTo: document.body,
-        props: { data: outerData.value },
+        props: { data: outerData.value, index: 0 },
         global: {
           provide: { validityMap: rootValidityMap },
         },
@@ -186,7 +221,7 @@ describe('component FormDataProvider', () => {
           default: () =>
             h(CaptureOuterChildrenMap, {}, {
               default: () =>
-                h(FormDataProvider, { data: innerData.value }, {
+                h(FormDataProvider, { data: innerData.value, index: 0 }, {
                   default: () => h(InnerValidityProbe),
                 }),
             }),

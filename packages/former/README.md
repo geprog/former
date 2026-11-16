@@ -253,18 +253,55 @@ For more detailed usage example check out the [Playground](https://github.com/ge
 
 ## Form data and validation
 
-Pass a `validator` to `Former` to validate the fields. It is called with the node and its value and returns `true` or an error message:
+Each component validates its data with a schema built from the props of its node, e.g. `required`, `min` or `max`. Add a `validation` to its definition in the `components`, which is applied to every node of the component, including the props of the nodes in build mode. The first issue of the schema is passed as `error` to the component, while a form with an error emits `valid` as `false`.
+
+The validation supports [Standard Schema](https://standardschema.dev), so any compliant library like [Zod](https://zod.dev), [Valibot](https://valibot.dev), [ArkType](https://arktype.io) or [Yup](https://github.com/jquense/yup) can be used, also with async schemas:
 
 ```ts
-function validator(node: SchemaNode, data: FieldData | FormData): true | string {
-  if (node.props?.required && (data === undefined || data === null || data === '')) {
-    return 'Value is required';
-  }
-  return true;
-}
+import { z } from 'zod';
+
+const components: FormComponents = {
+  number: {
+    label: 'Number',
+    component: NumberField,
+    propsSchema: [/* ... */],
+    validation: ({ required, min, max }) => {
+      let schema = z.number('Not a number');
+      if (min !== undefined) {
+        schema = schema.min(min, `At least ${min}`);
+      }
+      if (max !== undefined) {
+        schema = schema.max(max, `At most ${max}`);
+      }
+      return required ? schema : schema.nullish();
+    },
+  },
+};
 ```
 
-When the user clears a field, its value is set to `null` instead of being removed from the data. This way the key survives JSON serialization and e.g. a preset value is not applied again after the data was saved and loaded. A field that was never filled in is `undefined`, so check for both when testing for an empty value. The exported `hasValue` helper treats `undefined`, `null`, `''`, `false` and empty lists and objects without any filled in value as empty, while a list with items counts as filled in even if its items are empty.
+The second parameter of the validation is the context of the node, so the validation can be relative to other data:
+
+- `scopes`: all scopes containing the node from the closest one to the form data, e.g. `[repeater item, group, form]` for a field in a repeater item inside of a group. Each scope has its `data`, its `path` and the `node` providing it (the group or repeater, unset for the form)
+- `path`: the path of the data of the node in the form data, e.g. `['periods', 1, 'end']`
+- `node`: the node itself
+
+```ts
+// the end of a period must not be before the start of the same repeater item
+const validation: FormFieldType['validation'] = (props, { scopes }) => {
+  // the data of a scope is unset until something was filled in
+  const { start } = (scopes[0].data ?? {}) as FormData;
+  const end = typeof start === 'number' ? z.number().min(start, 'The end must be after the start') : z.number();
+  return end.nullish();
+};
+```
+
+Data from outside of the form (e.g. options loaded from a server) can be used by creating the `components` in a function receiving it.
+
+Hidden nodes (see `showIf`) are not validated.
+
+While an async schema is pending, the form emits `valid` as `false`. If the validation throws or its promise rejects (e.g. a server isn't reachable), the message of the error is passed as `error` to the component.
+
+When the user clears a field, its value is set to `null` instead of being removed from the data. This way the key survives JSON serialization and e.g. a preset value is not applied again after the data was saved and loaded. A field that was never filled in is `undefined`, so check for both when testing for an empty value. The exported `hasValue` helper treats `undefined`, `null`, `''`, `false` and empty lists and objects without any filled in value as empty, while a list with items counts as filled in even if its items are empty. With a schema, optional fields therefore need to accept `null` as well, e.g. with `.nullish()` of Zod. Cleared props on the other hand are passed to the `validation` (like to the components) as not set.
 
 ## Ready-to-use components
 

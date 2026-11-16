@@ -1,0 +1,477 @@
+import type { FormComponents, FormData, FormFieldType, SchemaNode, ValidationContext } from '~/types';
+import type { StandardSchemaV1 } from '~/validation';
+import { flushPromises, mount } from '@vue/test-utils';
+import * as v from 'valibot';
+import { describe, expect, it, vi } from 'vitest';
+import { defineComponent, h, markRaw, type PropType } from 'vue';
+import * as yup from 'yup';
+import { z } from 'zod';
+import FormDataProvider from './FormDataProvider.vue';
+import Former from './Former.vue';
+import FormRenderer from './FormRenderer.vue';
+
+const TextField = defineComponent({
+  props: { label: String, modelValue: null, error: String, mode: String, id: String },
+  emits: ['update:modelValue'],
+  setup(props, { emit }) {
+    return () => h('input', {
+      'data-label': props.label,
+      'data-error': props.error ?? '',
+      'value': props.modelValue ?? '',
+      'onInput': (event: Event) => emit('update:modelValue', (event.target as HTMLInputElement).value),
+    });
+  },
+});
+
+const Group = defineComponent({
+  props: { label: String, error: String },
+  setup(props) {
+    return () => h('fieldset', { 'data-label': props.label, 'data-error': props.error ?? '' }, [h(FormRenderer)]);
+  },
+});
+
+const Repeater = defineComponent({
+  props: { label: String, error: String, modelValue: Array as PropType<FormData[]> },
+  setup(props) {
+    return () => h('div', { 'data-label': props.label, 'data-error': props.error ?? '' }, (props.modelValue ?? []).map((item, index) =>
+      h(FormDataProvider, { data: item, index }, () => h(FormRenderer))));
+  },
+});
+
+// the validation of a text field in every library, with the same messages
+const textValidations: Record<string, FormFieldType['validation']> = {
+  zod: ({ required, email }) => {
+    if (email) {
+      return z.email('Invalid email').nullish();
+    }
+    return required ? z.string('Value is required').min(1, 'Value is required') : undefined;
+  },
+  yup: ({ required, email }) => {
+    if (email) {
+      return yup.string().email('Invalid email').nullable();
+    }
+    return required ? yup.string().required('Value is required') : undefined;
+  },
+  valibot: ({ required, email }) => {
+    if (email) {
+      return v.nullish(v.pipe(v.string(), v.email('Invalid email')));
+    }
+    return required ? v.pipe(v.string('Value is required'), v.minLength(1, 'Value is required')) : undefined;
+  },
+};
+
+const components: FormComponents = {
+  text: { label: 'Text', component: markRaw(TextField), propsSchema: [{ type: 'text', name: '$name' }, { type: 'text', name: 'required' }] },
+  group: { label: 'Group', component: markRaw(Group), propsSchema: [{ type: 'text', name: '$name' }] },
+  section: { label: 'Section', component: markRaw(Group), propsSchema: [] },
+  repeater: { label: 'Repeater', component: markRaw(Repeater), propsSchema: [{ type: 'text', name: '$name' }], isList: true },
+};
+
+function componentsOf(library: string): FormComponents {
+  return { ...components, text: { ...components.text, validation: textValidations[library] } };
+}
+
+const schema: SchemaNode[] = [
+  { type: 'text', name: 'name', props: { label: 'Name', required: true } },
+  { type: 'section', props: { label: 'Section' }, children: [{ type: 'text', name: 'email', props: { label: 'Email', email: true } }] },
+  { type: 'group', name: 'address', props: { label: 'Address' }, children: [{ type: 'text', name: 'street', props: { label: 'Street', required: true } }] },
+  { type: 'repeater', name: 'items', props: { label: 'Items' }, children: [{ type: 'text', name: 'title', props: { label: 'Title', required: true } }] },
+];
+
+const invalidData = (): FormData => ({ name: '', email: 'no-mail', address: { street: '' }, items: [{ title: 'first' }, { title: '' }] });
+const validData = (): FormData => ({ name: 'Jane', email: 'jane@example.com', address: { street: 'Main' }, items: [{ title: 'first' }, { title: 'second' }] });
+
+function last<T>(values: T[] | undefined) {
+  return values?.[values.length - 1];
+}
+
+async function settle() {
+  // async schemas (e.g. yup) resolve after a few microtasks
+  for (let i = 0; i < 5; i++) {
+    await flushPromises();
+  }
+}
+
+function mountFormer(props: Record<string, unknown>) {
+  const valid: boolean[] = [];
+  const wrapper = mount(Former, {
+    props: { schema, components, mode: 'edit', onValid: (value: boolean) => valid.push(value), ...props },
+  });
+  return { wrapper, valid };
+}
+
+function errorOf(wrapper: ReturnType<typeof mount>, label: string, index = 0) {
+  return wrapper.findAll(`[data-label="${label}"]`)[index]?.attributes('data-error');
+}
+
+describe.each(Object.keys(textValidations))('validation with %s', (library) => {
+  it('shows the errors at the nodes, also in groups and repeaters', async () => {
+    const { wrapper, valid } = mountFormer({ data: invalidData(), components: componentsOf(library) });
+    await settle();
+
+    expect(errorOf(wrapper, 'Name')).toBe('Value is required');
+    expect(errorOf(wrapper, 'Email')).toBe('Invalid email');
+    expect(errorOf(wrapper, 'Street')).toBe('Value is required');
+    expect(errorOf(wrapper, 'Title', 0)).toBe('');
+    expect(errorOf(wrapper, 'Title', 1)).toBe('Value is required');
+    // containers don't repeat the errors of their children
+    expect(errorOf(wrapper, 'Address')).toBe('');
+    expect(errorOf(wrapper, 'Items')).toBe('');
+    expect(errorOf(wrapper, 'Section')).toBe('');
+    expect(last(valid)).toBe(false);
+  });
+
+  it('becomes valid when the data is fixed by the user', async () => {
+    const { wrapper, valid } = mountFormer({ data: invalidData(), components: componentsOf(library) });
+    await settle();
+
+    await wrapper.find('[data-label="Name"]').setValue('Jane');
+    await wrapper.find('[data-label="Email"]').setValue('jane@example.com');
+    await wrapper.find('[data-label="Street"]').setValue('Main');
+    await wrapper.findAll('[data-label="Title"]')[1].setValue('second');
+    await settle();
+
+    expect(wrapper.findAll('[data-error]').every(field => field.attributes('data-error') === '')).toBe(true);
+    expect(last(valid)).toBe(true);
+    expect(last(wrapper.emitted('update:data'))?.[0]).toEqual(validData());
+  });
+
+  it('is valid for valid data', async () => {
+    const { wrapper, valid } = mountFormer({ data: validData(), components: componentsOf(library) });
+    await settle();
+
+    expect(wrapper.findAll('[data-error]').every(field => field.attributes('data-error') === '')).toBe(true);
+    expect(last(valid)).toBe(true);
+  });
+
+  it('treats a never filled in field as invalid', async () => {
+    const { wrapper, valid } = mountFormer({ data: {}, components: componentsOf(library) });
+    await settle();
+
+    expect(errorOf(wrapper, 'Name')).toBe('Value is required');
+    expect(errorOf(wrapper, 'Email')).toBe('');
+    expect(last(valid)).toBe(false);
+  });
+
+  it('ignores the errors of hidden nodes', async () => {
+    const { wrapper, valid } = mountFormer({
+      data: { ...validData(), name: '' },
+      components: componentsOf(library),
+      showIf: (node: SchemaNode) => node.name !== 'name',
+    });
+    await settle();
+
+    expect(wrapper.find('[data-label="Name"]').exists()).toBe(false);
+    expect(last(valid)).toBe(true);
+  });
+
+  it('doesn\'t validate hidden nodes, which are still shown in build mode', async () => {
+    const { wrapper } = mountFormer({
+      data: { ...validData(), name: '' },
+      components: componentsOf(library),
+      showIf: (node: SchemaNode) => node.name !== 'name',
+      mode: 'build',
+    });
+    await settle();
+
+    expect(errorOf(wrapper, 'Name')).toBe('');
+  });
+
+  it('validates the props of the nodes in build mode', async () => {
+    const schemaValid: boolean[] = [];
+    const propsComponents = componentsOf(library);
+    propsComponents.text = { ...propsComponents.text, propsSchema: [{ type: 'text', name: '$name', props: { required: true } }] };
+    mount(Former, {
+      props: {
+        schema: [{ type: 'text', name: '', props: { label: 'Name' } }],
+        components: propsComponents,
+        mode: 'build',
+        onSchemaValid: (value: boolean) => schemaValid.push(value),
+      },
+    });
+    await settle();
+
+    expect(last(schemaValid)).toBe(false);
+  });
+
+  it('becomes valid when an invalid node is removed', async () => {
+    const { wrapper, valid } = mountFormer({ schema: [schema[0]], components: componentsOf(library), data: {} });
+    await settle();
+    expect(last(valid)).toBe(false);
+
+    await wrapper.setProps({ schema: [] });
+    await settle();
+    expect(last(valid)).toBe(true);
+  });
+});
+
+it('uses the latest result of async validation', async () => {
+  let calls = 0;
+  const asyncRequired: StandardSchemaV1 = {
+    '~standard': {
+      version: 1,
+      vendor: 'test',
+      validate: async (value) => {
+        // the first validation resolves last
+        const delay = calls++ === 0 ? 20 : 0;
+        await new Promise(resolve => setTimeout(resolve, delay));
+        return value ? { value } : { issues: [{ message: 'Name is required' }] };
+      },
+    },
+  };
+  const { wrapper } = mountFormer({
+    schema: [schema[0]],
+    components: { text: { ...components.text, validation: () => asyncRequired } },
+    data: { name: '' },
+  });
+  await wrapper.find('[data-label="Name"]').setValue('Jane');
+  await new Promise(resolve => setTimeout(resolve, 40));
+  await flushPromises();
+
+  expect(errorOf(wrapper, 'Name')).toBe('');
+});
+
+describe('validation of components', () => {
+  const NumberField = defineComponent({
+    props: { label: String, modelValue: null, error: String },
+    emits: ['update:modelValue'],
+    setup(props, { emit }) {
+      return () => h('input', {
+        'data-label': props.label,
+        'data-error': props.error ?? '',
+        'value': props.modelValue ?? '',
+        'onInput': (event: Event) => emit('update:modelValue', Number((event.target as HTMLInputElement).value)),
+      });
+    },
+  });
+
+  const validatedComponents: FormComponents = {
+    ...components,
+    text: {
+      ...components.text,
+      validation: ({ required }) => (required ? z.string('Value is required').min(1, 'Value is required') : undefined),
+    },
+    number: {
+      label: 'Number',
+      component: markRaw(NumberField),
+      propsSchema: [{ type: 'text', name: '$name', props: { required: true } }, { type: 'number', name: 'min' }, { type: 'number', name: 'max' }],
+      validation: ({ min, max, minField }, { scopes }) => {
+        let schema = z.number('Not a number');
+        if (min !== undefined) {
+          schema = schema.min(min, `At least ${min}`);
+        }
+        if (max !== undefined) {
+          schema = schema.max(max, `At most ${max}`);
+        }
+        // relative to another field next to it, e.g. in the same repeater item
+        const otherValue = minField ? (scopes[0].data as FormData)[minField] : undefined;
+        if (typeof otherValue === 'number') {
+          schema = schema.min(otherValue, `At least ${minField}`);
+        }
+        return schema.nullish();
+      },
+    },
+  };
+
+  const periodsSchema: SchemaNode[] = [
+    { type: 'number', name: 'count', props: { label: 'Count', min: 1, max: 10 } },
+    {
+      type: 'group',
+      name: 'plan',
+      props: { label: 'Plan' },
+      children: [
+        { type: 'text', name: 'title', props: { label: 'Title', required: true } },
+        {
+          type: 'repeater',
+          name: 'periods',
+          props: { label: 'Periods' },
+          children: [
+            { type: 'number', name: 'start', props: { label: 'Start' } },
+            { type: 'number', name: 'end', props: { label: 'End', minField: 'start' } },
+          ],
+        },
+      ],
+    },
+  ];
+
+  function mountPeriods(data: FormData, props: Record<string, unknown> = {}) {
+    return mountFormer({ schema: periodsSchema, components: validatedComponents, data, ...props });
+  }
+
+  const validPeriods = (): FormData => ({ count: 2, plan: { title: 'Plan', periods: [{ start: 1, end: 2 }, { start: 3, end: 5 }] } });
+
+  it('validates the data with the schema built from the props of the node', async () => {
+    const { wrapper, valid } = mountPeriods({ count: 20, plan: { title: '', periods: [] } });
+    await settle();
+
+    expect(errorOf(wrapper, 'Count')).toBe('At most 10');
+    expect(errorOf(wrapper, 'Title')).toBe('Value is required');
+    expect(last(valid)).toBe(false);
+
+    await wrapper.find('[data-label="Count"]').setValue('5');
+    await wrapper.find('[data-label="Title"]').setValue('Plan');
+    await settle();
+
+    expect(errorOf(wrapper, 'Count')).toBe('');
+    expect(errorOf(wrapper, 'Title')).toBe('');
+    expect(last(valid)).toBe(true);
+  });
+
+  it('is valid for valid data', async () => {
+    const { valid } = mountPeriods(validPeriods());
+    await settle();
+
+    expect(last(valid)).toBe(true);
+  });
+
+  it('validates relative to the data of the repeater item', async () => {
+    const data = validPeriods();
+    (data.plan as FormData).periods = [{ start: 1, end: 2 }, { start: 5, end: 3 }];
+    const { wrapper, valid } = mountPeriods(data);
+    await settle();
+
+    expect(errorOf(wrapper, 'End', 0)).toBe('');
+    expect(errorOf(wrapper, 'End', 1)).toBe('At least start');
+    expect(last(valid)).toBe(false);
+
+    // changing the field the validation is relative to validates again
+    await wrapper.findAll('[data-label="Start"]')[1].setValue('2');
+    await settle();
+
+    expect(errorOf(wrapper, 'End', 1)).toBe('');
+    expect(last(valid)).toBe(true);
+  });
+
+  it('passes the context of the node to the validation', async () => {
+    const validation = vi.fn(() => undefined);
+    const data = validPeriods();
+    mountPeriods(data, { components: { ...validatedComponents, number: { ...validatedComponents.number, validation } } });
+    await settle();
+
+    const contexts = validation.mock.calls.map(call => (call as unknown[])[1] as ValidationContext);
+    const context = last(contexts.filter(context => context.node.name === 'end' && context.path[2] === 1))!;
+    expect(context.path).toEqual(['plan', 'periods', 1, 'end']);
+    expect(context.scopes.map(scope => scope.path)).toEqual([['plan', 'periods', 1], ['plan'], []]);
+    expect(context.scopes.map(scope => scope.node?.name)).toEqual(['periods', 'plan', undefined]);
+    expect(context.scopes.map(scope => scope.data)).toEqual([{ start: 3, end: 5 }, data.plan, data]);
+
+    const countContext = contexts.find(context => context.node.name === 'count')!;
+    expect(countContext.path).toEqual(['count']);
+    expect(countContext.scopes).toEqual([{ data, path: [] }]);
+    expect(validation).toHaveBeenCalledWith({ label: 'Count', min: 1, max: 10 }, expect.anything());
+  });
+
+  it('validates async schemas', async () => {
+    const asyncComponents: FormComponents = {
+      text: { ...components.text, validation: ({ required }) => (required ? yup.string().required('Async required') : undefined) },
+    };
+    const { wrapper, valid } = mountFormer({ schema: [schema[0]], components: asyncComponents, data: { name: '' } });
+    await settle();
+
+    expect(errorOf(wrapper, 'Name')).toBe('Async required');
+    expect(last(valid)).toBe(false);
+  });
+
+  it('is invalid while an async schema is pending', async () => {
+    const resolvers: Array<() => void> = [];
+    const pendingSchema: StandardSchemaV1 = {
+      '~standard': { version: 1, vendor: 'test', validate: value => new Promise(resolve => resolvers.push(() => resolve({ value }))) },
+    };
+    const pendingComponents: FormComponents = { text: { ...components.text, validation: () => pendingSchema } };
+    const { valid } = mountFormer({ schema: [schema[0]], components: pendingComponents, data: { name: 'Jane' } });
+    await settle();
+    expect(last(valid)).toBe(false);
+
+    resolvers.forEach(resolve => resolve());
+    await settle();
+    expect(last(valid)).toBe(true);
+  });
+
+  it('shows the error of a failing async schema', async () => {
+    const failingComponents: FormComponents = {
+      text: { ...components.text, validation: () => yup.string().test('server', 'unused', () => Promise.reject(new Error('Server not reachable'))) },
+    };
+    const { wrapper, valid } = mountFormer({ schema: [schema[0]], components: failingComponents, data: { name: 'Jane' } });
+    await settle();
+
+    expect(errorOf(wrapper, 'Name')).toBe('Server not reachable');
+    expect(last(valid)).toBe(false);
+  });
+
+  it('validates the props of the nodes in build mode', async () => {
+    const schemaValid: boolean[] = [];
+    mount(Former, {
+      props: {
+        schema: [{ type: 'number', name: '', props: { min: 1 } }],
+        components: validatedComponents,
+        mode: 'build',
+        onSchemaValid: (value: boolean) => schemaValid.push(value),
+      },
+    });
+    await settle();
+
+    // the technical name is a required text of the props
+    expect(last(schemaValid)).toBe(false);
+  });
+
+  it('validates the props of each node once in build mode', async () => {
+    const validation = vi.fn(() => z.string('Value is required'));
+    mount(Former, {
+      props: {
+        schema: [{ type: 'text', name: 'a', props: { label: 'A' } }, { type: 'text', name: 'b', props: { label: 'B' } }],
+        components: { ...components, text: { ...components.text, propsSchema: [{ type: 'name', name: '$name' }] }, name: { ...components.text, validation } },
+        mode: 'build',
+      },
+    });
+    await settle();
+
+    expect(validation).toHaveBeenCalledTimes(2);
+  });
+
+  it('validates the items of repeaters not marked as list (`isList`) relative to the item', async () => {
+    const contexts: ValidationContext[] = [];
+    const validation: FormFieldType['validation'] = (props, context) => {
+      contexts.push(context);
+      return z.string('Value is required').min(1, 'Value is required');
+    };
+    const { wrapper } = mountFormer({
+      schema: [schema[3]],
+      components: { ...components, text: { ...components.text, validation }, repeater: { ...components.repeater, isList: undefined } },
+      data: { items: [{ title: 'first' }, { title: '' }] },
+    });
+    await settle();
+
+    expect(errorOf(wrapper, 'Title', 1)).toBe('Value is required');
+    expect(contexts.map(context => context.path)).toContainEqual(['items', 1, 'title']);
+  });
+
+  it('validates the props of the nodes relative to the other props', async () => {
+    const schemaValid: boolean[] = [];
+    const propsComponents: FormComponents = {
+      ...validatedComponents,
+      number: {
+        ...validatedComponents.number,
+        // the technical name makes the number a field, so its props are validated as fields as well
+        propsSchema: [
+          { type: 'text', name: '$name' },
+          { type: 'number', name: 'min', props: { label: 'Min' } },
+          { type: 'number', name: 'max', props: { label: 'Max', minField: 'min' } },
+        ],
+      },
+    };
+    const wrapper = mount(Former, {
+      props: {
+        schema: [{ type: 'number', name: 'count', props: { min: 5, max: 1 } }],
+        components: propsComponents,
+        mode: 'build',
+        onSchemaValid: (value: boolean) => schemaValid.push(value),
+      },
+    });
+    await settle();
+    expect(last(schemaValid)).toBe(false);
+
+    await wrapper.setProps({ schema: [{ type: 'number', name: 'count', props: { min: 1, max: 5 } }] });
+    await settle();
+    expect(last(schemaValid)).toBe(true);
+  });
+});

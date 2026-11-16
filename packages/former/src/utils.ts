@@ -1,4 +1,4 @@
-import type { FieldData, FormComponents, FormData, InternalSchemaNode, SchemaNode } from './types';
+import type { DataPath, DataScope, FieldData, FormComponents, FormData, InternalSchemaNode, SchemaNode } from './types';
 
 // the children of a node, regardless of whether they are a list or grouped by category
 export function nodeChildren<Node extends SchemaNode | InternalSchemaNode>(node: Node): Node[] {
@@ -257,8 +257,60 @@ export function getNode(schema: InternalSchemaNode[], nodeId: string): InternalS
   return null;
 }
 
+// cleared props are stored as `null` so their preset isn't applied again, but components and validations should see them as not set
+export function propsOf(node: SchemaNode): { [key: string]: any } {
+  return Object.fromEntries(Object.entries(node.props ?? {}).filter(([, value]) => value !== null));
+}
+
 export function isNodeLayoutComponent(node: SchemaNode, components: FormComponents): boolean {
   return !(components[node.type]?.propsSchema || []).some(prop => prop.name === '$name');
+}
+
+// the data of a node in the data of its parent: layout components pass the data of their parent through,
+// while named nodes get their field of it
+export function dataOfNode(node: SchemaNode, data: FieldData | FormData, components: FormComponents): FieldData | FormData {
+  if (isNodeLayoutComponent(node, components)) {
+    return data;
+  }
+  if (!node.name) {
+    return undefined;
+  }
+  if (data === null || Array.isArray(data) || typeof data !== 'object') {
+    return data;
+  }
+  return data[node.name];
+}
+
+// the path of the data of a node in the form data, the data is always in the closest scope,
+// as only scopes (e.g. groups) contain nested data, while layout components pass the data of their parent through
+export function dataPathOfNode(node: SchemaNode, scopes: DataScope[], components: FormComponents): DataPath {
+  const path = scopes[0]?.path ?? [];
+  return isNodeLayoutComponent(node, components) || !node.name ? path : [...path, node.name];
+}
+
+// whether the data of a node is a list whose items each render its children (e.g. a repeater),
+// lists without data are detected by their component, as only an array tells them apart from e.g. groups otherwise
+export function isListNode(node: SchemaNode, nodeData: FieldData | FormData, components: FormComponents): boolean {
+  return Array.isArray(nodeData) || !!components[node.type]?.isList;
+}
+
+// the scopes of the children of a node, the data of a named node with children (e.g. a group) is the scope of its
+// children, while the items of lists (e.g. repeaters) are the scopes of their children (see `dataScopesOfListItem`)
+export function dataScopesOfChildren(node: SchemaNode, data: FieldData | FormData, scopes: DataScope[], components: FormComponents): DataScope[] {
+  if (isNodeLayoutComponent(node, components) || !node.name || !node.children) {
+    return scopes;
+  }
+  const nodeData = dataOfNode(node, data, components);
+  if (isListNode(node, nodeData, components)) {
+    return scopes;
+  }
+  return [{ node, data: nodeData, path: dataPathOfNode(node, scopes, components) }, ...scopes];
+}
+
+// the scopes of the nodes in the item at `index` of a list (e.g. a repeater), the list is in the closest scope
+export function dataScopesOfListItem(list: SchemaNode | undefined, item: FormData, index: number, scopes: DataScope[]): DataScope[] {
+  const listPath = [...(scopes[0]?.path ?? []), ...(list?.name ? [list.name] : [])];
+  return [{ node: list, data: item, path: [...listPath, index] }, ...scopes];
 }
 
 export function unsetDataOfNode(node: InternalSchemaNode, data: FormData | FieldData | undefined, components: FormComponents) {

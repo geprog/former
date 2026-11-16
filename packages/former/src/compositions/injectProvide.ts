@@ -1,4 +1,4 @@
-import type { FieldData, FormComponents, FormData, InternalSchemaNode, InternalShowIfPredicate, Mode, SchemaNode, Texts, Validator } from '~/types';
+import type { DataScope, FieldData, FormComponents, FormData, InternalSchemaNode, InternalShowIfPredicate, Mode, Texts } from '~/types';
 import { getCurrentInstance, type InjectionKey, type Ref, inject as vueInject, provide as vueProvide } from 'vue';
 
 export type InjectKeys = {
@@ -10,14 +10,16 @@ export type InjectKeys = {
   components: Ref<FormComponents>;
   selectedNode: Ref<InternalSchemaNode | undefined>;
   validityMap: Ref<Record<string, boolean | undefined>>;
+  // whether the props of each node are valid by its id, or the message of a failing validation (see `useSchema`)
+  propsValidity: Ref<Record<string, boolean | string>>;
   showIf?: InternalShowIfPredicate;
-  validator: Validator;
+  // the scopes of data the nodes are relative to (e.g. groups or repeater items), closest first,
+  // to find the issues of nodes and passed to the validation of components
+  dataScopes?: Ref<DataScope[]>;
   texts: Ref<Texts>;
   node: Ref<InternalSchemaNode>;
   hasDataKey?: Ref<boolean>;
   isShown?: Ref<boolean>;
-  rootData: Ref<FormData>;
-  rootSchema: Ref<SchemaNode[]>;
 };
 
 export function inject<T extends keyof InjectKeys>(key: T): InjectKeys[T];

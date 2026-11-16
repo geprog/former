@@ -40,7 +40,8 @@
     "@internationalized/date": "^3.0.0",
     "@nuxt/ui": "^4.7.0",
     "vue": "^3.5.0",
-    "vue-i18n": "^11.0.0"
+    "vue-i18n": "^11.0.0",
+    "zod": "^4.0.0"
   },
   "devDependencies": {
     "@former-ui/former": "workspace:*",
@@ -60,6 +61,7 @@
     "vue": "3.5.21",
     "vue-i18n": "11.2.2",
     "vue-sfc-transformer": "0.1.17",
-    "vue-tsc": "3.0.7"
+    "vue-tsc": "3.0.7",
+    "zod": "4.6.7"
   }
 }

@@ -39,5 +39,10 @@
   "options_label_help": "The text that is shown, the technical value is shown if it is empty",
   "optional": "Optional",
   "repeater_item": "Item",
-  "add_item": "Add {item}"
+  "add_item": "Add {item}",
+  "error_required": "This field is required",
+  "error_min_value": "Must be at least {min}",
+  "error_max_value": "Must be at most {max}",
+  "error_min_date": "Must be on or after {min}",
+  "error_max_date": "Must be on or before {max}"
 }

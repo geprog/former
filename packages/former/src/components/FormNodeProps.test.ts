@@ -1,4 +1,4 @@
-import type { FormComponents, InternalSchemaNode, Validator } from '~/types';
+import type { FormComponents, InternalSchemaNode } from '~/types';
 import { mount } from '@vue/test-utils';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { defineComponent, h, nextTick, ref, type Ref } from 'vue';
@@ -48,7 +48,6 @@ describe('component FormNodeProps', () => {
     const schema = ref<InternalSchemaNode[]>([
       { _id: 'node-1', type: 'text', name: 'myField', props: { custom: 'orig' } },
     ]);
-    const validator: Validator = () => true;
     const wrapper = mount(FormNodeProps, {
       shallow: true,
       attachTo: document.body,
@@ -57,7 +56,6 @@ describe('component FormNodeProps', () => {
         provide: {
           components: MINIMAL_COMPONENTS,
           schema,
-          validator,
           selectedNode,
         },
       },
@@ -71,7 +69,6 @@ describe('component FormNodeProps', () => {
       const schema = ref<InternalSchemaNode[]>([
         { _id: 'node-1', type: 'text', name: 'myField', props: { custom: 'orig' } },
       ]);
-      const validator: Validator = () => true;
       const wrapper = mount(FormNodeProps, {
         shallow: true,
         attachTo: document.body,
@@ -80,7 +77,6 @@ describe('component FormNodeProps', () => {
           provide: {
             components: MINIMAL_COMPONENTS,
             schema,
-            validator,
             selectedNode,
           },
         },
@@ -97,7 +93,6 @@ describe('component FormNodeProps', () => {
       const schema = ref<InternalSchemaNode[]>([
         { _id: 'node-1', type: 'text', name: 'myField', props: { custom: 'orig' } },
       ]);
-      const validator: Validator = () => true;
       const wrapper = mount(FormNodeProps, {
         shallow: true,
         attachTo: document.body,
@@ -106,7 +101,6 @@ describe('component FormNodeProps', () => {
           provide: {
             components: MINIMAL_COMPONENTS,
             schema,
-            validator,
             selectedNode,
           },
         },
@@ -128,7 +122,6 @@ describe('component FormNodeProps', () => {
       const schema = ref<InternalSchemaNode[]>([
         { _id: 'node-1', type: 'text', name: 'myField', props: { custom: 'orig' } },
       ]);
-      const validator: Validator = () => true;
       const wrapper = mount(FormNodeProps, {
         shallow: true,
         attachTo: document.body,
@@ -137,7 +130,6 @@ describe('component FormNodeProps', () => {
           provide: {
             components: MINIMAL_COMPONENTS,
             schema,
-            validator,
             selectedNode,
           },
         },
@@ -155,7 +147,6 @@ describe('component FormNodeProps', () => {
       const schema = ref<InternalSchemaNode[]>([
         { _id: 'node-1', type: 'missing-type', name: 'myField', props: { custom: 'orig' } },
       ]);
-      const validator: Validator = () => true;
       const wrapper = mount(FormNodeProps, {
         shallow: true,
         attachTo: document.body,
@@ -164,7 +155,6 @@ describe('component FormNodeProps', () => {
           provide: {
             components: ref({}),
             schema,
-            validator,
             selectedNode,
           },
         },
@@ -182,7 +172,6 @@ describe('component FormNodeProps', () => {
       const schema = ref<InternalSchemaNode[]>([
         { _id: 'node-1', type: 'text', name: 'VisibleName', props: { custom: 'orig' } },
       ]);
-      const validator: Validator = () => true;
       const wrapper = mount(FormNodeProps, {
         shallow: true,
         attachTo: document.body,
@@ -191,7 +180,6 @@ describe('component FormNodeProps', () => {
           provide: {
             components: MINIMAL_COMPONENTS,
             schema,
-            validator,
             selectedNode,
           },
         },
@@ -209,7 +197,6 @@ describe('component FormNodeProps', () => {
       const schema = ref<InternalSchemaNode[]>([
         { _id: 'node-1', type: 'text', name: '', props: { custom: 'orig' } },
       ]);
-      const validator: Validator = () => true;
       const wrapper = mount(FormNodeProps, {
         shallow: true,
         attachTo: document.body,
@@ -218,7 +205,6 @@ describe('component FormNodeProps', () => {
           provide: {
             components: MINIMAL_COMPONENTS,
             schema,
-            validator,
             selectedNode,
           },
         },
@@ -240,7 +226,6 @@ describe('component FormNodeProps', () => {
       const schema = ref<InternalSchemaNode[]>([
         { _id: 'node-1', type: 'text', name: 'myField', props: { custom: 'orig' } },
       ]);
-      const validator: Validator = () => true;
       mount(FormNodeProps, {
         shallow: true,
         attachTo: document.body,
@@ -249,7 +234,6 @@ describe('component FormNodeProps', () => {
           provide: {
             components,
             schema,
-            validator,
             selectedNode,
           },
         },
@@ -271,7 +255,6 @@ describe('component FormNodeProps', () => {
       const schema = ref<InternalSchemaNode[]>([
         { _id: 'node-1', type: 'text', name: 'myField', props: { custom: 'orig' } },
       ]);
-      const validator: Validator = () => true;
       const wrapper = mount(FormNodeProps, {
         shallow: true,
         attachTo: document.body,
@@ -280,7 +263,6 @@ describe('component FormNodeProps', () => {
           provide: {
             components: MINIMAL_COMPONENTS,
             schema,
-            validator,
             selectedNode,
           },
         },
@@ -294,7 +276,6 @@ describe('component FormNodeProps', () => {
       const node: InternalSchemaNode = { _id: 'node-1', type: 'orphan', name: 'myField', props: { custom: 'orig' } };
       const selectedNode = ref<InternalSchemaNode | undefined>(node);
       const schema = ref<InternalSchemaNode[]>([node]);
-      const validator: Validator = () => true;
       const wrapper = mount(FormNodeProps, {
         shallow: true,
         attachTo: document.body,
@@ -303,7 +284,6 @@ describe('component FormNodeProps', () => {
           provide: {
             components: ref({}),
             schema,
-            validator,
             selectedNode,
           },
         },
@@ -324,7 +304,6 @@ describe('component FormNodeProps', () => {
       const schema = ref<InternalSchemaNode[]>([
         { _id: 'node-1', type: 'text', name: 'myField', props: { custom: 'orig' } },
       ]);
-      const validator: Validator = () => true;
       const wrapper = mount(FormNodeProps, {
         shallow: true,
         attachTo: document.body,
@@ -333,7 +312,6 @@ describe('component FormNodeProps', () => {
           provide: {
             components: MINIMAL_COMPONENTS,
             schema,
-            validator,
             selectedNode,
           },
         },
@@ -354,7 +332,6 @@ describe('component FormNodeProps', () => {
       const schema = ref<InternalSchemaNode[]>([
         { _id: 'node-1', type: 'text', name: 'myField', props: { custom: 'orig' } },
       ]);
-      const validator: Validator = () => true;
       const wrapper = mount(FormNodeProps, {
         shallow: true,
         attachTo: document.body,
@@ -363,7 +340,6 @@ describe('component FormNodeProps', () => {
           provide: {
             components: MINIMAL_COMPONENTS,
             schema,
-            validator,
             selectedNode,
           },
         },
@@ -387,7 +363,6 @@ describe('component FormNodeProps', () => {
       const schema = ref<InternalSchemaNode[]>([
         { _id: 'node-1', type: 'text', name: 'myField', props: { custom: 'orig' } },
       ]);
-      const validator: Validator = () => true;
       const wrapper = mount(FormNodeProps, {
         shallow: true,
         attachTo: document.body,
@@ -396,7 +371,6 @@ describe('component FormNodeProps', () => {
           provide: {
             components: MINIMAL_COMPONENTS,
             schema,
-            validator,
             selectedNode,
           },
         },
@@ -423,7 +397,6 @@ describe('component FormNodeProps', () => {
       const schema = ref<InternalSchemaNode[]>([
         { _id: 'node-1', type: 'text', name: 'myField', props: { label: 'Label', min: 1, keep: 0 } },
       ]);
-      const validator: Validator = () => true;
       const wrapper = mount(FormNodeProps, {
         shallow: true,
         attachTo: document.body,
@@ -432,7 +405,6 @@ describe('component FormNodeProps', () => {
           provide: {
             components: MINIMAL_COMPONENTS,
             schema,
-            validator,
             selectedNode,
           },
         },
@@ -455,7 +427,6 @@ describe('component FormNodeProps', () => {
       const schema = ref<InternalSchemaNode[]>([
         { _id: 'node-1', type: 'text', name: 'myField', props: { custom: 'orig' } },
       ]);
-      const validator: Validator = () => true;
       const wrapper = mount(FormNodeProps, {
         shallow: true,
         attachTo: document.body,
@@ -464,7 +435,6 @@ describe('component FormNodeProps', () => {
           provide: {
             components: MINIMAL_COMPONENTS,
             schema,
-            validator,
             selectedNode,
           },
         },
@@ -486,7 +456,6 @@ describe('component FormNodeProps', () => {
       const schema = ref<InternalSchemaNode[]>([
         { _id: 'node-1', type: 'text', name: 'myField', props: { custom: 'orig' } },
       ]);
-      const validator: Validator = () => true;
       const wrapper = mount(FormNodeProps, {
         shallow: true,
         attachTo: document.body,
@@ -495,7 +464,6 @@ describe('component FormNodeProps', () => {
           provide: {
             components: MINIMAL_COMPONENTS,
             schema,
-            validator,
             selectedNode,
           },
         },
@@ -534,7 +502,6 @@ describe('component FormNodeProps', () => {
       const schema = ref<InternalSchemaNode[]>([
         { _id: 'node-1', type: 'text', name: 'myField', props: { custom: 'orig' } },
       ]);
-      const validator: Validator = () => true;
       const wrapper = mount(FormNodeProps, {
         shallow: true,
         attachTo: document.body,
@@ -543,7 +510,6 @@ describe('component FormNodeProps', () => {
           provide: {
             components: MINIMAL_COMPONENTS,
             schema,
-            validator,
             selectedNode,
           },
         },

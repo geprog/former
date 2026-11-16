@@ -5,7 +5,7 @@
 </template>
 
 <script setup lang="ts">
-import type { FormComponents, FormData, InternalSchemaNode, Mode, SchemaNode, ShowIfPredicate, Texts, Validator } from '~/types';
+import type { FormComponents, FormData, InternalSchemaNode, Mode, SchemaNode, ShowIfPredicate, Texts } from '~/types';
 import { cloneDeep, isEqual } from 'lodash';
 import { computed, ref, toRef, watch } from 'vue';
 import { provide } from '~/compositions/injectProvide';
@@ -16,7 +16,6 @@ import FormContent from './FormContent.vue';
 const props = withDefaults(defineProps<{
   components: FormComponents;
   showIf?: ShowIfPredicate;
-  validator?: Validator;
   mode?: Mode;
   texts?: Partial<Texts>;
   isUpdating?: boolean;
@@ -71,8 +70,6 @@ watch(wrappedData, () => {
 }, { deep: true });
 
 provide('data', wrappedData);
-provide('rootData', wrappedData);
-provide('rootSchema', schema);
 
 provide('mode', toRef(props, 'mode'));
 provide('components', toRef(props, 'components'));
@@ -84,10 +81,11 @@ provide('showIf', (node: SchemaNode) => {
   return props.showIf(node, wrappedData.value, schema.value);
 });
 
-const validator = props.validator || (() => true);
-provide('validator', validator);
+// reset the scopes for nested forms (e.g. the props form of the selected node)
+provide('dataScopes', computed(() => [{ data: wrappedData.value, path: [] }]));
 
-const { isValid: isSchemaValid } = useSchema(internalSchema, validator, toRef(props, 'components'));
+const { isValid: isSchemaValid, propsValidity } = useSchema(internalSchema, toRef(props, 'components'));
+provide('propsValidity', propsValidity);
 watch(isSchemaValid, () => {
   emit('schemaValid', isSchemaValid.value);
 }, { immediate: true });
@@ -113,5 +111,5 @@ const selectedNode = ref<InternalSchemaNode | undefined>(undefined);
 provide('selectedNode', selectedNode);
 
 const texts = toRef(props, 'texts');
-provide('texts', computed<Texts>(() => ({ dragHint: 'Here you can drag elements', ...texts.value })));
+provide('texts', computed<Texts>(() => ({ dragHint: 'Here you can drag elements', invalidSchema: 'Invalid schema', ...texts.value })));
 </script>

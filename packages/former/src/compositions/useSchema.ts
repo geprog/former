@@ -1,21 +1,22 @@
-import type { FormComponents, InternalSchemaNode, Validator } from '~/types';
+import type { FormComponents, InternalSchemaNode } from '~/types';
 import { computed, type MaybeRefOrGetter, type Ref, toValue } from 'vue';
 import { schemaIterator } from '~/utils';
+import { isPromiseLike, propsValidityOfNode, useMaybeAsync } from '~/validation';
 
-export function isNodeValid(node: InternalSchemaNode, validator: Validator, components: FormComponents) {
-  const component = components[node.type];
-  // nodes of unknown components (e.g. after switching the components) can't be rendered or validated
-  if (!component) {
-    return false;
-  }
-  return component.propsSchema.every(propsNode =>
-    validator(propsNode, propsNode.name === '$name' ? node.name : (node.props || {})[propsNode.name || '']) === true);
-}
+export type PropsValidity = Record<string, boolean | string>;
 
-export default function useSchema(schema: Ref<InternalSchemaNode[]>, validator: Validator, components: MaybeRefOrGetter<FormComponents>) {
-  const isValid = computed(() => {
-    return [...schemaIterator(schema.value)].every(node => isNodeValid(node, validator, toValue(components)));
-  });
+export default function useSchema(schema: Ref<InternalSchemaNode[]>, components: MaybeRefOrGetter<FormComponents>) {
+  // the validity of the props of each node by its id, or the message of a failing validation,
+  // validated once for the whole schema, while the nodes only show their result (see `FormNode`)
+  const { result: propsValidity, isPending } = useMaybeAsync<PropsValidity>(() => {
+    const nodes = [...schemaIterator(schema.value)];
+    const results = nodes.map(node => propsValidityOfNode(node, toValue(components)));
+    const byId = (resolved: (boolean | string)[]) => Object.fromEntries(nodes.map((node, index) => [node._id, resolved[index]]));
+    return results.some(isPromiseLike) ? Promise.all(results).then(byId) : byId(results as (boolean | string)[]);
+  }, {}, () => ({}));
 
-  return { isValid };
+  // the schema isn't valid until all of its async validations are done
+  const isValid = computed(() => !isPending.value && Object.values(propsValidity.value).every(validity => validity === true));
+
+  return { isValid, propsValidity };
 }

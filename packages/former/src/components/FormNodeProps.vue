@@ -32,7 +32,6 @@
       :schema="selectedNodePropsSchema"
       mode="edit"
       :components
-      :validator
       @valid="$emit('valid', $event)"
     />
     <pre v-else>{{ selectedNode }}</pre>
@@ -53,7 +52,6 @@ defineEmits<{
 
 const components = inject('components');
 const schema = inject('schema');
-const validator = inject('validator');
 
 const selectedNode = inject('selectedNode');
 
