@@ -80,13 +80,13 @@ function mountUseNode(options: MountUseNodeOptions) {
     },
   });
 
-  mount(Parent);
+  const wrapper = mount(Parent);
 
   if (!useNodeResult) {
     throw new Error('useNodeResult is undefined');
   }
 
-  return { ...useNodeResult, data, validityMap };
+  return { ...useNodeResult, data, validityMap, unmount: () => wrapper.unmount() };
 }
 
 describe('useNode', () => {
@@ -355,6 +355,15 @@ describe('useNode', () => {
       const node = ref<InternalSchemaNode>({ _id: 'nid', type: FIELD_TYPE, name: 'a' });
       const { isValid, validityMap } = mountUseNode({ node });
       expect(validityMap.value.nid).toBe(isValid.value);
+    });
+
+    it('removes _id from the parent validityMap when unmounted', () => {
+      const node = ref<InternalSchemaNode>({ _id: 'gone', type: FIELD_TYPE, name: 'a' });
+      const { validityMap, unmount } = mountUseNode({ node, validation: () => z.string('err') });
+      expect(validityMap.value.gone).toBe(false);
+
+      unmount();
+      expect(validityMap.value).not.toHaveProperty('gone');
     });
   });
 

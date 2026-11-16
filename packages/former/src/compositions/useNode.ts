@@ -1,5 +1,5 @@
 import type { DataScope, InternalSchemaNode, ValidationContext } from '~/types';
-import { computed, ref, type Ref, watch } from 'vue';
+import { computed, onBeforeUnmount, ref, type Ref, watch } from 'vue';
 import { dataOfNode, dataPathOfNode, dataScopesOfChildren, isNodeLayoutComponent, unsetDataOfNode } from '~/utils';
 import { errorMessage, useMaybeAsync, validateComponent } from '~/validation';
 import { inject, provide } from './injectProvide';
@@ -115,6 +115,12 @@ export default function useNode(node: Ref<InternalSchemaNode>) {
     },
     { immediate: true },
   );
+
+  // a removed node (e.g. deleted or moved to another parent) mustn't keep its parent invalid,
+  // removed before unmounting, as a node with the same id may already be mounted at its new place
+  onBeforeUnmount(() => {
+    delete validityMap.value[node.value._id];
+  });
 
   return {
     component,

@@ -193,6 +193,16 @@ describe.each(Object.keys(textValidations))('validation with %s', (library) => {
 
     expect(last(schemaValid)).toBe(false);
   });
+
+  it('becomes valid when an invalid node is removed', async () => {
+    const { wrapper, valid } = mountFormer({ schema: [schema[0]], components: componentsOf(library), data: {} });
+    await settle();
+    expect(last(valid)).toBe(false);
+
+    await wrapper.setProps({ schema: [] });
+    await settle();
+    expect(last(valid)).toBe(true);
+  });
 });
 
 it('uses the latest result of async validation', async () => {
