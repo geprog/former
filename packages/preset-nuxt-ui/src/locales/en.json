@@ -27,6 +27,7 @@
   "columns": "Columns",
   "show_border": "Show border",
   "rows": "Rows",
+  "autoresize": "Grow with the text",
   "item_label": "Item label",
   "image_source": "Image",
   "accept": "Accepted file types",

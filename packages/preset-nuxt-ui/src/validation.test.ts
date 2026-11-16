@@ -64,6 +64,11 @@ describe('validation', () => {
     expect(errorOf('text', { minLength: 2, maxLength: 3 }, 'abc')).toBeUndefined();
   });
 
+  it('checks the length of a free text', () => {
+    expect(errorOf('textarea', { minLength: 3 }, 'ab')).toBe('error_min_length {"min":3}');
+    expect(errorOf('textarea', { maxLength: 3 }, 'abc')).toBeUndefined();
+  });
+
   it('checks the format of an email or URL', () => {
     expect(errorOf('text', { inputType: 'email' }, 'no-email')).toBe('error_email');
     expect(errorOf('text', { inputType: 'email' }, 'mail@example.com')).toBeUndefined();

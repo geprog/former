@@ -275,10 +275,14 @@ export function createFormComponents(t: Translate) {
     textarea: {
       label: t('free_text'),
       component: markRaw(Textarea),
-      validation: stringValidation,
+      validation: textValidation,
       propsSchema: [
         ...commonSchema({ t }),
         { type: 'number', name: 'rows', props: { label: t('rows'), min: 1 } },
+        { type: 'checkbox', name: 'autoresize', props: { label: t('autoresize') } },
+        { type: 'number', name: 'minLength', props: { label: t('min_length'), min: 0 } },
+        { type: 'number', name: 'maxLength', props: { label: t('max_length'), min: 1 } },
+        { type: 'textarea', name: 'preset', props: { label: t('preset_text') } },
       ],
     },
     repeater: {
