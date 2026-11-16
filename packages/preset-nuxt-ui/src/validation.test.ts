@@ -31,6 +31,7 @@ describe('validation', () => {
     ['tags', null],
     ['time', null],
     ['slider', null],
+    ['color', null],
   ] as const)('%s requires a value with `required`', (type, empty) => {
     expect(errorOf(type, { required: true }, empty)).toBe('error_required');
     expect(errorOf(type, {}, empty)).toBeUndefined();
@@ -108,6 +109,18 @@ describe('validation', () => {
     expect(errorOf('select', props, value)).toBeUndefined();
   });
 
+  it.each([
+    ['#00c16a', undefined],
+    ['#ABC', undefined],
+    ['#00C16A80', undefined],
+    ['', undefined],
+    ['00C16A', 'error_color'],
+    ['#00C16', 'error_color'],
+    ['green', 'error_color'],
+  ])('checks the color %o', (value, error) => {
+    expect(errorOf('color', {}, value)).toBe(error);
+  });
+
   it('checks the format of an email or URL', () => {
     expect(errorOf('text', { inputType: 'email' }, 'no-email')).toBe('error_email');
     expect(errorOf('text', { inputType: 'email' }, 'mail@example.com')).toBeUndefined();
@@ -147,6 +160,7 @@ describe('validation', () => {
     translated.repeater.validation({ minItems: 1, maxItems: 1 });
     translated.file_upload.validation({ maxSize: 1 });
     translated.time.validation({ min: '08:00', max: '17:00' });
+    translated.color.validation({});
 
     expect(Object.keys(en)).toEqual(expect.arrayContaining([...keys]));
   });

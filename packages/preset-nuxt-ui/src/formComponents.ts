@@ -3,6 +3,7 @@ import { markRaw } from 'vue';
 import { z } from 'zod';
 import Checkbox from './Checkbox.vue';
 import CheckboxGroup from './CheckboxGroup.vue';
+import Color from './Color.vue';
 import { shownColumnChildren } from './columns';
 import Columns from './Columns.vue';
 import ComboBox from './ComboBox.vue';
@@ -160,6 +161,14 @@ export function createFormComponents(t: Translate) {
     if (typeof maxSize === 'number') {
       schema = schema.refine(value => fileSize(value) <= maxSize * 1024 * 1024, t('error_max_size', { max: maxSize }));
     }
+    return required ? schema : schema.nullish();
+  };
+  const colorValidation = ({ required }: ValidationProps, _context?: ValidationContext): z.ZodType<string | null | undefined> => {
+    let schema = z.string(requiredMessage);
+    if (required) {
+      schema = schema.min(1, requiredMessage);
+    }
+    schema = schema.refine(value => !value || /^#(?:[0-9a-f]{3}|[0-9a-f]{6}|[0-9a-f]{8})$/i.test(value), t('error_color'));
     return required ? schema : schema.nullish();
   };
   const checkedValidation = ({ required }: ValidationProps, _context?: ValidationContext) =>
@@ -397,6 +406,15 @@ export function createFormComponents(t: Translate) {
         { type: 'text', name: 'itemLabel', props: { label: t('item_label') } },
         { type: 'number', name: 'minItems', props: { label: t('min_items'), min: 0 } },
         { type: 'number', name: 'maxItems', props: { label: t('max_items'), min: 1 } },
+      ],
+    },
+    color: {
+      label: t('color'),
+      component: markRaw(Color),
+      validation: colorValidation,
+      propsSchema: [
+        ...commonSchema({ t }),
+        { type: 'color', name: 'preset', props: { label: t('preset_value') } },
       ],
     },
     image: {

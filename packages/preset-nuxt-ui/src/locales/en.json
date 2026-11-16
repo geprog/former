@@ -17,6 +17,7 @@
   "image": "Image",
   "file_upload": "File upload",
   "combo_box": "Combo box",
+  "color": "Color",
   "technical_name": "Technical name",
   "label": "Label",
   "placeholder": "Placeholder",
@@ -84,6 +85,7 @@
   "error_min_items": "Must have at least {min} items",
   "error_max_items": "Must have at most {max} items",
   "error_max_size": "The file must be at most {max} MB",
+  "error_color": "Must be a hex color, e.g. #00C16A",
   "error_email": "Must be a valid email address",
   "error_url": "Must be a valid URL"
 }
