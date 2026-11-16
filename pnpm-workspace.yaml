@@ -5,3 +5,6 @@ strictPeerDependencies: true
 packages:
   - 'packages/*'
   - playground
+minimumReleaseAgeExclude:
+  # Renovate security update: vue-i18n@11.4.14
+  - vue-i18n@11.4.14
