@@ -1,5 +1,5 @@
 <template>
-  <UFormField :label :required :description="file?.name" :error class="w-full">
+  <UFormField :label :required :description="help" :hint="file?.name" :error class="w-full">
     <UFileUpload
       :model-value="file"
       size="lg"
@@ -22,7 +22,9 @@ defineProps<
   {
     label?: string;
     required?: boolean;
+    help?: string;
     accept?: string;
+    maxSize?: number | null;
   } & FormerProps
 >();
 

@@ -77,6 +77,14 @@ describe('validation', () => {
     expect(errorOf('repeater', { minItems: 2 }, null)).toBeUndefined();
   });
 
+  it('checks the size of a file', () => {
+    // a data URL with about the given number of bytes, base64 encodes 3 bytes in 4 characters
+    const file = (bytes: number) => `data:text/plain;name=a.txt;base64,${'A'.repeat(Math.ceil(bytes / 3) * 4)}`;
+    expect(errorOf('file_upload', { maxSize: 1 }, file(1024 * 1024 + 3))).toBe('error_max_size {"max":1}');
+    expect(errorOf('file_upload', { maxSize: 1 }, file(1024 * 1024 - 2))).toBeUndefined();
+    expect(errorOf('file_upload', { maxSize: 1 }, null)).toBeUndefined();
+  });
+
   it('checks the format of an email or URL', () => {
     expect(errorOf('text', { inputType: 'email' }, 'no-email')).toBe('error_email');
     expect(errorOf('text', { inputType: 'email' }, 'mail@example.com')).toBeUndefined();
@@ -114,6 +122,7 @@ describe('validation', () => {
     translated.text.validation({ minLength: 1, maxLength: 1, inputType: 'email' });
     translated.text.validation({ inputType: 'url' });
     translated.repeater.validation({ minItems: 1, maxItems: 1 });
+    translated.file_upload.validation({ maxSize: 1 });
 
     expect(Object.keys(en)).toEqual(expect.arrayContaining([...keys]));
   });

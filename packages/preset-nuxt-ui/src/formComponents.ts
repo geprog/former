@@ -106,6 +106,13 @@ function choiceSchema({ t }: { t: (key: string) => string }, name: string, label
   };
 }
 
+// the size in bytes of the file stored in a data URL
+function fileSize(dataUrl: string): number {
+  const content = dataUrl.slice(dataUrl.indexOf(',') + 1);
+  const padding = content.endsWith('==') ? 2 : content.endsWith('=') ? 1 : 0;
+  return Math.floor(content.length * 3 / 4) - padding;
+}
+
 type Translate = (key: string, named?: Record<string, unknown>) => string;
 
 // the validations of the preset don't depend on the context, but take it so a replacing validation can pass it on,
@@ -136,6 +143,17 @@ export function createFormComponents(t: Translate) {
     }
     if (inputType === 'url') {
       schema = schema.refine(value => !value || z.url().safeParse(value).success, t('error_url'));
+    }
+    return required ? schema : schema.nullish();
+  };
+  // files are stored as data URLs (see `FileUpload.vue`), the size of their content is 3/4 of its base64 length
+  const fileValidation = ({ required, maxSize }: ValidationProps, _context?: ValidationContext): z.ZodType<string | null | undefined> => {
+    let schema = z.string(requiredMessage);
+    if (required) {
+      schema = schema.min(1, requiredMessage);
+    }
+    if (typeof maxSize === 'number') {
+      schema = schema.refine(value => fileSize(value) <= maxSize * 1024 * 1024, t('error_max_size', { max: maxSize }));
     }
     return required ? schema : schema.nullish();
   };
@@ -339,10 +357,11 @@ export function createFormComponents(t: Translate) {
     file_upload: {
       label: t('file_upload'),
       component: markRaw(FileUpload),
-      validation: stringValidation,
+      validation: fileValidation,
       propsSchema: [
-        ...commonSchema({ help: false, placeholder: false, t }),
+        ...commonSchema({ placeholder: false, t }),
         { type: 'text', name: 'accept', props: { label: t('accept') } },
+        { type: 'number', name: 'maxSize', props: { label: t('max_size'), min: 0 } },
       ],
     },
     combo_box: {
