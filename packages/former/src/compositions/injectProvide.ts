@@ -10,6 +10,8 @@ export type InjectKeys = {
   components: Ref<FormComponents>;
   selectedNode: Ref<InternalSchemaNode | undefined>;
   validityMap: Ref<Record<string, boolean | undefined>>;
+  // whether the props of each node are valid by its id, or the message of a failing validation (see `useSchema`)
+  propsValidity: Ref<Record<string, boolean | string>>;
   showIf?: InternalShowIfPredicate;
   // the scopes of data the nodes are relative to (e.g. groups or repeater items), closest first,
   // to find the issues of nodes and passed to the validation of components

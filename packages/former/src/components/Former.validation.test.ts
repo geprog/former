@@ -414,6 +414,20 @@ describe('validation of components', () => {
     expect(last(schemaValid)).toBe(false);
   });
 
+  it('validates the props of each node once in build mode', async () => {
+    const validation = vi.fn(() => z.string('Value is required'));
+    mount(Former, {
+      props: {
+        schema: [{ type: 'text', name: 'a', props: { label: 'A' } }, { type: 'text', name: 'b', props: { label: 'B' } }],
+        components: { ...components, text: { ...components.text, propsSchema: [{ type: 'name', name: '$name' }] }, name: { ...components.text, validation } },
+        mode: 'build',
+      },
+    });
+    await settle();
+
+    expect(validation).toHaveBeenCalledTimes(2);
+  });
+
   it('validates the items of repeaters not marked as list (`isList`) relative to the item', async () => {
     const contexts: ValidationContext[] = [];
     const validation: FormFieldType['validation'] = (props, context) => {

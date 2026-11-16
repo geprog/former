@@ -1,4 +1,5 @@
 import type { FormComponents, InternalSchemaNode, SchemaNode, ValidationContext } from '~/types';
+import { flushPromises } from '@vue/test-utils';
 import { describe, expect, it, vi } from 'vitest';
 import { ref } from 'vue';
 import { z } from 'zod';
@@ -234,6 +235,42 @@ describe('useSchema', () => {
       expect(isValid.value).toBe(true);
 
       components.value = {};
+      expect(isValid.value).toBe(false);
+    });
+
+    it('is the validity of the props of each node by its id, validating each node once', () => {
+      const { schema: validationSchema, validate } = createSchema();
+      const schema = ref<InternalSchemaNode[]>([
+        { _id: 'n1', type: 'text', props: { foo: 'ok' } },
+        { _id: 'n2', type: 'text', props: { foo: 'bad' } },
+      ]);
+      const { propsValidity } = useSchema(schema, createComponents([{ name: 'foo' }], validationSchema));
+
+      expect(propsValidity.value).toEqual({ n1: true, n2: false });
+      expect(validate).toHaveBeenCalledTimes(2);
+    });
+
+    it.each([
+      ['throws', () => {
+        throw new Error('Server not reachable');
+      }],
+      ['rejects', () => Promise.reject(new Error('Server not reachable'))],
+    ])('is the message of a validation which %s and invalid', async (_, validate) => {
+      const failing: StandardSchemaV1 = { '~standard': { version: 1, vendor: 'test', validate: validate as StandardSchemaV1['~standard']['validate'] } };
+      const { schema: validationSchema } = createSchema();
+      const components: FormComponents = {
+        ...createComponents([{ name: 'foo' }], validationSchema),
+        failing: { label: 'Failing', component: {} as any, propsSchema: [{ type: 'field', name: '$name' }], validation: () => failing },
+      };
+      components.failing.propsSchema = [{ type: 'failing', name: 'foo' }];
+      const schema = ref<InternalSchemaNode[]>([
+        { _id: 'n1', type: 'text', props: { foo: 'ok' } },
+        { _id: 'n2', type: 'failing', props: { foo: 'x' } },
+      ]);
+      const { propsValidity, isValid } = useSchema(schema, components);
+      await flushPromises();
+
+      expect(propsValidity.value).toEqual({ n1: true, n2: 'Server not reachable' });
       expect(isValid.value).toBe(false);
     });
   });

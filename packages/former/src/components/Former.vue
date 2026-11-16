@@ -84,7 +84,8 @@ provide('showIf', (node: SchemaNode) => {
 // reset the scopes for nested forms (e.g. the props form of the selected node)
 provide('dataScopes', computed(() => [{ data: wrappedData.value, path: [] }]));
 
-const { isValid: isSchemaValid } = useSchema(internalSchema, toRef(props, 'components'));
+const { isValid: isSchemaValid, propsValidity } = useSchema(internalSchema, toRef(props, 'components'));
+provide('propsValidity', propsValidity);
 watch(isSchemaValid, () => {
   emit('schemaValid', isSchemaValid.value);
 }, { immediate: true });

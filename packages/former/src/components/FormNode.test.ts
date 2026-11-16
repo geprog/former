@@ -1,5 +1,5 @@
 import type { FormComponents, InternalSchemaNode } from '~/types';
-import { config, flushPromises, mount } from '@vue/test-utils';
+import { config, mount } from '@vue/test-utils';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { defineComponent, h, inject, markRaw, nextTick, ref, type Ref } from 'vue';
 import { z } from 'zod';
@@ -56,7 +56,7 @@ describe('component FormNode', () => {
   let setDragEventDataSpy: ReturnType<typeof vi.spyOn>;
 
   beforeEach(() => {
-    config.global.provide = { texts: ref({ dragHint: 'hint', invalidSchema: 'Invalid schema' }) };
+    config.global.provide = { texts: ref({ dragHint: 'hint', invalidSchema: 'Invalid schema' }), propsValidity: ref({}) };
     vi.clearAllMocks();
     vi.restoreAllMocks();
     setDragEventDataSpy = vi.spyOn(utils, 'setDragEventData').mockImplementation(() => {});
@@ -533,83 +533,46 @@ describe('component FormNode', () => {
       expect(classes).toContain('dark:bg-zinc-700');
     });
 
-    it('applies invalid-node border class when isNodeValid returns false in build mode', () => {
-      const node: InternalSchemaNode = { _id: 'node-1', type: 'text', name: '', props: { custom: 'x' } };
-      const data = ref<Record<string, unknown>>({});
-      const validityMap = ref<Record<string, boolean | undefined>>({});
-      const mode = ref<'build' | 'read' | 'edit'>('build');
-      const selectedNode = ref<InternalSchemaNode | undefined>(undefined);
-      const formId = ref('form-123');
-      const wrapper = mount(FormNode, {
+    function mountInBuildMode(propsValidity: Record<string, boolean | string>, mode = ref<'build' | 'read' | 'edit'>('build')) {
+      const node: InternalSchemaNode = { _id: 'node-1', type: 'text', name: 'a' };
+      return mount(FormNode, {
         props: { node },
         global: {
-          provide: {
-            components: TEXT_COMPONENTS,
-            mode,
-            selectedNode,
-            formId,
-            data,
-            validityMap,
-          },
+          provide: { components: TEXT_COMPONENTS, mode, selectedNode: ref(), formId: ref('form-123'), data: ref({}), validityMap: ref({}), propsValidity: ref(propsValidity) },
         },
-        slots: { default: () => h(SlotProbe) },
       });
-      const classes = wrapper.find('[data-node="node-1"]').classes();
+    }
+
+    it('applies invalid-node border class when its props are invalid in build mode', () => {
+      const classes = mountInBuildMode({ 'node-1': false }).find('[data-node="node-1"]').classes();
       expect(classes).toContain('border-2');
       expect(classes).toContain('border-red-500');
     });
 
-    it.each([
-      ['throws', () => {
-        throw new Error('Server not reachable');
-      }],
-      ['rejects', () => ({ '~standard': { version: 1, vendor: 'test', validate: () => Promise.reject(new Error('Server not reachable')) } })],
-    ] as const)('shows the message of a props validation which %s in build mode', async (_, validation) => {
-      const node: InternalSchemaNode = { _id: 'node-1', type: 'text', name: 'a' };
-      const components = ref<FormComponents>({ text: { ...TEXT_COMPONENTS.value.text, validation: validation as FormComponents[string]['validation'] } });
+    it('shows the message of a failing props validation in build mode', async () => {
       const mode = ref<'build' | 'read' | 'edit'>('build');
-      const wrapper = mount(FormNode, {
-        props: { node },
-        global: {
-          provide: { components, mode, selectedNode: ref(), formId: ref('form-123'), data: ref({}), validityMap: ref({}) },
-        },
-      });
-      await flushPromises();
+      const wrapper = mountInBuildMode({ 'node-1': 'Server not reachable' }, mode);
 
       expect(wrapper.find('[data-props-error]').text()).toBe('Server not reachable');
       expect(wrapper.find('[data-node="node-1"]').classes()).toContain('border-red-500');
 
       mode.value = 'edit';
-      await flushPromises();
+      await nextTick();
       expect(wrapper.find('[data-props-error]').exists()).toBe(false);
     });
 
     it('shows a general message for invalid props, whose issues are shown in the props of the node', () => {
-      const node: InternalSchemaNode = { _id: 'node-1', type: 'text', name: '' };
-      const wrapper = mount(FormNode, {
-        props: { node },
-        global: {
-          provide: { components: TEXT_COMPONENTS, mode: ref('build'), selectedNode: ref(), formId: ref('form-123'), data: ref({}), validityMap: ref({}) },
-        },
-      });
-
-      expect(wrapper.find('[data-node="node-1"]').classes()).toContain('border-red-500');
-      expect(wrapper.find('[data-props-error]').text()).toBe('Invalid schema');
+      expect(mountInBuildMode({ 'node-1': false }).find('[data-props-error]').text()).toBe('Invalid schema');
     });
 
-    it('shows no message for valid props', () => {
-      const node: InternalSchemaNode = { _id: 'node-1', type: 'text', name: 'a' };
-      const wrapper = mount(FormNode, {
-        props: { node },
-        global: {
-          provide: { components: TEXT_COMPONENTS, mode: ref('build'), selectedNode: ref(), formId: ref('form-123'), data: ref({}), validityMap: ref({}) },
-        },
-      });
-
+    it.each([
+      ['valid props', { 'node-1': true }],
+      ['props not validated yet', {}],
+    ])('shows no message for %s', (_, propsValidity) => {
+      const wrapper = mountInBuildMode(propsValidity);
       expect(wrapper.find('[data-node="node-1"]').classes()).not.toContain('border-red-500');
       expect(wrapper.find('[data-props-error]').exists()).toBe(false);
     });
-
     it('does not apply build-only classes outside build mode', () => {
       const node: InternalSchemaNode = { _id: 'node-1', type: 'text', name: '', props: { custom: 'x' } };
       const data = ref<Record<string, unknown>>({});

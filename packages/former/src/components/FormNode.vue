@@ -33,13 +33,12 @@ import { computed, toRef } from 'vue';
 import { inject, provide } from '~/compositions/injectProvide';
 import useNode from '~/compositions/useNode';
 import { propsOf, setDragEventData } from '~/utils';
-import { errorMessage, isNodeValid, useMaybeAsync } from '~/validation';
 
 const props = defineProps<{
   node: InternalSchemaNode;
 }>();
 
-const components = inject('components');
+const propsValidity = inject('propsValidity');
 const texts = inject('texts');
 
 const node = toRef(props, 'node');
@@ -47,14 +46,10 @@ const { component, error, hasContent, isShown, modelValue } = useNode(node);
 const componentProps = computed(() => propsOf(node.value));
 
 const mode = inject('mode');
-// the props of the nodes are only edited (and shown as invalid) in build mode,
-// a validation failing (e.g. an async schema not reaching a server) is shown with its message,
-// as it is otherwise only visible in the props of the node once it is selected
-const { result: propsValidation } = useMaybeAsync<boolean | string>(
-  () => mode.value !== 'build' || isNodeValid(node.value, components.value),
-  true,
-  errorMessage,
-);
+// the props of the nodes are only edited (and shown as invalid) in build mode, they are validated once for the
+// whole schema (see `useSchema`), a validation failing (e.g. an async schema not reaching a server) is shown with
+// its message, as it is otherwise only visible in the props of the node once it is selected
+const propsValidation = computed(() => (mode.value === 'build' ? propsValidity.value[node.value._id] ?? true : true));
 const isNodeValidFlag = computed(() => propsValidation.value === true);
 // the message of a failing validation, otherwise a general message, as the issues are shown in the props of the node
 const propsError = computed(() => {

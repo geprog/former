@@ -91,6 +91,17 @@ export function errorMessage(error: unknown): string {
   return error instanceof Error ? error.message : String(error);
 }
 
+// whether the props of the node are valid, or the message of the error thrown by their validation
+export function propsValidityOfNode(node: InternalSchemaNode, components: FormComponents): MaybePromise<boolean | string> {
+  try {
+    const result = isNodeValid(node, components);
+    return isPromiseLike(result) ? Promise.resolve(result).then(valid => valid, errorMessage) : result;
+  }
+  catch (error) {
+    return errorMessage(error);
+  }
+}
+
 /**
  * A ref with the result of `getter`, which may be a promise (e.g. for async schemas).
  * While a promise is pending the previous result is kept and `isPending` is set, results of outdated promises are dropped.
