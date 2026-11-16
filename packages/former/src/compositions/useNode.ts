@@ -5,6 +5,21 @@ import { errorMessage, useMaybeAsync, validateComponent } from '~/validation';
 import { inject, provide } from './injectProvide';
 import { useHasContent } from './useHasContent';
 
+type ValidityMap = Ref<Record<string, boolean | undefined>>;
+
+// the instance of a node which last set its validity in a validity map, as a node moved to another place
+// of the same parent (e.g. to another column) is mounted at its new place before it is unmounted at the old one
+const validityOwners = new WeakMap<ValidityMap, Map<string, symbol>>();
+
+function ownersOf(validityMap: ValidityMap) {
+  let owners = validityOwners.get(validityMap);
+  if (!owners) {
+    owners = new Map();
+    validityOwners.set(validityMap, owners);
+  }
+  return owners;
+}
+
 export default function useNode(node: Ref<InternalSchemaNode>) {
   const data = inject('data');
   const components = inject('components');
@@ -98,29 +113,34 @@ export default function useNode(node: Ref<InternalSchemaNode>) {
   // the node isn't valid until its async validation is done
   const isValid = computed(() => !isShown.value || (error.value === undefined && !isValidating.value && areChildrenValid.value));
 
+  const owner = Symbol('node');
+  function setValidity() {
+    ownersOf(validityMap).set(node.value._id, owner);
+    validityMap.value[node.value._id] = isValid.value;
+  }
+  // only the instance which set the validity removes it, not the old instance of a moved node
+  function removeValidity() {
+    const owners = ownersOf(validityMap);
+    if (owners.get(node.value._id) === owner) {
+      owners.delete(node.value._id);
+      delete validityMap.value[node.value._id];
+    }
+  }
+
   watch(isShown, () => {
     if (!isShown.value) {
       unsetDataOfNode(node.value, data.value, components.value);
-      delete validityMap.value[node.value._id];
+      removeValidity();
     }
     else {
-      validityMap.value[node.value._id] = isValid.value;
+      setValidity();
     }
   });
 
-  watch(
-    isValid,
-    () => {
-      validityMap.value[node.value._id] = isValid.value;
-    },
-    { immediate: true },
-  );
+  watch(isValid, setValidity, { immediate: true });
 
-  // a removed node (e.g. deleted or moved to another parent) mustn't keep its parent invalid,
-  // removed before unmounting, as a node with the same id may already be mounted at its new place
-  onBeforeUnmount(() => {
-    delete validityMap.value[node.value._id];
-  });
+  // a removed node (e.g. deleted or moved to another parent) mustn't keep its parent invalid
+  onBeforeUnmount(removeValidity);
 
   return {
     component,
