@@ -45,6 +45,8 @@ describe('form components', () => {
     ['select', {}, 'USelectMenu', 'multiple="false" search-input="false" clear="true"'],
     ['select', { multiple: true, search: true, required: true }, 'USelectMenu', 'multiple="true" search-input="true" clear="false"'],
     ['combo_box', { placeholder: 'Choose' }, 'UInputMenu', 'placeholder="Choose"'],
+    ['tags', { placeholder: 'Add tag' }, 'UInputTags', 'placeholder="Add tag"'],
+    ['tags', { maxItems: 3 }, 'UInputTags', 'max="3"'],
     ['textarea', { placeholder: 'Enter text' }, 'UTextarea', 'placeholder="Enter text"'],
     ['textarea', { rows: 5 }, 'UTextarea', 'rows="5"'],
     ['textarea', { autoresize: true }, 'UTextarea', 'autoresize="true"'],
@@ -224,6 +226,22 @@ describe('form components', () => {
     expect(data).toStrictEqual({ field: true });
 
     wrapper.findComponent({ name: stub }).vm.$emit('update:modelValue', false);
+    await nextTick();
+    expect(data).toStrictEqual({ field: null });
+  });
+
+  it('tags store the entered tags and clear the value when all are removed', async () => {
+    let data: FormData = {};
+    const wrapper = mount(Former, {
+      props: { 'schema': [{ type: 'tags', name: 'field' }], data, components, 'mode': 'edit', 'onUpdate:data': (value: FormData) => (data = value) },
+      global: { components: nuxtUiStubs },
+    });
+
+    wrapper.findComponent({ name: 'UInputTags' }).vm.$emit('update:modelValue', ['a', 'b']);
+    await nextTick();
+    expect(data).toStrictEqual({ field: ['a', 'b'] });
+
+    wrapper.findComponent({ name: 'UInputTags' }).vm.$emit('update:modelValue', []);
     await nextTick();
     expect(data).toStrictEqual({ field: null });
   });

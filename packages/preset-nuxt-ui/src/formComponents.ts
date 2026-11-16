@@ -16,6 +16,7 @@ import RadioGroup from './RadioGroup.vue';
 import Repeater from './Repeater.vue';
 import Select from './Select.vue';
 import Switch from './Switch.vue';
+import Tags from './Tags.vue';
 import Text from './Text.vue';
 import Textarea from './Textarea.vue';
 
@@ -333,6 +334,16 @@ export function createFormComponents(t: Translate) {
         optionsSchema({ t }),
         choiceSchema({ t }, 'orientation', 'orientation', ['vertical', 'horizontal'], 'vertical'),
         choiceSchema({ t }, 'variant', 'variant', ['list', 'card', 'table'], 'list'),
+      ],
+    },
+    tags: {
+      label: t('tags'),
+      component: markRaw(Tags),
+      validation: listValidation,
+      propsSchema: [
+        ...commonSchema({ t }),
+        { type: 'number', name: 'minItems', props: { label: t('min_tags'), min: 0 } },
+        { type: 'number', name: 'maxItems', props: { label: t('max_tags'), min: 1 } },
       ],
     },
     textarea: {
