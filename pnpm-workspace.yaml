@@ -5,3 +5,6 @@ strictPeerDependencies: true
 packages:
   - 'packages/*'
   - playground
+minimumReleaseAgeExclude:
+  # Renovate security update: @nuxt/ui@4.8.1
+  - "@nuxt/ui@4.8.1"
