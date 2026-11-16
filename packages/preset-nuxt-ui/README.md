@@ -95,7 +95,7 @@ export const i18n = createI18n({
 
 ## Validation
 
-The components validate their data with the settings of the form builder: a field with `required` needs a value (a checkbox or switch needs to be checked, a repeater needs an item), repeaters check their minimum and maximum number of items, file uploads check their maximum size, number and date fields check their `min` and `max`, text fields and free texts check their length, and text fields check the format of emails and URLs. This applies to the settings of the nodes in build mode as well, e.g. the required technical name. The error messages are texts of the preset (`error_required`, `error_min_value`, …), so they can be translated like the others.
+The components validate their data with the settings of the form builder: a field with `required` needs a value (a checkbox or switch needs to be checked, a repeater needs an item), repeaters check their minimum and maximum number of items, file uploads check their maximum size, number, date and time fields check their `min` and `max`, text fields and free texts check their length, and text fields check the format of emails and URLs. This applies to the settings of the nodes in build mode as well, e.g. the required technical name. The error messages are texts of the preset (`error_required`, `error_min_value`, …), so they can be translated like the others.
 
 The validation is built with [Zod](https://zod.dev). To validate more, replace the `validation` of a component and fall back to the one of the preset. The second parameter is the context of the node with its `path` and the `scopes` of data containing it (see [Former](../former/README.md#form-data-and-validation)), e.g. to compare it to a field next to it:
 
@@ -133,5 +133,7 @@ Fields can have a preset value. A preset is applied as long as the field's key d
 A cleared field is therefore stored as `null`, never removed from the data. An unchecked checkbox or switch counts as cleared, so it is `null` as well and only checked ones are stored as `true`. Fields with several choices (e.g. a checkbox group) store a list of the chosen values, without a choice they are `null` as well. **Your backend must store and return `null` values unchanged.** If it drops them (e.g. `omitempty` in Go, `NON_NULL` in Jackson or `exclude_none` in Pydantic), cleared fields get their preset back the next time the form is opened.
 
 In read mode presets are never applied.
+
+Times are stored as ISO strings with minutes (`HH:mm`), like dates (`YYYY-MM-DD`).
 
 File uploads are stored as data URL with the file name as `name` parameter, e.g. `data:image/png;name=floor%20plan.png;base64,...`. Browsers ignore the parameter, so the value can be used as image source directly.

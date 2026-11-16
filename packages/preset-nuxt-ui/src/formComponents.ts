@@ -19,6 +19,7 @@ import Switch from './Switch.vue';
 import Tags from './Tags.vue';
 import Text from './Text.vue';
 import Textarea from './Textarea.vue';
+import Time from './Time.vue';
 
 type CommonSchemaOptions = {
   name: boolean;
@@ -172,17 +173,20 @@ export function createFormComponents(t: Translate) {
     }
     return required ? schema : schema.nullish();
   };
-  const dateValidation = ({ required, min, max }: ValidationProps, _context?: ValidationContext) => {
-    // dates are ISO strings (YYYY-MM-DD), so they compare like the dates they represent
-    let schema = z.string(requiredMessage).min(1, requiredMessage);
-    if (min) {
-      schema = schema.refine(value => value >= min, t('error_min_date', { min }));
-    }
-    if (max) {
-      schema = schema.refine(value => value <= max, t('error_max_date', { max }));
-    }
-    return required ? schema : schema.nullish();
-  };
+  // dates and times are ISO strings (YYYY-MM-DD and HH:mm), so they compare like the dates and times they represent
+  const isoRangeValidation = (minMessage: string, maxMessage: string) =>
+    ({ required, min, max }: ValidationProps, _context?: ValidationContext) => {
+      let schema = z.string(requiredMessage).min(1, requiredMessage);
+      if (min) {
+        schema = schema.refine(value => value >= min, t(minMessage, { min }));
+      }
+      if (max) {
+        schema = schema.refine(value => value <= max, t(maxMessage, { max }));
+      }
+      return required ? schema : schema.nullish();
+    };
+  const dateValidation = isoRangeValidation('error_min_date', 'error_max_date');
+  const timeValidation = isoRangeValidation('error_min_time', 'error_max_time');
   // like texts, the number of items is only checked if there are any
   const listValidation = ({ required, minItems, maxItems }: ValidationProps, _context?: ValidationContext): z.ZodType<unknown[] | null | undefined> => {
     let schema = z.array(z.unknown(), requiredMessage);
@@ -312,6 +316,17 @@ export function createFormComponents(t: Translate) {
         { type: 'date', name: 'min', props: { label: t('min_value') } },
         { type: 'date', name: 'max', props: { label: t('max_value') } },
         { type: 'date', name: 'preset', props: { label: t('preset_value') } },
+      ],
+    },
+    time: {
+      label: t('time_field'),
+      component: markRaw(Time),
+      validation: timeValidation,
+      propsSchema: [
+        ...commonSchema({ placeholder: false, t }),
+        { type: 'time', name: 'min', props: { label: t('min_value') } },
+        { type: 'time', name: 'max', props: { label: t('max_value') } },
+        { type: 'time', name: 'preset', props: { label: t('preset_value') } },
       ],
     },
     radio_group: {

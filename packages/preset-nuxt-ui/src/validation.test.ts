@@ -29,6 +29,7 @@ describe('validation', () => {
     ['repeater', [] as FormData[]],
     ['checkbox_group', null],
     ['tags', null],
+    ['time', null],
   ] as const)('%s requires a value with `required`', (type, empty) => {
     expect(errorOf(type, { required: true }, empty)).toBe('error_required');
     expect(errorOf(type, {}, empty)).toBeUndefined();
@@ -53,6 +54,13 @@ describe('validation', () => {
     expect(errorOf('date', props, '2025-12-31')).toBe('error_min_date {"min":"2026-01-01"}');
     expect(errorOf('date', props, '2027-01-01')).toBe('error_max_date {"max":"2026-12-31"}');
     expect(errorOf('date', props, '2026-06-15')).toBeUndefined();
+  });
+
+  it('checks the range of a time', () => {
+    const props = { min: '08:00', max: '17:30' };
+    expect(errorOf('time', props, '07:59')).toBe('error_min_time {"min":"08:00"}');
+    expect(errorOf('time', props, '17:31')).toBe('error_max_time {"max":"17:30"}');
+    expect(errorOf('time', props, '12:00')).toBeUndefined();
   });
 
   it('ignores cleared limits', () => {
@@ -137,6 +145,7 @@ describe('validation', () => {
     translated.text.validation({ inputType: 'url' });
     translated.repeater.validation({ minItems: 1, maxItems: 1 });
     translated.file_upload.validation({ maxSize: 1 });
+    translated.time.validation({ min: '08:00', max: '17:00' });
 
     expect(Object.keys(en)).toEqual(expect.arrayContaining([...keys]));
   });
