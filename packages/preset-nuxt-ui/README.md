@@ -117,7 +117,8 @@ const components = computed<FormComponents>(() => {
         if (!props.confirms) {
           return text.validation(props, context);
         }
-        const confirmed = (context.scopes[0].data as FormData)[props.confirms];
+        // the data of a scope is unset until something was filled in
+        const confirmed = ((context.scopes[0].data ?? {}) as FormData)[props.confirms];
         return z.custom(value => value === confirmed, 'The values do not match');
       },
     },
