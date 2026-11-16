@@ -18,6 +18,7 @@
       <slot />
     </component>
     <span v-else>Component type not found!</span>
+    <span v-if="mode === 'build' && propsError" data-props-error class="p-2 text-sm text-red-500">{{ propsError }}</span>
   </div>
 </template>
 
@@ -27,7 +28,7 @@ import { computed, toRef } from 'vue';
 import { inject, provide } from '~/compositions/injectProvide';
 import useNode from '~/compositions/useNode';
 import { propsOf, setDragEventData } from '~/utils';
-import { isNodeValid, useMaybeAsync } from '~/validation';
+import { errorMessage, isNodeValid, useMaybeAsync } from '~/validation';
 
 const props = defineProps<{
   node: InternalSchemaNode;
@@ -40,8 +41,16 @@ const { component, error, hasContent, isShown, modelValue } = useNode(node);
 const componentProps = computed(() => propsOf(node.value));
 
 const mode = inject('mode');
-// the props of the nodes are only edited (and shown as invalid) in build mode
-const { result: isNodeValidFlag } = useMaybeAsync(() => mode.value !== 'build' || isNodeValid(node.value, components.value), true, () => false);
+// the props of the nodes are only edited (and shown as invalid) in build mode,
+// a validation failing (e.g. an async schema not reaching a server) is shown with its message,
+// as it is otherwise only visible in the props of the node once it is selected
+const { result: propsValidation } = useMaybeAsync<boolean | string>(
+  () => mode.value !== 'build' || isNodeValid(node.value, components.value),
+  true,
+  errorMessage,
+);
+const isNodeValidFlag = computed(() => propsValidation.value === true);
+const propsError = computed(() => (typeof propsValidation.value === 'string' ? propsValidation.value : undefined));
 const selectedNode = inject('selectedNode');
 const formId = inject('formId');
 

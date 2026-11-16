@@ -1,5 +1,5 @@
 import type { FormComponents, InternalSchemaNode } from '~/types';
-import { mount } from '@vue/test-utils';
+import { flushPromises, mount } from '@vue/test-utils';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { defineComponent, h, inject, markRaw, nextTick, ref, type Ref } from 'vue';
 import { z } from 'zod';
@@ -555,6 +555,44 @@ describe('component FormNode', () => {
       const classes = wrapper.find('[data-node="node-1"]').classes();
       expect(classes).toContain('border-2');
       expect(classes).toContain('border-red-500');
+    });
+
+    it.each([
+      ['throws', () => {
+        throw new Error('Server not reachable');
+      }],
+      ['rejects', () => ({ '~standard': { version: 1, vendor: 'test', validate: () => Promise.reject(new Error('Server not reachable')) } })],
+    ] as const)('shows the message of a props validation which %s in build mode', async (_, validation) => {
+      const node: InternalSchemaNode = { _id: 'node-1', type: 'text', name: 'a' };
+      const components = ref<FormComponents>({ text: { ...TEXT_COMPONENTS.value.text, validation: validation as FormComponents[string]['validation'] } });
+      const mode = ref<'build' | 'read' | 'edit'>('build');
+      const wrapper = mount(FormNode, {
+        props: { node },
+        global: {
+          provide: { components, mode, selectedNode: ref(), formId: ref('form-123'), data: ref({}), validityMap: ref({}) },
+        },
+      });
+      await flushPromises();
+
+      expect(wrapper.find('[data-props-error]').text()).toBe('Server not reachable');
+      expect(wrapper.find('[data-node="node-1"]').classes()).toContain('border-red-500');
+
+      mode.value = 'edit';
+      await flushPromises();
+      expect(wrapper.find('[data-props-error]').exists()).toBe(false);
+    });
+
+    it('does not show a message for invalid props, which are shown in the props of the node', () => {
+      const node: InternalSchemaNode = { _id: 'node-1', type: 'text', name: '' };
+      const wrapper = mount(FormNode, {
+        props: { node },
+        global: {
+          provide: { components: TEXT_COMPONENTS, mode: ref('build'), selectedNode: ref(), formId: ref('form-123'), data: ref({}), validityMap: ref({}) },
+        },
+      });
+
+      expect(wrapper.find('[data-node="node-1"]').classes()).toContain('border-red-500');
+      expect(wrapper.find('[data-props-error]').exists()).toBe(false);
     });
 
     it('does not apply build-only classes outside build mode', () => {
