@@ -200,6 +200,7 @@ describe('component Former', () => {
       });
       await nextTick();
       expect(activeFormerProbe!.texts.value.dragHint).toBe('Here you can drag elements');
+      expect(activeFormerProbe!.texts.value.invalidSchema).toBe('Invalid schema');
     });
 
     it('reflects isUpdating prop changes on formerIsUpdating', async () => {

@@ -110,5 +110,5 @@ const selectedNode = ref<InternalSchemaNode | undefined>(undefined);
 provide('selectedNode', selectedNode);
 
 const texts = toRef(props, 'texts');
-provide('texts', computed<Texts>(() => ({ dragHint: 'Here you can drag elements', ...texts.value })));
+provide('texts', computed<Texts>(() => ({ dragHint: 'Here you can drag elements', invalidSchema: 'Invalid schema', ...texts.value })));
 </script>

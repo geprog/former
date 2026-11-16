@@ -68,4 +68,6 @@ export type FormComponents = { [key: string]: FormFieldType };
 
 export type Texts = {
   dragHint: string;
+  // shown in build mode at a node whose props are invalid
+  invalidSchema: string;
 };

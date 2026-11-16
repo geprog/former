@@ -35,6 +35,7 @@ const props = defineProps<{
 }>();
 
 const components = inject('components');
+const texts = inject('texts');
 
 const node = toRef(props, 'node');
 const { component, error, hasContent, isShown, modelValue } = useNode(node);
@@ -50,7 +51,13 @@ const { result: propsValidation } = useMaybeAsync<boolean | string>(
   errorMessage,
 );
 const isNodeValidFlag = computed(() => propsValidation.value === true);
-const propsError = computed(() => (typeof propsValidation.value === 'string' ? propsValidation.value : undefined));
+// the message of a failing validation, otherwise a general message, as the issues are shown in the props of the node
+const propsError = computed(() => {
+  if (typeof propsValidation.value === 'string') {
+    return propsValidation.value;
+  }
+  return isNodeValidFlag.value ? undefined : texts.value.invalidSchema;
+});
 const selectedNode = inject('selectedNode');
 const formId = inject('formId');
 

@@ -1,5 +1,5 @@
 import type { FormComponents, InternalSchemaNode } from '~/types';
-import { flushPromises, mount } from '@vue/test-utils';
+import { config, flushPromises, mount } from '@vue/test-utils';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { defineComponent, h, inject, markRaw, nextTick, ref, type Ref } from 'vue';
 import { z } from 'zod';
@@ -56,6 +56,7 @@ describe('component FormNode', () => {
   let setDragEventDataSpy: ReturnType<typeof vi.spyOn>;
 
   beforeEach(() => {
+    config.global.provide = { texts: ref({ dragHint: 'hint', invalidSchema: 'Invalid schema' }) };
     vi.clearAllMocks();
     vi.restoreAllMocks();
     setDragEventDataSpy = vi.spyOn(utils, 'setDragEventData').mockImplementation(() => {});
@@ -63,6 +64,7 @@ describe('component FormNode', () => {
 
   afterEach(() => {
     vi.clearAllMocks();
+    config.global.provide = {};
   });
 
   describe('visibility and root rendering', () => {
@@ -582,7 +584,7 @@ describe('component FormNode', () => {
       expect(wrapper.find('[data-props-error]').exists()).toBe(false);
     });
 
-    it('does not show a message for invalid props, which are shown in the props of the node', () => {
+    it('shows a general message for invalid props, whose issues are shown in the props of the node', () => {
       const node: InternalSchemaNode = { _id: 'node-1', type: 'text', name: '' };
       const wrapper = mount(FormNode, {
         props: { node },
@@ -592,6 +594,19 @@ describe('component FormNode', () => {
       });
 
       expect(wrapper.find('[data-node="node-1"]').classes()).toContain('border-red-500');
+      expect(wrapper.find('[data-props-error]').text()).toBe('Invalid schema');
+    });
+
+    it('shows no message for valid props', () => {
+      const node: InternalSchemaNode = { _id: 'node-1', type: 'text', name: 'a' };
+      const wrapper = mount(FormNode, {
+        props: { node },
+        global: {
+          provide: { components: TEXT_COMPONENTS, mode: ref('build'), selectedNode: ref(), formId: ref('form-123'), data: ref({}), validityMap: ref({}) },
+        },
+      });
+
+      expect(wrapper.find('[data-node="node-1"]').classes()).not.toContain('border-red-500');
       expect(wrapper.find('[data-props-error]').exists()).toBe(false);
     });
 

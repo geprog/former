@@ -12,7 +12,7 @@ describe('component FormDragContainer', () => {
         attachTo: document.body,
         global: {
           provide: {
-            texts: ref<Texts>({ dragHint: 'hint' }),
+            texts: ref<Texts>({ dragHint: 'hint', invalidSchema: 'Invalid schema' }),
           },
         },
       }),
@@ -34,7 +34,7 @@ describe('component FormDragContainer', () => {
 
   it('adds drop-zone classes in build mode and omits them outside build mode', async () => {
     const mode = ref<Mode>('build');
-    const texts = ref<Texts>({ dragHint: 'Here you can drag elements' });
+    const texts = ref<Texts>({ dragHint: 'Here you can drag elements', invalidSchema: 'Invalid schema' });
     const wrapper = mount(FormDragContainer, {
       attachTo: document.body,
       global: { provide: { mode, texts } },
@@ -53,7 +53,7 @@ describe('component FormDragContainer', () => {
 
   it('exposes the drag container root as a single div with one slotted element child', () => {
     const mode = ref<Mode>('build');
-    const texts = ref<Texts>({ dragHint: 'Here you can drag elements' });
+    const texts = ref<Texts>({ dragHint: 'Here you can drag elements', invalidSchema: 'Invalid schema' });
     const wrapper = mount(FormDragContainer, {
       attachTo: document.body,
       global: { provide: { mode, texts } },
@@ -65,7 +65,7 @@ describe('component FormDragContainer', () => {
 
   it('drag container root has a single element child from the default slot', () => {
     const mode = ref<Mode>('build');
-    const texts = ref<Texts>({ dragHint: 'Here you can drag elements' });
+    const texts = ref<Texts>({ dragHint: 'Here you can drag elements', invalidSchema: 'Invalid schema' });
     const wrapper = mount(FormDragContainer, {
       attachTo: document.body,
       global: { provide: { mode, texts } },
@@ -77,7 +77,7 @@ describe('component FormDragContainer', () => {
 
   it('binds data-drag-hint, data-category, and data-parent-node', () => {
     const mode = ref<Mode>('build');
-    const texts = ref<Texts>({ dragHint: 'Custom drop hint' });
+    const texts = ref<Texts>({ dragHint: 'Custom drop hint', invalidSchema: 'Invalid schema' });
     const node = ref({ _id: 'schema-root', type: 'group', name: 'g' });
     const wrapper = mount(FormDragContainer, {
       attachTo: document.body,
@@ -91,7 +91,7 @@ describe('component FormDragContainer', () => {
 
   it('omits data-parent-node when node is not provided', () => {
     const mode = ref<Mode>('build');
-    const texts = ref<Texts>({ dragHint: 'Here you can drag elements' });
+    const texts = ref<Texts>({ dragHint: 'Here you can drag elements', invalidSchema: 'Invalid schema' });
     const wrapper = mount(FormDragContainer, {
       attachTo: document.body,
       global: { provide: { mode, texts } },
@@ -101,7 +101,7 @@ describe('component FormDragContainer', () => {
 
   it('passes undefined category without a data-category attribute', () => {
     const mode = ref<Mode>('build');
-    const texts = ref<Texts>({ dragHint: 'Here you can drag elements' });
+    const texts = ref<Texts>({ dragHint: 'Here you can drag elements', invalidSchema: 'Invalid schema' });
     const wrapper = mount(FormDragContainer, {
       attachTo: document.body,
       global: { provide: { mode, texts } },
@@ -111,7 +111,7 @@ describe('component FormDragContainer', () => {
 
   it('renders default slot content inside the root', () => {
     const mode = ref<Mode>('build');
-    const texts = ref<Texts>({ dragHint: 'Here you can drag elements' });
+    const texts = ref<Texts>({ dragHint: 'Here you can drag elements', invalidSchema: 'Invalid schema' });
     const wrapper = mount(FormDragContainer, {
       attachTo: document.body,
       global: { provide: { mode, texts } },
