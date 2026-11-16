@@ -39,6 +39,8 @@ describe('form components', () => {
     ['text', { inputType: 'email' }, 'UInput', 'type="email"'],
     ['text', { maxLength: 5 }, 'UInput', 'maxlength="5"'],
     ['number', { placeholder: 'Enter number' }, 'UInputNumber', 'placeholder="Enter number"'],
+    ['number', {}, 'UInputNumber', 'step-snapping="false" allow-invalid=""'],
+    ['number', { stepSnapping: true }, 'UInputNumber', 'step-snapping="true"'],
     ['select', { placeholder: 'Choose' }, 'USelect', 'placeholder="Choose"'],
     ['combo_box', { placeholder: 'Choose' }, 'UInputMenu', 'placeholder="Choose"'],
     ['textarea', { placeholder: 'Enter text' }, 'UTextarea', 'placeholder="Enter text"'],

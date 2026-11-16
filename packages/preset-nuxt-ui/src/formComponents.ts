@@ -190,6 +190,16 @@ export function createFormComponents(t: Translate) {
           props: { label: t('step_size'), min: 0, preset: 1 },
         },
         {
+          type: 'checkbox',
+          name: 'stepSnapping',
+          props: { label: t('step_snapping'), help: t('step_snapping_help') },
+        },
+        {
+          type: 'number',
+          name: 'decimals',
+          props: { label: t('decimals'), help: t('decimals_help'), min: 0, max: 20 },
+        },
+        {
           type: 'number',
           name: 'min',
           props: { label: t('min_value') },
