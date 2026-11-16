@@ -2,6 +2,7 @@ import type { FormComponents, SchemaNode, ValidationContext } from '@former-ui/f
 import { markRaw } from 'vue';
 import { z } from 'zod';
 import Checkbox from './Checkbox.vue';
+import CheckboxGroup from './CheckboxGroup.vue';
 import { shownColumnChildren } from './columns';
 import Columns from './Columns.vue';
 import ComboBox from './ComboBox.vue';
@@ -307,6 +308,17 @@ export function createFormComponents(t: Translate) {
       label: t('radio_group'),
       component: markRaw(RadioGroup),
       validation: stringValidation,
+      propsSchema: [
+        ...commonSchema({ placeholder: false, t }),
+        optionsSchema({ t }),
+        choiceSchema({ t }, 'orientation', 'orientation', ['vertical', 'horizontal'], 'vertical'),
+        choiceSchema({ t }, 'variant', 'variant', ['list', 'card', 'table'], 'list'),
+      ],
+    },
+    checkbox_group: {
+      label: t('checkbox_group'),
+      component: markRaw(CheckboxGroup),
+      validation: listValidation,
       propsSchema: [
         ...commonSchema({ placeholder: false, t }),
         optionsSchema({ t }),

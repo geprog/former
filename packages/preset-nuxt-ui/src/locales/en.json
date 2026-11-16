@@ -8,6 +8,7 @@
   "switch": "Switch",
   "date_field": "Date field",
   "radio_group": "Radio group",
+  "checkbox_group": "Checkbox group",
   "free_text": "Free text",
   "repeater": "Repeater",
   "image": "Image",
