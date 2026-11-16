@@ -1,6 +1,14 @@
 <template>
   <UFormField :description="help" :error>
-    <URadioGroup v-model:model-value="modelValue" :items :legend="label" :required :disabled="mode === 'read'" />
+    <URadioGroup
+      v-model:model-value="modelValue"
+      :items
+      :legend="label"
+      :required
+      :orientation="orientation || undefined"
+      :variant="variant || undefined"
+      :disabled="mode === 'read'"
+    />
   </UFormField>
 </template>
 
@@ -19,6 +27,8 @@ const props = defineProps<
     required?: boolean;
     help?: string;
     options?: Option[];
+    orientation?: 'vertical' | 'horizontal' | null;
+    variant?: 'list' | 'card' | 'table' | null;
   } & FormerProps
 >();
 

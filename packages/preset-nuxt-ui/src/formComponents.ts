@@ -270,6 +270,8 @@ export function createFormComponents(t: Translate) {
       propsSchema: [
         ...commonSchema({ placeholder: false, t }),
         optionsSchema({ t }),
+        choiceSchema({ t }, 'orientation', 'orientation', ['vertical', 'horizontal'], 'vertical'),
+        choiceSchema({ t }, 'variant', 'variant', ['list', 'card', 'table'], 'list'),
       ],
     },
     textarea: {
