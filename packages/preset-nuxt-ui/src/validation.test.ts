@@ -58,6 +58,23 @@ describe('validation', () => {
     expect(errorOf('date', { min: null, max: '' }, '2026-06-15')).toBeUndefined();
   });
 
+  it('checks the length of a text', () => {
+    expect(errorOf('text', { minLength: 3 }, 'ab')).toBe('error_min_length {"min":3}');
+    expect(errorOf('text', { maxLength: 3 }, 'abcd')).toBe('error_max_length {"max":3}');
+    expect(errorOf('text', { minLength: 2, maxLength: 3 }, 'abc')).toBeUndefined();
+  });
+
+  it('checks the format of an email or URL', () => {
+    expect(errorOf('text', { inputType: 'email' }, 'no-email')).toBe('error_email');
+    expect(errorOf('text', { inputType: 'email' }, 'mail@example.com')).toBeUndefined();
+    expect(errorOf('text', { inputType: 'url' }, 'no url')).toBe('error_url');
+    expect(errorOf('text', { inputType: 'url' }, 'https://example.com')).toBeUndefined();
+  });
+
+  it.each([null, ''])('does not check the length or format of the empty text %o', (empty) => {
+    expect(errorOf('text', { minLength: 3, inputType: 'email' }, empty)).toBeUndefined();
+  });
+
   it('does not check the range of an empty value', () => {
     expect(errorOf('number', { min: 2 }, null)).toBeUndefined();
   });
@@ -81,6 +98,8 @@ describe('validation', () => {
     translated.number.validation({ max: 2 }).safeParse(3);
     translated.date.validation({ min: '2026-01-02' }).safeParse('2026-01-01');
     translated.date.validation({ max: '2026-01-01' }).safeParse('2026-01-02');
+    translated.text.validation({ minLength: 1, maxLength: 1, inputType: 'email' });
+    translated.text.validation({ inputType: 'url' });
 
     expect(Object.keys(en)).toEqual(expect.arrayContaining([...keys]));
   });

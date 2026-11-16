@@ -1,6 +1,15 @@
 <template>
   <UFormField :label :required :description="help" :error class="w-full">
-    <UInput v-model:model-value="modelValue" :placeholder type="text" size="lg" :disabled="mode === 'read'" />
+    <UInput
+      v-model:model-value="modelValue"
+      :placeholder
+      :type="inputType || 'text'"
+      :minlength="minLength ?? undefined"
+      :maxlength="maxLength ?? undefined"
+      :autocomplete="inputType === 'password' ? 'new-password' : undefined"
+      size="lg"
+      :disabled="mode === 'read'"
+    />
   </UFormField>
 </template>
 
@@ -18,6 +27,9 @@ const props = defineProps<
     help?: string;
     placeholder?: string;
     preset?: string;
+    inputType?: 'text' | 'email' | 'url' | 'tel' | 'password';
+    minLength?: number | null;
+    maxLength?: number | null;
   } & FormerProps
 >();
 

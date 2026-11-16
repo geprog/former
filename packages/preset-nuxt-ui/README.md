@@ -95,7 +95,7 @@ export const i18n = createI18n({
 
 ## Validation
 
-The components validate their data with the settings of the form builder: a field with `required` needs a value (a checkbox or switch needs to be checked, a repeater needs an item), and number and date fields check their `min` and `max`. This applies to the settings of the nodes in build mode as well, e.g. the required technical name. The error messages are texts of the preset (`error_required`, `error_min_value`, …), so they can be translated like the others.
+The components validate their data with the settings of the form builder: a field with `required` needs a value (a checkbox or switch needs to be checked, a repeater needs an item), number and date fields check their `min` and `max`, and text fields check their length and the format of emails and URLs. This applies to the settings of the nodes in build mode as well, e.g. the required technical name. The error messages are texts of the preset (`error_required`, `error_min_value`, …), so they can be translated like the others.
 
 The validation is built with [Zod](https://zod.dev). To validate more, replace the `validation` of a component and fall back to the one of the preset. The second parameter is the context of the node with its `path` and the `scopes` of data containing it (see [Former](../former/README.md#form-data-and-validation)), e.g. to compare it to a field next to it:
 

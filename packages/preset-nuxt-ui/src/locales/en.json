@@ -44,5 +44,17 @@
   "error_min_value": "Must be at least {min}",
   "error_max_value": "Must be at most {max}",
   "error_min_date": "Must be on or after {min}",
-  "error_max_date": "Must be on or before {max}"
+  "error_max_date": "Must be on or before {max}",
+  "input_type": "Type",
+  "inputType_text": "Text",
+  "inputType_email": "Email",
+  "inputType_url": "URL",
+  "inputType_tel": "Phone number",
+  "inputType_password": "Password",
+  "min_length": "Minimum length",
+  "max_length": "Maximum length",
+  "error_min_length": "Must be at least {min} characters",
+  "error_max_length": "Must be at most {max} characters",
+  "error_email": "Must be a valid email address",
+  "error_url": "Must be a valid URL"
 }

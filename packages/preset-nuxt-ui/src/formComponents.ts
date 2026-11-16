@@ -94,6 +94,18 @@ function optionsSchema({ t }: { t: (key: string) => string }): SchemaNode {
   };
 }
 
+// a setting choosing one of the given values, e.g. the type of a text field
+function choiceSchema({ t }: { t: (key: string) => string }, name: string, label: string, choices: string[], preset?: string): SchemaNode {
+  return {
+    type: 'select',
+    name,
+    props: {
+      label: t(label),
+      options: choices.map(value => ({ value, label: t(`${name}_${value}`), preset: value === preset })),
+    },
+  };
+}
+
 type Translate = (key: string, named?: Record<string, unknown>) => string;
 
 // the validations of the preset don't depend on the context, but take it so a replacing validation can pass it on,
@@ -107,6 +119,26 @@ export function createFormComponents(t: Translate) {
   // fields storing a string are cleared to `null`, so only required ones are validated
   const stringValidation = ({ required }: ValidationProps, _context?: ValidationContext) =>
     (required ? z.string(requiredMessage).min(1, requiredMessage) : undefined);
+  // texts are cleared to `null`, so their length and format are only checked if they are filled in
+  const textValidation = ({ required, inputType, minLength, maxLength }: ValidationProps, _context?: ValidationContext): z.ZodType<string | null | undefined> => {
+    let schema = z.string(requiredMessage);
+    if (required) {
+      schema = schema.min(1, requiredMessage);
+    }
+    if (typeof minLength === 'number') {
+      schema = schema.refine(value => !value || value.length >= minLength, t('error_min_length', { min: minLength }));
+    }
+    if (typeof maxLength === 'number') {
+      schema = schema.refine(value => !value || value.length <= maxLength, t('error_max_length', { max: maxLength }));
+    }
+    if (inputType === 'email') {
+      schema = schema.refine(value => !value || z.email().safeParse(value).success, t('error_email'));
+    }
+    if (inputType === 'url') {
+      schema = schema.refine(value => !value || z.url().safeParse(value).success, t('error_url'));
+    }
+    return required ? schema : schema.nullish();
+  };
   const checkedValidation = ({ required }: ValidationProps, _context?: ValidationContext) =>
     (required ? z.literal(true, requiredMessage) : undefined);
   const numberValidation = ({ required, min, max }: ValidationProps, _context?: ValidationContext) => {
@@ -137,9 +169,12 @@ export function createFormComponents(t: Translate) {
     text: {
       label: t('text_field'),
       component: markRaw(Text),
-      validation: stringValidation,
+      validation: textValidation,
       propsSchema: [
         ...commonSchema({ t }),
+        choiceSchema({ t }, 'inputType', 'input_type', ['text', 'email', 'url', 'tel', 'password'], 'text'),
+        { type: 'number', name: 'minLength', props: { label: t('min_length'), min: 0 } },
+        { type: 'number', name: 'maxLength', props: { label: t('max_length'), min: 1 } },
         { type: 'text', name: 'preset', props: { label: t('preset_text') } },
       ],
     },

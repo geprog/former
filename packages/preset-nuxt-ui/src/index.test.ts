@@ -36,6 +36,8 @@ describe('form components', () => {
 
   it.each([
     ['text', { placeholder: 'Enter text' }, 'UInput', 'placeholder="Enter text"'],
+    ['text', { inputType: 'email' }, 'UInput', 'type="email"'],
+    ['text', { maxLength: 5 }, 'UInput', 'maxlength="5"'],
     ['number', { placeholder: 'Enter number' }, 'UInputNumber', 'placeholder="Enter number"'],
     ['select', { placeholder: 'Choose' }, 'USelect', 'placeholder="Choose"'],
     ['combo_box', { placeholder: 'Choose' }, 'UInputMenu', 'placeholder="Choose"'],
