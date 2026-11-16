@@ -33,6 +33,8 @@
   "rows": "Rows",
   "autoresize": "Grow with the text",
   "item_label": "Item label",
+  "min_items": "Minimum number of items",
+  "max_items": "Maximum number of items",
   "image_source": "Image",
   "accept": "Accepted file types",
   "disable_custom_value": "Disable custom values",
@@ -67,6 +69,8 @@
   "variant_table": "Table",
   "error_min_length": "Must be at least {min} characters",
   "error_max_length": "Must be at most {max} characters",
+  "error_min_items": "Must have at least {min} items",
+  "error_max_items": "Must have at most {max} items",
   "error_email": "Must be a valid email address",
   "error_url": "Must be a valid URL"
 }

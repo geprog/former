@@ -69,6 +69,14 @@ describe('validation', () => {
     expect(errorOf('textarea', { maxLength: 3 }, 'abc')).toBeUndefined();
   });
 
+  it('checks the number of items of a repeater', () => {
+    expect(errorOf('repeater', { minItems: 2 }, [{}])).toBe('error_min_items {"min":2}');
+    expect(errorOf('repeater', { maxItems: 1 }, [{}, {}])).toBe('error_max_items {"max":1}');
+    expect(errorOf('repeater', { minItems: 1, maxItems: 2 }, [{}, {}])).toBeUndefined();
+    expect(errorOf('repeater', { minItems: 2 }, [])).toBeUndefined();
+    expect(errorOf('repeater', { minItems: 2 }, null)).toBeUndefined();
+  });
+
   it('checks the format of an email or URL', () => {
     expect(errorOf('text', { inputType: 'email' }, 'no-email')).toBe('error_email');
     expect(errorOf('text', { inputType: 'email' }, 'mail@example.com')).toBeUndefined();
@@ -105,6 +113,7 @@ describe('validation', () => {
     translated.date.validation({ max: '2026-01-01' }).safeParse('2026-01-02');
     translated.text.validation({ minLength: 1, maxLength: 1, inputType: 'email' });
     translated.text.validation({ inputType: 'url' });
+    translated.repeater.validation({ minItems: 1, maxItems: 1 });
 
     expect(Object.keys(en)).toEqual(expect.arrayContaining([...keys]));
   });

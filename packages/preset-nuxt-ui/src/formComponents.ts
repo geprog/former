@@ -162,8 +162,20 @@ export function createFormComponents(t: Translate) {
     }
     return required ? schema : schema.nullish();
   };
-  const listValidation = ({ required }: ValidationProps, _context?: ValidationContext) =>
-    (required ? z.array(z.unknown(), requiredMessage).min(1, requiredMessage) : undefined);
+  // like texts, the number of items is only checked if there are any
+  const listValidation = ({ required, minItems, maxItems }: ValidationProps, _context?: ValidationContext): z.ZodType<unknown[] | null | undefined> => {
+    let schema = z.array(z.unknown(), requiredMessage);
+    if (required) {
+      schema = schema.min(1, requiredMessage);
+    }
+    if (typeof minItems === 'number') {
+      schema = schema.refine(value => !value.length || value.length >= minItems, t('error_min_items', { min: minItems }));
+    }
+    if (typeof maxItems === 'number') {
+      schema = schema.refine(value => value.length <= maxItems, t('error_max_items', { max: maxItems }));
+    }
+    return required ? schema : schema.nullish();
+  };
 
   return {
     text: {
@@ -303,8 +315,10 @@ export function createFormComponents(t: Translate) {
       validation: listValidation,
       isList: true,
       propsSchema: [
-        ...commonSchema({ help: false, placeholder: false, t }),
+        ...commonSchema({ placeholder: false, t }),
         { type: 'text', name: 'itemLabel', props: { label: t('item_label') } },
+        { type: 'number', name: 'minItems', props: { label: t('min_items'), min: 0 } },
+        { type: 'number', name: 'maxItems', props: { label: t('max_items'), min: 1 } },
       ],
     },
     image: {
