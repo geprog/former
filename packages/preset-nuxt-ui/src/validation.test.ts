@@ -30,6 +30,7 @@ describe('validation', () => {
     ['checkbox_group', null],
     ['tags', null],
     ['time', null],
+    ['slider', null],
   ] as const)('%s requires a value with `required`', (type, empty) => {
     expect(errorOf(type, { required: true }, empty)).toBe('error_required');
     expect(errorOf(type, {}, empty)).toBeUndefined();

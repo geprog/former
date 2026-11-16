@@ -15,6 +15,7 @@ import NumberField from './Number.vue';
 import RadioGroup from './RadioGroup.vue';
 import Repeater from './Repeater.vue';
 import Select from './Select.vue';
+import Slider from './Slider.vue';
 import Switch from './Switch.vue';
 import Tags from './Tags.vue';
 import Text from './Text.vue';
@@ -257,6 +258,18 @@ export function createFormComponents(t: Translate) {
           name: 'preset',
           props: { label: t('preset_value') },
         },
+      ],
+    },
+    slider: {
+      label: t('slider'),
+      component: markRaw(Slider),
+      validation: numberValidation,
+      propsSchema: [
+        ...commonSchema({ placeholder: false, t }),
+        { type: 'number', name: 'min', props: { label: t('min_value'), preset: 0 } },
+        { type: 'number', name: 'max', props: { label: t('max_value'), preset: 100 } },
+        { type: 'number', name: 'stepSize', props: { label: t('step_size'), min: 0, preset: 1 } },
+        { type: 'number', name: 'preset', props: { label: t('preset_value') } },
       ],
     },
     select: {

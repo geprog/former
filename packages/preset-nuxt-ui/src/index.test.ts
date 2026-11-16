@@ -56,6 +56,8 @@ describe('form components', () => {
     ['switch', { label: 'Enable' }, 'USwitch', 'label="Enable"'],
     ['switch', { required: true }, 'USwitch', 'required="true"'],
     ['radio_group', { required: true }, 'URadioGroup', 'required="true"'],
+    ['slider', { min: 10, max: 20, stepSize: 5 }, 'USlider', 'min="10" max="20" step="5"'],
+    ['slider', { min: 10 }, 'USlider', 'model-value="10"'],
     ['radio_group', { orientation: 'horizontal' }, 'URadioGroup', 'orientation="horizontal"'],
     ['radio_group', { variant: 'card' }, 'URadioGroup', 'variant="card"'],
   ] as const)('%s passes %o to %s', (type, props, stub, attribute) => {

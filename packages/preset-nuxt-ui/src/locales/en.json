@@ -1,6 +1,7 @@
 {
   "text_field": "Text field",
   "number_field": "Number field",
+  "slider": "Slider",
   "select_field": "Select field",
   "group": "Group",
   "column_layout": "Column layout",
