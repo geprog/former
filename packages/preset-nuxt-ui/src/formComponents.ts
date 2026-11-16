@@ -20,6 +20,8 @@ import Select from './Select.vue';
 import Separator from './Separator.vue';
 import Slider from './Slider.vue';
 import Switch from './Switch.vue';
+import { shownTabChildren } from './tabs';
+import Tabs from './Tabs.vue';
 import Tags from './Tags.vue';
 import Text from './Text.vue';
 import Textarea from './Textarea.vue';
@@ -311,6 +313,21 @@ export function createFormComponents(t: Translate) {
           props: { label: t('columns'), min: 1, preset: 2, required: true },
         },
         { type: 'checkbox', name: 'border', props: { label: t('show_border') } },
+      ],
+    },
+    tabs: {
+      label: t('tabs'),
+      component: markRaw(Tabs),
+      shownChildren: shownTabChildren,
+      propsSchema: [
+        ...commonSchema({ name: false, required: false, placeholder: false, t }),
+        {
+          type: 'repeater',
+          name: 'tabs',
+          children: [{ type: 'text', name: 'label', props: { label: t('label') } }],
+          props: { label: t('tabs'), itemLabel: t('tab') },
+        },
+        choiceSchema({ t }, 'variant', 'variant', ['pill', 'link'], 'pill'),
       ],
     },
     checkbox: {
