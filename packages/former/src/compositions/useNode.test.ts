@@ -365,6 +365,16 @@ describe('useNode', () => {
       unmount();
       expect(validityMap.value).not.toHaveProperty('gone');
     });
+
+    it('keeps the validity of a node mounted at another place of the same parent when its old instance is unmounted', () => {
+      const validityMap = ref<Record<string, boolean | undefined>>({});
+      const validation = () => z.string('err');
+      const old = mountUseNode({ node: ref<InternalSchemaNode>({ _id: 'moved', type: FIELD_TYPE, name: 'a' }), validityMap, validation });
+      mountUseNode({ node: ref<InternalSchemaNode>({ _id: 'moved', type: FIELD_TYPE, name: 'a' }), validityMap, validation });
+
+      old.unmount();
+      expect(validityMap.value.moved).toBe(false);
+    });
   });
 
   describe('when visibility toggles (isShown watch)', () => {

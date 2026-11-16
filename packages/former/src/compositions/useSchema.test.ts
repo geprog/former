@@ -273,5 +273,15 @@ describe('useSchema', () => {
       expect(propsValidity.value).toEqual({ n1: true, n2: 'Server not reachable' });
       expect(isValid.value).toBe(false);
     });
+
+    it('isValid is false if validating the whole schema fails', async () => {
+      // a malformed schema, which can't be iterated
+      const schema = ref(null as unknown as InternalSchemaNode[]);
+      const { propsValidity, isValid } = useSchema(schema, createComponents());
+      await flushPromises();
+
+      expect(propsValidity.value).toEqual({});
+      expect(isValid.value).toBe(false);
+    });
   });
 });
