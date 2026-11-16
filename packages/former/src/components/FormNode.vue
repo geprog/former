@@ -3,8 +3,10 @@
     v-if="mode === 'build' || (isShown && (mode !== 'read' || hasContent))"
     :data-node="node._id"
     :draggable="mode === 'build'"
-    class="relative flex items-center duration-0 w-full rounded empty:hidden"
+    class="relative items-center duration-0 w-full rounded empty:hidden"
     :class="{
+      'grid grid-cols-[auto_1fr]': mode === 'build',
+      'flex': mode !== 'build',
       'border-2 !border-blue-600': mode === 'build' && selectedNode?._id === node._id,
       'bg-zinc-300 dark:bg-zinc-700 rounded': mode === 'build' && !isShown,
       'former-draggable p-2': mode === 'build',
@@ -13,12 +15,13 @@
     @click.stop="selectedNode = node"
     @dragstart.stop="startDrag($event, node._id)"
   >
+    <!-- in build mode the drag handle is next to the node, while the error of its props is below the node -->
     <span v-if="mode === 'build'" class="drag-handle !cursor-move p-2">::</span>
     <component :is="component" v-if="component" v-bind="componentProps" :id="node._id" v-model="modelValue" :mode :error>
       <slot />
     </component>
     <span v-else>Component type not found!</span>
-    <span v-if="mode === 'build' && propsError" data-props-error class="p-2 text-sm text-red-500">{{ propsError }}</span>
+    <span v-if="mode === 'build' && propsError" data-props-error class="col-start-2 text-sm text-red-500">{{ propsError }}</span>
   </div>
 </template>
 
