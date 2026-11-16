@@ -16,6 +16,7 @@ import NumberField from './Number.vue';
 import RadioGroup from './RadioGroup.vue';
 import Repeater from './Repeater.vue';
 import Select from './Select.vue';
+import Separator from './Separator.vue';
 import Slider from './Slider.vue';
 import Switch from './Switch.vue';
 import Tags from './Tags.vue';
@@ -415,6 +416,14 @@ export function createFormComponents(t: Translate) {
       propsSchema: [
         ...commonSchema({ t }),
         { type: 'color', name: 'preset', props: { label: t('preset_value') } },
+      ],
+    },
+    separator: {
+      label: t('separator'),
+      component: markRaw(Separator),
+      propsSchema: [
+        ...commonSchema({ name: false, help: false, required: false, placeholder: false, t }),
+        choiceSchema({ t }, 'type', 'line_type', ['solid', 'dashed', 'dotted'], 'solid'),
       ],
     },
     image: {

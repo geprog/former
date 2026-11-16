@@ -49,6 +49,7 @@ describe('form components', () => {
     ['tags', { maxItems: 3 }, 'UInputTags', 'max="3"'],
     ['textarea', { placeholder: 'Enter text' }, 'UTextarea', 'placeholder="Enter text"'],
     ['color', { placeholder: '#000000' }, 'UInput', 'placeholder="#000000"'],
+    ['separator', { label: 'Contact', type: 'dashed' }, 'USeparator', 'label="Contact" type="dashed"'],
     ['textarea', { rows: 5 }, 'UTextarea', 'rows="5"'],
     ['textarea', { autoresize: true }, 'UTextarea', 'autoresize="true"'],
     ['textarea', { maxLength: 5 }, 'UTextarea', 'maxlength="5"'],
