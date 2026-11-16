@@ -1,6 +1,7 @@
 import type { FormComponents, SchemaNode, ValidationContext } from '@former-ui/former';
 import { markRaw } from 'vue';
 import { z } from 'zod';
+import Alert from './Alert.vue';
 import Checkbox from './Checkbox.vue';
 import CheckboxGroup from './CheckboxGroup.vue';
 import Color from './Color.vue';
@@ -424,6 +425,15 @@ export function createFormComponents(t: Translate) {
       propsSchema: [
         ...commonSchema({ name: false, help: false, required: false, placeholder: false, t }),
         choiceSchema({ t }, 'type', 'line_type', ['solid', 'dashed', 'dotted'], 'solid'),
+      ],
+    },
+    alert: {
+      label: t('alert'),
+      component: markRaw(Alert),
+      propsSchema: [
+        { type: 'text', name: 'label', props: { label: t('title') } },
+        { type: 'textarea', name: 'text', props: { label: t('text'), autoresize: true } },
+        choiceSchema({ t }, 'color', 'alert_color', ['info', 'success', 'warning', 'error', 'neutral'], 'info'),
       ],
     },
     image: {

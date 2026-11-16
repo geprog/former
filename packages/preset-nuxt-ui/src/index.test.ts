@@ -50,6 +50,8 @@ describe('form components', () => {
     ['textarea', { placeholder: 'Enter text' }, 'UTextarea', 'placeholder="Enter text"'],
     ['color', { placeholder: '#000000' }, 'UInput', 'placeholder="#000000"'],
     ['separator', { label: 'Contact', type: 'dashed' }, 'USeparator', 'label="Contact" type="dashed"'],
+    ['alert', { label: 'Note', text: 'Fill in all fields' }, 'UAlert', 'title="Note" description="Fill in all fields" color="info"'],
+    ['alert', { color: 'warning' }, 'UAlert', 'color="warning" icon="i-heroicons-exclamation-triangle"'],
     ['textarea', { rows: 5 }, 'UTextarea', 'rows="5"'],
     ['textarea', { autoresize: true }, 'UTextarea', 'autoresize="true"'],
     ['textarea', { maxLength: 5 }, 'UTextarea', 'maxlength="5"'],
