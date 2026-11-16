@@ -414,6 +414,23 @@ describe('validation of components', () => {
     expect(last(schemaValid)).toBe(false);
   });
 
+  it('validates the items of repeaters not marked as list (`isList`) relative to the item', async () => {
+    const contexts: ValidationContext[] = [];
+    const validation: FormFieldType['validation'] = (props, context) => {
+      contexts.push(context);
+      return z.string('Value is required').min(1, 'Value is required');
+    };
+    const { wrapper } = mountFormer({
+      schema: [schema[3]],
+      components: { ...components, text: { ...components.text, validation }, repeater: { ...components.repeater, isList: undefined } },
+      data: { items: [{ title: 'first' }, { title: '' }] },
+    });
+    await settle();
+
+    expect(errorOf(wrapper, 'Title', 1)).toBe('Value is required');
+    expect(contexts.map(context => context.path)).toContainEqual(['items', 1, 'title']);
+  });
+
   it('validates the props of the nodes relative to the other props', async () => {
     const schemaValid: boolean[] = [];
     const propsComponents: FormComponents = {

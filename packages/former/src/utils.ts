@@ -288,21 +288,27 @@ export function dataPathOfNode(node: SchemaNode, scopes: DataScope[], components
   return isNodeLayoutComponent(node, components) || !node.name ? path : [...path, node.name];
 }
 
+// whether the data of a node is a list whose items each render its children (e.g. a repeater),
+// lists without data are detected by their component, as only an array tells them apart from e.g. groups otherwise
+export function isListNode(node: SchemaNode, nodeData: FieldData | FormData, components: FormComponents): boolean {
+  return Array.isArray(nodeData) || !!components[node.type]?.isList;
+}
+
 // the scopes of the children of a node, the data of a named node with children (e.g. a group) is the scope of its
 // children, while the items of lists (e.g. repeaters) are the scopes of their children (see `dataScopesOfListItem`)
 export function dataScopesOfChildren(node: SchemaNode, data: FieldData | FormData, scopes: DataScope[], components: FormComponents): DataScope[] {
-  if (isNodeLayoutComponent(node, components) || !node.name || !node.children || components[node.type]?.isList) {
+  if (isNodeLayoutComponent(node, components) || !node.name || !node.children) {
     return scopes;
   }
-  return [{ node, data: dataOfNode(node, data, components), path: dataPathOfNode(node, scopes, components) }, ...scopes];
+  const nodeData = dataOfNode(node, data, components);
+  if (isListNode(node, nodeData, components)) {
+    return scopes;
+  }
+  return [{ node, data: nodeData, path: dataPathOfNode(node, scopes, components) }, ...scopes];
 }
 
-// the scopes of the nodes in the item at `index` of a list (e.g. a repeater), the list is in the closest scope,
-// unless the list isn't marked as list (`isList`) and therefore provides itself as scope, which is replaced by the item
+// the scopes of the nodes in the item at `index` of a list (e.g. a repeater), the list is in the closest scope
 export function dataScopesOfListItem(list: SchemaNode | undefined, item: FormData, index: number, scopes: DataScope[]): DataScope[] {
-  if (list && scopes[0]?.node === list) {
-    return [{ node: list, data: item, path: [...scopes[0].path, index] }, ...scopes.slice(1)];
-  }
   const listPath = [...(scopes[0]?.path ?? []), ...(list?.name ? [list.name] : [])];
   return [{ node: list, data: item, path: [...listPath, index] }, ...scopes];
 }

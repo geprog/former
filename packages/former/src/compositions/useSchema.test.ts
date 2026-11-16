@@ -134,6 +134,26 @@ describe('useSchema', () => {
       expect(isNodeValid({ ...node, props: { group: {}, options: [] } }, components)).toBe(false);
     });
 
+    it('validates the items of props lists not marked as list (`isList`), e.g. the options of a select', () => {
+      const validation = vi.fn(({ required }) => (required ? z.string('required') : undefined));
+      const field = { label: 'Field', component: {} as any, validation, propsSchema: [{ type: 'field', name: '$name' }] };
+      const components: FormComponents = {
+        select: {
+          label: 'Select',
+          component: {} as any,
+          propsSchema: [{ type: 'repeater', name: 'options', children: [{ type: 'field', name: 'value', props: { required: true } }] }],
+        },
+        field,
+        repeater: { ...field, validation: undefined },
+      };
+      const select = (options: unknown[]) => ({ _id: 'n1', type: 'select', props: { options } }) as InternalSchemaNode;
+
+      expect(isNodeValid(select([{ value: 'a' }, { value: 'b' }]), components)).toBe(true);
+      expect(isNodeValid(select([{ value: 'a' }, { value: null }]), components)).toBe(false);
+      const contexts = validation.mock.calls.map(call => (call as unknown[])[1] as ValidationContext);
+      expect(contexts.map(context => context.path)).toContainEqual(['options', 1, 'value']);
+    });
+
     it('validates only the shown children of the props', () => {
       const { schema } = createSchema();
       const components: FormComponents = {

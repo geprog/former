@@ -2,7 +2,7 @@ import type { StandardSchemaV1 } from '@standard-schema/spec';
 import type { DataScope, FieldData, FormComponents, FormData, InternalSchemaNode, SchemaNode, ValidationContext } from '~/types';
 import { cloneDeepWith, isDate, isObject, isPlainObject } from 'lodash';
 import { type Ref, shallowRef, toRaw, watch } from 'vue';
-import { dataOfNode, dataPathOfNode, dataScopesOfChildren, dataScopesOfListItem, nodeChildren, propsOf } from '~/utils';
+import { dataOfNode, dataPathOfNode, dataScopesOfChildren, dataScopesOfListItem, isListNode, nodeChildren, propsOf } from '~/utils';
 
 // the Standard Schema (https://standardschema.dev) implemented by e.g. Zod, Valibot, ArkType and Yup
 export type { StandardSchemaV1 };
@@ -62,7 +62,7 @@ function areNodesValid(nodes: SchemaNode[], data: FieldData | FormData, scopes: 
     ];
     // only the shown children are rendered, e.g. not the ones of removed columns
     const children = components[node.type]?.shownChildren?.(node) ?? nodeChildren(node);
-    if (components[node.type]?.isList) {
+    if (isListNode(node, nodeData, components)) {
       const items = Array.isArray(nodeData) ? nodeData : [];
       results.push(...items.map((item, index) =>
         areNodesValid(children, item, dataScopesOfListItem(node, item, index, scopes), components)));

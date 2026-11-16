@@ -57,7 +57,8 @@ export type FormFieldType = {
   internal?: boolean;
   // a schema validating the data of the component, built from the props of its node (e.g. `required`, `min` or `max`)
   validation?: (props: { [key: string]: any }, context: ValidationContext) => StandardSchemaV1 | undefined;
-  // whether the data of the component is a list whose items each render its children (e.g. a repeater)
+  // whether the data of the component is a list whose items each render its children (e.g. a repeater),
+  // only needed to detect lists without data, as an array is detected as list anyway
   isList?: boolean;
   // the children the component renders, if it doesn't render all of them (e.g. columns only render the children of their columns)
   shownChildren?: (node: SchemaNode) => SchemaNode[];

@@ -12,6 +12,7 @@ import {
   getFormIdFromEvent,
   getNode,
   hasValue,
+  isListNode,
   isNodeLayoutComponent,
   nanoid,
   nodeChildren,
@@ -540,9 +541,20 @@ describe('data and scopes of nodes', () => {
     expect(dataScopesOfListItem(list, { a: 1 }, 2, [form])).toEqual([{ node: list, data: { a: 1 }, path: ['items', 2] }, form]);
   });
 
-  it('replaces the scope of a list not marked as list (`isList`) by the scope of the item', () => {
-    const scopes = dataScopesOfChildren(group, form.data, [form], components);
-    expect(dataScopesOfListItem(group, { a: 2 }, 0, scopes)).toEqual([{ node: group, data: { a: 2 }, path: ['group', 0] }, form]);
+  it('detects lists by their data or by their component', () => {
+    const list = node('l', { type: 'list', name: 'items', children: [node('a', { name: 'a' })] });
+    expect(isListNode(list, undefined, components)).toBe(true);
+    expect(isListNode(group, [{ a: 1 }], components)).toBe(true);
+    expect(isListNode(group, { a: 1 }, components)).toBe(false);
+    expect(isListNode(group, undefined, components)).toBe(false);
+  });
+
+  it('adds no scope for a list not marked as list (`isList`), as its items are the scopes of its children', () => {
+    const items = node('i', { name: 'items', children: [node('a', { name: 'a' })] });
+    const listForm = { data: { items: [{ a: 1 }] }, path: [] };
+    const scopes = dataScopesOfChildren(items, listForm.data, [listForm], components);
+    expect(scopes).toEqual([listForm]);
+    expect(dataScopesOfListItem(items, { a: 1 }, 0, scopes)).toEqual([{ node: items, data: { a: 1 }, path: ['items', 0] }, listForm]);
   });
 });
 
