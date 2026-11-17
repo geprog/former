@@ -41,6 +41,7 @@ type FormerProbeBundle = {
   data: Ref<FormData | FieldData>;
   validityMap: Ref<Record<string, boolean | undefined>>;
   selectedNode: Ref<InternalSchemaNode | undefined>;
+  selectedNodePath: Ref<InternalSchemaNode[]>;
   formerIsUpdating: Ref<boolean>;
   mode: Ref<Mode>;
   components: Ref<FormComponents>;
@@ -58,6 +59,7 @@ const FormerInjectProbe = defineComponent({
       data: formerInject('data'),
       validityMap: formerInject('validityMap'),
       selectedNode: formerInject('selectedNode'),
+      selectedNodePath: formerInject('selectedNodePath'),
       formerIsUpdating: formerInject('formerIsUpdating'),
       mode: formerInject('mode'),
       components: formerInject('components'),
@@ -155,6 +157,70 @@ describe('component Former', () => {
       activeFormerProbe!.selectedNode.value = { _id: 'scoped-1', type: 'text', name: 'f' };
       await nextTick();
       expect(attr()).toBe('scoped-1');
+    });
+
+    it('passes and provides the path of the selected node, following when it is moved', async () => {
+      const schema: SchemaNode[] = [
+        {
+          type: 'text',
+          name: 'group',
+          children: [
+            {
+              type: 'text',
+              name: 'repeater',
+              children: {
+                default: [
+                  { type: 'text', name: 'field' },
+                ],
+              },
+            },
+          ],
+        },
+        { type: 'text', name: 'other' },
+      ];
+      const wrapper = mount(Former, {
+        shallow: true,
+        attachTo: document.body,
+        global: {
+          renderStubDefaultSlot: true,
+          components: { FormerInjectProbe },
+          stubs: { FormerInjectProbe: false },
+        },
+        props: {
+          'schema': schema,
+          'onUpdate:schema': (value: SchemaNode[]) => wrapper.setProps({ schema: value }),
+          'components': COMPONENTS_FIXTURE,
+        },
+        slots: {
+          default: ({ selectedNodePath }: { selectedNodePath: InternalSchemaNode[] }) =>
+            h('div', [
+              h('span', {
+                'data-scoped-path': selectedNodePath.map(n => n.name).join('/'),
+              }),
+              h(FormerInjectProbe),
+            ]),
+        },
+      });
+      await nextTick();
+      const path = () => wrapper.get('[data-scoped-path]').attributes('data-scoped-path');
+      expect(path()).toBe('');
+
+      const internalSchema = activeFormerProbe!.schema;
+      const field = (internalSchema.value[0].children as InternalSchemaNode[])[0].children as Record<string, InternalSchemaNode[]>;
+      activeFormerProbe!.selectedNode.value = field.default[0];
+      await nextTick();
+      expect(path()).toBe('group/repeater');
+      expect(activeFormerProbe!.selectedNodePath.value.map(n => n.name)).toStrictEqual(['group', 'repeater']);
+
+      // move the selected node to the top of the form
+      const moved = field.default.splice(0, 1)[0];
+      internalSchema.value.push(moved);
+      await nextTick();
+      expect(path()).toBe('');
+
+      activeFormerProbe!.selectedNode.value = undefined;
+      await nextTick();
+      expect(activeFormerProbe!.selectedNodePath.value).toStrictEqual([]);
     });
   });
 

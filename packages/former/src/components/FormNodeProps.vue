@@ -10,6 +10,7 @@
         <slot
           name="node-actions"
           :node="toSchemaNode(selectedNode)"
+          :path="selectedNodePath.map(toSchemaNode)"
           :add-node="addNode"
           :remove-node="removeNode"
         />
@@ -43,7 +44,7 @@
 import type { InternalSchemaNode, SchemaNode } from '~/types';
 import { computed, ref, watch } from 'vue';
 import { inject } from '~/compositions/injectProvide';
-import { deleteNode, addNode as insertNodeAt, nodePosition, replaceNode, toInternalSchema, toInternalSchemaNode, toSchemaNode } from '~/utils';
+import { deleteNode, getNodePath, addNode as insertNodeAt, nodePosition, replaceNode, toInternalSchema, toInternalSchemaNode, toSchemaNode } from '~/utils';
 import Former from './Former.vue';
 
 defineEmits<{
@@ -54,6 +55,9 @@ const components = inject('components');
 const schema = inject('schema');
 
 const selectedNode = inject('selectedNode');
+const selectedNodePath = computed(() => (selectedNode.value
+  ? getNodePath(schema.value, selectedNode.value._id) ?? []
+  : []));
 
 const selectedNodeType = computed(() => (selectedNode.value ? components.value[selectedNode.value.type] : undefined));
 
