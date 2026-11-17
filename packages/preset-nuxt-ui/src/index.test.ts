@@ -62,6 +62,8 @@ describe('form components', () => {
     ['radio_group', { required: true }, 'URadioGroup', 'required="true"'],
     ['slider', { min: 10, max: 20, stepSize: 5 }, 'USlider', 'min="10" max="20" step="5"'],
     ['slider', { min: 10 }, 'USlider', 'model-value="10"'],
+    ['rating', {}, 'UInputRating', 'length="5" step="1" clearable="true"'],
+    ['rating', { stars: 10, halfStars: true, required: true }, 'UInputRating', 'length="10" step="0.5" clearable="false"'],
     ['radio_group', { orientation: 'horizontal' }, 'URadioGroup', 'orientation="horizontal"'],
     ['radio_group', { variant: 'card' }, 'URadioGroup', 'variant="card"'],
   ] as const)('%s passes %o to %s', (type, props, stub, attribute) => {
@@ -248,6 +250,22 @@ describe('form components', () => {
     expect(data).toStrictEqual({ field: ['a', 'b'] });
 
     wrapper.findComponent({ name: 'UInputTags' }).vm.$emit('update:modelValue', []);
+    await nextTick();
+    expect(data).toStrictEqual({ field: null });
+  });
+
+  it('rating stores the chosen rating and clears the value when it is cleared', async () => {
+    let data: FormData = {};
+    const wrapper = mount(Former, {
+      props: { 'schema': [{ type: 'rating', name: 'field' }], data, components, 'mode': 'edit', 'onUpdate:data': (value: FormData) => (data = value) },
+      global: { components: nuxtUiStubs },
+    });
+
+    wrapper.findComponent({ name: 'UInputRating' }).vm.$emit('update:modelValue', 3.5);
+    await nextTick();
+    expect(data).toStrictEqual({ field: 3.5 });
+
+    wrapper.findComponent({ name: 'UInputRating' }).vm.$emit('update:modelValue', 0);
     await nextTick();
     expect(data).toStrictEqual({ field: null });
   });

@@ -31,6 +31,7 @@ describe('validation', () => {
     ['tags', null],
     ['time', null],
     ['slider', null],
+    ['rating', null],
     ['color', null],
   ] as const)('%s requires a value with `required`', (type, empty) => {
     expect(errorOf(type, { required: true }, empty)).toBe('error_required');

@@ -16,6 +16,7 @@ import Group from './Group.vue';
 import Image from './Image.vue';
 import NumberField from './Number.vue';
 import RadioGroup from './RadioGroup.vue';
+import Rating from './Rating.vue';
 import Repeater from './Repeater.vue';
 import Select from './Select.vue';
 import Separator from './Separator.vue';
@@ -284,6 +285,17 @@ export function createFormComponents(t: Translate) {
         { type: 'number', name: 'max', props: { label: t('max_value'), preset: 100 } },
         { type: 'number', name: 'stepSize', props: { label: t('step_size'), min: 0, preset: 1 } },
         { type: 'number', name: 'preset', props: { label: t('preset_value') } },
+      ],
+    },
+    rating: {
+      label: t('rating'),
+      component: markRaw(Rating),
+      validation: numberValidation,
+      propsSchema: [
+        ...commonSchema({ placeholder: false, t }),
+        { type: 'number', name: 'stars', props: { label: t('stars'), min: 1, max: 10, preset: 5 } },
+        { type: 'checkbox', name: 'halfStars', props: { label: t('half_stars') } },
+        { type: 'rating', name: 'preset', props: { label: t('preset_value') } },
       ],
     },
     select: {
