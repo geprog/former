@@ -12,6 +12,7 @@ import Columns from './Columns.vue';
 import ComboBox from './ComboBox.vue';
 import { toChosen } from './composables/useOptions';
 import DateField from './Date.vue';
+import DateRange from './DateRange.vue';
 import FileUpload from './FileUpload.vue';
 import Group from './Group.vue';
 import Image from './Image.vue';
@@ -204,6 +205,19 @@ export function createFormComponents(t: Translate) {
     };
   const dateValidation = isoRangeValidation('error_min_date', 'error_max_date');
   const timeValidation = isoRangeValidation('error_min_time', 'error_max_time');
+  // a date range needs both of its dates, its start can't be after its end and both are checked against `min` and `max`
+  const dateRangeValidation = ({ required, min, max }: ValidationProps, _context?: ValidationContext): z.ZodType<{ start?: string | null; end?: string | null } | null | undefined> => {
+    let schema = z.object({ start: z.string().nullish(), end: z.string().nullish() }, requiredMessage)
+      .refine(({ start, end }) => !!start && !!end, required ? requiredMessage : t('error_incomplete_range'))
+      .refine(({ start, end }) => !start || !end || start <= end, t('error_range_order'));
+    if (min) {
+      schema = schema.refine(({ start }) => !start || start >= min, t('error_min_date', { min }));
+    }
+    if (max) {
+      schema = schema.refine(({ end }) => !end || end <= max, t('error_max_date', { max }));
+    }
+    return required ? schema : schema.nullish();
+  };
   // like texts, the number of items is only checked if there are any
   const listValidation = ({ required, minItems, maxItems }: ValidationProps, _context?: ValidationContext): z.ZodType<unknown[] | null | undefined> => {
     let schema = z.array(z.unknown(), requiredMessage);
@@ -384,6 +398,16 @@ export function createFormComponents(t: Translate) {
         { type: 'date', name: 'min', props: { label: t('min_value') } },
         { type: 'date', name: 'max', props: { label: t('max_value') } },
         { type: 'date', name: 'preset', props: { label: t('preset_value') } },
+      ],
+    },
+    date_range: {
+      label: t('date_range'),
+      component: markRaw(DateRange),
+      validation: dateRangeValidation,
+      propsSchema: [
+        ...commonSchema({ placeholder: false, t }),
+        { type: 'date', name: 'min', props: { label: t('min_value') } },
+        { type: 'date', name: 'max', props: { label: t('max_value') } },
       ],
     },
     time: {

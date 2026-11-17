@@ -95,7 +95,7 @@ export const i18n = createI18n({
 
 ## Validation
 
-The components validate their data with the settings of the form builder: a field with `required` needs a value (a checkbox or switch needs to be checked, a repeater needs an item), repeaters check their minimum and maximum number of items, file uploads check their maximum size, number, date and time fields check their `min` and `max`, text fields and free texts check their length, text fields check the format of emails and URLs, and color fields check for a hex color. This applies to the settings of the nodes in build mode as well, e.g. the required technical name. The error messages are texts of the preset (`error_required`, `error_min_value`, …), so they can be translated like the others.
+The components validate their data with the settings of the form builder: a field with `required` needs a value (a checkbox or switch needs to be checked, a repeater needs an item), repeaters check their minimum and maximum number of items, file uploads check their maximum size, number, date and time fields check their `min` and `max`, date ranges check that they have a start and an end in the right order, text fields and free texts check their length, text fields check the format of emails and URLs, and color fields check for a hex color. This applies to the settings of the nodes in build mode as well, e.g. the required technical name. The error messages are texts of the preset (`error_required`, `error_min_value`, …), so they can be translated like the others.
 
 The validation is built with [Zod](https://zod.dev). To validate more, replace the `validation` of a component and fall back to the one of the preset. The second parameter is the context of the node with its `path` and the `scopes` of data containing it (see [Former](../former/README.md#form-data-and-validation)), e.g. to compare it to a field next to it:
 
@@ -134,6 +134,6 @@ A cleared field is therefore stored as `null`, never removed from the data. An u
 
 In read mode presets are never applied.
 
-Times are stored as ISO strings with minutes (`HH:mm`), like dates (`YYYY-MM-DD`).
+Times are stored as ISO strings with minutes (`HH:mm`), like dates (`YYYY-MM-DD`). A date range is stored as object of its ISO dates, `{ start: '2026-03-01', end: '2026-03-05' }`, a missing date is `null`.
 
 File uploads are stored as data URL with the file name as `name` parameter, e.g. `data:image/png;name=floor%20plan.png;base64,...`. Browsers ignore the parameter, so the value can be used as image source directly.

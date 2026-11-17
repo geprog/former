@@ -32,6 +32,7 @@ describe('validation', () => {
     ['time', null],
     ['slider', null],
     ['rating', null],
+    ['date_range', null],
     ['color', null],
   ] as const)('%s requires a value with `required`', (type, empty) => {
     expect(errorOf(type, { required: true }, empty)).toBe('error_required');
@@ -57,6 +58,19 @@ describe('validation', () => {
     expect(errorOf('date', props, '2025-12-31')).toBe('error_min_date {"min":"2026-01-01"}');
     expect(errorOf('date', props, '2027-01-01')).toBe('error_max_date {"max":"2026-12-31"}');
     expect(errorOf('date', props, '2026-06-15')).toBeUndefined();
+  });
+
+  it('checks a date range', () => {
+    const props = { min: '2026-01-01', max: '2026-12-31' };
+    expect(errorOf('date_range', props, { start: '2026-03-01', end: '2026-03-05' })).toBeUndefined();
+    expect(errorOf('date_range', props, { start: '2026-03-05', end: '2026-03-01' })).toBe('error_range_order');
+    expect(errorOf('date_range', props, { start: '2025-12-31', end: '2026-03-01' })).toBe('error_min_date {"min":"2026-01-01"}');
+    expect(errorOf('date_range', props, { start: '2026-03-01', end: '2027-01-01' })).toBe('error_max_date {"max":"2026-12-31"}');
+  });
+
+  it('requires both dates of a range', () => {
+    expect(errorOf('date_range', {}, { start: '2026-03-01', end: null })).toBe('error_incomplete_range');
+    expect(errorOf('date_range', { required: true }, { start: null, end: '2026-03-01' })).toBe('error_required');
   });
 
   it('checks the range of a time', () => {
@@ -162,6 +176,7 @@ describe('validation', () => {
     translated.file_upload.validation({ maxSize: 1 });
     translated.time.validation({ min: '08:00', max: '17:00' });
     translated.color.validation({});
+    translated.date_range.validation({ min: '2026-01-01', max: '2026-12-31' });
 
     expect(Object.keys(en)).toEqual(expect.arrayContaining([...keys]));
   });
