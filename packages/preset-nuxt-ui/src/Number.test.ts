@@ -10,7 +10,9 @@ import { createFormComponents } from './formComponents';
 // icons are loaded from the network, which isn't needed here
 vi.mock('@nuxt/ui/runtime/vue/components/Icon.vue', async () => {
   const { defineComponent, h } = await import('vue');
-  return { default: defineComponent(() => () => h('span')) };
+  return {
+    default: defineComponent(() => () => h('span')),
+  };
 });
 
 const components: FormComponents = { number: createFormComponents(key => key).number };
@@ -20,13 +22,17 @@ function mountNumber(props: SchemaNode['props']) {
   const data = ref<FormData>({});
   const wrapper = mount(Former, {
     props: {
-      'schema': [{ type: 'number', name: 'value', props }],
+      'schema': [
+        { type: 'number', name: 'value', props },
+      ],
       'data': data.value,
       'onUpdate:data': (value: FormData) => (data.value = value),
       components,
       'mode': 'edit',
     },
-    global: { components: { ...nuxtUiStubs, UInputNumber } },
+    global: {
+      components: { ...nuxtUiStubs, UInputNumber },
+    },
   });
   return { wrapper, data };
 }
@@ -50,10 +56,22 @@ describe('number', () => {
   });
 
   it.each([
-    [{ max: 10 }, 12, 12],
-    [{ min: 5 }, 2, 2],
+    [
+      { max: 10 },
+      12,
+      12,
+    ],
+    [
+      { min: 5 },
+      2,
+      2,
+    ],
     // typed numbers are kept as they are, even with step snapping
-    [{ stepSize: 5, stepSnapping: true }, 7, 7],
+    [
+      { stepSize: 5, stepSnapping: true },
+      7,
+      7,
+    ],
   ])('with %o stores the entered %o as %o', async (props, entered, stored) => {
     const { wrapper, data } = mountNumber(props);
     const input = wrapper.find('input');
@@ -66,8 +84,14 @@ describe('number', () => {
   });
 
   it.each([
-    [{ stepSize: 5 }, 12],
-    [{ stepSize: 5, stepSnapping: true }, 10],
+    [
+      { stepSize: 5 },
+      12,
+    ],
+    [
+      { stepSize: 5, stepSnapping: true },
+      10,
+    ],
   ])('with %o increases 7 to %o', async (props, increased) => {
     const { wrapper, data } = mountNumber(props);
     const input = wrapper.find('input');

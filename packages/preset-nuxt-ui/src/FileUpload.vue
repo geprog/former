@@ -44,8 +44,12 @@ function dataUrlToFile(dataUrl: string): File {
   const [metaInformation = '', content = ''] = dataUrl.split(',');
   const [mime, ...parameters] = metaInformation.replace(/^data:/, '').split(';');
   const nameParameter = parameters.find(parameter => parameter.startsWith('name='));
-  const name = nameParameter ? decodeURIComponent(nameParameter.slice('name='.length)) : '';
-  return new File([base64ToBytes(content)], name, { type: mime });
+  const name = nameParameter
+    ? decodeURIComponent(nameParameter.slice('name='.length))
+    : '';
+  return new File([
+    base64ToBytes(content),
+  ], name, { type: mime });
 }
 
 function addFileName(dataUrl: string, name: string): string {
@@ -56,7 +60,9 @@ function addFileName(dataUrl: string, name: string): string {
   return `${dataUrl.slice(0, index)};name=${encodeURIComponent(name)}${dataUrl.slice(index)}`;
 }
 
-const file = computed(() => (modelValue.value ? dataUrlToFile(modelValue.value) : null));
+const file = computed(() => (modelValue.value
+  ? dataUrlToFile(modelValue.value)
+  : null));
 
 // only the latest selection is stored, so a slow read of a previously selected file can't overwrite it
 let currentReader: FileReader | null = null;

@@ -1,8 +1,9 @@
+import type { Plugin } from 'vite';
 import { existsSync } from 'node:fs';
 import { fileURLToPath, URL } from 'node:url';
 import ui from '@nuxt/ui/vite';
 import vue from '@vitejs/plugin-vue';
-import { defineConfig, type Plugin } from 'vite';
+import { defineConfig } from 'vite';
 
 // entry files of the workspace packages, their builds remove them while building (see `reloadOnPackageBuild`)
 const packageEntries = [
@@ -62,10 +63,14 @@ export default defineConfig({
     }),
   ],
   resolve: {
-    alias: { '@': fileURLToPath(new URL('./src', import.meta.url)) },
+    alias: {
+      '@': fileURLToPath(new URL('./src', import.meta.url)),
+    },
   },
   server: {
     allowedHosts: ['.gitpod.io'],
   },
-  optimizeDeps: { exclude: ['@former-ui/former', '@former-ui/preset-nuxt-ui'] },
+  optimizeDeps: {
+    exclude: ['@former-ui/former', '@former-ui/preset-nuxt-ui'],
+  },
 });

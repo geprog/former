@@ -13,11 +13,21 @@ function checked(values: string[]) {
   return values as unknown as FormData[];
 }
 
-const options = [{ value: 'red', preset: true }, { value: 'green' }, { value: 'blue', preset: true }];
+const options = [
+  { value: 'red', preset: true },
+  { value: 'green' },
+  { value: 'blue', preset: true },
+];
 
 function mountCheckboxGroup(initialData: FormData) {
   const data = ref<FormData>(initialData);
-  const schema: SchemaNode[] = [{ type: 'checkbox_group', name: 'colors', props: { options } }];
+  const schema: SchemaNode[] = [
+    {
+      type: 'checkbox_group',
+      name: 'colors',
+      props: { options },
+    },
+  ];
   const wrapper = mount(Former, {
     props: {
       schema,
@@ -49,7 +59,9 @@ describe('checkbox group', () => {
   });
 
   it('clears the value when no option is checked', async () => {
-    const { wrapper, data } = mountCheckboxGroup({ colors: checked(['green']) });
+    const { wrapper, data } = mountCheckboxGroup({
+      colors: checked(['green']),
+    });
 
     wrapper.findComponent({ name: 'UCheckboxGroup' }).vm.$emit('update:modelValue', []);
     await nextTick();

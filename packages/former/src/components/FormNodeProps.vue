@@ -62,7 +62,9 @@ const selectedNodePropsSchema = ref<InternalSchemaNode[]>();
 watch(
   selectedNodeType,
   (_selectedNodeType) => {
-    selectedNodePropsSchema.value = _selectedNodeType ? toInternalSchema(_selectedNodeType.propsSchema) : undefined;
+    selectedNodePropsSchema.value = _selectedNodeType
+      ? toInternalSchema(_selectedNodeType.propsSchema)
+      : undefined;
   },
   { immediate: true },
 );

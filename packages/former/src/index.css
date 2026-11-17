@@ -1,4 +1,8 @@
-/* Only include components and utilities, not base reset styles */
+/* Only include the theme and utilities, not the preflight base reset styles */
 /* Consuming apps should include their own Tailwind base reset */
-@tailwind components;
-@tailwind utilities;
+@layer theme, utilities;
+@import 'tailwindcss/theme.css' layer(theme);
+/* only scan the library source files to include only used classes */
+@import 'tailwindcss/utilities.css' layer(utilities) source('.');
+
+@custom-variant dark (&:where(.dark, .dark *));

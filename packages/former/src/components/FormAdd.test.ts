@@ -1,7 +1,8 @@
+import type { Ref } from 'vue';
 import type { FormComponents, Mode } from '~/types';
 import { mount } from '@vue/test-utils';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { defineComponent, h, markRaw, nextTick, ref, type Ref, unref } from 'vue';
+import { defineComponent, h, markRaw, nextTick, ref, unref } from 'vue';
 import { inject } from '~/compositions/injectProvide';
 import * as utils from '~/utils';
 
@@ -12,7 +13,10 @@ const FieldStub = defineComponent({
   props: {
     id: { type: String, required: true },
     mode: { type: String, required: true },
-    modelValue: { type: [String, Number, Boolean, Object, Array], default: undefined },
+    modelValue: {
+      type: [String, Number, Boolean, Object, Array],
+      default: undefined,
+    },
   },
   template: `
     <div data-field-stub>
@@ -185,7 +189,9 @@ describe('component FormAdd', () => {
         global: {
           provide: { components, mode, formId },
         },
-        slots: { default: () => h(SlotInjectProbe) },
+        slots: {
+          default: () => h(SlotInjectProbe),
+        },
       });
       const probes = wrapper.findAll('[data-inject-data]');
       expect(probes).toHaveLength(2);
@@ -200,7 +206,9 @@ describe('component FormAdd', () => {
         global: {
           provide: { components, mode, formId },
         },
-        slots: { default: () => h(SlotInjectProbe) },
+        slots: {
+          default: () => h(SlotInjectProbe),
+        },
       });
       const first = wrapper.find('[data-inject-data]');
       expect(first.attributes('data-inject-data')).toBe('{}');

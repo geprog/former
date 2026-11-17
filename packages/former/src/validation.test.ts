@@ -1,3 +1,4 @@
+import type { StandardSchemaV1 } from './validation';
 import type { FormComponents, FormFieldType } from '~/types';
 import { flushPromises } from '@vue/test-utils';
 import * as v from 'valibot';
@@ -9,7 +10,7 @@ import {
   errorMessage,
   every,
   isPromiseLike,
-  type StandardSchemaV1,
+
   useMaybeAsync,
   validateComponent,
   validateWithSchema,
@@ -22,7 +23,13 @@ function asyncSchema(message?: string): StandardSchemaV1 {
     '~standard': {
       version: 1,
       vendor: 'test',
-      validate: async value => (message ? { issues: [{ message }] } : { value }),
+      validate: async value => (message
+        ? {
+            issues: [
+              { message },
+            ],
+          }
+        : { value }),
     },
   };
 }
@@ -36,24 +43,39 @@ describe('validation', () => {
     it('validates a clone of the data', () => {
       const data = { a: 'x' };
       const validate = vi.fn(() => ({ value: data }));
-      validateWithSchema({ '~standard': { version: 1, vendor: 'x', validate } }, data);
-      expect(validate.mock.calls[0]).toEqual([{ a: 'x' }]);
+      validateWithSchema({
+        '~standard': { version: 1, vendor: 'x', validate },
+      }, data);
+      expect(validate.mock.calls[0]).toEqual([
+        { a: 'x' },
+      ]);
       expect((validate.mock.calls[0] as unknown[])[0]).not.toBe(data);
     });
 
     it('keeps values which can\'t be cloned, e.g. files', () => {
       const file = new Blob(['x']);
       const validate = vi.fn(() => ({ value: file }));
-      validateWithSchema({ '~standard': { version: 1, vendor: 'x', validate } }, file);
-      validateWithSchema({ '~standard': { version: 1, vendor: 'x', validate } }, { file });
-      expect(validate.mock.calls).toEqual([[file], [{ file }]]);
+      validateWithSchema({
+        '~standard': { version: 1, vendor: 'x', validate },
+      }, file);
+      validateWithSchema({
+        '~standard': { version: 1, vendor: 'x', validate },
+      }, { file });
+      expect(validate.mock.calls).toEqual([
+        [file],
+        [
+          { file },
+        ],
+      ]);
       expect((validate.mock.calls[0] as unknown[])[0]).toBe(file);
     });
 
     it('validates a copy of dates', () => {
       const date = new Date('2026-01-01');
       const validate = vi.fn(() => ({ value: date }));
-      validateWithSchema({ '~standard': { version: 1, vendor: 'x', validate } }, { date });
+      validateWithSchema({
+        '~standard': { version: 1, vendor: 'x', validate },
+      }, { date });
       const validated = (validate.mock.calls[0] as unknown[])[0] as { date: Date };
       expect(validated.date).toEqual(date);
       expect(validated.date).not.toBe(date);
@@ -61,25 +83,59 @@ describe('validation', () => {
   });
 
   describe('validateComponent', () => {
-    const context = { node, path: ['a'], scopes: [{ data: {}, path: [] }] };
+    const context = {
+      node,
+      path: ['a'],
+      scopes: [
+        { data: {}, path: [] },
+      ],
+    };
 
     it('validates the data with the schema of the component', () => {
       const components: FormComponents = {
-        text: { label: 'Text', component: {}, propsSchema: [], validation: ({ min }) => z.string().min(min, 'too short') },
+        text: {
+          label: 'Text',
+          component: {},
+          propsSchema: [],
+          validation: ({ min }) => z.string().min(min, 'too short'),
+        },
       };
-      expect(validateComponent(components, { ...node, props: { min: 3 } }, 'ab', context)).toBe('too short');
-      expect(validateComponent(components, { ...node, props: { min: 3 } }, 'abc', context)).toBeUndefined();
+      expect(validateComponent(components, {
+        ...node,
+        props: { min: 3 },
+      }, 'ab', context)).toBe('too short');
+      expect(validateComponent(components, {
+        ...node,
+        props: { min: 3 },
+      }, 'abc', context)).toBeUndefined();
     });
 
     it('passes the props and the context to the validation', () => {
       const validation = vi.fn(() => undefined);
-      const components: FormComponents = { text: { label: 'Text', component: {}, propsSchema: [], validation } };
-      validateComponent(components, { ...node, props: { min: 3 } }, 'x', context);
+      const components: FormComponents = {
+        text: {
+          label: 'Text',
+          component: {},
+          propsSchema: [],
+          validation,
+        },
+      };
+      validateComponent(components, {
+        ...node,
+        props: { min: 3 },
+      }, 'x', context);
       expect(validation).toHaveBeenCalledWith({ min: 3 }, context);
     });
 
     function componentsWith(validation: FormFieldType['validation']): FormComponents {
-      return { text: { label: 'Text', component: {}, propsSchema: [], validation } };
+      return {
+        text: {
+          label: 'Text',
+          component: {},
+          propsSchema: [],
+          validation,
+        },
+      };
     }
 
     it('validates the data with a valibot schema', () => {
@@ -95,19 +151,34 @@ describe('validation', () => {
     });
 
     it('is the message of the first issue', () => {
-      const components = componentsWith(() => z.object({ a: z.string('first'), b: z.string('second') }));
+      const components = componentsWith(() => z.object({
+        a: z.string('first'),
+        b: z.string('second'),
+      }));
       expect(validateComponent(components, node, {}, context)).toBe('first');
     });
 
     it('passes cleared props (`null`) as not set to the validation', () => {
       const validation = vi.fn(() => undefined);
-      const components: FormComponents = { text: { label: 'Text', component: {}, propsSchema: [], validation } };
-      validateComponent(components, { ...node, props: { min: null, max: 3 } }, 'x', context);
+      const components: FormComponents = {
+        text: {
+          label: 'Text',
+          component: {},
+          propsSchema: [],
+          validation,
+        },
+      };
+      validateComponent(components, {
+        ...node,
+        props: { min: null, max: 3 },
+      }, 'x', context);
       expect(validation).toHaveBeenCalledWith({ max: 3 }, context);
     });
 
     it('is valid without a validation or an unknown component', () => {
-      expect(validateComponent({ text: { label: 'Text', component: {}, propsSchema: [] } }, node, 'x', context)).toBeUndefined();
+      expect(validateComponent({
+        text: { label: 'Text', component: {}, propsSchema: [] },
+      }, node, 'x', context)).toBeUndefined();
       expect(validateComponent({}, node, 'x', context)).toBeUndefined();
     });
   });
@@ -121,15 +192,23 @@ describe('validation', () => {
     });
 
     it('resolves async results', async () => {
-      await expect(every([undefined, Promise.resolve(undefined)], isValid)).resolves.toBe(true);
-      await expect(every([undefined, Promise.resolve('bad')], isValid)).resolves.toBe(false);
+      await expect(every([
+        undefined,
+        Promise.resolve(undefined),
+      ], isValid)).resolves.toBe(true);
+      await expect(every([
+        undefined,
+        Promise.resolve('bad'),
+      ], isValid)).resolves.toBe(false);
     });
   });
 
   describe('isPromiseLike', () => {
     it('detects promises and other thenables', () => {
       expect(isPromiseLike(Promise.resolve())).toBe(true);
-      expect(isPromiseLike({ then: () => {} })).toBe(true);
+      expect(isPromiseLike({
+        then: () => {},
+      })).toBe(true);
       expect(isPromiseLike(undefined)).toBe(false);
       expect(isPromiseLike(null)).toBe(false);
       expect(isPromiseLike('x')).toBe(false);
@@ -140,10 +219,18 @@ describe('validation', () => {
         '~standard': {
           version: 1,
           vendor: 'test',
-          validate: () => ({ then: (resolve: (result: StandardSchemaV1.Result<unknown>) => void) => resolve({ issues: [{ message: 'bad' }] }) }) as any,
+          validate: () => ({
+            then: (resolve: (result: StandardSchemaV1.Result<unknown>) => void) => resolve({
+              issues: [
+                { message: 'bad' },
+              ],
+            }),
+          }) as any,
         },
       };
-      await expect(validateWithSchema(schema, 'x')).resolves.toEqual([{ message: 'bad' }]);
+      await expect(validateWithSchema(schema, 'x')).resolves.toEqual([
+        { message: 'bad' },
+      ]);
     });
   });
 
@@ -162,10 +249,14 @@ describe('validation', () => {
       const { result, isPending } = useMaybeAsync(() => validateWithSchema(asyncSchema(source.value || undefined), undefined), [], () => []);
       expect(isPending.value).toBe(true);
       await flushPromises();
-      expect(result.value).toEqual([{ message: 'a' }]);
+      expect(result.value).toEqual([
+        { message: 'a' },
+      ]);
       expect(isPending.value).toBe(false);
       source.value = '';
-      expect(result.value).toEqual([{ message: 'a' }]);
+      expect(result.value).toEqual([
+        { message: 'a' },
+      ]);
       expect(isPending.value).toBe(true);
       await flushPromises();
       expect(result.value).toEqual([]);

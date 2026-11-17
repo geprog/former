@@ -16,7 +16,10 @@ const DynamicComponent = defineComponent({
     id: { type: String, required: true },
     mode: { type: String, required: true },
     error: { type: String, default: undefined },
-    modelValue: { type: [String, Number, Boolean, Object, Array], default: undefined },
+    modelValue: {
+      type: [String, Number, Boolean, Object, Array],
+      default: undefined,
+    },
     custom: { type: String, default: undefined },
   },
   emits: ['update:modelValue'],
@@ -26,7 +29,9 @@ const DynamicComponent = defineComponent({
 const COMPONENTS_FIXTURE: FormComponents = {
   text: {
     label: 'Text',
-    propsSchema: [{ type: 'text', name: '$name' }],
+    propsSchema: [
+      { type: 'text', name: '$name' },
+    ],
     component: markRaw(DynamicComponent),
   },
 };
@@ -105,7 +110,9 @@ describe('component Former', () => {
           texts: {},
           isUpdating: false,
         },
-        slots: { default: () => h('div', { 'data-custom-slot': '' }) },
+        slots: {
+          default: () => h('div', { 'data-custom-slot': '' }),
+        },
       });
       expect(wrapper.findComponent(FormContent).exists()).toBe(false);
       expect(wrapper.find('[data-custom-slot]').exists()).toBe(true);
@@ -134,7 +141,9 @@ describe('component Former', () => {
           default: ({ selectedNode }: { selectedNode: InternalSchemaNode | undefined }) =>
             h('div', [
               h('span', {
-                'data-scoped-selected': selectedNode ? (selectedNode._id || 'no-id') : 'none',
+                'data-scoped-selected': selectedNode
+                  ? (selectedNode._id || 'no-id')
+                  : 'none',
               }),
               h(FormerInjectProbe),
             ]),
@@ -167,7 +176,9 @@ describe('component Former', () => {
           texts: { dragHint: 'Custom hint' },
           isUpdating: true,
         },
-        slots: { default: () => h(FormerInjectProbe) },
+        slots: {
+          default: () => h(FormerInjectProbe),
+        },
       });
       await nextTick();
       expect(wrapper.findComponent(FormerInjectProbe).exists()).toBe(true);
@@ -196,7 +207,9 @@ describe('component Former', () => {
           texts: {},
           isUpdating: false,
         },
-        slots: { default: () => h(FormerInjectProbe) },
+        slots: {
+          default: () => h(FormerInjectProbe),
+        },
       });
       await nextTick();
       expect(activeFormerProbe!.texts.value.dragHint).toBe('Here you can drag elements');
@@ -220,7 +233,9 @@ describe('component Former', () => {
           texts: {},
           isUpdating: false,
         },
-        slots: { default: () => h(FormerInjectProbe) },
+        slots: {
+          default: () => h(FormerInjectProbe),
+        },
       });
       await nextTick();
       expect(activeFormerProbe!.formerIsUpdating.value).toBe(false);
@@ -248,12 +263,18 @@ describe('component Former', () => {
           texts: {},
           isUpdating: false,
         },
-        slots: { default: () => h(FormerInjectProbe) },
+        slots: {
+          default: () => h(FormerInjectProbe),
+        },
       });
       await nextTick();
       expect(activeFormerProbe!.schema.value).toEqual([]);
 
-      await wrapper.setProps({ schema: [{ type: 'text', name: 'fieldA' }] });
+      await wrapper.setProps({
+        schema: [
+          { type: 'text', name: 'fieldA' },
+        ],
+      });
       await nextTick();
       const internal = activeFormerProbe!.schema.value;
       expect(internal).toHaveLength(1);
@@ -272,18 +293,24 @@ describe('component Former', () => {
           stubs: { FormerInjectProbe: false },
         },
         props: {
-          schema: [{ type: 'text', name: 'only' }],
+          schema: [
+            { type: 'text', name: 'only' },
+          ],
           data: {},
           components: COMPONENTS_FIXTURE,
           mode: 'edit',
           texts: {},
           isUpdating: false,
         },
-        slots: { default: () => h(FormerInjectProbe) },
+        slots: {
+          default: () => h(FormerInjectProbe),
+        },
       });
       await nextTick();
       const probe = activeFormerProbe!;
-      const nextInternal = toInternalSchema([{ type: 'text', name: 'replaced' }]);
+      const nextInternal = toInternalSchema([
+        { type: 'text', name: 'replaced' },
+      ]);
       probe.schema.value = nextInternal;
       await nextTick();
       const emitted = wrapper.emitted('update:schema');
@@ -313,12 +340,20 @@ describe('component Former', () => {
           texts: {},
           isUpdating: false,
         },
-        slots: { default: () => h(FormerInjectProbe) },
+        slots: {
+          default: () => h(FormerInjectProbe),
+        },
       });
       await nextTick();
-      await wrapper.setProps({ data: { a: { nested: 1 } } });
+      await wrapper.setProps({
+        data: {
+          a: { nested: 1 },
+        },
+      });
       await nextTick();
-      expect(activeFormerProbe!.data.value).toEqual({ a: { nested: 1 } });
+      expect(activeFormerProbe!.data.value).toEqual({
+        a: { nested: 1 },
+      });
     });
 
     it('syncs mutations on injected data back to the parent model', async () => {
@@ -338,14 +373,22 @@ describe('component Former', () => {
           texts: {},
           isUpdating: false,
         },
-        slots: { default: () => h(FormerInjectProbe) },
+        slots: {
+          default: () => h(FormerInjectProbe),
+        },
       });
       await nextTick();
-      activeFormerProbe!.data.value = { x: 2, y: { z: 3 } };
+      activeFormerProbe!.data.value = {
+        x: 2,
+        y: { z: 3 },
+      };
       await nextTick();
       const emitted = wrapper.emitted('update:data');
       expect(emitted?.length).toBeGreaterThan(0);
-      expect(emitted![emitted!.length - 1]![0]).toStrictEqual({ x: 2, y: { z: 3 } });
+      expect(emitted![emitted!.length - 1]![0]).toStrictEqual({
+        x: 2,
+        y: { z: 3 },
+      });
     });
   });
 
@@ -367,7 +410,9 @@ describe('component Former', () => {
           texts: {},
           isUpdating: false,
         },
-        slots: { default: () => h(FormerInjectProbe) },
+        slots: {
+          default: () => h(FormerInjectProbe),
+        },
       });
       await nextTick();
       const fn = activeFormerProbe!.showIf!;
@@ -386,7 +431,9 @@ describe('component Former', () => {
           stubs: { FormerInjectProbe: false },
         },
         props: {
-          schema: [{ type: 'text', name: 's1' }],
+          schema: [
+            { type: 'text', name: 's1' },
+          ],
           data: { foo: 'bar' },
           components: COMPONENTS_FIXTURE,
           mode: 'edit',
@@ -394,12 +441,16 @@ describe('component Former', () => {
           isUpdating: false,
           showIf: showIf as ShowIfPredicate,
         },
-        slots: { default: () => h(FormerInjectProbe) },
+        slots: {
+          default: () => h(FormerInjectProbe),
+        },
       });
       await nextTick();
       const node: SchemaNode = { type: 'text', name: 'n' };
       expect(activeFormerProbe!.showIf?.(node)).toBe(false);
-      expect(showIf).toHaveBeenCalledWith(node, { foo: 'bar' }, [{ type: 'text', name: 's1' }]);
+      expect(showIf).toHaveBeenCalledWith(node, { foo: 'bar' }, [
+        { type: 'text', name: 's1' },
+      ]);
     });
   });
 
@@ -429,8 +480,16 @@ describe('component Former', () => {
       const components: FormComponents = {
         text: {
           ...COMPONENTS_FIXTURE.text,
-          validation: ({ required }) => (required ? z.string().min(1, 'required') : undefined),
-          propsSchema: [{ type: 'text', name: '$name', props: { required: true } }],
+          validation: ({ required }) => (required
+            ? z.string().min(1, 'required')
+            : undefined),
+          propsSchema: [
+            {
+              type: 'text',
+              name: '$name',
+              props: { required: true },
+            },
+          ],
         },
       };
       const onSchemaValid = vi.fn();
@@ -439,7 +498,9 @@ describe('component Former', () => {
         attachTo: document.body,
         global: { renderStubDefaultSlot: true },
         props: {
-          schema: [{ type: 'text', name: '' }],
+          schema: [
+            { type: 'text', name: '' },
+          ],
           data: {},
           components,
           mode: 'edit',
@@ -473,7 +534,9 @@ describe('component Former', () => {
           isUpdating: false,
           onValid,
         },
-        slots: { default: () => h(FormerInjectProbe) },
+        slots: {
+          default: () => h(FormerInjectProbe),
+        },
       });
       await nextTick();
       const validCalls = onValid.mock.calls;
@@ -499,7 +562,9 @@ describe('component Former', () => {
           isUpdating: false,
           onValid,
         },
-        slots: { default: () => h(FormerInjectProbe) },
+        slots: {
+          default: () => h(FormerInjectProbe),
+        },
       });
       await nextTick();
       onValid.mockClear();

@@ -50,7 +50,9 @@ function toTime(value: string | null | undefined): Time | undefined {
 }
 
 function toIsoTime(value: unknown): string | null {
-  return value instanceof Time ? value.toString().slice(0, 5) : null;
+  return value instanceof Time
+    ? value.toString().slice(0, 5)
+    : null;
 }
 
 const timeValue = computed(() => toTime(modelValue.value));

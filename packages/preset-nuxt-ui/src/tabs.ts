@@ -10,7 +10,9 @@ export function tabsOf(tabs: Tab[] | null | undefined): Tab[] {
   if (tabs === undefined || tabs === null) {
     return Array.from({ length: DEFAULT_TAB_COUNT }, () => ({}));
   }
-  return Array.isArray(tabs) ? tabs : [];
+  return Array.isArray(tabs)
+    ? tabs
+    : [];
 }
 
 // the categories of the children that are rendered in the tabs, e.g. `tab-0`

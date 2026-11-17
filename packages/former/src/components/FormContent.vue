@@ -219,7 +219,9 @@ function onDrop(e: DragEvent) {
       props: {},
     } satisfies InternalSchemaNode;
 
-    const _schema = [...toValue(schema.value)];
+    const _schema = [
+      ...toValue(schema.value),
+    ];
     addNode(_schema, newPosition, newNode);
     schema.value = _schema;
 
@@ -254,7 +256,9 @@ function onDrop(e: DragEvent) {
       return;
     }
 
-    const _schema = [...toValue(schema.value)];
+    const _schema = [
+      ...toValue(schema.value),
+    ];
     deleteNode(_schema, nodeId);
 
     if (

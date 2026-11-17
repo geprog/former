@@ -48,26 +48,56 @@ const defaultOptions: CommonSchemaOptions = {
 };
 
 function commonSchema(options: Partial<CommonSchemaOptions> & { t: (key: string) => string }): SchemaNode[] {
-  const { t, name, label, help, required, placeholder } = { ...defaultOptions, ...options };
+  const { t, name, label, help, required, placeholder } = {
+    ...defaultOptions,
+    ...options,
+  };
   const schema: SchemaNode[] = [];
   if (name) {
     schema.push({
       type: 'text',
       name: '$name',
-      props: { label: t('technical_name'), required: true },
+      props: {
+        label: t('technical_name'),
+        required: true,
+      },
     });
   }
   if (label) {
-    schema.push({ type: 'text', name: 'label', props: { label: t('label') } });
+    schema.push({
+      type: 'text',
+      name: 'label',
+      props: {
+        label: t('label'),
+      },
+    });
   }
   if (placeholder) {
-    schema.push({ type: 'text', name: 'placeholder', props: { label: t('placeholder') } });
+    schema.push({
+      type: 'text',
+      name: 'placeholder',
+      props: {
+        label: t('placeholder'),
+      },
+    });
   }
   if (help) {
-    schema.push({ type: 'text', name: 'help', props: { label: t('help_text') } });
+    schema.push({
+      type: 'text',
+      name: 'help',
+      props: {
+        label: t('help_text'),
+      },
+    });
   }
   if (required) {
-    schema.push({ type: 'checkbox', name: 'required', props: { label: t('value_is_required') } });
+    schema.push({
+      type: 'checkbox',
+      name: 'required',
+      props: {
+        label: t('value_is_required'),
+      },
+    });
   }
   return schema;
 }
@@ -98,7 +128,9 @@ function optionsSchema({ t }: { t: (key: string) => string }): SchemaNode {
       {
         type: 'checkbox',
         name: 'preset',
-        props: { label: t('preset_choice') },
+        props: {
+          label: t('preset_choice'),
+        },
       },
     ],
     props: {
@@ -115,7 +147,11 @@ function choiceSchema({ t }: { t: (key: string) => string }, name: string, label
     name,
     props: {
       label: t(label),
-      options: choices.map(value => ({ value, label: t(`${name}_${value}`), preset: value === preset })),
+      options: choices.map(value => ({
+        value,
+        label: t(`${name}_${value}`),
+        preset: value === preset,
+      })),
     },
   };
 }
@@ -123,7 +159,11 @@ function choiceSchema({ t }: { t: (key: string) => string }, name: string, label
 // the size in bytes of the file stored in a data URL
 function fileSize(dataUrl: string): number {
   const content = dataUrl.slice(dataUrl.indexOf(',') + 1);
-  const padding = content.endsWith('==') ? 2 : content.endsWith('=') ? 1 : 0;
+  const padding = content.endsWith('==')
+    ? 2
+    : content.endsWith('=')
+      ? 1
+      : 0;
   return Math.floor(content.length * 3 / 4) - padding;
 }
 
@@ -139,7 +179,9 @@ export function createFormComponents(t: Translate) {
   const requiredMessage = t('error_required');
   // fields storing a string are cleared to `null`, so only required ones are validated
   const stringValidation = ({ required }: ValidationProps, _context?: ValidationContext) =>
-    (required ? z.string(requiredMessage).min(1, requiredMessage) : undefined);
+    (required
+      ? z.string(requiredMessage).min(1, requiredMessage)
+      : undefined);
   // texts are cleared to `null`, so their length and format are only checked if they are filled in
   const textValidation = ({ required, inputType, minLength, maxLength }: ValidationProps, _context?: ValidationContext): z.ZodType<string | null | undefined> => {
     let schema = z.string(requiredMessage);
@@ -158,7 +200,9 @@ export function createFormComponents(t: Translate) {
     if (inputType === 'url') {
       schema = schema.refine(value => !value || z.url().safeParse(value).success, t('error_url'));
     }
-    return required ? schema : schema.nullish();
+    return required
+      ? schema
+      : schema.nullish();
   };
   // files are stored as data URLs (see `FileUpload.vue`), the size of their content is 3/4 of its base64 length
   const fileValidation = ({ required, maxSize }: ValidationProps, _context?: ValidationContext): z.ZodType<string | null | undefined> => {
@@ -169,7 +213,9 @@ export function createFormComponents(t: Translate) {
     if (typeof maxSize === 'number') {
       schema = schema.refine(value => fileSize(value) <= maxSize * 1024 * 1024, t('error_max_size', { max: maxSize }));
     }
-    return required ? schema : schema.nullish();
+    return required
+      ? schema
+      : schema.nullish();
   };
   const colorValidation = ({ required }: ValidationProps, _context?: ValidationContext): z.ZodType<string | null | undefined> => {
     let schema = z.string(requiredMessage);
@@ -177,10 +223,14 @@ export function createFormComponents(t: Translate) {
       schema = schema.min(1, requiredMessage);
     }
     schema = schema.refine(value => !value || /^#(?:[0-9a-f]{3}|[0-9a-f]{6}|[0-9a-f]{8})$/i.test(value), t('error_color'));
-    return required ? schema : schema.nullish();
+    return required
+      ? schema
+      : schema.nullish();
   };
   const checkedValidation = ({ required }: ValidationProps, _context?: ValidationContext) =>
-    (required ? z.literal(true, requiredMessage) : undefined);
+    (required
+      ? z.literal(true, requiredMessage)
+      : undefined);
   const numberValidation = ({ required, min, max }: ValidationProps, _context?: ValidationContext) => {
     let schema = z.number(requiredMessage);
     if (typeof min === 'number') {
@@ -189,7 +239,9 @@ export function createFormComponents(t: Translate) {
     if (typeof max === 'number') {
       schema = schema.max(max, t('error_max_value', { max }));
     }
-    return required ? schema : schema.nullish();
+    return required
+      ? schema
+      : schema.nullish();
   };
   // dates and times are ISO strings (YYYY-MM-DD and HH:mm), so they compare like the dates and times they represent
   const isoRangeValidation = (minMessage: string, maxMessage: string) =>
@@ -201,14 +253,21 @@ export function createFormComponents(t: Translate) {
       if (max) {
         schema = schema.refine(value => value <= max, t(maxMessage, { max }));
       }
-      return required ? schema : schema.nullish();
+      return required
+        ? schema
+        : schema.nullish();
     };
   const dateValidation = isoRangeValidation('error_min_date', 'error_max_date');
   const timeValidation = isoRangeValidation('error_min_time', 'error_max_time');
   // a date range needs both of its dates, its start can't be after its end and both are checked against `min` and `max`
   const dateRangeValidation = ({ required, min, max }: ValidationProps, _context?: ValidationContext): z.ZodType<{ start?: string | null; end?: string | null } | null | undefined> => {
-    let schema = z.object({ start: z.string().nullish(), end: z.string().nullish() }, requiredMessage)
-      .refine(({ start, end }) => !!start && !!end, required ? requiredMessage : t('error_incomplete_range'))
+    let schema = z.object({
+      start: z.string().nullish(),
+      end: z.string().nullish(),
+    }, requiredMessage)
+      .refine(({ start, end }) => !!start && !!end, required
+        ? requiredMessage
+        : t('error_incomplete_range'))
       .refine(({ start, end }) => !start || !end || start <= end, t('error_range_order'));
     if (min) {
       schema = schema.refine(({ start }) => !start || start >= min, t('error_min_date', { min }));
@@ -216,7 +275,9 @@ export function createFormComponents(t: Translate) {
     if (max) {
       schema = schema.refine(({ end }) => !end || end <= max, t('error_max_date', { max }));
     }
-    return required ? schema : schema.nullish();
+    return required
+      ? schema
+      : schema.nullish();
   };
   // like texts, the number of items is only checked if there are any
   const listValidation = ({ required, minItems, maxItems }: ValidationProps, _context?: ValidationContext): z.ZodType<unknown[] | null | undefined> => {
@@ -230,12 +291,16 @@ export function createFormComponents(t: Translate) {
     if (typeof maxItems === 'number') {
       schema = schema.refine(value => value.length <= maxItems, t('error_max_items', { max: maxItems }));
     }
-    return required ? schema : schema.nullish();
+    return required
+      ? schema
+      : schema.nullish();
   };
 
   // a select stores a list of values if several can be chosen
   const selectValidation = (props: ValidationProps, context?: ValidationContext) => {
-    const schema = props.multiple ? listValidation(props, context) : stringValidation(props, context);
+    const schema = props.multiple
+      ? listValidation(props, context)
+      : stringValidation(props, context);
     return schema && z.preprocess(value => toChosen(value, props.multiple), schema);
   };
 
@@ -246,10 +311,36 @@ export function createFormComponents(t: Translate) {
       validation: textValidation,
       propsSchema: [
         ...commonSchema({ t }),
-        choiceSchema({ t }, 'inputType', 'input_type', ['text', 'email', 'url', 'tel', 'password'], 'text'),
-        { type: 'number', name: 'minLength', props: { label: t('min_length'), min: 0 } },
-        { type: 'number', name: 'maxLength', props: { label: t('max_length'), min: 1 } },
-        { type: 'text', name: 'preset', props: { label: t('preset_text') } },
+        choiceSchema({ t }, 'inputType', 'input_type', [
+          'text',
+          'email',
+          'url',
+          'tel',
+          'password',
+        ], 'text'),
+        {
+          type: 'number',
+          name: 'minLength',
+          props: {
+            label: t('min_length'),
+            min: 0,
+          },
+        },
+        {
+          type: 'number',
+          name: 'maxLength',
+          props: {
+            label: t('max_length'),
+            min: 1,
+          },
+        },
+        {
+          type: 'text',
+          name: 'preset',
+          props: {
+            label: t('preset_text'),
+          },
+        },
       ],
     },
     number: {
@@ -261,32 +352,50 @@ export function createFormComponents(t: Translate) {
         {
           type: 'number',
           name: 'stepSize',
-          props: { label: t('step_size'), min: 0, preset: 1 },
+          props: {
+            label: t('step_size'),
+            min: 0,
+            preset: 1,
+          },
         },
         {
           type: 'checkbox',
           name: 'stepSnapping',
-          props: { label: t('step_snapping'), help: t('step_snapping_help') },
+          props: {
+            label: t('step_snapping'),
+            help: t('step_snapping_help'),
+          },
         },
         {
           type: 'number',
           name: 'decimals',
-          props: { label: t('decimals'), help: t('decimals_help'), min: 0, max: 20 },
+          props: {
+            label: t('decimals'),
+            help: t('decimals_help'),
+            min: 0,
+            max: 20,
+          },
         },
         {
           type: 'number',
           name: 'min',
-          props: { label: t('min_value') },
+          props: {
+            label: t('min_value'),
+          },
         },
         {
           type: 'number',
           name: 'max',
-          props: { label: t('max_value') },
+          props: {
+            label: t('max_value'),
+          },
         },
         {
           type: 'number',
           name: 'preset',
-          props: { label: t('preset_value') },
+          props: {
+            label: t('preset_value'),
+          },
         },
       ],
     },
@@ -296,10 +405,38 @@ export function createFormComponents(t: Translate) {
       validation: numberValidation,
       propsSchema: [
         ...commonSchema({ placeholder: false, t }),
-        { type: 'number', name: 'min', props: { label: t('min_value'), preset: 0 } },
-        { type: 'number', name: 'max', props: { label: t('max_value'), preset: 100 } },
-        { type: 'number', name: 'stepSize', props: { label: t('step_size'), min: 0, preset: 1 } },
-        { type: 'number', name: 'preset', props: { label: t('preset_value') } },
+        {
+          type: 'number',
+          name: 'min',
+          props: {
+            label: t('min_value'),
+            preset: 0,
+          },
+        },
+        {
+          type: 'number',
+          name: 'max',
+          props: {
+            label: t('max_value'),
+            preset: 100,
+          },
+        },
+        {
+          type: 'number',
+          name: 'stepSize',
+          props: {
+            label: t('step_size'),
+            min: 0,
+            preset: 1,
+          },
+        },
+        {
+          type: 'number',
+          name: 'preset',
+          props: {
+            label: t('preset_value'),
+          },
+        },
       ],
     },
     rating: {
@@ -308,9 +445,30 @@ export function createFormComponents(t: Translate) {
       validation: numberValidation,
       propsSchema: [
         ...commonSchema({ placeholder: false, t }),
-        { type: 'number', name: 'stars', props: { label: t('stars'), min: 1, max: 10, preset: 5 } },
-        { type: 'checkbox', name: 'halfStars', props: { label: t('half_stars') } },
-        { type: 'rating', name: 'preset', props: { label: t('preset_value') } },
+        {
+          type: 'number',
+          name: 'stars',
+          props: {
+            label: t('stars'),
+            min: 1,
+            max: 10,
+            preset: 5,
+          },
+        },
+        {
+          type: 'checkbox',
+          name: 'halfStars',
+          props: {
+            label: t('half_stars'),
+          },
+        },
+        {
+          type: 'rating',
+          name: 'preset',
+          props: {
+            label: t('preset_value'),
+          },
+        },
       ],
     },
     select: {
@@ -320,8 +478,21 @@ export function createFormComponents(t: Translate) {
       propsSchema: [
         ...commonSchema({ t }),
         optionsSchema({ t }),
-        { type: 'checkbox', name: 'multiple', props: { label: t('multiple'), help: t('multiple_help') } },
-        { type: 'checkbox', name: 'search', props: { label: t('search') } },
+        {
+          type: 'checkbox',
+          name: 'multiple',
+          props: {
+            label: t('multiple'),
+            help: t('multiple_help'),
+          },
+        },
+        {
+          type: 'checkbox',
+          name: 'search',
+          props: {
+            label: t('search'),
+          },
+        },
       ],
     },
     group: {
@@ -334,26 +505,58 @@ export function createFormComponents(t: Translate) {
       component: markRaw(Columns),
       shownChildren: shownColumnChildren,
       propsSchema: [
-        ...commonSchema({ name: false, required: false, placeholder: false, t }),
+        ...commonSchema({
+          name: false,
+          required: false,
+          placeholder: false,
+          t,
+        }),
         {
           type: 'number',
           name: 'cols',
-          props: { label: t('columns'), min: 1, preset: 2, required: true },
+          props: {
+            label: t('columns'),
+            min: 1,
+            preset: 2,
+            required: true,
+          },
         },
-        { type: 'checkbox', name: 'border', props: { label: t('show_border') } },
+        {
+          type: 'checkbox',
+          name: 'border',
+          props: {
+            label: t('show_border'),
+          },
+        },
       ],
     },
     card: {
       label: t('card'),
       component: markRaw(Card),
-      propsSchema: commonSchema({ name: false, required: false, placeholder: false, t }),
+      propsSchema: commonSchema({
+        name: false,
+        required: false,
+        placeholder: false,
+        t,
+      }),
     },
     collapsible: {
       label: t('collapsible'),
       component: markRaw(Collapsible),
       propsSchema: [
-        ...commonSchema({ name: false, required: false, placeholder: false, t }),
-        { type: 'checkbox', name: 'defaultOpen', props: { label: t('default_open') } },
+        ...commonSchema({
+          name: false,
+          required: false,
+          placeholder: false,
+          t,
+        }),
+        {
+          type: 'checkbox',
+          name: 'defaultOpen',
+          props: {
+            label: t('default_open'),
+          },
+        },
       ],
     },
     tabs: {
@@ -361,12 +564,28 @@ export function createFormComponents(t: Translate) {
       component: markRaw(Tabs),
       shownChildren: shownTabChildren,
       propsSchema: [
-        ...commonSchema({ name: false, required: false, placeholder: false, t }),
+        ...commonSchema({
+          name: false,
+          required: false,
+          placeholder: false,
+          t,
+        }),
         {
           type: 'repeater',
           name: 'tabs',
-          children: [{ type: 'text', name: 'label', props: { label: t('label') } }],
-          props: { label: t('tabs'), itemLabel: t('tab') },
+          children: [
+            {
+              type: 'text',
+              name: 'label',
+              props: {
+                label: t('label'),
+              },
+            },
+          ],
+          props: {
+            label: t('tabs'),
+            itemLabel: t('tab'),
+          },
         },
         choiceSchema({ t }, 'variant', 'variant', ['pill', 'link'], 'pill'),
       ],
@@ -377,7 +596,13 @@ export function createFormComponents(t: Translate) {
       validation: checkedValidation,
       propsSchema: [
         ...commonSchema({ placeholder: false, t }),
-        { type: 'checkbox', name: 'preset', props: { label: t('preset_choice') } },
+        {
+          type: 'checkbox',
+          name: 'preset',
+          props: {
+            label: t('preset_choice'),
+          },
+        },
       ],
     },
     switch: {
@@ -386,7 +611,13 @@ export function createFormComponents(t: Translate) {
       validation: checkedValidation,
       propsSchema: [
         ...commonSchema({ placeholder: false, t }),
-        { type: 'switch', name: 'preset', props: { label: t('preset_choice') } },
+        {
+          type: 'switch',
+          name: 'preset',
+          props: {
+            label: t('preset_choice'),
+          },
+        },
       ],
     },
     date: {
@@ -395,9 +626,27 @@ export function createFormComponents(t: Translate) {
       validation: dateValidation,
       propsSchema: [
         ...commonSchema({ placeholder: false, t }),
-        { type: 'date', name: 'min', props: { label: t('min_value') } },
-        { type: 'date', name: 'max', props: { label: t('max_value') } },
-        { type: 'date', name: 'preset', props: { label: t('preset_value') } },
+        {
+          type: 'date',
+          name: 'min',
+          props: {
+            label: t('min_value'),
+          },
+        },
+        {
+          type: 'date',
+          name: 'max',
+          props: {
+            label: t('max_value'),
+          },
+        },
+        {
+          type: 'date',
+          name: 'preset',
+          props: {
+            label: t('preset_value'),
+          },
+        },
       ],
     },
     date_range: {
@@ -406,8 +655,20 @@ export function createFormComponents(t: Translate) {
       validation: dateRangeValidation,
       propsSchema: [
         ...commonSchema({ placeholder: false, t }),
-        { type: 'date', name: 'min', props: { label: t('min_value') } },
-        { type: 'date', name: 'max', props: { label: t('max_value') } },
+        {
+          type: 'date',
+          name: 'min',
+          props: {
+            label: t('min_value'),
+          },
+        },
+        {
+          type: 'date',
+          name: 'max',
+          props: {
+            label: t('max_value'),
+          },
+        },
       ],
     },
     time: {
@@ -416,9 +677,27 @@ export function createFormComponents(t: Translate) {
       validation: timeValidation,
       propsSchema: [
         ...commonSchema({ placeholder: false, t }),
-        { type: 'time', name: 'min', props: { label: t('min_value') } },
-        { type: 'time', name: 'max', props: { label: t('max_value') } },
-        { type: 'time', name: 'preset', props: { label: t('preset_value') } },
+        {
+          type: 'time',
+          name: 'min',
+          props: {
+            label: t('min_value'),
+          },
+        },
+        {
+          type: 'time',
+          name: 'max',
+          props: {
+            label: t('max_value'),
+          },
+        },
+        {
+          type: 'time',
+          name: 'preset',
+          props: {
+            label: t('preset_value'),
+          },
+        },
       ],
     },
     radio_group: {
@@ -449,8 +728,22 @@ export function createFormComponents(t: Translate) {
       validation: listValidation,
       propsSchema: [
         ...commonSchema({ t }),
-        { type: 'number', name: 'minItems', props: { label: t('min_tags'), min: 0 } },
-        { type: 'number', name: 'maxItems', props: { label: t('max_tags'), min: 1 } },
+        {
+          type: 'number',
+          name: 'minItems',
+          props: {
+            label: t('min_tags'),
+            min: 0,
+          },
+        },
+        {
+          type: 'number',
+          name: 'maxItems',
+          props: {
+            label: t('max_tags'),
+            min: 1,
+          },
+        },
       ],
     },
     textarea: {
@@ -459,11 +752,44 @@ export function createFormComponents(t: Translate) {
       validation: textValidation,
       propsSchema: [
         ...commonSchema({ t }),
-        { type: 'number', name: 'rows', props: { label: t('rows'), min: 1 } },
-        { type: 'checkbox', name: 'autoresize', props: { label: t('autoresize') } },
-        { type: 'number', name: 'minLength', props: { label: t('min_length'), min: 0 } },
-        { type: 'number', name: 'maxLength', props: { label: t('max_length'), min: 1 } },
-        { type: 'textarea', name: 'preset', props: { label: t('preset_text') } },
+        {
+          type: 'number',
+          name: 'rows',
+          props: {
+            label: t('rows'),
+            min: 1,
+          },
+        },
+        {
+          type: 'checkbox',
+          name: 'autoresize',
+          props: {
+            label: t('autoresize'),
+          },
+        },
+        {
+          type: 'number',
+          name: 'minLength',
+          props: {
+            label: t('min_length'),
+            min: 0,
+          },
+        },
+        {
+          type: 'number',
+          name: 'maxLength',
+          props: {
+            label: t('max_length'),
+            min: 1,
+          },
+        },
+        {
+          type: 'textarea',
+          name: 'preset',
+          props: {
+            label: t('preset_text'),
+          },
+        },
       ],
     },
     repeater: {
@@ -473,9 +799,29 @@ export function createFormComponents(t: Translate) {
       isList: true,
       propsSchema: [
         ...commonSchema({ placeholder: false, t }),
-        { type: 'text', name: 'itemLabel', props: { label: t('item_label') } },
-        { type: 'number', name: 'minItems', props: { label: t('min_items'), min: 0 } },
-        { type: 'number', name: 'maxItems', props: { label: t('max_items'), min: 1 } },
+        {
+          type: 'text',
+          name: 'itemLabel',
+          props: {
+            label: t('item_label'),
+          },
+        },
+        {
+          type: 'number',
+          name: 'minItems',
+          props: {
+            label: t('min_items'),
+            min: 0,
+          },
+        },
+        {
+          type: 'number',
+          name: 'maxItems',
+          props: {
+            label: t('max_items'),
+            min: 1,
+          },
+        },
       ],
     },
     color: {
@@ -484,14 +830,26 @@ export function createFormComponents(t: Translate) {
       validation: colorValidation,
       propsSchema: [
         ...commonSchema({ t }),
-        { type: 'color', name: 'preset', props: { label: t('preset_value') } },
+        {
+          type: 'color',
+          name: 'preset',
+          props: {
+            label: t('preset_value'),
+          },
+        },
       ],
     },
     separator: {
       label: t('separator'),
       component: markRaw(Separator),
       propsSchema: [
-        ...commonSchema({ name: false, help: false, required: false, placeholder: false, t }),
+        ...commonSchema({
+          name: false,
+          help: false,
+          required: false,
+          placeholder: false,
+          t,
+        }),
         choiceSchema({ t }, 'type', 'line_type', ['solid', 'dashed', 'dotted'], 'solid'),
       ],
     },
@@ -499,16 +857,41 @@ export function createFormComponents(t: Translate) {
       label: t('alert'),
       component: markRaw(Alert),
       propsSchema: [
-        { type: 'text', name: 'label', props: { label: t('title') } },
-        { type: 'textarea', name: 'text', props: { label: t('text'), autoresize: true } },
-        choiceSchema({ t }, 'color', 'alert_color', ['info', 'success', 'warning', 'error', 'neutral'], 'info'),
+        {
+          type: 'text',
+          name: 'label',
+          props: {
+            label: t('title'),
+          },
+        },
+        {
+          type: 'textarea',
+          name: 'text',
+          props: {
+            label: t('text'),
+            autoresize: true,
+          },
+        },
+        choiceSchema({ t }, 'color', 'alert_color', [
+          'info',
+          'success',
+          'warning',
+          'error',
+          'neutral',
+        ], 'info'),
       ],
     },
     image: {
       label: t('image'),
       component: markRaw(Image),
       propsSchema: [
-        ...commonSchema({ name: false, placeholder: false, help: false, required: false, t }),
+        ...commonSchema({
+          name: false,
+          placeholder: false,
+          help: false,
+          required: false,
+          t,
+        }),
         {
           type: 'file_upload',
           name: 'image',
@@ -525,8 +908,21 @@ export function createFormComponents(t: Translate) {
       validation: fileValidation,
       propsSchema: [
         ...commonSchema({ placeholder: false, t }),
-        { type: 'text', name: 'accept', props: { label: t('accept') } },
-        { type: 'number', name: 'maxSize', props: { label: t('max_size'), min: 0 } },
+        {
+          type: 'text',
+          name: 'accept',
+          props: {
+            label: t('accept'),
+          },
+        },
+        {
+          type: 'number',
+          name: 'maxSize',
+          props: {
+            label: t('max_size'),
+            min: 0,
+          },
+        },
       ],
     },
     combo_box: {
@@ -536,7 +932,13 @@ export function createFormComponents(t: Translate) {
       propsSchema: [
         ...commonSchema({ t }),
         optionsSchema({ t }),
-        { type: 'checkbox', name: 'disableCustomValue', props: { label: t('disable_custom_value') } },
+        {
+          type: 'checkbox',
+          name: 'disableCustomValue',
+          props: {
+            label: t('disable_custom_value'),
+          },
+        },
       ],
     },
   } satisfies FormComponents;

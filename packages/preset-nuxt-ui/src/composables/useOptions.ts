@@ -1,5 +1,6 @@
+import type { Ref } from 'vue';
 import { usePresetValue } from '@former-ui/former';
-import { computed, type Ref } from 'vue';
+import { computed } from 'vue';
 
 export type Option = { label?: string; value: string; preset?: boolean };
 
@@ -11,9 +12,13 @@ export function toItems<T extends Option>(options: T[] | undefined) {
 // and a list is its first value, so data stored before `multiple` was toggled is still shown and validated
 export function toChosen(value: unknown, multiple: boolean | undefined) {
   if (multiple) {
-    return typeof value === 'string' ? [value] : value;
+    return typeof value === 'string'
+      ? [value]
+      : value;
   }
-  return Array.isArray(value) ? (value[0] ?? null) : value;
+  return Array.isArray(value)
+    ? (value[0] ?? null)
+    : value;
 }
 
 export function useOptions<T extends Option>(modelValue: Ref<string | null | undefined>, options: Ref<T[] | undefined>) {

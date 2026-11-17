@@ -47,5 +47,7 @@ usePresetValue(modelValue, preset);
 
 // numbers are rounded to the decimal places when they are entered, so the stored values have them as well
 const formatOptions = computed<Intl.NumberFormatOptions | undefined>(() =>
-  (typeof props.decimals === 'number' ? { maximumFractionDigits: props.decimals } : undefined));
+  (typeof props.decimals === 'number'
+    ? { maximumFractionDigits: props.decimals }
+    : undefined));
 </script>

@@ -13,7 +13,9 @@ function mountTime(initialData: FormData, props: SchemaNode['props'] = {}) {
   const data = ref<FormData>(initialData);
   const wrapper = mount(Former, {
     props: {
-      'schema': [{ type: 'time', name: 'start', props }],
+      'schema': [
+        { type: 'time', name: 'start', props },
+      ],
       'data': data.value,
       'onUpdate:data': (value: FormData) => (data.value = value),
       components,

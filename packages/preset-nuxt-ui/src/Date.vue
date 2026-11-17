@@ -14,8 +14,9 @@
 
 <script setup lang="ts">
 import type { FormerProps } from '@former-ui/former';
+import type { CalendarDate } from '@internationalized/date';
 import { usePresetValue } from '@former-ui/former';
-import { type CalendarDate, parseDate } from '@internationalized/date';
+import { parseDate } from '@internationalized/date';
 import { computed, toRef } from 'vue';
 
 defineOptions({ inheritAttrs: false });

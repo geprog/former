@@ -1,7 +1,20 @@
 minimumReleaseAge: 1440
+minimumReleaseAgeExcludePrune: true
 trustPolicy: no-downgrade
 trustPolicyIgnoreAfter: 43830
+
+peerDependencyRules:
+  allowedVersions:
+    # the workspace packages are versioned 0.0.0, the real version is only set on release
+    '@former-ui/preset-nuxt-ui>@former-ui/former': 0.0.0
+
 strictPeerDependencies: true
+shellEmulator: true
+
 packages:
   - 'packages/*'
   - playground
+
+allowBuilds:
+  esbuild: false
+  vue-demi: false

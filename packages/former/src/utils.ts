@@ -5,7 +5,9 @@ export function nodeChildren<Node extends SchemaNode | InternalSchemaNode>(node:
   if (!node.children) {
     return [];
   }
-  return (Array.isArray(node.children) ? node.children : Object.values(node.children).flat()) as Node[];
+  return (Array.isArray(node.children)
+    ? node.children
+    : Object.values(node.children).flat()) as Node[];
 }
 
 // whether a value counts as filled in, e.g. a cleared field (`null`) or an unchecked checkbox doesn't,
@@ -165,7 +167,13 @@ export function nodePosition(
 ): NodePosition | null {
   for (let i = 0; i < schema.length; i++) {
     if (schema[i]._id === nodeId) {
-      return { parentId: parentId || null, index: anchor === 'above' ? i : i + 1, category: category || null };
+      return {
+        parentId: parentId || null,
+        index: anchor === 'above'
+          ? i
+          : i + 1,
+        category: category || null,
+      };
     }
 
     const children = schema[i].children;
@@ -285,7 +293,9 @@ export function dataOfNode(node: SchemaNode, data: FieldData | FormData, compone
 // as only scopes (e.g. groups) contain nested data, while layout components pass the data of their parent through
 export function dataPathOfNode(node: SchemaNode, scopes: DataScope[], components: FormComponents): DataPath {
   const path = scopes[0]?.path ?? [];
-  return isNodeLayoutComponent(node, components) || !node.name ? path : [...path, node.name];
+  return isNodeLayoutComponent(node, components) || !node.name
+    ? path
+    : [...path, node.name];
 }
 
 // whether the data of a node is a list whose items each render its children (e.g. a repeater),
@@ -304,13 +314,32 @@ export function dataScopesOfChildren(node: SchemaNode, data: FieldData | FormDat
   if (isListNode(node, nodeData, components)) {
     return scopes;
   }
-  return [{ node, data: nodeData, path: dataPathOfNode(node, scopes, components) }, ...scopes];
+  return [
+    {
+      node,
+      data: nodeData,
+      path: dataPathOfNode(node, scopes, components),
+    },
+    ...scopes,
+  ];
 }
 
 // the scopes of the nodes in the item at `index` of a list (e.g. a repeater), the list is in the closest scope
 export function dataScopesOfListItem(list: SchemaNode | undefined, item: FormData, index: number, scopes: DataScope[]): DataScope[] {
-  const listPath = [...(scopes[0]?.path ?? []), ...(list?.name ? [list.name] : [])];
-  return [{ node: list, data: item, path: [...listPath, index] }, ...scopes];
+  const listPath = [
+    ...(scopes[0]?.path ?? []),
+    ...(list?.name
+      ? [list.name]
+      : []),
+  ];
+  return [
+    {
+      node: list,
+      data: item,
+      path: [...listPath, index],
+    },
+    ...scopes,
+  ];
 }
 
 export function unsetDataOfNode(node: InternalSchemaNode, data: FormData | FieldData | undefined, components: FormComponents) {

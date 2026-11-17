@@ -17,13 +17,18 @@ export function dataFields(schema: SchemaNode[], components: FormComponents, par
 
     const path = [...parentPath, node.name];
     const value = path.join('.');
-    const label = typeof node.props?.label === 'string' && node.props.label ? `${node.props.label} (${value})` : value;
+    const label = typeof node.props?.label === 'string' && node.props.label
+      ? `${node.props.label} (${value})`
+      : value;
     const field = { label, value };
     // the data of a list (e.g. a repeater) has an entry per item, so its children can't be addressed by a single path
     if (components[node.type]?.isList) {
       return [field];
     }
-    return [field, ...dataFields(nodeChildren(node), components, path)];
+    return [
+      field,
+      ...dataFields(nodeChildren(node), components, path),
+    ];
   });
 }
 

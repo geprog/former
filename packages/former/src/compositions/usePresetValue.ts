@@ -1,4 +1,5 @@
-import { type MaybeRefOrGetter, onMounted, type Ref, toValue, watch } from 'vue';
+import type { MaybeRefOrGetter, Ref } from 'vue';
+import { onMounted, toValue, watch } from 'vue';
 import { inject } from './injectProvide';
 
 /**
@@ -24,7 +25,9 @@ export function usePresetValue<T>(modelValue: Ref<T | null | undefined>, preset:
     if (presetValue === undefined || presetValue === null || mode?.value === 'read' || isShown?.value === false) {
       return;
     }
-    const isSet = hasDataKey ? hasDataKey.value : modelValue.value !== undefined;
+    const isSet = hasDataKey
+      ? hasDataKey.value
+      : modelValue.value !== undefined;
     if (!isSet) {
       modelValue.value = presetValue;
     }
@@ -33,5 +36,10 @@ export function usePresetValue<T>(modelValue: Ref<T | null | undefined>, preset:
   onMounted(applyPreset);
   // fields can stay mounted while their key gets removed, e.g. when they are hidden in build
   // mode (the preset is applied once they are shown again) or when the data is replaced
-  watch([() => toValue(preset), () => mode?.value, () => hasDataKey?.value, () => isShown?.value], applyPreset);
+  watch([
+    () => toValue(preset),
+    () => mode?.value,
+    () => hasDataKey?.value,
+    () => isShown?.value,
+  ], applyPreset);
 }

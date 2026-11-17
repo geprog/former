@@ -13,7 +13,9 @@ function mountDateRange(initialData: FormData) {
   const data = ref<FormData>(initialData);
   const wrapper = mount(Former, {
     props: {
-      'schema': [{ type: 'date_range', name: 'stay' }],
+      'schema': [
+        { type: 'date_range', name: 'stay' },
+      ],
       'data': data.value,
       'onUpdate:data': (value: FormData) => (data.value = value),
       components,
@@ -32,7 +34,10 @@ describe('date range', () => {
   it('stores the dates as ISO strings', async () => {
     const { wrapper, data } = mountDateRange({});
 
-    emitRange(wrapper, { start: new CalendarDate(2026, 3, 1), end: new CalendarDate(2026, 3, 5) });
+    emitRange(wrapper, {
+      start: new CalendarDate(2026, 3, 1),
+      end: new CalendarDate(2026, 3, 5),
+    });
     await nextTick();
 
     expect(data.value.stay).toStrictEqual({ start: '2026-03-01', end: '2026-03-05' });
@@ -41,14 +46,19 @@ describe('date range', () => {
   it('stores a missing date as `null`', async () => {
     const { wrapper, data } = mountDateRange({});
 
-    emitRange(wrapper, { start: new CalendarDate(2026, 3, 1), end: undefined });
+    emitRange(wrapper, {
+      start: new CalendarDate(2026, 3, 1),
+      end: undefined,
+    });
     await nextTick();
 
     expect(data.value.stay).toStrictEqual({ start: '2026-03-01', end: null });
   });
 
   it('clears the value when both dates are removed', async () => {
-    const { wrapper, data } = mountDateRange({ stay: { start: '2026-03-01', end: '2026-03-05' } });
+    const { wrapper, data } = mountDateRange({
+      stay: { start: '2026-03-01', end: '2026-03-05' },
+    });
 
     emitRange(wrapper, { start: undefined, end: undefined });
     await nextTick();
@@ -57,7 +67,9 @@ describe('date range', () => {
   });
 
   it('shows the stored dates', () => {
-    const { wrapper } = mountDateRange({ stay: { start: '2026-03-01', end: '2026-03-05' } });
+    const { wrapper } = mountDateRange({
+      stay: { start: '2026-03-01', end: '2026-03-05' },
+    });
     const range = wrapper.findComponent({ name: 'UInputDate' }).vm.$attrs['model-value'] as { start: CalendarDate; end: CalendarDate };
 
     expect(range.start.toString()).toBe('2026-03-01');

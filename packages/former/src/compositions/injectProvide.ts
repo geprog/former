@@ -1,5 +1,6 @@
+import type { InjectionKey, Ref } from 'vue';
 import type { DataScope, FieldData, FormComponents, FormData, InternalSchemaNode, InternalShowIfPredicate, Mode, Texts } from '~/types';
-import { getCurrentInstance, type InjectionKey, type Ref, inject as vueInject, provide as vueProvide } from 'vue';
+import { getCurrentInstance, inject as vueInject, provide as vueProvide } from 'vue';
 
 export type InjectKeys = {
   mode: Ref<Mode>;

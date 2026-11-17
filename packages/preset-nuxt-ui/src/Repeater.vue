@@ -76,10 +76,16 @@ function itemKey(item: FormData, index: number) {
 }
 
 function addItem() {
-  modelValue.value = [...(modelValue.value ?? []), {}];
+  modelValue.value = [
+    ...(modelValue.value ?? []),
+    {},
+  ];
 }
 function deleteItem(index: number) {
   const items = modelValue.value ?? [];
-  modelValue.value = [...items.slice(0, index), ...items.slice(index + 1)];
+  modelValue.value = [
+    ...items.slice(0, index),
+    ...items.slice(index + 1),
+  ];
 }
 </script>

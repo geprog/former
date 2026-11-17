@@ -1,7 +1,8 @@
+import type { Ref } from 'vue';
 import type { FormComponents, FormData, Mode, SchemaNode } from '~/types';
 import { mount } from '@vue/test-utils';
 import { describe, expect, it } from 'vitest';
-import { computed, defineComponent, h, markRaw, nextTick, provide, ref, type Ref } from 'vue';
+import { computed, defineComponent, h, markRaw, nextTick, provide, ref } from 'vue';
 import Former from '~/components/Former.vue';
 import FormRenderer from '~/components/FormRenderer.vue';
 import { usePresetValue } from './usePresetValue';
@@ -37,14 +38,22 @@ function mountUsePresetValue(options: {
 describe('usePresetValue', () => {
   it('applies the preset on mount if the key does not exist in the data', () => {
     const modelValue = ref<string | null | undefined>(undefined);
-    mountUsePresetValue({ modelValue, preset: ref('preset'), hasDataKey: ref(false) });
+    mountUsePresetValue({
+      modelValue,
+      preset: ref('preset'),
+      hasDataKey: ref(false),
+    });
 
     expect(modelValue.value).toBe('preset');
   });
 
   it.each([undefined, null, ''])('does not apply the preset if the key exists with value %j', (value) => {
     const modelValue = ref<string | null | undefined>(value);
-    mountUsePresetValue({ modelValue, preset: ref('preset'), hasDataKey: ref(true) });
+    mountUsePresetValue({
+      modelValue,
+      preset: ref('preset'),
+      hasDataKey: ref(true),
+    });
 
     expect(modelValue.value).toBe(value);
   });
@@ -69,7 +78,11 @@ describe('usePresetValue', () => {
   it('applies the preset again when the key gets removed while the field stays mounted', async () => {
     const modelValue = ref<string | null | undefined>(null);
     const hasDataKey = ref(true);
-    mountUsePresetValue({ modelValue, preset: ref('preset'), hasDataKey });
+    mountUsePresetValue({
+      modelValue,
+      preset: ref('preset'),
+      hasDataKey,
+    });
     expect(modelValue.value).toBeNull();
 
     hasDataKey.value = false;
@@ -80,7 +93,9 @@ describe('usePresetValue', () => {
 
   describe('in build mode, where hidden fields stay mounted', () => {
     const PresetField = defineComponent({
-      props: { modelValue: { type: String, default: undefined } },
+      props: {
+        modelValue: { type: String, default: undefined },
+      },
       emits: ['update:modelValue'],
       setup(props, { emit }) {
         const modelValue = computed({
@@ -95,9 +110,25 @@ describe('usePresetValue', () => {
       setup: () => () => h(FormRenderer),
     });
     const components: FormComponents = {
-      field: { label: 'Field', propsSchema: [{ type: 'text', name: '$name' }], component: markRaw(PresetField) },
-      layout: { label: 'Layout', propsSchema: [], component: markRaw(Group) },
-      group: { label: 'Group', propsSchema: [{ type: 'text', name: '$name' }], component: markRaw(Group) },
+      field: {
+        label: 'Field',
+        propsSchema: [
+          { type: 'text', name: '$name' },
+        ],
+        component: markRaw(PresetField),
+      },
+      layout: {
+        label: 'Layout',
+        propsSchema: [],
+        component: markRaw(Group),
+      },
+      group: {
+        label: 'Group',
+        propsSchema: [
+          { type: 'text', name: '$name' },
+        ],
+        component: markRaw(Group),
+      },
     };
 
     // hides all nodes of the given type while `hidden` is true
@@ -118,7 +149,9 @@ describe('usePresetValue', () => {
     }
 
     it('applies the preset again when a hidden field becomes visible', async () => {
-      const { data, hidden } = mountFormer([{ type: 'field', name: 'presetField' }], 'field');
+      const { data, hidden } = mountFormer([
+        { type: 'field', name: 'presetField' },
+      ], 'field');
       await nextTick();
       expect(data.value).toStrictEqual({ presetField: 'preset' });
 
@@ -133,7 +166,14 @@ describe('usePresetValue', () => {
 
     it('does not apply the preset while a parent layout is hidden', async () => {
       const { data, hidden } = mountFormer(
-        [{ type: 'layout', children: [{ type: 'field', name: 'presetField' }] }],
+        [
+          {
+            type: 'layout',
+            children: [
+              { type: 'field', name: 'presetField' },
+            ],
+          },
+        ],
         'layout',
       );
       await nextTick();
@@ -150,11 +190,21 @@ describe('usePresetValue', () => {
 
     it('does not apply the preset while a parent group is hidden', async () => {
       const { data, hidden } = mountFormer(
-        [{ type: 'group', name: 'group', children: [{ type: 'field', name: 'presetField' }] }],
+        [
+          {
+            type: 'group',
+            name: 'group',
+            children: [
+              { type: 'field', name: 'presetField' },
+            ],
+          },
+        ],
         'group',
       );
       await nextTick();
-      expect(data.value).toStrictEqual({ group: { presetField: 'preset' } });
+      expect(data.value).toStrictEqual({
+        group: { presetField: 'preset' },
+      });
 
       hidden.value = true;
       await nextTick();
@@ -162,20 +212,31 @@ describe('usePresetValue', () => {
 
       hidden.value = false;
       await nextTick();
-      expect(data.value).toStrictEqual({ group: { presetField: 'preset' } });
+      expect(data.value).toStrictEqual({
+        group: { presetField: 'preset' },
+      });
     });
   });
 
   it('ignores a null preset', () => {
     const modelValue = ref<string | null | undefined>(undefined);
-    mountUsePresetValue({ modelValue, preset: ref(null), hasDataKey: ref(false) });
+    mountUsePresetValue({
+      modelValue,
+      preset: ref(null),
+      hasDataKey: ref(false),
+    });
 
     expect(modelValue.value).toBeUndefined();
   });
 
   it('does not apply the preset in read mode', () => {
     const modelValue = ref<string | null | undefined>(undefined);
-    mountUsePresetValue({ modelValue, preset: ref('preset'), hasDataKey: ref(false), mode: ref('read') });
+    mountUsePresetValue({
+      modelValue,
+      preset: ref('preset'),
+      hasDataKey: ref(false),
+      mode: ref('read'),
+    });
 
     expect(modelValue.value).toBeUndefined();
   });
@@ -183,7 +244,12 @@ describe('usePresetValue', () => {
   it('applies the preset when switching from read to edit mode while the key does not exist', async () => {
     const modelValue = ref<string | null | undefined>(undefined);
     const mode = ref<Mode>('read');
-    mountUsePresetValue({ modelValue, preset: ref('preset'), hasDataKey: ref(false), mode });
+    mountUsePresetValue({
+      modelValue,
+      preset: ref('preset'),
+      hasDataKey: ref(false),
+      mode,
+    });
 
     mode.value = 'edit';
     await nextTick();
@@ -192,11 +258,17 @@ describe('usePresetValue', () => {
 
   it('falls back to checking for an undefined model value outside of a form node', () => {
     const unset = ref<string | null | undefined>(undefined);
-    mountUsePresetValue({ modelValue: unset, preset: ref('preset') });
+    mountUsePresetValue({
+      modelValue: unset,
+      preset: ref('preset'),
+    });
     expect(unset.value).toBe('preset');
 
     const set = ref<string | null | undefined>(null);
-    mountUsePresetValue({ modelValue: set, preset: ref('preset') });
+    mountUsePresetValue({
+      modelValue: set,
+      preset: ref('preset'),
+    });
     expect(set.value).toBeNull();
   });
 });

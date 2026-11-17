@@ -1,5 +1,6 @@
+import type { Ref } from 'vue';
 import type { DataScope, InternalSchemaNode, ValidationContext } from '~/types';
-import { computed, onBeforeUnmount, ref, type Ref, watch } from 'vue';
+import { computed, onBeforeUnmount, ref, watch } from 'vue';
 import { dataOfNode, dataPathOfNode, dataScopesOfChildren, isNodeLayoutComponent, unsetDataOfNode } from '~/utils';
 import { errorMessage, useMaybeAsync, validateComponent } from '~/validation';
 import { inject, provide } from './injectProvide';
@@ -41,7 +42,9 @@ export default function useNode(node: Ref<InternalSchemaNode>) {
       }
       // a cleared field is stored as `null` so that its key survives JSON serialization,
       // otherwise e.g. its preset would be re-applied after the data was saved and loaded again
-      const value = newValue === undefined ? null : newValue;
+      const value = newValue === undefined
+        ? null
+        : newValue;
       if (data.value === undefined || data.value === null) {
         data.value = { [node.value.name]: value };
       }
@@ -66,7 +69,9 @@ export default function useNode(node: Ref<InternalSchemaNode>) {
   provide('hasDataKey', hasDataKey);
 
   const parentDataScopes = inject('dataScopes', false);
-  const dataScopes = computed<DataScope[]>(() => parentDataScopes?.value ?? [{ data: data.value, path: [] }]);
+  const dataScopes = computed<DataScope[]>(() => parentDataScopes?.value ?? [
+    { data: data.value, path: [] },
+  ]);
   const dataPath = computed(() => dataPathOfNode(node.value, dataScopes.value, components.value));
   // the items of lists (e.g. repeaters) provide their scopes themselves (see `FormDataProvider`)
   provide('dataScopes', computed(() => dataScopesOfChildren(node.value, data.value, dataScopes.value, components.value)));
@@ -89,7 +94,9 @@ export default function useNode(node: Ref<InternalSchemaNode>) {
 
   // hidden nodes aren't validated
   const { result: error, isPending: isValidating } = useMaybeAsync(
-    () => (isShown.value ? validateComponent(components.value, node.value, modelValue.value, validationContext.value) : undefined),
+    () => (isShown.value
+      ? validateComponent(components.value, node.value, modelValue.value, validationContext.value)
+      : undefined),
     undefined,
     errorMessage,
   );
