@@ -1,7 +1,8 @@
 import type { StandardSchemaV1 } from '@standard-schema/spec';
+import type { Ref } from 'vue';
 import type { DataScope, FieldData, FormComponents, FormData, InternalSchemaNode, SchemaNode, ValidationContext } from '~/types';
 import { cloneDeepWith, isDate, isObject, isPlainObject } from 'lodash';
-import { type Ref, shallowRef, toRaw, watch } from 'vue';
+import { shallowRef, toRaw, watch } from 'vue';
 import { dataOfNode, dataPathOfNode, dataScopesOfChildren, dataScopesOfListItem, isListNode, nodeChildren, propsOf } from '~/utils';
 
 // the Standard Schema (https://standardschema.dev) implemented by e.g. Zod, Valibot, ArkType and Yup
@@ -15,7 +16,9 @@ export function isPromiseLike<T>(value: MaybePromise<T>): value is PromiseLike<T
 }
 
 function then<T, R>(value: MaybePromise<T>, fn: (value: T) => MaybePromise<R>): MaybePromise<R> {
-  return isPromiseLike(value) ? Promise.resolve(value).then(fn) : fn(value);
+  return isPromiseLike(value)
+    ? Promise.resolve(value).then(fn)
+    : fn(value);
 }
 
 // the data is cloned, so that a schema validating asynchronously still tracks all reactive dependencies
@@ -26,7 +29,9 @@ function cloneData(data: unknown) {
     if (isDate(value)) {
       return new Date(value.getTime());
     }
-    return isObject(value) && !Array.isArray(value) && !isPlainObject(value) ? toRaw(value) : undefined;
+    return isObject(value) && !Array.isArray(value) && !isPlainObject(value)
+      ? toRaw(value)
+      : undefined;
   });
 }
 
@@ -41,7 +46,9 @@ export function validateWithSchema(schema: StandardSchemaV1, data: unknown): May
  */
 export function validateComponent(components: FormComponents, node: SchemaNode, data: FieldData | FormData, context: ValidationContext): MaybePromise<string | undefined> {
   const schema = components[node.type]?.validation?.(propsOf(node), context);
-  return schema ? then(validateWithSchema(schema, data), issues => issues[0]?.message) : undefined;
+  return schema
+    ? then(validateWithSchema(schema, data), issues => issues[0]?.message)
+    : undefined;
 }
 
 // whether all results match the predicate, only asynchronous if one of the results is a promise
@@ -58,12 +65,18 @@ function areNodesValid(nodes: SchemaNode[], data: FieldData | FormData, scopes: 
   return every(nodes.map((node) => {
     const nodeData = dataOfNode(node, data, components);
     const results: MaybePromise<string | boolean | undefined>[] = [
-      validateComponent(components, node, nodeData, { node, path: dataPathOfNode(node, scopes, components), scopes }),
+      validateComponent(components, node, nodeData, {
+        node,
+        path: dataPathOfNode(node, scopes, components),
+        scopes,
+      }),
     ];
     // only the shown children are rendered, e.g. not the ones of removed columns
     const children = components[node.type]?.shownChildren?.(node) ?? nodeChildren(node);
     if (isListNode(node, nodeData, components)) {
-      const items = Array.isArray(nodeData) ? nodeData : [];
+      const items = Array.isArray(nodeData)
+        ? nodeData
+        : [];
       results.push(...items.map((item, index) =>
         areNodesValid(children, item, dataScopesOfListItem(node, item, index, scopes), components)));
     }
@@ -83,19 +96,25 @@ export function isNodeValid(node: InternalSchemaNode, components: FormComponents
   }
   // the props are edited in a form of their own (see `FormNodeProps`), so they are the only scope of their validation
   const propsData: FormData = { $name: node.name, ...node.props };
-  return areNodesValid(component.propsSchema, propsData, [{ data: propsData, path: [] }], components);
+  return areNodesValid(component.propsSchema, propsData, [
+    { data: propsData, path: [] },
+  ], components);
 }
 
 // the message of an error thrown by a validation, e.g. of an async schema failing to reach a server
 export function errorMessage(error: unknown): string {
-  return error instanceof Error ? error.message : String(error);
+  return error instanceof Error
+    ? error.message
+    : String(error);
 }
 
 // whether the props of the node are valid, or the message of the error thrown by their validation
 export function propsValidityOfNode(node: InternalSchemaNode, components: FormComponents): MaybePromise<boolean | string> {
   try {
     const result = isNodeValid(node, components);
-    return isPromiseLike(result) ? Promise.resolve(result).then(valid => valid, errorMessage) : result;
+    return isPromiseLike(result)
+      ? Promise.resolve(result).then(valid => valid, errorMessage)
+      : result;
   }
   catch (error) {
     return errorMessage(error);
@@ -114,10 +133,14 @@ export function useMaybeAsync<T>(getter: () => MaybePromise<T>, initial: T, onEr
   // the result is wrapped, as vue would handle the rejection of a promise returned by the getter of the watcher itself
   watch(() => {
     try {
-      return { value: getter() };
+      return {
+        value: getter(),
+      };
     }
     catch (error) {
-      return { value: Promise.reject(error) as MaybePromise<T> };
+      return {
+        value: Promise.reject(error) as MaybePromise<T>,
+      };
     }
   }, ({ value }) => {
     const run = ++latestRun;

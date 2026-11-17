@@ -33,12 +33,16 @@ function formComponentsFixture(): FormComponents {
   return {
     text: {
       label: 'Text',
-      propsSchema: [{ type: 'text', name: '$name' }],
+      propsSchema: [
+        { type: 'text', name: '$name' },
+      ],
       component: {} as FormComponents['text']['component'],
     },
     layout: {
       label: 'Layout',
-      propsSchema: [{ type: 'text', name: 'title' }],
+      propsSchema: [
+        { type: 'text', name: 'title' },
+      ],
       component: {} as FormComponents['layout']['component'],
     },
     bare: {
@@ -97,8 +101,12 @@ describe('schema iterator', () => {
       _id: 'a',
       type: 'text',
       children: {
-        category1: [{ _id: 'b', type: 'text' }],
-        category2: [{ _id: 'c', type: 'text' }],
+        category1: [
+          { _id: 'b', type: 'text' },
+        ],
+        category2: [
+          { _id: 'c', type: 'text' },
+        ],
       },
     };
 
@@ -106,7 +114,11 @@ describe('schema iterator', () => {
     const iter = schemaIterator([schemaNode]);
 
     // then
-    expect([...iter]).toStrictEqual([schemaNode, ...schemaNode.children.category1, ...schemaNode.children.category2]);
+    expect([...iter]).toStrictEqual([
+      schemaNode,
+      ...schemaNode.children.category1,
+      ...schemaNode.children.category2,
+    ]);
   });
 
   it('should handle node with children at end', () => {
@@ -161,8 +173,12 @@ describe('schema iterator', () => {
       _id: 'd',
       type: 'text',
       children: {
-        category1: [{ _id: 'e', type: 'text' }],
-        category2: [{ _id: 'f', type: 'text' }],
+        category1: [
+          { _id: 'e', type: 'text' },
+        ],
+        category2: [
+          { _id: 'f', type: 'text' },
+        ],
       },
     };
     const schema: InternalSchemaNode[] = [
@@ -205,7 +221,11 @@ describe('toInternalSchema and toSchema', () => {
           { type: 'a' },
           {
             type: 'b',
-            children: { cat: [{ type: 'leaf' }] },
+            children: {
+              cat: [
+                { type: 'leaf' },
+              ],
+            },
           },
         ],
       },
@@ -223,7 +243,9 @@ describe('toInternalSchema and toSchema', () => {
       {
         type: 'root',
         name: 'r',
-        children: [{ type: 'child', name: 'c' }],
+        children: [
+          { type: 'child', name: 'c' },
+        ],
       },
     ] as SchemaNode[]);
     const external = toSchema(internal);
@@ -239,8 +261,12 @@ describe('toInternalSchema and toSchema', () => {
       {
         type: 'panel',
         children: {
-          zoneA: [{ type: 'field', name: 'a' }],
-          zoneB: [{ type: 'field', name: 'b' }],
+          zoneA: [
+            { type: 'field', name: 'a' },
+          ],
+          zoneB: [
+            { type: 'field', name: 'b' },
+          ],
         },
       },
     ] as SchemaNode[]);
@@ -256,7 +282,10 @@ describe('toInternalSchema and toSchema', () => {
 
 describe('replaceNode', () => {
   it('replaces a node at the root', () => {
-    const schema = cloneDeep([node('a'), node('b')]);
+    const schema = cloneDeep([
+      node('a'),
+      node('b'),
+    ]);
     const replacement = node('a', { type: 'number', name: 'n1' });
     replaceNode(schema, replacement);
     expect(schema[0]).toEqual(replacement);
@@ -266,7 +295,9 @@ describe('replaceNode', () => {
   it('replaces a node nested under array children', () => {
     const schema = cloneDeep([
       node('root', {
-        children: [node('inner')],
+        children: [
+          node('inner'),
+        ],
       }),
     ]);
     replaceNode(schema, node('inner', { type: 'rich' }));
@@ -276,7 +307,11 @@ describe('replaceNode', () => {
   it('replaces a node under categorized children', () => {
     const schema = cloneDeep([
       node('root', {
-        children: { slot: [node('leaf')] },
+        children: {
+          slot: [
+            node('leaf'),
+          ],
+        },
       }),
     ]);
     replaceNode(schema, node('leaf', { type: 'updated' }));
@@ -285,7 +320,9 @@ describe('replaceNode', () => {
   });
 
   it('does nothing when _id is not found', () => {
-    const schema = cloneDeep([node('only')]);
+    const schema = cloneDeep([
+      node('only'),
+    ]);
     const snapshot = cloneDeep(schema);
     replaceNode(schema, node('missing'));
     expect(schema).toStrictEqual(snapshot);
@@ -294,7 +331,10 @@ describe('replaceNode', () => {
 
 describe('deleteNode', () => {
   it('removes a root node by id', () => {
-    const schema = cloneDeep([node('a'), node('b')]);
+    const schema = cloneDeep([
+      node('a'),
+      node('b'),
+    ]);
     deleteNode(schema, 'a');
     expect(schema.map(n => n._id)).toStrictEqual(['b']);
   });
@@ -302,7 +342,10 @@ describe('deleteNode', () => {
   it('removes a node nested in array children', () => {
     const schema = cloneDeep([
       node('root', {
-        children: [node('x'), node('y')],
+        children: [
+          node('x'),
+          node('y'),
+        ],
       }),
     ]);
     deleteNode(schema, 'x');
@@ -312,7 +355,12 @@ describe('deleteNode', () => {
   it('removes a node under categorized children', () => {
     const schema = cloneDeep([
       node('root', {
-        children: { main: [node('one'), node('two')] },
+        children: {
+          main: [
+            node('one'),
+            node('two'),
+          ],
+        },
       }),
     ]);
     deleteNode(schema, 'two');
@@ -321,7 +369,9 @@ describe('deleteNode', () => {
   });
 
   it('leaves schema unchanged when id is missing', () => {
-    const schema = cloneDeep([node('a')]);
+    const schema = cloneDeep([
+      node('a'),
+    ]);
     const snapshot = cloneDeep(schema);
     deleteNode(schema, 'ghost');
     expect(schema).toStrictEqual(snapshot);
@@ -333,7 +383,11 @@ describe('getNode', () => {
     node('root', {
       children: [
         node('mid', {
-          children: { col: [node('deep')] },
+          children: {
+            col: [
+              node('deep'),
+            ],
+          },
         }),
       ],
     }),
@@ -352,7 +406,11 @@ describe('getNode', () => {
 });
 
 describe('nodePosition', () => {
-  const linear = (): InternalSchemaNode[] => [node('n0'), node('n1'), node('n2')];
+  const linear = (): InternalSchemaNode[] => [
+    node('n0'),
+    node('n1'),
+    node('n2'),
+  ];
 
   it('returns above and below indices at the root', () => {
     const schema = cloneDeep(linear());
@@ -369,7 +427,13 @@ describe('nodePosition', () => {
   });
 
   it('returns position inside nested array children with parent id', () => {
-    const schema = cloneDeep([node('p', { children: [node('c')] })]);
+    const schema = cloneDeep([
+      node('p', {
+        children: [
+          node('c'),
+        ],
+      }),
+    ]);
     expect(nodePosition(schema, 'c', 'above')).toStrictEqual({
       parentId: 'p',
       category: null,
@@ -380,7 +444,11 @@ describe('nodePosition', () => {
   it('returns category on categorized children path', () => {
     const schema = cloneDeep([
       node('p', {
-        children: { main: [node('leaf')] },
+        children: {
+          main: [
+            node('leaf'),
+          ],
+        },
       }),
     ]);
     expect(nodePosition(schema, 'leaf', 'below')).toStrictEqual({
@@ -395,19 +463,35 @@ describe('nodePosition', () => {
   });
 
   it('returns null when the node id does not exist inside nested array children with parent id', () => {
-    const schema = cloneDeep([node('p', { children: [node('c')] })]);
+    const schema = cloneDeep([
+      node('p', {
+        children: [
+          node('c'),
+        ],
+      }),
+    ]);
     expect(nodePosition(schema, 'x', 'above')).toBeNull();
   });
 
   it('returns null when the node id does not exist on categorized children path', () => {
-    const schema = cloneDeep([node('p', { children: { main: [node('leaf')] } })]);
+    const schema = cloneDeep([
+      node('p', {
+        children: {
+          main: [
+            node('leaf'),
+          ],
+        },
+      }),
+    ]);
     expect(nodePosition(schema, 'x', 'below')).toBeNull();
   });
 });
 
 describe('addNode', () => {
   it('inserts at the root when parentId is null', () => {
-    const schema = cloneDeep([node('a')]);
+    const schema = cloneDeep([
+      node('a'),
+    ]);
     addNode(schema, { parentId: null, category: null, index: 0 }, node('new'));
     expect(schema.map(n => n._id)).toStrictEqual(['new', 'a']);
   });
@@ -415,7 +499,9 @@ describe('addNode', () => {
   it('wraps array children under a parent into keyed default and inserts', () => {
     const schema = cloneDeep([
       node('p', {
-        children: [node('existing')],
+        children: [
+          node('existing'),
+        ],
       }),
     ]);
     addNode(
@@ -429,14 +515,18 @@ describe('addNode', () => {
   });
 
   it('creates children object when parent has empty children', () => {
-    const schema = cloneDeep([node('p', { children: { } })]);
+    const schema = cloneDeep([
+      node('p', { children: { } }),
+    ]);
     addNode(schema, { parentId: 'p', category: 'main', index: 0 }, node('child'));
     const children = schema[0]!.children as { main: InternalSchemaNode[] };
     expect(children.main.map(n => n._id)).toStrictEqual(['child']);
   });
 
   it('creates children object when parent has no children', () => {
-    const schema = cloneDeep([node('p')]);
+    const schema = cloneDeep([
+      node('p'),
+    ]);
     addNode(schema, { parentId: 'p', category: 'main', index: 0 }, node('child'));
     const children = schema[0]!.children as { main: InternalSchemaNode[] };
     expect(children.main.map(n => n._id)).toStrictEqual(['child']);
@@ -445,7 +535,13 @@ describe('addNode', () => {
   it('recurses to nested parents', () => {
     const schema = cloneDeep([
       node('outer', {
-        children: [node('inner', { children: [node('leaf')] })],
+        children: [
+          node('inner', {
+            children: [
+              node('leaf'),
+            ],
+          }),
+        ],
       }),
     ]);
     addNode(
@@ -462,7 +558,13 @@ describe('addNode', () => {
     const schema = cloneDeep([
       node('outer', {
         children: {
-          col: [node('target', { children: [node('existing')] })],
+          col: [
+            node('target', {
+              children: [
+                node('existing'),
+              ],
+            }),
+          ],
         },
       }),
     ]);
@@ -477,7 +579,13 @@ describe('addNode', () => {
     const schema = cloneDeep([
       node('simple'),
       node('outer', {
-        children: [node('inner', { children: [node('leaf')] })],
+        children: [
+          node('inner', {
+            children: [
+              node('leaf'),
+            ],
+          }),
+        ],
       }),
     ]);
     addNode(
@@ -511,10 +619,27 @@ describe('isNodeLayoutComponent', () => {
 describe('data and scopes of nodes', () => {
   const components: FormComponents = {
     ...formComponentsFixture(),
-    list: { label: 'List', propsSchema: [{ type: 'text', name: '$name' }], component: {} as any, isList: true },
+    list: {
+      label: 'List',
+      propsSchema: [
+        { type: 'text', name: '$name' },
+      ],
+      component: {} as any,
+      isList: true,
+    },
   };
-  const form = { data: { group: { a: 1 } }, path: [] };
-  const group = node('g', { name: 'group', children: [node('a', { name: 'a' })] });
+  const form = {
+    data: {
+      group: { a: 1 },
+    },
+    path: [],
+  };
+  const group = node('g', {
+    name: 'group',
+    children: [
+      node('a', { name: 'a' }),
+    ],
+  });
 
   it('is the field of named nodes, the data of the parent for layout components and unset for unnamed nodes', () => {
     expect(dataOfNode(node('1', { name: 'a' }), { a: 1 }, components)).toBe(1);
@@ -524,37 +649,84 @@ describe('data and scopes of nodes', () => {
   });
 
   it('is the path of the data in the closest scope', () => {
-    const scopes: DataScope[] = [{ data: {}, path: ['group'] }, form];
+    const scopes: DataScope[] = [
+      {
+        data: {},
+        path: ['group'],
+      },
+      form,
+    ];
     expect(dataPathOfNode(node('1', { name: 'a' }), scopes, components)).toEqual(['group', 'a']);
     expect(dataPathOfNode(node('1', { type: 'layout', name: 'a' }), scopes, components)).toEqual(['group']);
     expect(dataPathOfNode(node('1'), scopes, components)).toEqual(['group']);
   });
 
   it('adds the data of a named node with children as scope of its children', () => {
-    expect(dataScopesOfChildren(group, form.data, [form], components)).toEqual([{ node: group, data: { a: 1 }, path: ['group'] }, form]);
+    expect(dataScopesOfChildren(group, form.data, [form], components)).toEqual([
+      {
+        node: group,
+        data: { a: 1 },
+        path: ['group'],
+      },
+      form,
+    ]);
     expect(dataScopesOfChildren(node('1', { type: 'layout', children: [] }), form.data, [form], components)).toEqual([form]);
     expect(dataScopesOfChildren(node('1', { type: 'list', name: 'items', children: [] }), form.data, [form], components)).toEqual([form]);
   });
 
   it('adds the items of lists as scope of their children', () => {
     const list = node('l', { type: 'list', name: 'items' });
-    expect(dataScopesOfListItem(list, { a: 1 }, 2, [form])).toEqual([{ node: list, data: { a: 1 }, path: ['items', 2] }, form]);
+    expect(dataScopesOfListItem(list, { a: 1 }, 2, [form])).toEqual([
+      {
+        node: list,
+        data: { a: 1 },
+        path: ['items', 2],
+      },
+      form,
+    ]);
   });
 
   it('detects lists by their data or by their component', () => {
-    const list = node('l', { type: 'list', name: 'items', children: [node('a', { name: 'a' })] });
+    const list = node('l', {
+      type: 'list',
+      name: 'items',
+      children: [
+        node('a', { name: 'a' }),
+      ],
+    });
     expect(isListNode(list, undefined, components)).toBe(true);
-    expect(isListNode(group, [{ a: 1 }], components)).toBe(true);
+    expect(isListNode(group, [
+      { a: 1 },
+    ], components)).toBe(true);
     expect(isListNode(group, { a: 1 }, components)).toBe(false);
     expect(isListNode(group, undefined, components)).toBe(false);
   });
 
   it('adds no scope for a list not marked as list (`isList`), as its items are the scopes of its children', () => {
-    const items = node('i', { name: 'items', children: [node('a', { name: 'a' })] });
-    const listForm = { data: { items: [{ a: 1 }] }, path: [] };
+    const items = node('i', {
+      name: 'items',
+      children: [
+        node('a', { name: 'a' }),
+      ],
+    });
+    const listForm = {
+      data: {
+        items: [
+          { a: 1 },
+        ],
+      },
+      path: [],
+    };
     const scopes = dataScopesOfChildren(items, listForm.data, [listForm], components);
     expect(scopes).toEqual([listForm]);
-    expect(dataScopesOfListItem(items, { a: 1 }, 0, scopes)).toEqual([{ node: items, data: { a: 1 }, path: ['items', 0] }, listForm]);
+    expect(dataScopesOfListItem(items, { a: 1 }, 0, scopes)).toEqual([
+      {
+        node: items,
+        data: { a: 1 },
+        path: ['items', 0],
+      },
+      listForm,
+    ]);
   });
 });
 
@@ -582,7 +754,9 @@ describe('unsetDataOfNode', () => {
     const data: FormData = { keep: 1, leaf: 2 };
     const layout = node('L', {
       type: 'bare',
-      children: [node('c1', { name: 'leaf', type: 'text' })],
+      children: [
+        node('c1', { name: 'leaf', type: 'text' }),
+      ],
     });
     unsetDataOfNode(layout, data, components);
     expect(data).toStrictEqual({ keep: 1 });
@@ -592,7 +766,11 @@ describe('unsetDataOfNode', () => {
     const data: FormData = { keep: 1, deep: 2 };
     const layout = node('L', {
       type: 'bare',
-      children: { col: [node('c1', { name: 'deep', type: 'text' })] },
+      children: {
+        col: [
+          node('c1', { name: 'deep', type: 'text' }),
+        ],
+      },
     });
     unsetDataOfNode(layout, data, components);
     expect(data).toStrictEqual({ keep: 1 });
@@ -615,21 +793,56 @@ describe('nodeChildren', () => {
 
   it('returns a list of children as is', () => {
     const child = node('c1');
-    expect(nodeChildren(node('1', { children: [child] }))).toStrictEqual([child]);
+    expect(nodeChildren(node('1', {
+      children: [child],
+    }))).toStrictEqual([child]);
   });
 
   it('flattens children stored by category', () => {
-    const [c1, c2, c3] = [node('c1'), node('c2'), node('c3')];
-    expect(nodeChildren(node('1', { children: { a: [c1, c2], b: [c3] } }))).toStrictEqual([c1, c2, c3]);
+    const [c1, c2, c3] = [
+      node('c1'),
+      node('c2'),
+      node('c3'),
+    ];
+    expect(nodeChildren(node('1', {
+      children: {
+        a: [c1, c2],
+        b: [c3],
+      },
+    }))).toStrictEqual([c1, c2, c3]);
   });
 });
 
 describe('hasValue', () => {
-  it.each([undefined, null, '', false, [], {}, { a: null, b: '' }, { a: { b: false } }])('is false for %j', (value) => {
+  it.each([
+    undefined,
+    null,
+    '',
+    false,
+    [],
+    {},
+    { a: null, b: '' },
+    {
+      a: { b: false },
+    },
+  ])('is false for %j', (value) => {
     expect(hasValue(value)).toBe(false);
   });
 
-  it.each(['a', 0, 1, true, [{}], [{ a: null }], { a: null, b: 'x' }, { a: { b: 0 } }])('is true for %j', (value) => {
+  it.each([
+    'a',
+    0,
+    1,
+    true,
+    [{}],
+    [
+      { a: null },
+    ],
+    { a: null, b: 'x' },
+    {
+      a: { b: 0 },
+    },
+  ])('is true for %j', (value) => {
     expect(hasValue(value)).toBe(true);
   });
 });
@@ -662,13 +875,19 @@ describe('nanoid and generateFormId', () => {
 describe('getFormIdFromEvent', () => {
   it('reads form id from prefixed dataTransfer type', () => {
     const event = {
-      dataTransfer: { types: ['text/plain', 'form_id_myForm'] },
+      dataTransfer: {
+        types: ['text/plain', 'form_id_myForm'],
+      },
     } as unknown as DragEvent;
     expect(getFormIdFromEvent(event)).toBe('myForm');
   });
 
   it('returns undefined when no matching type', () => {
-    const event = { dataTransfer: { types: ['text/plain'] } } as unknown as DragEvent;
+    const event = {
+      dataTransfer: {
+        types: ['text/plain'],
+      },
+    } as unknown as DragEvent;
     expect(getFormIdFromEvent(event)).toBeUndefined();
   });
 

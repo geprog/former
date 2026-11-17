@@ -6,7 +6,9 @@ import { nextTick } from 'vue';
 import { nuxtUiStubs } from '../test/nuxtUiStubs';
 import { createFormComponents } from './formComponents';
 
-const components = createFormComponents((key, named) => (named ? `${key} ${JSON.stringify(named)}` : key));
+const components = createFormComponents((key, named) => (named
+  ? `${key} ${JSON.stringify(named)}`
+  : key));
 type ValidatedType = { [Type in keyof typeof components]: 'validation' extends keyof typeof components[Type] ? Type : never }[keyof typeof components];
 
 function errorOf(type: ValidatedType, props: { [key: string]: unknown }, value: FieldData | FormData) {
@@ -118,8 +120,14 @@ describe('validation', () => {
   });
 
   it.each([
-    [{ multiple: true, required: true }, 'a'],
-    [{ required: true }, ['a'] as unknown as FormData[]],
+    [
+      { multiple: true, required: true },
+      'a',
+    ],
+    [
+      { required: true },
+      ['a'] as unknown as FormData[],
+    ],
   ])('accepts a value stored before `multiple` was toggled with %o', (props, value) => {
     expect(errorOf('select', props, value)).toBeUndefined();
   });
@@ -185,7 +193,13 @@ describe('validation', () => {
     let valid: boolean | undefined;
     const wrapper = mount(Former, {
       props: {
-        schema: [{ type: 'text', name: 'field', props: { label: 'Field', required: true } }],
+        schema: [
+          {
+            type: 'text',
+            name: 'field',
+            props: { label: 'Field', required: true },
+          },
+        ],
         data: {} as FormData,
         components,
         mode: 'edit',
@@ -203,7 +217,9 @@ describe('validation', () => {
     let schemaValid: boolean | undefined;
     mount(Former, {
       props: {
-        schema: [{ type: 'text' }] as SchemaNode[],
+        schema: [
+          { type: 'text' },
+        ] as SchemaNode[],
         data: {} as FormData,
         components,
         mode: 'build',

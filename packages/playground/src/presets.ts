@@ -10,13 +10,19 @@ export type PlaygroundPreset = {
   components: FormComponents;
 };
 
-const showIfProp: SchemaNode = { type: 'showIf', name: 'showIf', props: { label: 'Show if the field has a value' } };
+const showIfProp: SchemaNode = {
+  type: 'showIf',
+  name: 'showIf',
+  props: { label: 'Show if the field has a value' },
+};
 
 // selects the field the visibility of an element depends on, only used in the props form
 const showIfComponent: FormComponents[string] = {
   label: 'Show if',
   component: markRaw(ShowIfSelect),
-  propsSchema: [{ type: 'text', name: '$name' }],
+  propsSchema: [
+    { type: 'text', name: '$name' },
+  ],
   internal: true,
 };
 
@@ -26,7 +32,13 @@ function withShowIf(components: FormComponents): FormComponents {
     ...Object.fromEntries(
       Object.entries(components).map(([type, component]) => [
         type,
-        { ...component, propsSchema: [...(component.propsSchema ?? []), showIfProp] },
+        {
+          ...component,
+          propsSchema: [
+            ...(component.propsSchema ?? []),
+            showIfProp,
+          ],
+        },
       ]),
     ),
     showIf: showIfComponent,
@@ -38,7 +50,15 @@ export function usePresets() {
   const nuxtUiFormComponents = useNuxtUiFormComponents();
 
   return computed<[PlaygroundPreset, ...PlaygroundPreset[]]>(() => [
-    { id: 'sample', label: 'Sample components', components: withShowIf(sampleFormComponents) },
-    { id: 'nuxt-ui', label: 'Nuxt UI preset', components: withShowIf(nuxtUiFormComponents.value) },
+    {
+      id: 'sample',
+      label: 'Sample components',
+      components: withShowIf(sampleFormComponents),
+    },
+    {
+      id: 'nuxt-ui',
+      label: 'Nuxt UI preset',
+      components: withShowIf(nuxtUiFormComponents.value),
+    },
   ]);
 }

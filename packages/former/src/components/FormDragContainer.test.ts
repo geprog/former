@@ -37,7 +37,9 @@ describe('component FormDragContainer', () => {
     const texts = ref<Texts>({ dragHint: 'Here you can drag elements', invalidSchema: 'Invalid schema' });
     const wrapper = mount(FormDragContainer, {
       attachTo: document.body,
-      global: { provide: { mode, texts } },
+      global: {
+        provide: { mode, texts },
+      },
     });
     let classes = wrapper.element.classList;
     expect(classes).toContain('former-drag-container');
@@ -56,8 +58,12 @@ describe('component FormDragContainer', () => {
     const texts = ref<Texts>({ dragHint: 'Here you can drag elements', invalidSchema: 'Invalid schema' });
     const wrapper = mount(FormDragContainer, {
       attachTo: document.body,
-      global: { provide: { mode, texts } },
-      slots: { default: () => h('span', { 'data-slot-mark': '1' }) },
+      global: {
+        provide: { mode, texts },
+      },
+      slots: {
+        default: () => h('span', { 'data-slot-mark': '1' }),
+      },
     });
     expect(wrapper.element.childElementCount).toBe(1);
     expect(wrapper.element.tagName).toBe('DIV');
@@ -68,8 +74,12 @@ describe('component FormDragContainer', () => {
     const texts = ref<Texts>({ dragHint: 'Here you can drag elements', invalidSchema: 'Invalid schema' });
     const wrapper = mount(FormDragContainer, {
       attachTo: document.body,
-      global: { provide: { mode, texts } },
-      slots: { default: () => h('span', { 'data-slot-mark': '1' }) },
+      global: {
+        provide: { mode, texts },
+      },
+      slots: {
+        default: () => h('span', { 'data-slot-mark': '1' }),
+      },
     });
     expect(wrapper.element.childElementCount).toBe(1);
     expect(wrapper.element.firstElementChild?.getAttribute('data-slot-mark')).toBe('1');
@@ -82,7 +92,9 @@ describe('component FormDragContainer', () => {
     const wrapper = mount(FormDragContainer, {
       attachTo: document.body,
       props: { category: 'fields' },
-      global: { provide: { mode, texts, node } },
+      global: {
+        provide: { mode, texts, node },
+      },
     });
     expect(wrapper.element.getAttribute('data-drag-hint')).toBe('Custom drop hint');
     expect(wrapper.element.getAttribute('data-category')).toBe('fields');
@@ -94,7 +106,9 @@ describe('component FormDragContainer', () => {
     const texts = ref<Texts>({ dragHint: 'Here you can drag elements', invalidSchema: 'Invalid schema' });
     const wrapper = mount(FormDragContainer, {
       attachTo: document.body,
-      global: { provide: { mode, texts } },
+      global: {
+        provide: { mode, texts },
+      },
     });
     expect(wrapper.element.getAttribute('data-parent-node')).toBeNull();
   });
@@ -104,7 +118,9 @@ describe('component FormDragContainer', () => {
     const texts = ref<Texts>({ dragHint: 'Here you can drag elements', invalidSchema: 'Invalid schema' });
     const wrapper = mount(FormDragContainer, {
       attachTo: document.body,
-      global: { provide: { mode, texts } },
+      global: {
+        provide: { mode, texts },
+      },
     });
     expect(wrapper.element.getAttribute('data-category')).toBeNull();
   });
@@ -114,8 +130,12 @@ describe('component FormDragContainer', () => {
     const texts = ref<Texts>({ dragHint: 'Here you can drag elements', invalidSchema: 'Invalid schema' });
     const wrapper = mount(FormDragContainer, {
       attachTo: document.body,
-      global: { provide: { mode, texts } },
-      slots: { default: () => h('span', { 'data-slot-mark': '1' }) },
+      global: {
+        provide: { mode, texts },
+      },
+      slots: {
+        default: () => h('span', { 'data-slot-mark': '1' }),
+      },
     });
     expect(wrapper.find('[data-slot-mark]').exists()).toBe(true);
   });

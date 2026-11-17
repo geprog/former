@@ -15,8 +15,9 @@
 
 <script setup lang="ts">
 import type { FormerProps } from '@former-ui/former';
+import type { CalendarDate, DateValue } from '@internationalized/date';
 import type { DateRange } from './dateRange';
-import { type CalendarDate, type DateValue, parseDate } from '@internationalized/date';
+import { parseDate } from '@internationalized/date';
 import { computed } from 'vue';
 
 defineOptions({ inheritAttrs: false });
@@ -50,12 +51,19 @@ function toCalendarDate(value: string | null | undefined): CalendarDate | undefi
 function toIsoRange(value: { start?: DateValue; end?: DateValue } | null | undefined): DateRange | null {
   const start = value?.start?.toString().slice(0, 10) ?? null;
   const end = value?.end?.toString().slice(0, 10) ?? null;
-  return start || end ? { start, end } : null;
+  return start || end
+    ? { start, end }
+    : null;
 }
 
 const rangeValue = computed(() => {
   const range = modelValue.value;
-  return range ? { start: toCalendarDate(range.start), end: toCalendarDate(range.end) } : undefined;
+  return range
+    ? {
+        start: toCalendarDate(range.start),
+        end: toCalendarDate(range.end),
+      }
+    : undefined;
 });
 const minValue = computed(() => toCalendarDate(props.min));
 const maxValue = computed(() => toCalendarDate(props.max));

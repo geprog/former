@@ -1,6 +1,7 @@
+import type { Ref } from 'vue';
 import { mount } from '@vue/test-utils';
 import { describe, expect, it } from 'vitest';
-import { defineComponent, h, ref, type Ref } from 'vue';
+import { defineComponent, h, ref } from 'vue';
 import { inject, provide } from './injectProvide';
 
 describe('injectProvide', () => {
@@ -23,7 +24,9 @@ describe('injectProvide', () => {
       const Parent = defineComponent({
         setup() {
           provide('data', providedData);
-          return () => [h(Child)];
+          return () => [
+            h(Child),
+          ];
         },
       });
 
@@ -83,7 +86,9 @@ describe('injectProvide', () => {
       const Parent = defineComponent({
         setup() {
           provide('data', providedData);
-          return () => [h(Child)];
+          return () => [
+            h(Child),
+          ];
         },
       });
 

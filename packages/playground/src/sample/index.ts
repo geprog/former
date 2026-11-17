@@ -11,7 +11,9 @@ import TextInput from './TextInput.vue';
 
 // validates the `required` prop of the nodes, including the props of the nodes in build mode
 const requiredValidation: FormComponents[string]['validation'] = ({ required }) =>
-  (required ? z.custom(value => hasValue(value as FieldData | FormData), 'Value is required') : undefined);
+  (required
+    ? z.custom(value => hasValue(value as FieldData | FormData), 'Value is required')
+    : undefined);
 
 export const sampleFormComponents: FormComponents = {
   text: {

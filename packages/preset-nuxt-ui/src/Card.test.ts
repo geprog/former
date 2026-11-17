@@ -8,7 +8,15 @@ import { createFormComponents } from './formComponents';
 const components = createFormComponents(key => key);
 
 function mountCard(data: FormData, mode: Mode = 'edit') {
-  const schema: SchemaNode[] = [{ type: 'card', props: { label: 'Contact', help: 'How to reach you' }, children: [{ type: 'text', name: 'a' }] }];
+  const schema: SchemaNode[] = [
+    {
+      type: 'card',
+      props: { label: 'Contact', help: 'How to reach you' },
+      children: [
+        { type: 'text', name: 'a' },
+      ],
+    },
+  ];
   return mount(Former, {
     props: { schema, data, components, mode },
     global: { components: nuxtUiStubs },

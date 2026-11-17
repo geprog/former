@@ -8,7 +8,15 @@ import { createFormComponents } from './formComponents';
 const components = createFormComponents(key => key);
 
 function mountCollapsible(data: FormData, mode: Mode, props: SchemaNode['props'] = {}) {
-  const schema: SchemaNode[] = [{ type: 'collapsible', props: { label: 'More', ...props }, children: [{ type: 'text', name: 'a' }] }];
+  const schema: SchemaNode[] = [
+    {
+      type: 'collapsible',
+      props: { label: 'More', ...props },
+      children: [
+        { type: 'text', name: 'a' },
+      ],
+    },
+  ];
   return mount(Former, {
     props: { schema, data, components, mode },
     global: { components: nuxtUiStubs },
@@ -24,7 +32,11 @@ describe('collapsible section', () => {
 
   it.each([
     ['edit', {}, 'false'],
-    ['edit', { defaultOpen: true }, 'true'],
+    [
+      'edit',
+      { defaultOpen: true },
+      'true',
+    ],
     ['read', {}, 'true'],
   ] as const)('in %s mode with %o is open: %s', (mode, props, open) => {
     const wrapper = mountCollapsible({ a: 'value' }, mode, props);

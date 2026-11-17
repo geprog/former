@@ -54,9 +54,13 @@ usePresetValue(modelValue, () => {
 const selected = computed({
   get: () => {
     const chosen = toChosen(modelValue.value, props.multiple) as string | string[] | null | undefined;
-    return chosen ?? (props.multiple ? [] : undefined);
+    return chosen ?? (props.multiple
+      ? []
+      : undefined);
   },
   set: (value: string | string[] | null | undefined) =>
-    (modelValue.value = Array.isArray(value) ? (value.length ? value : null) : (value ?? null)),
+    (modelValue.value = Array.isArray(value)
+      ? (value.length ? value : null)
+      : (value ?? null)),
 });
 </script>

@@ -108,11 +108,21 @@ describe('useTouchDrag', () => {
       document.body.appendChild(target);
       const preventDefaultSpy = vi.fn();
       const move = new Event('touchmove', { bubbles: true, cancelable: true }) as TouchEvent;
-      Object.defineProperty(move, 'touches', { value: [touchLike(20, 20)] });
-      Object.defineProperty(move, 'changedTouches', { value: [touchLike(20, 20)] });
+      Object.defineProperty(move, 'touches', {
+        value: [
+          touchLike(20, 20),
+        ],
+      });
+      Object.defineProperty(move, 'changedTouches', {
+        value: [
+          touchLike(20, 20),
+        ],
+      });
       Object.defineProperty(move, 'preventDefault', { value: preventDefaultSpy });
 
-      dispatchTouch(target, 'touchstart', [touchLike(0, 0)]);
+      dispatchTouch(target, 'touchstart', [
+        touchLike(0, 0),
+      ]);
       window.dispatchEvent(move);
 
       expect(preventDefaultSpy).not.toHaveBeenCalled();
@@ -133,8 +143,12 @@ describe('useTouchDrag', () => {
       const dragStartSpy = vi.fn();
       source.addEventListener('dragstart', dragStartSpy);
 
-      dispatchTouch(inner, 'touchstart', [touchLike(0, 0)]);
-      dispatchTouch(window, 'touchmove', [touchLike(10, 10)]);
+      dispatchTouch(inner, 'touchstart', [
+        touchLike(0, 0),
+      ]);
+      dispatchTouch(window, 'touchmove', [
+        touchLike(10, 10),
+      ]);
 
       expect(dragStartSpy).toHaveBeenCalledTimes(1);
       drag.disable();
@@ -148,8 +162,16 @@ describe('useTouchDrag', () => {
 
       const preventDefaultSpy = vi.fn();
       const move = new Event('touchmove', { bubbles: true, cancelable: true }) as TouchEvent;
-      Object.defineProperty(move, 'touches', { value: [touchLike(5, 5)] });
-      Object.defineProperty(move, 'changedTouches', { value: [touchLike(5, 5)] });
+      Object.defineProperty(move, 'touches', {
+        value: [
+          touchLike(5, 5),
+        ],
+      });
+      Object.defineProperty(move, 'changedTouches', {
+        value: [
+          touchLike(5, 5),
+        ],
+      });
       Object.defineProperty(move, 'preventDefault', { value: preventDefaultSpy });
 
       window.dispatchEvent(move);
@@ -166,12 +188,22 @@ describe('useTouchDrag', () => {
       source.setAttribute('draggable', 'true');
       document.body.appendChild(source);
 
-      dispatchTouch(source, 'touchstart', [touchLike(0, 0)]);
+      dispatchTouch(source, 'touchstart', [
+        touchLike(0, 0),
+      ]);
 
       const preventDefaultSpy = vi.fn();
       const move = new Event('touchmove', { bubbles: true, cancelable: true }) as TouchEvent;
-      Object.defineProperty(move, 'touches', { value: [touchLike(5, 5)] });
-      Object.defineProperty(move, 'changedTouches', { value: [touchLike(5, 5)] });
+      Object.defineProperty(move, 'touches', {
+        value: [
+          touchLike(5, 5),
+        ],
+      });
+      Object.defineProperty(move, 'changedTouches', {
+        value: [
+          touchLike(5, 5),
+        ],
+      });
       Object.defineProperty(move, 'preventDefault', { value: preventDefaultSpy });
 
       window.dispatchEvent(move);
@@ -190,12 +222,18 @@ describe('useTouchDrag', () => {
       const dragStartSpy = vi.fn();
       source.addEventListener('dragstart', dragStartSpy);
 
-      dispatchTouch(source, 'touchstart', [touchLike(0, 0)]);
-      dispatchTouch(window, 'touchmove', [touchLike(5, 5)]);
+      dispatchTouch(source, 'touchstart', [
+        touchLike(0, 0),
+      ]);
+      dispatchTouch(window, 'touchmove', [
+        touchLike(5, 5),
+      ]);
       expect(dragStartSpy).not.toHaveBeenCalled();
 
       const bodyChildrenBefore = document.body.childElementCount;
-      dispatchTouch(window, 'touchmove', [touchLike(30, 30)]);
+      dispatchTouch(window, 'touchmove', [
+        touchLike(30, 30),
+      ]);
 
       expect(dragStartSpy).toHaveBeenCalledTimes(1);
       expect(isTouchDragging.value).toBe(true);
@@ -215,9 +253,15 @@ describe('useTouchDrag', () => {
       target.addEventListener('dragover', dragOverSpy);
       vi.spyOn(document, 'elementFromPoint').mockReturnValue(target);
 
-      dispatchTouch(source, 'touchstart', [touchLike(0, 0)]);
-      dispatchTouch(window, 'touchmove', [touchLike(10, 10)]);
-      dispatchTouch(window, 'touchmove', [touchLike(12, 12)]);
+      dispatchTouch(source, 'touchstart', [
+        touchLike(0, 0),
+      ]);
+      dispatchTouch(window, 'touchmove', [
+        touchLike(10, 10),
+      ]);
+      dispatchTouch(window, 'touchmove', [
+        touchLike(12, 12),
+      ]);
 
       expect(dragOverSpy).toHaveBeenCalled();
       drag.disable();
@@ -237,12 +281,18 @@ describe('useTouchDrag', () => {
       const elementFromPoint = vi.spyOn(document, 'elementFromPoint');
       elementFromPoint.mockReturnValue(target);
 
-      dispatchTouch(source, 'touchstart', [touchLike(0, 0)]);
-      dispatchTouch(window, 'touchmove', [touchLike(10, 10)]);
+      dispatchTouch(source, 'touchstart', [
+        touchLike(0, 0),
+      ]);
+      dispatchTouch(window, 'touchmove', [
+        touchLike(10, 10),
+      ]);
 
       elementFromPoint.mockReturnValue(null);
       documentDragOverSpy.mockClear();
-      dispatchTouch(window, 'touchmove', [touchLike(20, 20)]);
+      dispatchTouch(window, 'touchmove', [
+        touchLike(20, 20),
+      ]);
 
       expect(documentDragOverSpy).not.toHaveBeenCalled();
       drag.disable();
@@ -259,14 +309,20 @@ describe('useTouchDrag', () => {
       document.body.appendChild(target);
       vi.spyOn(document, 'elementFromPoint').mockReturnValue(target);
 
-      dispatchTouch(source, 'touchstart', [touchLike(0, 0)]);
-      dispatchTouch(window, 'touchmove', [touchLike(10, 10)]);
+      dispatchTouch(source, 'touchstart', [
+        touchLike(0, 0),
+      ]);
+      dispatchTouch(window, 'touchmove', [
+        touchLike(10, 10),
+      ]);
       const ghost = [...document.body.children].find(
         el => el !== source && el !== target,
       ) as HTMLElement | undefined;
       expect(ghost).toBeDefined();
       const t1 = ghost!.style.transform;
-      dispatchTouch(window, 'touchmove', [touchLike(50, 60)]);
+      dispatchTouch(window, 'touchmove', [
+        touchLike(50, 60),
+      ]);
       const t2 = ghost!.style.transform;
       expect(t2).not.toBe(t1);
       expect(t2).toContain('50');
@@ -286,12 +342,18 @@ describe('useTouchDrag', () => {
       document.body.append(source, nonDropTarget);
       vi.spyOn(document, 'elementFromPoint').mockReturnValue(nonDropTarget);
 
-      dispatchTouch(source, 'touchstart', [touchLike(0, 0)]);
-      dispatchTouch(window, 'touchmove', [touchLike(10, 10)]);
+      dispatchTouch(source, 'touchstart', [
+        touchLike(0, 0),
+      ]);
+      dispatchTouch(window, 'touchmove', [
+        touchLike(10, 10),
+      ]);
       const ghost = [...document.body.children].find(el => el !== source && el !== nonDropTarget);
       expect(ghost).toBeDefined();
 
-      dispatchTouch(window, 'touchend', [], [touchLike(10, 10)]);
+      dispatchTouch(window, 'touchend', [], [
+        touchLike(10, 10),
+      ]);
       expect(document.body.contains(ghost!)).toBe(false);
       drag.disable();
     });
@@ -314,9 +376,15 @@ describe('useTouchDrag', () => {
       target.addEventListener('drop', dropSpy);
       vi.spyOn(document, 'elementFromPoint').mockReturnValue(target);
 
-      dispatchTouch(source, 'touchstart', [touchLike(0, 0)]);
-      dispatchTouch(window, 'touchmove', [touchLike(10, 10)]);
-      dispatchTouch(window, 'touchend', [], [touchLike(10, 10)]);
+      dispatchTouch(source, 'touchstart', [
+        touchLike(0, 0),
+      ]);
+      dispatchTouch(window, 'touchmove', [
+        touchLike(10, 10),
+      ]);
+      dispatchTouch(window, 'touchend', [], [
+        touchLike(10, 10),
+      ]);
 
       expect(dropSpy).toHaveBeenCalledTimes(1);
       drag.disable();
@@ -337,9 +405,15 @@ describe('useTouchDrag', () => {
       target.addEventListener('drop', dropSpy);
       vi.spyOn(document, 'elementFromPoint').mockReturnValue(target);
 
-      dispatchTouch(source, 'touchstart', [touchLike(0, 0)]);
-      dispatchTouch(window, 'touchmove', [touchLike(10, 10)]);
-      dispatchTouch(window, 'touchend', [], [touchLike(10, 10)]);
+      dispatchTouch(source, 'touchstart', [
+        touchLike(0, 0),
+      ]);
+      dispatchTouch(window, 'touchmove', [
+        touchLike(10, 10),
+      ]);
+      dispatchTouch(window, 'touchend', [], [
+        touchLike(10, 10),
+      ]);
 
       expect(dropSpy).toHaveBeenCalledWith(expect.objectContaining({ synthetic: true }));
       drag.disable();
@@ -357,9 +431,15 @@ describe('useTouchDrag', () => {
       source.addEventListener('dragend', dragEndSpy);
       vi.spyOn(document, 'elementFromPoint').mockReturnValue(nonDropTarget);
 
-      dispatchTouch(source, 'touchstart', [touchLike(0, 0)]);
-      dispatchTouch(window, 'touchmove', [touchLike(10, 10)]);
-      dispatchTouch(window, 'touchend', [], [touchLike(10, 10)]);
+      dispatchTouch(source, 'touchstart', [
+        touchLike(0, 0),
+      ]);
+      dispatchTouch(window, 'touchmove', [
+        touchLike(10, 10),
+      ]);
+      dispatchTouch(window, 'touchend', [], [
+        touchLike(10, 10),
+      ]);
 
       expect(dragEndSpy).toHaveBeenCalledTimes(1);
       drag.disable();
@@ -376,11 +456,17 @@ describe('useTouchDrag', () => {
       document.body.append(source, nonDropTarget);
       vi.spyOn(document, 'elementFromPoint').mockReturnValue(nonDropTarget);
 
-      dispatchTouch(source, 'touchstart', [touchLike(0, 0)]);
-      dispatchTouch(window, 'touchmove', [touchLike(10, 10)]);
+      dispatchTouch(source, 'touchstart', [
+        touchLike(0, 0),
+      ]);
+      dispatchTouch(window, 'touchmove', [
+        touchLike(10, 10),
+      ]);
       expect(isTouchDragging.value).toBe(true);
 
-      dispatchTouch(window, 'touchend', [], [touchLike(10, 10)]);
+      dispatchTouch(window, 'touchend', [], [
+        touchLike(10, 10),
+      ]);
       expect(isTouchDragging.value).toBe(true);
 
       vi.runAllTimers();
@@ -394,7 +480,9 @@ describe('useTouchDrag', () => {
       const drag = useTouchDrag();
       drag.enable();
 
-      expect(() => dispatchTouch(window, 'touchend', [], [touchLike(10, 10)])).not.toThrow();
+      expect(() => dispatchTouch(window, 'touchend', [], [
+        touchLike(10, 10),
+      ])).not.toThrow();
       drag.disable();
     });
 
@@ -408,11 +496,17 @@ describe('useTouchDrag', () => {
       const dragStartSpy = vi.fn();
       source.addEventListener('dragstart', dragStartSpy);
 
-      dispatchTouch(source, 'touchstart', [touchLike(0, 0)]);
-      dispatchTouch(window, 'touchmove', [touchLike(20, 20)]);
+      dispatchTouch(source, 'touchstart', [
+        touchLike(0, 0),
+      ]);
+      dispatchTouch(window, 'touchmove', [
+        touchLike(20, 20),
+      ]);
       expect(dragStartSpy).not.toHaveBeenCalled();
 
-      dispatchTouch(window, 'touchmove', [touchLike(60, 0)]);
+      dispatchTouch(window, 'touchmove', [
+        touchLike(60, 0),
+      ]);
       expect(dragStartSpy).toHaveBeenCalledTimes(1);
       drag.disable();
     });
