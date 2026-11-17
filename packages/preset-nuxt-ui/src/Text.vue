@@ -9,6 +9,7 @@
       :autocomplete="inputType === 'password' ? 'new-password' : undefined"
       size="lg"
       :disabled="mode === 'read'"
+      class="w-full"
     />
   </UFormField>
 </template>
