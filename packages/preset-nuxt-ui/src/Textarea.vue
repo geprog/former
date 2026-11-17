@@ -15,6 +15,7 @@
       :maxlength="maxLength ?? undefined"
       size="lg"
       :disabled="mode === 'read'"
+      class="w-full"
     />
   </UFormField>
 </template>
