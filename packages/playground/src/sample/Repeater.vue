@@ -38,6 +38,9 @@ function addItem() {
 }
 
 function deleteItem(index: number) {
-  modelValue.value = [...modelValue.value.slice(0, index), ...modelValue.value.slice(index + 1)];
+  modelValue.value = [
+    ...modelValue.value.slice(0, index),
+    ...modelValue.value.slice(index + 1),
+  ];
 }
 </script>

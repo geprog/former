@@ -57,7 +57,9 @@ watch(
   { deep: true },
 );
 
-const data = defineModel<FormData>('data', { default: () => ({}) });
+const data = defineModel<FormData>('data', {
+  default: () => ({}),
+});
 const wrappedData = ref<FormData>({});
 watch(data, () => {
   if (!isEqual(data.value, wrappedData.value)) {
@@ -82,7 +84,9 @@ provide('showIf', (node: SchemaNode) => {
 });
 
 // reset the scopes for nested forms (e.g. the props form of the selected node)
-provide('dataScopes', computed(() => [{ data: wrappedData.value, path: [] }]));
+provide('dataScopes', computed(() => [
+  { data: wrappedData.value, path: [] },
+]));
 
 const { isValid: isSchemaValid, propsValidity } = useSchema(internalSchema, toRef(props, 'components'));
 provide('propsValidity', propsValidity);

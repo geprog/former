@@ -110,9 +110,6 @@ import type {
   Mode,
   SchemaNode,
 } from '@former-ui/former';
-import Button from '@/sample/Button.vue';
-import Checkbox from '@/sample/Checkbox.vue';
-import Select from '@/sample/Select.vue';
 import {
   FormAdd,
   FormContent,
@@ -121,6 +118,9 @@ import {
 } from '@former-ui/former';
 import { useStorage } from '@vueuse/core';
 import { computed, provide, ref } from 'vue';
+import Button from '@/sample/Button.vue';
+import Checkbox from '@/sample/Checkbox.vue';
+import Select from '@/sample/Select.vue';
 import { usePresets } from './presets';
 import { hasValueAt, playgroundSchemaKey } from './showIf';
 

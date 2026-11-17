@@ -1,5 +1,6 @@
+import type { MaybeRefOrGetter, Ref } from 'vue';
 import type { FormComponents, InternalSchemaNode } from '~/types';
-import { computed, type MaybeRefOrGetter, type Ref, toValue } from 'vue';
+import { computed, toValue } from 'vue';
 import { schemaIterator } from '~/utils';
 import { isPromiseLike, propsValidityOfNode, useMaybeAsync } from '~/validation';
 
@@ -10,10 +11,14 @@ export default function useSchema(schema: Ref<InternalSchemaNode[]>, components:
   // validated once for the whole schema, while the nodes only show their result (see `FormNode`),
   // `undefined` if the validation of the whole schema failed (e.g. a malformed node)
   const { result, isPending } = useMaybeAsync<PropsValidity | undefined>(() => {
-    const nodes = [...schemaIterator(schema.value)];
+    const nodes = [
+      ...schemaIterator(schema.value),
+    ];
     const results = nodes.map(node => propsValidityOfNode(node, toValue(components)));
     const byId = (resolved: (boolean | string)[]) => Object.fromEntries(nodes.map((node, index) => [node._id, resolved[index]]));
-    return results.some(isPromiseLike) ? Promise.all(results).then(byId) : byId(results as (boolean | string)[]);
+    return results.some(isPromiseLike)
+      ? Promise.all(results).then(byId)
+      : byId(results as (boolean | string)[]);
   }, {}, () => undefined);
 
   const propsValidity = computed<PropsValidity>(() => result.value ?? {});

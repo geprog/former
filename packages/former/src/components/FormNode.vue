@@ -49,7 +49,9 @@ const mode = inject('mode');
 // the props of the nodes are only edited (and shown as invalid) in build mode, they are validated once for the
 // whole schema (see `useSchema`), a validation failing (e.g. an async schema not reaching a server) is shown with
 // its message, as it is otherwise only visible in the props of the node once it is selected
-const propsValidation = computed(() => (mode.value === 'build' ? propsValidity.value[node.value._id] ?? true : true));
+const propsValidation = computed(() => (mode.value === 'build'
+  ? propsValidity.value[node.value._id] ?? true
+  : true));
 const isNodeValidFlag = computed(() => propsValidation.value === true);
 // the message of a failing validation, otherwise a general message, as the issues are shown in the props of the node
 const propsError = computed(() => {
@@ -69,6 +71,8 @@ function startDrag(e: DragEvent, nodeId: string) {
 </script>
 
 <style>
+@reference '../index.css';
+
 /** necessary to do proper hovering in nested elements */
 .former-draggable[data-node]:hover:not(:has([data-node]:hover)) {
   @apply bg-blue-200 dark:bg-blue-800;

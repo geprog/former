@@ -1,7 +1,8 @@
+import type { Ref } from 'vue';
 import type { DataScope, FormData } from '~/types';
 import { mount } from '@vue/test-utils';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { defineComponent, h, nextTick, ref, type Ref, unref } from 'vue';
+import { defineComponent, h, nextTick, ref, unref } from 'vue';
 import { inject } from '~/compositions/injectProvide';
 import * as utils from '~/utils';
 
@@ -70,7 +71,9 @@ describe('component FormDataProvider', () => {
       global: {
         provide: { validityMap: rootValidityMap },
       },
-      slots: { default: () => h(DataInjectProbe) },
+      slots: {
+        default: () => h(DataInjectProbe),
+      },
     });
     expect(wrapper.find('[data-inject-data]').attributes('data-inject-data')).toBe(JSON.stringify({ a: 1 }));
     formData.value = { a: 2, b: 'x' };
@@ -95,7 +98,9 @@ describe('component FormDataProvider', () => {
       global: {
         provide: { validityMap: rootValidityMap },
       },
-      slots: { default: () => h(MapRefProbe) },
+      slots: {
+        default: () => h(MapRefProbe),
+      },
     });
     expect(wrapper.find('[data-map-probe]').exists()).toBe(true);
     expect(slotInjected).toBeDefined();
@@ -111,7 +116,9 @@ describe('component FormDataProvider', () => {
       global: {
         provide: { validityMap: rootValidityMap },
       },
-      slots: { default: () => h(ValidityChildSetter) },
+      slots: {
+        default: () => h(ValidityChildSetter),
+      },
     });
     expect(rootValidityMap.value[OUTER_ID]).toBe(true);
     await wrapper.find('[data-set-invalid]').trigger('click');
@@ -131,7 +138,9 @@ describe('component FormDataProvider', () => {
       global: {
         provide: { validityMap: rootValidityMap },
       },
-      slots: { default: () => h(ValidityChildSetter) },
+      slots: {
+        default: () => h(ValidityChildSetter),
+      },
     });
     expect(rootValidityMap.value[OUTER_ID]).toBe(true);
     wrapper.unmount();
@@ -157,10 +166,17 @@ describe('component FormDataProvider', () => {
             validityMap: ref({}),
             data: ref(list),
             node: ref(repeater),
-            dataScopes: ref([{ data: { items: list }, path: [] }]),
+            dataScopes: ref([
+              {
+                data: { items: list },
+                path: [],
+              },
+            ]),
           },
         },
-        slots: { default: () => h(ScopesProbe) },
+        slots: {
+          default: () => h(ScopesProbe),
+        },
       });
       return scopes!;
     }
@@ -168,7 +184,10 @@ describe('component FormDataProvider', () => {
     it('uses the passed index, e.g. for an item contained twice in the list', () => {
       const item = { a: 1 };
       const scopes = mountItem({ data: item, index: 1 }, [item, item]);
-      expect(scopes[0]).toMatchObject({ data: item, path: ['items', 1] });
+      expect(scopes[0]).toMatchObject({
+        data: item,
+        path: ['items', 1],
+      });
       expect(scopes[1].path).toEqual([]);
     });
   });

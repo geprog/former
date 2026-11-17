@@ -108,11 +108,46 @@ function rendererRoot(wrapper: ReturnType<typeof mount>) {
 
 /** Fixed layout boxes for `getBoundingClientRect` stubs (happy-dom has no real layout). */
 const R = {
-  full: { top: 0, left: 0, bottom: 100, right: 100, width: 100, height: 100 } as DOMRect,
-  tall: { top: 100, left: 0, bottom: 200, right: 100, width: 100, height: 100 } as DOMRect,
-  smallTop: { top: 0, left: 0, bottom: 50, right: 50, width: 50, height: 50 } as DOMRect,
-  smallBottom: { top: 60, left: 0, bottom: 110, right: 50, width: 50, height: 50 } as DOMRect,
-  tiny: { top: 0, left: 0, bottom: 50, right: 50, width: 50, height: 50 } as DOMRect,
+  full: {
+    top: 0,
+    left: 0,
+    bottom: 100,
+    right: 100,
+    width: 100,
+    height: 100,
+  } as DOMRect,
+  tall: {
+    top: 100,
+    left: 0,
+    bottom: 200,
+    right: 100,
+    width: 100,
+    height: 100,
+  } as DOMRect,
+  smallTop: {
+    top: 0,
+    left: 0,
+    bottom: 50,
+    right: 50,
+    width: 50,
+    height: 50,
+  } as DOMRect,
+  smallBottom: {
+    top: 60,
+    left: 0,
+    bottom: 110,
+    right: 50,
+    width: 50,
+    height: 50,
+  } as DOMRect,
+  tiny: {
+    top: 0,
+    left: 0,
+    bottom: 50,
+    right: 50,
+    width: 50,
+    height: 50,
+  } as DOMRect,
 };
 
 function stubDragRect(el: HTMLElement, rect: DOMRect) {
@@ -306,7 +341,10 @@ describe('component FormContent', () => {
         },
       });
       const { zone, drag } = appendDragScene(wrapper, { nodeId: 'n1' });
-      dispatchDrag(drag, 'dragover', { clientY: 50, dataTransfer: makeDataTransfer('form-1') });
+      dispatchDrag(drag, 'dragover', {
+        clientY: 50,
+        dataTransfer: makeDataTransfer('form-1'),
+      });
       expect(zone.querySelector('.bg-gray-800')).toBeNull();
     });
 
@@ -325,14 +363,19 @@ describe('component FormContent', () => {
       });
       const { zone, drag } = appendDragScene(wrapper, { nodeId: 'n1' });
       getFormIdSpy.mockReturnValue('other-form');
-      dispatchDrag(drag, 'dragover', { clientY: 50, dataTransfer: makeDataTransfer('other-form') });
+      dispatchDrag(drag, 'dragover', {
+        clientY: 50,
+        dataTransfer: makeDataTransfer('other-form'),
+      });
       expect(zone.querySelector('.bg-gray-800')).toBeNull();
     });
 
     it('prevents default and sets dropEffect to move when handling', () => {
       const mode = ref<'build' | 'read' | 'edit'>('build');
       const formId = ref('form-1');
-      const schema = ref<InternalSchemaNode[]>([{ _id: 'n1', type: 'text', name: 't' }]);
+      const schema = ref<InternalSchemaNode[]>([
+        { _id: 'n1', type: 'text', name: 't' },
+      ]);
       const selectedNode = ref<InternalSchemaNode | undefined>();
       const wrapper = mount(FormContent, {
         shallow: true,
@@ -353,7 +396,9 @@ describe('component FormContent', () => {
     it('creates and inserts a placeholder above the drop target when aboveTarget is true', () => {
       const mode = ref<'build' | 'read' | 'edit'>('build');
       const formId = ref('form-1');
-      const schema = ref<InternalSchemaNode[]>([{ _id: 'n1', type: 'text', name: 't' }]);
+      const schema = ref<InternalSchemaNode[]>([
+        { _id: 'n1', type: 'text', name: 't' },
+      ]);
       const selectedNode = ref<InternalSchemaNode | undefined>();
       const wrapper = mount(FormContent, {
         shallow: true,
@@ -365,7 +410,10 @@ describe('component FormContent', () => {
       });
       const { drag } = appendDragScene(wrapper, { nodeId: 'n1', rect: R.tall });
       nodePositionSpy.mockReturnValue({ parentId: null, category: null, index: 0 });
-      dispatchDrag(drag, 'dragover', { clientY: 120, dataTransfer: makeDataTransfer('form-1') });
+      dispatchDrag(drag, 'dragover', {
+        clientY: 120,
+        dataTransfer: makeDataTransfer('form-1'),
+      });
       expect(drag.firstElementChild).toBeTruthy();
       expect(drag.firstElementChild?.className).toContain('bg-gray-800');
       expect((drag.firstElementChild as HTMLElement).style.top).toBe('0px');
@@ -374,7 +422,9 @@ describe('component FormContent', () => {
     it('creates and inserts a placeholder below the drop target when aboveTarget is false', () => {
       const mode = ref<'build' | 'read' | 'edit'>('build');
       const formId = ref('form-1');
-      const schema = ref<InternalSchemaNode[]>([{ _id: 'n1', type: 'text', name: 't' }]);
+      const schema = ref<InternalSchemaNode[]>([
+        { _id: 'n1', type: 'text', name: 't' },
+      ]);
       const selectedNode = ref<InternalSchemaNode | undefined>();
       const wrapper = mount(FormContent, {
         shallow: true,
@@ -386,7 +436,10 @@ describe('component FormContent', () => {
       });
       const { drag } = appendDragScene(wrapper, { nodeId: 'n1', rect: R.tall });
       nodePositionSpy.mockReturnValue({ parentId: null, category: null, index: 0 });
-      dispatchDrag(drag, 'dragover', { clientY: 180, dataTransfer: makeDataTransfer('form-1') });
+      dispatchDrag(drag, 'dragover', {
+        clientY: 180,
+        dataTransfer: makeDataTransfer('form-1'),
+      });
       expect(drag.lastElementChild).toBeTruthy();
       expect(drag.lastElementChild?.className).toContain('bg-gray-800');
       expect((drag.lastElementChild as HTMLElement).style.bottom).toBe('0px');
@@ -408,7 +461,10 @@ describe('component FormContent', () => {
       const root = rendererRoot(wrapper);
       const zone = makeDropzone({ parentNode: 'root', category: 'default' });
       root.appendChild(zone);
-      dispatchDrag(zone, 'dragover', { clientY: 0, dataTransfer: makeDataTransfer('form-1') });
+      dispatchDrag(zone, 'dragover', {
+        clientY: 0,
+        dataTransfer: makeDataTransfer('form-1'),
+      });
       const ph = zone.querySelector('.bg-gray-800');
       expect(ph).toBeTruthy();
       expect(ph?.parentElement).toBe(zone);
@@ -417,7 +473,9 @@ describe('component FormContent', () => {
     it('removes an existing placeholder before inserting a new one', () => {
       const mode = ref<'build' | 'read' | 'edit'>('build');
       const formId = ref('form-1');
-      const schema = ref<InternalSchemaNode[]>([{ _id: 'n1', type: 'text', name: 't' }]);
+      const schema = ref<InternalSchemaNode[]>([
+        { _id: 'n1', type: 'text', name: 't' },
+      ]);
       const selectedNode = ref<InternalSchemaNode | undefined>();
       const wrapper = mount(FormContent, {
         shallow: true,
@@ -429,9 +487,15 @@ describe('component FormContent', () => {
       });
       const { drag } = appendDragScene(wrapper, { nodeId: 'n1', rect: R.tall });
       nodePositionSpy.mockReturnValue({ parentId: null, category: null, index: 0 });
-      dispatchDrag(drag, 'dragover', { clientY: 120, dataTransfer: makeDataTransfer('form-1') });
+      dispatchDrag(drag, 'dragover', {
+        clientY: 120,
+        dataTransfer: makeDataTransfer('form-1'),
+      });
       const first = drag.querySelector('.bg-gray-800');
-      dispatchDrag(drag, 'dragover', { clientY: 125, dataTransfer: makeDataTransfer('form-1') });
+      dispatchDrag(drag, 'dragover', {
+        clientY: 125,
+        dataTransfer: makeDataTransfer('form-1'),
+      });
       const placeholders = drag.querySelectorAll('.bg-gray-800');
       expect(placeholders.length).toBe(1);
       expect(placeholders[0]).not.toBe(first);
@@ -442,7 +506,9 @@ describe('component FormContent', () => {
     it('adds dragging highlight classes to the active dropzone', () => {
       const mode = ref<'build' | 'read' | 'edit'>('build');
       const formId = ref('form-1');
-      const schema = ref<InternalSchemaNode[]>([{ _id: 'n1', type: 'text', name: 't' }]);
+      const schema = ref<InternalSchemaNode[]>([
+        { _id: 'n1', type: 'text', name: 't' },
+      ]);
       const selectedNode = ref<InternalSchemaNode | undefined>();
       const wrapper = mount(FormContent, {
         shallow: true,
@@ -454,7 +520,10 @@ describe('component FormContent', () => {
       });
       const { zone, drag } = appendDragScene(wrapper, { nodeId: 'n1' });
       nodePositionSpy.mockReturnValue({ parentId: null, category: null, index: 0 });
-      dispatchDrag(drag, 'dragover', { clientY: 40, dataTransfer: makeDataTransfer('form-1') });
+      dispatchDrag(drag, 'dragover', {
+        clientY: 40,
+        dataTransfer: makeDataTransfer('form-1'),
+      });
       expect(zone.classList.contains('bg-blue-200')).toBe(true);
       expect(zone.classList.contains('dark:bg-blue-800')).toBe(true);
     });
@@ -487,9 +556,15 @@ describe('component FormContent', () => {
       stubDragRect(dragA, R.smallTop);
       stubDragRect(dragB, R.smallBottom);
       nodePositionSpy.mockReturnValue({ parentId: null, category: null, index: 0 });
-      dispatchDrag(dragA, 'dragover', { clientY: 10, dataTransfer: makeDataTransfer('form-1') });
+      dispatchDrag(dragA, 'dragover', {
+        clientY: 10,
+        dataTransfer: makeDataTransfer('form-1'),
+      });
       expect(zoneA.classList.contains('bg-blue-200')).toBe(true);
-      dispatchDrag(dragB, 'dragover', { clientY: 80, dataTransfer: makeDataTransfer('form-1') });
+      dispatchDrag(dragB, 'dragover', {
+        clientY: 80,
+        dataTransfer: makeDataTransfer('form-1'),
+      });
       expect(zoneA.classList.contains('bg-blue-200')).toBe(false);
       expect(zoneB.classList.contains('bg-blue-200')).toBe(true);
     });
@@ -511,7 +586,10 @@ describe('component FormContent', () => {
       });
       const root = rendererRoot(wrapper);
       const pd = vi.fn();
-      dispatchDrag(root, 'dragenter', { dataTransfer: makeDataTransfer('form-1'), preventDefault: pd });
+      dispatchDrag(root, 'dragenter', {
+        dataTransfer: makeDataTransfer('form-1'),
+        preventDefault: pd,
+      });
       expect(pd).toHaveBeenCalled();
     });
 
@@ -543,7 +621,9 @@ describe('component FormContent', () => {
     it('calls preventDefault on dragover at the FormRenderer root when dragOver handles the event', () => {
       const mode = ref<'build' | 'read' | 'edit'>('build');
       const formId = ref('form-1');
-      const schema = ref<InternalSchemaNode[]>([{ _id: 'n1', type: 'text', name: 't' }]);
+      const schema = ref<InternalSchemaNode[]>([
+        { _id: 'n1', type: 'text', name: 't' },
+      ]);
       const selectedNode = ref<InternalSchemaNode | undefined>();
       const wrapper = mount(FormContent, {
         shallow: true,
@@ -583,7 +663,9 @@ describe('component FormContent', () => {
       const orphan = document.createElement('div');
       root.appendChild(orphan);
       expect(() =>
-        dispatchDrag(orphan, 'dragover', { dataTransfer: makeDataTransfer('form-1') }),
+        dispatchDrag(orphan, 'dragover', {
+          dataTransfer: makeDataTransfer('form-1'),
+        }),
       ).toThrow('No dropzone found');
     });
 
@@ -607,7 +689,9 @@ describe('component FormContent', () => {
       root.appendChild(zone);
       const inner = document.createElement('div');
       zone.appendChild(inner);
-      dispatchDrag(inner, 'dragover', { dataTransfer: makeDataTransfer('form-1') });
+      dispatchDrag(inner, 'dragover', {
+        dataTransfer: makeDataTransfer('form-1'),
+      });
       expect(zone.querySelector('.bg-gray-800')).toBeTruthy();
       expect(zone.querySelector('.bg-gray-800')?.parentElement).toBe(zone);
     });
@@ -633,7 +717,10 @@ describe('component FormContent', () => {
       root.appendChild(zone);
       stubDragRect(bad, R.tiny);
       expect(() =>
-        dispatchDrag(bad, 'dragover', { clientY: 10, dataTransfer: makeDataTransfer('form-1') }),
+        dispatchDrag(bad, 'dragover', {
+          clientY: 10,
+          dataTransfer: makeDataTransfer('form-1'),
+        }),
       ).toThrow('No drop target id found');
     });
   });
@@ -659,7 +746,9 @@ describe('component FormContent', () => {
       zone.appendChild(leaf);
       parentDrag.appendChild(zone);
       root.appendChild(parentDrag);
-      dispatchDrag(leaf, 'dragover', { dataTransfer: makeDataTransfer('form-1') });
+      dispatchDrag(leaf, 'dragover', {
+        dataTransfer: makeDataTransfer('form-1'),
+      });
       expect(nodePositionSpy).not.toHaveBeenCalled();
       expect(parentDrag.querySelector('.bg-gray-800')).toBeTruthy();
     });
@@ -680,7 +769,9 @@ describe('component FormContent', () => {
       const root = rendererRoot(wrapper);
       const zone = makeDropzone({ parentNode: 'root', category: 'def' });
       root.appendChild(zone);
-      dispatchDrag(zone, 'dragover', { dataTransfer: makeDataTransfer('form-1') });
+      dispatchDrag(zone, 'dragover', {
+        dataTransfer: makeDataTransfer('form-1'),
+      });
       expect(nodePositionSpy).not.toHaveBeenCalled();
       expect(zone.querySelector('.bg-gray-800')).toBeTruthy();
     });
@@ -688,7 +779,9 @@ describe('component FormContent', () => {
     it('returns null when dragging a node would reparent under itself (parentId equals dragged node id)', () => {
       const mode = ref<'build' | 'read' | 'edit'>('build');
       const formId = ref('form-1');
-      const schema = ref<InternalSchemaNode[]>([{ _id: 'self', type: 'text', name: 't' }]);
+      const schema = ref<InternalSchemaNode[]>([
+        { _id: 'self', type: 'text', name: 't' },
+      ]);
       const selectedNode = ref<InternalSchemaNode | undefined>();
       const wrapper = mount(FormContent, {
         shallow: true,
@@ -711,7 +804,9 @@ describe('component FormContent', () => {
     it('returns early when relatedTarget is still inside currentTarget (anti-flicker)', () => {
       const mode = ref<'build' | 'read' | 'edit'>('build');
       const formId = ref('form-1');
-      const schema = ref<InternalSchemaNode[]>([{ _id: 'n1', type: 'text', name: 't' }]);
+      const schema = ref<InternalSchemaNode[]>([
+        { _id: 'n1', type: 'text', name: 't' },
+      ]);
       const selectedNode = ref<InternalSchemaNode | undefined>();
       const wrapper = mount(FormContent, {
         shallow: true,
@@ -723,7 +818,10 @@ describe('component FormContent', () => {
       });
       const { root, zone, drag } = appendDragScene(wrapper, { nodeId: 'n1' });
       nodePositionSpy.mockReturnValue({ parentId: null, category: null, index: 0 });
-      dispatchDrag(drag, 'dragover', { clientY: 40, dataTransfer: makeDataTransfer('form-1') });
+      dispatchDrag(drag, 'dragover', {
+        clientY: 40,
+        dataTransfer: makeDataTransfer('form-1'),
+      });
       expect(zone.querySelector('.bg-gray-800')).toBeTruthy();
       const inner = document.createElement('div');
       root.appendChild(inner);
@@ -738,7 +836,9 @@ describe('component FormContent', () => {
     it('removes placeholder and clears dropzone highlight when leaving for real', () => {
       const mode = ref<'build' | 'read' | 'edit'>('build');
       const formId = ref('form-1');
-      const schema = ref<InternalSchemaNode[]>([{ _id: 'n1', type: 'text', name: 't' }]);
+      const schema = ref<InternalSchemaNode[]>([
+        { _id: 'n1', type: 'text', name: 't' },
+      ]);
       const selectedNode = ref<InternalSchemaNode | undefined>();
       const wrapper = mount(FormContent, {
         shallow: true,
@@ -750,11 +850,17 @@ describe('component FormContent', () => {
       });
       const { root, zone, drag } = appendDragScene(wrapper, { nodeId: 'n1' });
       nodePositionSpy.mockReturnValue({ parentId: null, category: null, index: 0 });
-      dispatchDrag(drag, 'dragover', { clientY: 40, dataTransfer: makeDataTransfer('form-1') });
+      dispatchDrag(drag, 'dragover', {
+        clientY: 40,
+        dataTransfer: makeDataTransfer('form-1'),
+      });
       expect(zone.classList.contains('bg-blue-200')).toBe(true);
       const outside = document.createElement('div');
       document.body.appendChild(outside);
-      dispatchDrag(root, 'dragleave', { relatedTarget: outside, dataTransfer: makeDataTransfer('form-1') });
+      dispatchDrag(root, 'dragleave', {
+        relatedTarget: outside,
+        dataTransfer: makeDataTransfer('form-1'),
+      });
       expect(zone.querySelector('.bg-gray-800')).toBeNull();
       expect(zone.classList.contains('bg-blue-200')).toBe(false);
     });
@@ -766,7 +872,9 @@ describe('component FormContent', () => {
       isTouchDragging.value = true;
       const mode = ref<'build' | 'read' | 'edit'>('build');
       const formId = ref('form-1');
-      const schema = ref<InternalSchemaNode[]>([{ _id: 'n1', type: 'text', name: 't' }]);
+      const schema = ref<InternalSchemaNode[]>([
+        { _id: 'n1', type: 'text', name: 't' },
+      ]);
       const selectedNode = ref<InternalSchemaNode | undefined>();
       const wrapper = mount(FormContent, {
         shallow: true,
@@ -792,7 +900,9 @@ describe('component FormContent', () => {
       vi.useFakeTimers();
       const mode = ref<'build' | 'read' | 'edit'>('build');
       const formId = ref('form-1');
-      const schema = ref<InternalSchemaNode[]>([{ _id: 'n1', type: 'text', name: 't' }]);
+      const schema = ref<InternalSchemaNode[]>([
+        { _id: 'n1', type: 'text', name: 't' },
+      ]);
       const selectedNode = ref<InternalSchemaNode | undefined>();
       const wrapper = mount(FormContent, {
         shallow: true,
@@ -816,7 +926,9 @@ describe('component FormContent', () => {
     it('does nothing when mode is not build', async () => {
       const mode = ref<'build' | 'read' | 'edit'>('read');
       const formId = ref('form-1');
-      const schema = ref<InternalSchemaNode[]>([{ _id: 'n1', type: 'text', name: 't' }]);
+      const schema = ref<InternalSchemaNode[]>([
+        { _id: 'n1', type: 'text', name: 't' },
+      ]);
       const selectedNode = ref<InternalSchemaNode | undefined>();
       const wrapper = mount(FormContent, {
         shallow: true,
@@ -834,7 +946,9 @@ describe('component FormContent', () => {
     it('does nothing when event form id does not match injected formId', async () => {
       const mode = ref<'build' | 'read' | 'edit'>('build');
       const formId = ref('form-1');
-      const schema = ref<InternalSchemaNode[]>([{ _id: 'n1', type: 'text', name: 't' }]);
+      const schema = ref<InternalSchemaNode[]>([
+        { _id: 'n1', type: 'text', name: 't' },
+      ]);
       const selectedNode = ref<InternalSchemaNode | undefined>();
       const wrapper = mount(FormContent, {
         shallow: true,
@@ -855,7 +969,9 @@ describe('component FormContent', () => {
     it('adds a new node from new_node_type transfer data and updates schema', async () => {
       const mode = ref<'build' | 'read' | 'edit'>('build');
       const formId = ref('form-1');
-      const schema = ref<InternalSchemaNode[]>([{ _id: 'n1', type: 'text', name: 't' }]);
+      const schema = ref<InternalSchemaNode[]>([
+        { _id: 'n1', type: 'text', name: 't' },
+      ]);
       const selectedNode = ref<InternalSchemaNode | undefined>();
       const wrapper = mount(FormContent, {
         shallow: true,
@@ -876,7 +992,9 @@ describe('component FormContent', () => {
     it('selects the newly created node', async () => {
       const mode = ref<'build' | 'read' | 'edit'>('build');
       const formId = ref('form-1');
-      const schema = ref<InternalSchemaNode[]>([{ _id: 'n1', type: 'text', name: 't' }]);
+      const schema = ref<InternalSchemaNode[]>([
+        { _id: 'n1', type: 'text', name: 't' },
+      ]);
       const selectedNode = ref<InternalSchemaNode | undefined>();
       const wrapper = mount(FormContent, {
         shallow: true,
@@ -897,7 +1015,9 @@ describe('component FormContent', () => {
       nanoidSpy.mockReturnValue('same-id');
       const mode = ref<'build' | 'read' | 'edit'>('build');
       const formId = ref('form-1');
-      const schema = ref<InternalSchemaNode[]>([{ _id: 'n1', type: 'text', name: 't' }]);
+      const schema = ref<InternalSchemaNode[]>([
+        { _id: 'n1', type: 'text', name: 't' },
+      ]);
       const selectedNode = ref<InternalSchemaNode | undefined>();
       const wrapper = mount(FormContent, {
         shallow: true,
@@ -919,7 +1039,9 @@ describe('component FormContent', () => {
     it('resets dropping guards after the debounce timeout', async () => {
       const mode = ref<'build' | 'read' | 'edit'>('build');
       const formId = ref('form-1');
-      const schema = ref<InternalSchemaNode[]>([{ _id: 'n1', type: 'text', name: 't' }]);
+      const schema = ref<InternalSchemaNode[]>([
+        { _id: 'n1', type: 'text', name: 't' },
+      ]);
       const selectedNode = ref<InternalSchemaNode | undefined>();
       const wrapper = mount(FormContent, {
         shallow: true,
@@ -1021,7 +1143,9 @@ describe('component FormContent', () => {
     it('removes placeholder and clears highlight classes on drop', async () => {
       const mode = ref<'build' | 'read' | 'edit'>('build');
       const formId = ref('form-1');
-      const schema = ref<InternalSchemaNode[]>([{ _id: 'n1', type: 'text', name: 't' }]);
+      const schema = ref<InternalSchemaNode[]>([
+        { _id: 'n1', type: 'text', name: 't' },
+      ]);
       const selectedNode = ref<InternalSchemaNode | undefined>();
       const wrapper = mount(FormContent, {
         shallow: true,
@@ -1033,7 +1157,10 @@ describe('component FormContent', () => {
       });
       const { zone, drag } = appendDragScene(wrapper, { nodeId: 'n1' });
       nodePositionSpy.mockReturnValue({ parentId: null, category: null, index: 0 });
-      dispatchDrag(drag, 'dragover', { clientY: 40, dataTransfer: makeDataTransfer('form-1') });
+      dispatchDrag(drag, 'dragover', {
+        clientY: 40,
+        dataTransfer: makeDataTransfer('form-1'),
+      });
       expect(zone.classList.contains('bg-blue-200')).toBe(true);
       vi.useFakeTimers();
       dispatchWindowDrop(drag, transfer('form-1', { new_node_type: 'text' }));

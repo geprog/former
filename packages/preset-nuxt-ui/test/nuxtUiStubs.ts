@@ -5,27 +5,50 @@ import { defineComponent, h } from 'vue';
 
 const UFormField = defineComponent({
   name: 'UFormField',
-  props: { label: { type: String, default: undefined }, error: { type: [String, Boolean], default: undefined } },
+  props: {
+    label: { type: String, default: undefined },
+    error: {
+      type: [String, Boolean],
+      default: undefined,
+    },
+  },
   setup: (props, { slots }) => () => h('div', { 'data-label': props.label }, slots.default?.()),
 });
 
 const UCard = defineComponent({
   name: 'UCard',
-  setup: (_, { slots }) => () => h('div', [slots.header?.(), slots.default?.()]),
+  setup: (_, { slots }) => () => h('div', [
+    slots.header?.(),
+    slots.default?.(),
+  ]),
 });
 
 const UCollapsible = defineComponent({
   name: 'UCollapsible',
-  props: { open: { type: Boolean, default: false } },
-  setup: (props, { slots }) => () => h('div', { 'data-open': String(props.open) }, [slots.default?.(), slots.content?.()]),
+  props: {
+    open: { type: Boolean, default: false },
+  },
+  setup: (props, { slots }) => () => h('div', {
+    'data-open': String(props.open),
+  }, [
+    slots.default?.(),
+    slots.content?.(),
+  ]),
 });
 
 const UButton = defineComponent({
   name: 'UButton',
-  props: { label: { type: String, default: undefined }, icon: { type: String, default: undefined } },
+  props: {
+    label: { type: String, default: undefined },
+    icon: { type: String, default: undefined },
+  },
   emits: ['click'],
   setup: (props, { emit }) => () =>
-    h('button', { 'data-label': props.label, 'data-icon': props.icon, 'onClick': (event: MouseEvent) => emit('click', event) }, props.label),
+    h('button', {
+      'data-label': props.label,
+      'data-icon': props.icon,
+      'onClick': (event: MouseEvent) => emit('click', event),
+    }, props.label),
 });
 
 // declares no props, so everything passed to it is rendered as attribute and can be checked
@@ -42,7 +65,32 @@ export const nuxtUiStubs = {
   UButton,
   UCollapsible,
   ...Object.fromEntries(
-    ['UInput', 'UInputNumber', 'USelect', 'USelectMenu', 'UInputMenu', 'UTextarea', 'UInputTags', 'UCheckbox', 'USwitch', 'USlider', 'UInputRating', 'URadioGroup', 'UCheckboxGroup', 'UInputDate', 'UInputTime', 'UFileUpload', 'UModal', 'UPopover', 'UColorPicker', 'USeparator', 'UAlert']
-      .map(name => [name, attributesStub(name)]),
+    [
+      'UInput',
+      'UInputNumber',
+      'USelect',
+      'USelectMenu',
+      'UInputMenu',
+      'UTextarea',
+      'UInputTags',
+      'UCheckbox',
+      'USwitch',
+      'USlider',
+      'UInputRating',
+      'URadioGroup',
+      'UCheckboxGroup',
+      'UInputDate',
+      'UInputTime',
+      'UFileUpload',
+      'UModal',
+      'UPopover',
+      'UColorPicker',
+      'USeparator',
+      'UAlert',
+    ]
+      .map(name => [
+        name,
+        attributesStub(name),
+      ]),
   ),
 };

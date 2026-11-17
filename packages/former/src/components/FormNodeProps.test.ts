@@ -1,7 +1,8 @@
+import type { Ref } from 'vue';
 import type { FormComponents, InternalSchemaNode } from '~/types';
 import { mount } from '@vue/test-utils';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { defineComponent, h, nextTick, ref, type Ref } from 'vue';
+import { defineComponent, h, nextTick, ref } from 'vue';
 import * as utils from '~/utils';
 
 import Former from './Former.vue';
@@ -12,12 +13,16 @@ const FIELD_DUMMY = defineComponent({ name: 'FieldDummy', template: '<span />' }
 const MINIMAL_COMPONENTS: Ref<FormComponents> = ref({
   text: {
     label: 'Text',
-    propsSchema: [{ type: 'text', name: 'title' }],
+    propsSchema: [
+      { type: 'text', name: 'title' },
+    ],
     component: FIELD_DUMMY,
   },
   number: {
     label: 'Number',
-    propsSchema: [{ type: 'text', name: 'value' }],
+    propsSchema: [
+      { type: 'text', name: 'value' },
+    ],
     component: FIELD_DUMMY,
   },
 });
@@ -46,7 +51,12 @@ describe('component FormNodeProps', () => {
       props: { custom: 'orig' },
     });
     const schema = ref<InternalSchemaNode[]>([
-      { _id: 'node-1', type: 'text', name: 'myField', props: { custom: 'orig' } },
+      {
+        _id: 'node-1',
+        type: 'text',
+        name: 'myField',
+        props: { custom: 'orig' },
+      },
     ]);
     const wrapper = mount(FormNodeProps, {
       shallow: true,
@@ -67,7 +77,12 @@ describe('component FormNodeProps', () => {
     it('renders the nothing-selected slot when selectedNode is undefined', () => {
       const selectedNode = ref<InternalSchemaNode | undefined>(undefined);
       const schema = ref<InternalSchemaNode[]>([
-        { _id: 'node-1', type: 'text', name: 'myField', props: { custom: 'orig' } },
+        {
+          _id: 'node-1',
+          type: 'text',
+          name: 'myField',
+          props: { custom: 'orig' },
+        },
       ]);
       const wrapper = mount(FormNodeProps, {
         shallow: true,
@@ -91,7 +106,12 @@ describe('component FormNodeProps', () => {
     it('mounts without a selected node and skips props schema wiring', () => {
       const selectedNode = ref<InternalSchemaNode | undefined>(undefined);
       const schema = ref<InternalSchemaNode[]>([
-        { _id: 'node-1', type: 'text', name: 'myField', props: { custom: 'orig' } },
+        {
+          _id: 'node-1',
+          type: 'text',
+          name: 'myField',
+          props: { custom: 'orig' },
+        },
       ]);
       const wrapper = mount(FormNodeProps, {
         shallow: true,
@@ -120,7 +140,12 @@ describe('component FormNodeProps', () => {
         props: { custom: 'orig' },
       });
       const schema = ref<InternalSchemaNode[]>([
-        { _id: 'node-1', type: 'text', name: 'myField', props: { custom: 'orig' } },
+        {
+          _id: 'node-1',
+          type: 'text',
+          name: 'myField',
+          props: { custom: 'orig' },
+        },
       ]);
       const wrapper = mount(FormNodeProps, {
         shallow: true,
@@ -145,7 +170,12 @@ describe('component FormNodeProps', () => {
         props: { custom: 'orig' },
       });
       const schema = ref<InternalSchemaNode[]>([
-        { _id: 'node-1', type: 'missing-type', name: 'myField', props: { custom: 'orig' } },
+        {
+          _id: 'node-1',
+          type: 'missing-type',
+          name: 'myField',
+          props: { custom: 'orig' },
+        },
       ]);
       const wrapper = mount(FormNodeProps, {
         shallow: true,
@@ -170,7 +200,12 @@ describe('component FormNodeProps', () => {
         props: { custom: 'orig' },
       });
       const schema = ref<InternalSchemaNode[]>([
-        { _id: 'node-1', type: 'text', name: 'VisibleName', props: { custom: 'orig' } },
+        {
+          _id: 'node-1',
+          type: 'text',
+          name: 'VisibleName',
+          props: { custom: 'orig' },
+        },
       ]);
       const wrapper = mount(FormNodeProps, {
         shallow: true,
@@ -195,7 +230,12 @@ describe('component FormNodeProps', () => {
         props: { custom: 'orig' },
       });
       const schema = ref<InternalSchemaNode[]>([
-        { _id: 'node-1', type: 'text', name: '', props: { custom: 'orig' } },
+        {
+          _id: 'node-1',
+          type: 'text',
+          name: '',
+          props: { custom: 'orig' },
+        },
       ]);
       const wrapper = mount(FormNodeProps, {
         shallow: true,
@@ -224,7 +264,12 @@ describe('component FormNodeProps', () => {
         props: { custom: 'orig' },
       });
       const schema = ref<InternalSchemaNode[]>([
-        { _id: 'node-1', type: 'text', name: 'myField', props: { custom: 'orig' } },
+        {
+          _id: 'node-1',
+          type: 'text',
+          name: 'myField',
+          props: { custom: 'orig' },
+        },
       ]);
       mount(FormNodeProps, {
         shallow: true,
@@ -240,7 +285,12 @@ describe('component FormNodeProps', () => {
       });
       expect(toInternalSchemaSpy).toHaveBeenCalledWith(components.value.text.propsSchema);
       toInternalSchemaSpy.mockClear();
-      selectedNode.value = { _id: 'n2', type: 'number', name: 'n', props: {} };
+      selectedNode.value = {
+        _id: 'n2',
+        type: 'number',
+        name: 'n',
+        props: {},
+      };
       await nextTick();
       expect(toInternalSchemaSpy).toHaveBeenCalledWith(components.value.number.propsSchema);
     });
@@ -253,7 +303,12 @@ describe('component FormNodeProps', () => {
         props: { custom: 'orig' },
       });
       const schema = ref<InternalSchemaNode[]>([
-        { _id: 'node-1', type: 'text', name: 'myField', props: { custom: 'orig' } },
+        {
+          _id: 'node-1',
+          type: 'text',
+          name: 'myField',
+          props: { custom: 'orig' },
+        },
       ]);
       const wrapper = mount(FormNodeProps, {
         shallow: true,
@@ -273,7 +328,12 @@ describe('component FormNodeProps', () => {
     });
 
     it('renders the pre fallback when the selected type is missing from components', () => {
-      const node: InternalSchemaNode = { _id: 'node-1', type: 'orphan', name: 'myField', props: { custom: 'orig' } };
+      const node: InternalSchemaNode = {
+        _id: 'node-1',
+        type: 'orphan',
+        name: 'myField',
+        props: { custom: 'orig' },
+      };
       const selectedNode = ref<InternalSchemaNode | undefined>(node);
       const schema = ref<InternalSchemaNode[]>([node]);
       const wrapper = mount(FormNodeProps, {
@@ -302,7 +362,12 @@ describe('component FormNodeProps', () => {
         props: { custom: 'orig' },
       });
       const schema = ref<InternalSchemaNode[]>([
-        { _id: 'node-1', type: 'text', name: 'myField', props: { custom: 'orig' } },
+        {
+          _id: 'node-1',
+          type: 'text',
+          name: 'myField',
+          props: { custom: 'orig' },
+        },
       ]);
       const wrapper = mount(FormNodeProps, {
         shallow: true,
@@ -330,7 +395,12 @@ describe('component FormNodeProps', () => {
         props: { custom: 'orig' },
       });
       const schema = ref<InternalSchemaNode[]>([
-        { _id: 'node-1', type: 'text', name: 'myField', props: { custom: 'orig' } },
+        {
+          _id: 'node-1',
+          type: 'text',
+          name: 'myField',
+          props: { custom: 'orig' },
+        },
       ]);
       const wrapper = mount(FormNodeProps, {
         shallow: true,
@@ -361,7 +431,12 @@ describe('component FormNodeProps', () => {
         props: { custom: 'orig' },
       });
       const schema = ref<InternalSchemaNode[]>([
-        { _id: 'node-1', type: 'text', name: 'myField', props: { custom: 'orig' } },
+        {
+          _id: 'node-1',
+          type: 'text',
+          name: 'myField',
+          props: { custom: 'orig' },
+        },
       ]);
       const wrapper = mount(FormNodeProps, {
         shallow: true,
@@ -395,7 +470,12 @@ describe('component FormNodeProps', () => {
         props: { label: 'Label', min: 1, keep: 0 },
       });
       const schema = ref<InternalSchemaNode[]>([
-        { _id: 'node-1', type: 'text', name: 'myField', props: { label: 'Label', min: 1, keep: 0 } },
+        {
+          _id: 'node-1',
+          type: 'text',
+          name: 'myField',
+          props: { label: 'Label', min: 1, keep: 0 },
+        },
       ]);
       const wrapper = mount(FormNodeProps, {
         shallow: true,
@@ -410,7 +490,12 @@ describe('component FormNodeProps', () => {
         },
       });
       const former = wrapper.findComponent(Former);
-      await former.vm.$emit('update:data', { $name: 'myField', label: null, min: undefined, keep: 0 });
+      await former.vm.$emit('update:data', {
+        $name: 'myField',
+        label: null,
+        min: undefined,
+        keep: 0,
+      });
       const [, updated] = replaceNodeSpy.mock.calls[0]!;
       expect(updated.props).toStrictEqual({ label: null, min: undefined, keep: 0 });
     });
@@ -425,7 +510,12 @@ describe('component FormNodeProps', () => {
         props: { custom: 'orig' },
       });
       const schema = ref<InternalSchemaNode[]>([
-        { _id: 'node-1', type: 'text', name: 'myField', props: { custom: 'orig' } },
+        {
+          _id: 'node-1',
+          type: 'text',
+          name: 'myField',
+          props: { custom: 'orig' },
+        },
       ]);
       const wrapper = mount(FormNodeProps, {
         shallow: true,
@@ -454,7 +544,12 @@ describe('component FormNodeProps', () => {
         props: { custom: 'orig' },
       });
       const schema = ref<InternalSchemaNode[]>([
-        { _id: 'node-1', type: 'text', name: 'myField', props: { custom: 'orig' } },
+        {
+          _id: 'node-1',
+          type: 'text',
+          name: 'myField',
+          props: { custom: 'orig' },
+        },
       ]);
       const wrapper = mount(FormNodeProps, {
         shallow: true,
@@ -500,7 +595,12 @@ describe('component FormNodeProps', () => {
         props: { custom: 'orig' },
       });
       const schema = ref<InternalSchemaNode[]>([
-        { _id: 'node-1', type: 'text', name: 'myField', props: { custom: 'orig' } },
+        {
+          _id: 'node-1',
+          type: 'text',
+          name: 'myField',
+          props: { custom: 'orig' },
+        },
       ]);
       const wrapper = mount(FormNodeProps, {
         shallow: true,

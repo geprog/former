@@ -102,8 +102,12 @@ describe('component FormRenderer', () => {
 
   it('uses default branch of categorized schema when category prop is omitted', () => {
     const categorized = {
-      default: [{ _id: 'd1', type: 'text', name: 'n1' }],
-      extra: [{ _id: 'e1', type: 'text', name: 'n2' }],
+      default: [
+        { _id: 'd1', type: 'text', name: 'n1' },
+      ],
+      extra: [
+        { _id: 'e1', type: 'text', name: 'n2' },
+      ],
     };
     const schema = ref(categorized as unknown as InternalSchemaNode[]);
     const wrapper = mount(FormRenderer, {
@@ -121,8 +125,12 @@ describe('component FormRenderer', () => {
 
   it('selects the matching category slice when schema is categorized', () => {
     const categorized = {
-      default: [{ _id: 'd1', type: 'text', name: 'n1' }],
-      extra: [{ _id: 'e1', type: 'text', name: 'n2' }],
+      default: [
+        { _id: 'd1', type: 'text', name: 'n1' },
+      ],
+      extra: [
+        { _id: 'e1', type: 'text', name: 'n2' },
+      ],
     };
     const schema = ref(categorized as unknown as InternalSchemaNode[]);
     const wrapper = mount(FormRenderer, {
@@ -155,7 +163,9 @@ describe('component FormRenderer', () => {
   });
 
   it('uses injected node children instead of root schema when node is provided', () => {
-    const rootSchema = ref<InternalSchemaNode[]>([{ _id: 'root-only', type: 'text', name: 'r' }]);
+    const rootSchema = ref<InternalSchemaNode[]>([
+      { _id: 'root-only', type: 'text', name: 'r' },
+    ]);
     const node = ref({
       _id: 'parent',
       type: 'group',
@@ -180,7 +190,9 @@ describe('component FormRenderer', () => {
   });
 
   it('forwards category prop to FormDragContainer stub', () => {
-    const schema = ref<InternalSchemaNode[]>([{ _id: 'only', type: 'text', name: 'o' }]);
+    const schema = ref<InternalSchemaNode[]>([
+      { _id: 'only', type: 'text', name: 'o' },
+    ]);
     const wrapper = mount(FormRenderer, {
       shallow: true,
       attachTo: document.body,

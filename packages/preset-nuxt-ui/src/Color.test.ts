@@ -10,13 +10,18 @@ import { createFormComponents } from './formComponents';
 // icons are loaded from the network, which isn't needed here
 vi.mock('@nuxt/ui/runtime/vue/components/Icon.vue', async () => {
   const { defineComponent, h } = await import('vue');
-  return { default: defineComponent(() => () => h('span')) };
+  return {
+    default: defineComponent(() => () => h('span')),
+  };
 });
 
 // renders the trigger and the content, as the real popover only renders its content when it is open
 const UPopover = defineComponent({
   name: 'UPopover',
-  setup: (_, { slots }) => () => h('div', [slots.default?.(), slots.content?.()]),
+  setup: (_, { slots }) => () => h('div', [
+    slots.default?.(),
+    slots.content?.(),
+  ]),
 });
 
 const components: FormComponents = { color: createFormComponents(key => key).color };
@@ -25,13 +30,17 @@ function mountColor(initialData: FormData) {
   const data = ref<FormData>(initialData);
   const wrapper = mount(Former, {
     props: {
-      'schema': [{ type: 'color', name: 'color' }],
+      'schema': [
+        { type: 'color', name: 'color' },
+      ],
       'data': data.value,
       'onUpdate:data': (value: FormData) => (data.value = value),
       components,
       'mode': 'edit',
     },
-    global: { components: { ...nuxtUiStubs, UInput, UPopover } },
+    global: {
+      components: { ...nuxtUiStubs, UInput, UPopover },
+    },
   });
   return { wrapper, data };
 }

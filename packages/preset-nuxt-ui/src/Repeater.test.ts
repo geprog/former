@@ -8,7 +8,9 @@ import { createFormComponents } from './formComponents';
 
 // keeps the value it was mounted with, like components with local state do
 const MountedValue = defineComponent({
-  props: { modelValue: { type: String, default: undefined } },
+  props: {
+    modelValue: { type: String, default: undefined },
+  },
   setup(props) {
     const mountedValue = props.modelValue;
     return () => h('span', { 'data-mounted-value': '' }, mountedValue);
@@ -19,13 +21,21 @@ const components: FormComponents = {
   repeater: createFormComponents(key => key).repeater,
   mounted_value: {
     label: 'Mounted value',
-    propsSchema: [{ type: 'text', name: '$name' }],
+    propsSchema: [
+      { type: 'text', name: '$name' },
+    ],
     component: markRaw(MountedValue),
   },
 };
 
 const schema: SchemaNode[] = [
-  { type: 'repeater', name: 'items', children: [{ type: 'mounted_value', name: 'value' }] },
+  {
+    type: 'repeater',
+    name: 'items',
+    children: [
+      { type: 'mounted_value', name: 'value' },
+    ],
+  },
 ];
 
 function mountRepeater(initialData: FormData, mode: Mode = 'edit') {
@@ -53,18 +63,30 @@ function deleteButtons(wrapper: ReturnType<typeof mountRepeater>['wrapper']) {
 
 describe('repeater', () => {
   it('renders an item for each entry', () => {
-    const { wrapper } = mountRepeater({ items: [{ value: 'a' }, { value: 'b' }] });
+    const { wrapper } = mountRepeater({
+      items: [
+        { value: 'a' },
+        { value: 'b' },
+      ],
+    });
 
     expect(mountedValues(wrapper)).toStrictEqual(['a', 'b']);
   });
 
   it('adds an empty item', async () => {
-    const { wrapper, data } = mountRepeater({ items: [{ value: 'a' }] });
+    const { wrapper, data } = mountRepeater({
+      items: [
+        { value: 'a' },
+      ],
+    });
 
     await wrapper.find('button[data-label="Add Item"]').trigger('click');
     await nextTick();
 
-    expect(data.value.items).toStrictEqual([{ value: 'a' }, {}]);
+    expect(data.value.items).toStrictEqual([
+      { value: 'a' },
+      {},
+    ]);
   });
 
   it('adds an item when the repeater was cleared', async () => {
@@ -77,16 +99,31 @@ describe('repeater', () => {
   });
 
   it('deletes the clicked item', async () => {
-    const { wrapper, data } = mountRepeater({ items: [{ value: 'a' }, { value: 'b' }, { value: 'c' }] });
+    const { wrapper, data } = mountRepeater({
+      items: [
+        { value: 'a' },
+        { value: 'b' },
+        { value: 'c' },
+      ],
+    });
 
     await deleteButtons(wrapper)[1]!.trigger('click');
     await nextTick();
 
-    expect(data.value.items).toStrictEqual([{ value: 'a' }, { value: 'c' }]);
+    expect(data.value.items).toStrictEqual([
+      { value: 'a' },
+      { value: 'c' },
+    ]);
   });
 
   it('keeps the components of the remaining items when an item is deleted', async () => {
-    const { wrapper } = mountRepeater({ items: [{ value: 'a' }, { value: 'b' }, { value: 'c' }] });
+    const { wrapper } = mountRepeater({
+      items: [
+        { value: 'a' },
+        { value: 'b' },
+        { value: 'c' },
+      ],
+    });
 
     await deleteButtons(wrapper)[0]!.trigger('click');
     await nextTick();
@@ -95,7 +132,11 @@ describe('repeater', () => {
   });
 
   it('hides the add and delete buttons in read mode', () => {
-    const { wrapper } = mountRepeater({ items: [{ value: 'a' }] }, 'read');
+    const { wrapper } = mountRepeater({
+      items: [
+        { value: 'a' },
+      ],
+    }, 'read');
 
     expect(wrapper.findAll('button')).toHaveLength(0);
   });
@@ -108,7 +149,12 @@ describe('repeater', () => {
   });
 
   it('keeps items without content in read mode', () => {
-    const { wrapper } = mountRepeater({ items: [{}, { value: 'b' }] }, 'read');
+    const { wrapper } = mountRepeater({
+      items: [
+        {},
+        { value: 'b' },
+      ],
+    }, 'read');
 
     expect(wrapper.text()).toContain('Item 1');
     expect(wrapper.text()).toContain('Item 2');
@@ -117,8 +163,17 @@ describe('repeater', () => {
   it('prefers the item label of the repeater', () => {
     const wrapper = mount(Former, {
       props: {
-        schema: [{ ...schema[0]!, props: { itemLabel: 'Room' } }],
-        data: { items: [{ value: 'a' }] },
+        schema: [
+          {
+            ...schema[0]!,
+            props: { itemLabel: 'Room' },
+          },
+        ],
+        data: {
+          items: [
+            { value: 'a' },
+          ],
+        },
         components,
         mode: 'edit',
       },
@@ -130,12 +185,28 @@ describe('repeater', () => {
   });
 
   it.each([
-    [[{ value: 'a' }], true],
-    [[{ value: 'a' }, { value: 'b' }], false],
+    [
+      [
+        { value: 'a' },
+      ],
+      true,
+    ],
+    [
+      [
+        { value: 'a' },
+        { value: 'b' },
+      ],
+      false,
+    ],
   ])('with a maximum of 2 items and the items %o shows the add button: %o', (items, shown) => {
     const wrapper = mount(Former, {
       props: {
-        schema: [{ ...schema[0]!, props: { maxItems: 2 } }],
+        schema: [
+          {
+            ...schema[0]!,
+            props: { maxItems: 2 },
+          },
+        ],
         data: { items },
         components,
         mode: 'edit',

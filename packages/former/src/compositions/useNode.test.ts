@@ -1,7 +1,8 @@
+import type { Ref } from 'vue';
 import type { FormComponents, FormData, FormFieldType, InternalSchemaNode } from '~/types';
 import { mount } from '@vue/test-utils';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { defineComponent, h, inject, nextTick, provide, ref, type Ref } from 'vue';
+import { defineComponent, h, inject, nextTick, provide, ref } from 'vue';
 import { z } from 'zod';
 import useNode from './useNode';
 
@@ -19,7 +20,9 @@ function defaultComponents(validation?: FormFieldType['validation']): FormCompon
     },
     [FIELD_TYPE]: {
       label: 'Text field',
-      propsSchema: [{ type: 'text', name: '$name' }],
+      propsSchema: [
+        { type: 'text', name: '$name' },
+      ],
       component: StubField,
       validation,
     },
@@ -86,7 +89,12 @@ function mountUseNode(options: MountUseNodeOptions) {
     throw new Error('useNodeResult is undefined');
   }
 
-  return { ...useNodeResult, data, validityMap, unmount: () => wrapper.unmount() };
+  return {
+    ...useNodeResult,
+    data,
+    validityMap,
+    unmount: () => wrapper.unmount(),
+  };
 }
 
 describe('useNode', () => {
@@ -180,10 +188,16 @@ describe('useNode', () => {
 
     it('is false for nodes without a name and for non-object data', () => {
       const unnamed = ref<InternalSchemaNode>({ _id: 'n1', type: FIELD_TYPE });
-      expect(mountUseNode({ node: unnamed, data: ref<FormData>({ x: 1 }) }).hasDataKey.value).toBe(false);
+      expect(mountUseNode({
+        node: unnamed,
+        data: ref<FormData>({ x: 1 }),
+      }).hasDataKey.value).toBe(false);
 
       const named = ref<InternalSchemaNode>({ _id: 'n2', type: FIELD_TYPE, name: 'length' });
-      expect(mountUseNode({ node: named, data: ref([1, 2]) }).hasDataKey.value).toBe(false);
+      expect(mountUseNode({
+        node: named,
+        data: ref([1, 2]),
+      }).hasDataKey.value).toBe(false);
     });
   });
 
@@ -276,28 +290,51 @@ describe('useNode', () => {
 
     it('is undefined when the data passes the schema of the component', () => {
       const node = ref<InternalSchemaNode>({ _id: 'n1', type: FIELD_TYPE, name: 'a' });
-      const { error } = mountUseNode({ node, data: ref({ a: 'x' }), validation: () => z.string() });
+      const { error } = mountUseNode({
+        node,
+        data: ref({ a: 'x' }),
+        validation: () => z.string(),
+      });
       expect(error.value).toBeUndefined();
     });
 
     it('is the message of the first issue of the schema of the component', () => {
       const node = ref<InternalSchemaNode>({ _id: 'n1', type: FIELD_TYPE, name: 'a' });
-      const { error } = mountUseNode({ node, data: ref({ a: '' }), validation: () => z.string().min(1, 'bad') });
+      const { error } = mountUseNode({
+        node,
+        data: ref({ a: '' }),
+        validation: () => z.string().min(1, 'bad'),
+      });
       expect(error.value).toBe('bad');
     });
 
     it('passes the props and the context of the node to the validation', () => {
-      const node = ref<InternalSchemaNode>({ _id: 'n1', type: FIELD_TYPE, name: 'a', props: { min: 1 } });
+      const node = ref<InternalSchemaNode>({
+        _id: 'n1',
+        type: FIELD_TYPE,
+        name: 'a',
+        props: { min: 1 },
+      });
       const data = ref({ a: 'x' });
       const validation = vi.fn(() => undefined);
       mountUseNode({ node, data, validation });
-      expect(validation).toHaveBeenCalledWith({ min: 1 }, { node: node.value, path: ['a'], scopes: [{ data: data.value, path: [] }] });
+      expect(validation).toHaveBeenCalledWith({ min: 1 }, {
+        node: node.value,
+        path: ['a'],
+        scopes: [
+          { data: data.value, path: [] },
+        ],
+      });
     });
 
     it('updates when the data changes', () => {
       const node = ref<InternalSchemaNode>({ _id: 'n1', type: FIELD_TYPE, name: 'a' });
       const data = ref<FormData>({ a: '' });
-      const { error } = mountUseNode({ node, data, validation: () => z.string().min(1, 'bad') });
+      const { error } = mountUseNode({
+        node,
+        data,
+        validation: () => z.string().min(1, 'bad'),
+      });
       expect(error.value).toBe('bad');
       data.value.a = 'x';
       expect(error.value).toBeUndefined();
@@ -329,7 +366,10 @@ describe('useNode', () => {
   describe('isValid and validityMap', () => {
     it('is invalid when the field error is set', () => {
       const node = ref<InternalSchemaNode>({ _id: 'n1', type: FIELD_TYPE, name: 'a' });
-      const { isValid } = mountUseNode({ node, validation: () => z.string('err') });
+      const { isValid } = mountUseNode({
+        node,
+        validation: () => z.string('err'),
+      });
       expect(isValid.value).toBe(false);
     });
 
@@ -359,7 +399,10 @@ describe('useNode', () => {
 
     it('removes _id from the parent validityMap when unmounted', () => {
       const node = ref<InternalSchemaNode>({ _id: 'gone', type: FIELD_TYPE, name: 'a' });
-      const { validityMap, unmount } = mountUseNode({ node, validation: () => z.string('err') });
+      const { validityMap, unmount } = mountUseNode({
+        node,
+        validation: () => z.string('err'),
+      });
       expect(validityMap.value.gone).toBe(false);
 
       unmount();
@@ -369,8 +412,16 @@ describe('useNode', () => {
     it('keeps the validity of a node mounted at another place of the same parent when its old instance is unmounted', () => {
       const validityMap = ref<Record<string, boolean | undefined>>({});
       const validation = () => z.string('err');
-      const old = mountUseNode({ node: ref<InternalSchemaNode>({ _id: 'moved', type: FIELD_TYPE, name: 'a' }), validityMap, validation });
-      mountUseNode({ node: ref<InternalSchemaNode>({ _id: 'moved', type: FIELD_TYPE, name: 'a' }), validityMap, validation });
+      const old = mountUseNode({
+        node: ref<InternalSchemaNode>({ _id: 'moved', type: FIELD_TYPE, name: 'a' }),
+        validityMap,
+        validation,
+      });
+      mountUseNode({
+        node: ref<InternalSchemaNode>({ _id: 'moved', type: FIELD_TYPE, name: 'a' }),
+        validityMap,
+        validation,
+      });
 
       old.unmount();
       expect(validityMap.value.moved).toBe(false);

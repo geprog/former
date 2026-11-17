@@ -27,7 +27,9 @@ const options = computed(() => [
 const value = computed({
   get: () => modelValue.value || ALWAYS,
   set: (newValue) => {
-    modelValue.value = newValue === ALWAYS ? undefined : newValue;
+    modelValue.value = newValue === ALWAYS
+      ? undefined
+      : newValue;
   },
 });
 </script>

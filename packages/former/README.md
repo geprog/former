@@ -134,7 +134,8 @@ Just configure your form layout, define the components and let former do the res
 </template>
 
 <script setup lang="ts">
-import { FormAdd, type FormComponents, FormContent, type FormData, Former, FormNodeProps, type Mode, type SchemaNode } from '@former-ui/former';
+import type { FormComponents, FormData, Mode, SchemaNode } from '@former-ui/former';
+import { FormAdd, FormContent, Former, FormNodeProps } from '@former-ui/former';
 import { markRaw, ref } from 'vue';
 
 import TextInput from './TextInput.vue';
@@ -273,7 +274,9 @@ const components: FormComponents = {
       if (max !== undefined) {
         schema = schema.max(max, `At most ${max}`);
       }
-      return required ? schema : schema.nullish();
+      return required
+        ? schema
+        : schema.nullish();
     },
   },
 };
@@ -290,7 +293,9 @@ The second parameter of the validation is the context of the node, so the valida
 const validation: FormFieldType['validation'] = (props, { scopes }) => {
   // the data of a scope is unset until something was filled in
   const { start } = (scopes[0].data ?? {}) as FormData;
-  const end = typeof start === 'number' ? z.number().min(start, 'The end must be after the start') : z.number();
+  const end = typeof start === 'number'
+    ? z.number().min(start, 'The end must be after the start')
+    : z.number();
   return end.nullish();
 };
 ```

@@ -1,7 +1,8 @@
+import type { Ref } from 'vue';
 import type { FormComponents, InternalSchemaNode } from '~/types';
 import { config, mount } from '@vue/test-utils';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { defineComponent, h, inject, markRaw, nextTick, ref, type Ref } from 'vue';
+import { defineComponent, h, inject, markRaw, nextTick, ref } from 'vue';
 import { z } from 'zod';
 import * as utils from '~/utils';
 
@@ -13,7 +14,10 @@ const DynamicComponent = defineComponent({
     id: { type: String, required: true },
     mode: { type: String, required: true },
     error: { type: String, default: undefined },
-    modelValue: { type: [String, Number, Boolean, Object, Array], default: undefined },
+    modelValue: {
+      type: [String, Number, Boolean, Object, Array],
+      default: undefined,
+    },
     custom: { type: String, default: undefined },
   },
   emits: ['update:modelValue'],
@@ -41,13 +45,21 @@ const SlotProbe = defineComponent({
 const TEXT_COMPONENTS: Ref<FormComponents> = ref({
   text: {
     label: 'Text',
-    propsSchema: [{ type: 'text', name: '$name', props: { required: true } }],
+    propsSchema: [
+      {
+        type: 'text',
+        name: '$name',
+        props: { required: true },
+      },
+    ],
     component: markRaw(DynamicComponent),
     validation: ({ required, errorMessage }) => {
       if (errorMessage) {
         return z.never(errorMessage);
       }
-      return required ? z.string().min(1, 'required') : undefined;
+      return required
+        ? z.string().min(1, 'required')
+        : undefined;
     },
   },
 });
@@ -56,7 +68,10 @@ describe('component FormNode', () => {
   let setDragEventDataSpy: ReturnType<typeof vi.spyOn>;
 
   beforeEach(() => {
-    config.global.provide = { texts: ref({ dragHint: 'hint', invalidSchema: 'Invalid schema' }), propsValidity: ref({}) };
+    config.global.provide = {
+      texts: ref({ dragHint: 'hint', invalidSchema: 'Invalid schema' }),
+      propsValidity: ref({}),
+    };
     vi.clearAllMocks();
     vi.restoreAllMocks();
     setDragEventDataSpy = vi.spyOn(utils, 'setDragEventData').mockImplementation(() => {});
@@ -69,7 +84,12 @@ describe('component FormNode', () => {
 
   describe('visibility and root rendering', () => {
     it('renders root wrapper when isShown is true', () => {
-      const node: InternalSchemaNode = { _id: 'node-1', type: 'text', name: 'field', props: { custom: 'from-node-props' } };
+      const node: InternalSchemaNode = {
+        _id: 'node-1',
+        type: 'text',
+        name: 'field',
+        props: { custom: 'from-node-props' },
+      };
       const data = ref<Record<string, unknown>>({ field: 'v' });
       const validityMap = ref<Record<string, boolean | undefined>>({});
       const mode = ref<'build' | 'read' | 'edit'>('build');
@@ -88,13 +108,20 @@ describe('component FormNode', () => {
             showIf: () => true,
           },
         },
-        slots: { default: () => h(SlotProbe) },
+        slots: {
+          default: () => h(SlotProbe),
+        },
       });
       expect(wrapper.find('[data-node="node-1"]').exists()).toBe(true);
     });
 
     it('renders root wrapper in build mode even when isShown is false', () => {
-      const node: InternalSchemaNode = { _id: 'node-1', type: 'text', name: 'field', props: { custom: 'from-node-props' } };
+      const node: InternalSchemaNode = {
+        _id: 'node-1',
+        type: 'text',
+        name: 'field',
+        props: { custom: 'from-node-props' },
+      };
       const data = ref<Record<string, unknown>>({ field: 'v' });
       const validityMap = ref<Record<string, boolean | undefined>>({});
       const mode = ref<'build' | 'read' | 'edit'>('build');
@@ -113,14 +140,24 @@ describe('component FormNode', () => {
             showIf: () => false,
           },
         },
-        slots: { default: () => h(SlotProbe) },
+        slots: {
+          default: () => h(SlotProbe),
+        },
       });
       expect(wrapper.find('[data-node="node-1"]').exists()).toBe(true);
     });
 
     it.each([
-      ['read', { field: 'v' }, true],
-      ['read', { field: null }, false],
+      [
+        'read',
+        { field: 'v' },
+        true,
+      ],
+      [
+        'read',
+        { field: null },
+        false,
+      ],
       ['read', {}, false],
       ['edit', {}, true],
       ['build', {}, true],
@@ -144,7 +181,12 @@ describe('component FormNode', () => {
     });
 
     it('does not render root wrapper when isShown is false and mode is not build', () => {
-      const node: InternalSchemaNode = { _id: 'node-1', type: 'text', name: 'field', props: { custom: 'from-node-props' } };
+      const node: InternalSchemaNode = {
+        _id: 'node-1',
+        type: 'text',
+        name: 'field',
+        props: { custom: 'from-node-props' },
+      };
       const data = ref<Record<string, unknown>>({ field: 'v' });
       const validityMap = ref<Record<string, boolean | undefined>>({});
       const mode = ref<'build' | 'read' | 'edit'>('read');
@@ -163,7 +205,9 @@ describe('component FormNode', () => {
             showIf: () => false,
           },
         },
-        slots: { default: () => h(SlotProbe) },
+        slots: {
+          default: () => h(SlotProbe),
+        },
       });
       expect(wrapper.find('[data-node="node-1"]').exists()).toBe(false);
     });
@@ -171,7 +215,12 @@ describe('component FormNode', () => {
 
   describe('component resolution', () => {
     it('renders the resolved dynamic component when component is provided', () => {
-      const node: InternalSchemaNode = { _id: 'node-1', type: 'text', name: 'field', props: { custom: 'from-node-props' } };
+      const node: InternalSchemaNode = {
+        _id: 'node-1',
+        type: 'text',
+        name: 'field',
+        props: { custom: 'from-node-props' },
+      };
       const data = ref<Record<string, unknown>>({ field: 'v' });
       const validityMap = ref<Record<string, boolean | undefined>>({});
       const mode = ref<'build' | 'read' | 'edit'>('build');
@@ -189,13 +238,20 @@ describe('component FormNode', () => {
             validityMap,
           },
         },
-        slots: { default: () => h(SlotProbe) },
+        slots: {
+          default: () => h(SlotProbe),
+        },
       });
       expect(wrapper.find('[data-dynamic]').exists()).toBe(true);
     });
 
     it('renders fallback text when component is missing', () => {
-      const node: InternalSchemaNode = { _id: 'node-1', type: 'text', name: 'field', props: {} };
+      const node: InternalSchemaNode = {
+        _id: 'node-1',
+        type: 'text',
+        name: 'field',
+        props: {},
+      };
       const data = ref<Record<string, unknown>>({ field: 'v' });
       const validityMap = ref<Record<string, boolean | undefined>>({});
       const mode = ref<'build' | 'read' | 'edit'>('build');
@@ -204,7 +260,9 @@ describe('component FormNode', () => {
       const componentsNoView: Ref<FormComponents> = ref({
         text: {
           label: 'Text',
-          propsSchema: [{ type: 'text', name: '$name' }],
+          propsSchema: [
+            { type: 'text', name: '$name' },
+          ],
           component: undefined as unknown as (typeof DynamicComponent),
         },
       });
@@ -220,7 +278,9 @@ describe('component FormNode', () => {
             validityMap,
           },
         },
-        slots: { default: () => h(SlotProbe) },
+        slots: {
+          default: () => h(SlotProbe),
+        },
       });
       expect(wrapper.text()).toContain('Component type not found!');
     });
@@ -228,7 +288,12 @@ describe('component FormNode', () => {
 
   describe('dynamic component bindings', () => {
     it('passes node props to the rendered component', () => {
-      const node: InternalSchemaNode = { _id: 'node-1', type: 'text', name: 'field', props: { custom: 'abc' } };
+      const node: InternalSchemaNode = {
+        _id: 'node-1',
+        type: 'text',
+        name: 'field',
+        props: { custom: 'abc' },
+      };
       const data = ref<Record<string, unknown>>({ field: 'v' });
       const validityMap = ref<Record<string, boolean | undefined>>({});
       const mode = ref<'build' | 'read' | 'edit'>('build');
@@ -246,13 +311,20 @@ describe('component FormNode', () => {
             validityMap,
           },
         },
-        slots: { default: () => h(SlotProbe) },
+        slots: {
+          default: () => h(SlotProbe),
+        },
       });
       expect(wrapper.find('[data-custom]').text()).toBe('abc');
     });
 
     it('does not pass cleared (null) node props to the rendered component', () => {
-      const node: InternalSchemaNode = { _id: 'node-1', type: 'text', name: 'field', props: { custom: null } };
+      const node: InternalSchemaNode = {
+        _id: 'node-1',
+        type: 'text',
+        name: 'field',
+        props: { custom: null },
+      };
       const data = ref<Record<string, unknown>>({ field: 'v' });
       const validityMap = ref<Record<string, boolean | undefined>>({});
       const mode = ref<'build' | 'read' | 'edit'>('build');
@@ -275,7 +347,12 @@ describe('component FormNode', () => {
     });
 
     it('passes id as node._id to the rendered component', () => {
-      const node: InternalSchemaNode = { _id: 'node-42', type: 'text', name: 'field', props: { custom: 'x' } };
+      const node: InternalSchemaNode = {
+        _id: 'node-42',
+        type: 'text',
+        name: 'field',
+        props: { custom: 'x' },
+      };
       const data = ref<Record<string, unknown>>({ field: 'v' });
       const validityMap = ref<Record<string, boolean | undefined>>({});
       const mode = ref<'build' | 'read' | 'edit'>('build');
@@ -293,13 +370,20 @@ describe('component FormNode', () => {
             validityMap,
           },
         },
-        slots: { default: () => h(SlotProbe) },
+        slots: {
+          default: () => h(SlotProbe),
+        },
       });
       expect(wrapper.find('[data-id]').text()).toBe('node-42');
     });
 
     it('passes mode prop to the rendered component', () => {
-      const node: InternalSchemaNode = { _id: 'node-1', type: 'text', name: 'field', props: { custom: 'x' } };
+      const node: InternalSchemaNode = {
+        _id: 'node-1',
+        type: 'text',
+        name: 'field',
+        props: { custom: 'x' },
+      };
       const data = ref<Record<string, unknown>>({ field: 'v' });
       const validityMap = ref<Record<string, boolean | undefined>>({});
       const mode = ref<'build' | 'read' | 'edit'>('read');
@@ -317,13 +401,20 @@ describe('component FormNode', () => {
             validityMap,
           },
         },
-        slots: { default: () => h(SlotProbe) },
+        slots: {
+          default: () => h(SlotProbe),
+        },
       });
       expect(wrapper.find('[data-mode]').text()).toBe('read');
     });
 
     it('passes error prop from useNode to the rendered component', () => {
-      const node: InternalSchemaNode = { _id: 'node-1', type: 'text', name: 'field', props: { custom: 'x', errorMessage: 'bad input' } };
+      const node: InternalSchemaNode = {
+        _id: 'node-1',
+        type: 'text',
+        name: 'field',
+        props: { custom: 'x', errorMessage: 'bad input' },
+      };
       const data = ref<Record<string, unknown>>({ field: 'v' });
       const validityMap = ref<Record<string, boolean | undefined>>({});
       const mode = ref<'build' | 'read' | 'edit'>('build');
@@ -341,13 +432,20 @@ describe('component FormNode', () => {
             validityMap,
           },
         },
-        slots: { default: () => h(SlotProbe) },
+        slots: {
+          default: () => h(SlotProbe),
+        },
       });
       expect(wrapper.find('[data-error]').text()).toBe('bad input');
     });
 
     it('binds v-model to useNode modelValue', async () => {
-      const node: InternalSchemaNode = { _id: 'node-1', type: 'text', name: 'field', props: { custom: 'x' } };
+      const node: InternalSchemaNode = {
+        _id: 'node-1',
+        type: 'text',
+        name: 'field',
+        props: { custom: 'x' },
+      };
       const data = ref<Record<string, unknown>>({ field: 'before' });
       const validityMap = ref<Record<string, boolean | undefined>>({});
       const mode = ref<'build' | 'read' | 'edit'>('build');
@@ -365,7 +463,9 @@ describe('component FormNode', () => {
             validityMap,
           },
         },
-        slots: { default: () => h(SlotProbe) },
+        slots: {
+          default: () => h(SlotProbe),
+        },
       });
       expect(wrapper.find('[data-model]').text()).toBe('before');
       await wrapper.find('[data-update]').trigger('click');
@@ -374,7 +474,12 @@ describe('component FormNode', () => {
     });
 
     it('renders slot content inside the dynamic component', () => {
-      const node: InternalSchemaNode = { _id: 'node-1', type: 'text', name: 'field', props: { custom: 'x' } };
+      const node: InternalSchemaNode = {
+        _id: 'node-1',
+        type: 'text',
+        name: 'field',
+        props: { custom: 'x' },
+      };
       const data = ref<Record<string, unknown>>({ field: 'v' });
       const validityMap = ref<Record<string, boolean | undefined>>({});
       const mode = ref<'build' | 'read' | 'edit'>('build');
@@ -392,7 +497,9 @@ describe('component FormNode', () => {
             validityMap,
           },
         },
-        slots: { default: () => h(SlotProbe) },
+        slots: {
+          default: () => h(SlotProbe),
+        },
       });
       expect(wrapper.find('[data-slot-node-id]').exists()).toBe(true);
     });
@@ -400,7 +507,12 @@ describe('component FormNode', () => {
 
   describe('build mode visuals', () => {
     it('sets draggable=true only in build mode', async () => {
-      const node: InternalSchemaNode = { _id: 'node-1', type: 'text', name: 'field', props: { custom: 'x' } };
+      const node: InternalSchemaNode = {
+        _id: 'node-1',
+        type: 'text',
+        name: 'field',
+        props: { custom: 'x' },
+      };
       const data = ref<Record<string, unknown>>({ field: 'v' });
       const validityMap = ref<Record<string, boolean | undefined>>({});
       const mode = ref<'build' | 'read' | 'edit'>('build');
@@ -418,7 +530,9 @@ describe('component FormNode', () => {
             validityMap,
           },
         },
-        slots: { default: () => h(SlotProbe) },
+        slots: {
+          default: () => h(SlotProbe),
+        },
       });
       const root = wrapper.find('[data-node="node-1"]');
       expect(root.attributes('draggable')).toBe('true');
@@ -428,7 +542,12 @@ describe('component FormNode', () => {
     });
 
     it('shows drag handle only in build mode', async () => {
-      const node: InternalSchemaNode = { _id: 'node-1', type: 'text', name: 'field', props: { custom: 'x' } };
+      const node: InternalSchemaNode = {
+        _id: 'node-1',
+        type: 'text',
+        name: 'field',
+        props: { custom: 'x' },
+      };
       const data = ref<Record<string, unknown>>({ field: 'v' });
       const validityMap = ref<Record<string, boolean | undefined>>({});
       const mode = ref<'build' | 'read' | 'edit'>('build');
@@ -446,7 +565,9 @@ describe('component FormNode', () => {
             validityMap,
           },
         },
-        slots: { default: () => h(SlotProbe) },
+        slots: {
+          default: () => h(SlotProbe),
+        },
       });
       expect(wrapper.find('.drag-handle').exists()).toBe(true);
       mode.value = 'read';
@@ -455,7 +576,12 @@ describe('component FormNode', () => {
     });
 
     it('adds former-draggable and padding classes in build mode', () => {
-      const node: InternalSchemaNode = { _id: 'node-1', type: 'text', name: 'field', props: { custom: 'x' } };
+      const node: InternalSchemaNode = {
+        _id: 'node-1',
+        type: 'text',
+        name: 'field',
+        props: { custom: 'x' },
+      };
       const data = ref<Record<string, unknown>>({ field: 'v' });
       const validityMap = ref<Record<string, boolean | undefined>>({});
       const mode = ref<'build' | 'read' | 'edit'>('build');
@@ -473,7 +599,9 @@ describe('component FormNode', () => {
             validityMap,
           },
         },
-        slots: { default: () => h(SlotProbe) },
+        slots: {
+          default: () => h(SlotProbe),
+        },
       });
       const classes = wrapper.find('[data-node="node-1"]').classes();
       expect(classes).toContain('former-draggable');
@@ -481,7 +609,12 @@ describe('component FormNode', () => {
     });
 
     it('applies selected-node border class when selectedNode._id equals node._id in build mode', () => {
-      const node: InternalSchemaNode = { _id: 'same-id', type: 'text', name: 'field', props: { custom: 'x' } };
+      const node: InternalSchemaNode = {
+        _id: 'same-id',
+        type: 'text',
+        name: 'field',
+        props: { custom: 'x' },
+      };
       const data = ref<Record<string, unknown>>({ field: 'v' });
       const validityMap = ref<Record<string, boolean | undefined>>({});
       const mode = ref<'build' | 'read' | 'edit'>('build');
@@ -499,7 +632,9 @@ describe('component FormNode', () => {
             validityMap,
           },
         },
-        slots: { default: () => h(SlotProbe) },
+        slots: {
+          default: () => h(SlotProbe),
+        },
       });
       const classes = wrapper.find('[data-node="same-id"]').classes();
       expect(classes).toContain('border-2');
@@ -507,7 +642,12 @@ describe('component FormNode', () => {
     });
 
     it('applies hidden-in-build background class when build mode and isShown is false', () => {
-      const node: InternalSchemaNode = { _id: 'node-1', type: 'text', name: 'field', props: { custom: 'x' } };
+      const node: InternalSchemaNode = {
+        _id: 'node-1',
+        type: 'text',
+        name: 'field',
+        props: { custom: 'x' },
+      };
       const data = ref<Record<string, unknown>>({ field: 'v' });
       const validityMap = ref<Record<string, boolean | undefined>>({});
       const mode = ref<'build' | 'read' | 'edit'>('build');
@@ -526,7 +666,9 @@ describe('component FormNode', () => {
             showIf: () => false,
           },
         },
-        slots: { default: () => h(SlotProbe) },
+        slots: {
+          default: () => h(SlotProbe),
+        },
       });
       const classes = wrapper.find('[data-node="node-1"]').classes();
       expect(classes).toContain('bg-zinc-300');
@@ -538,7 +680,15 @@ describe('component FormNode', () => {
       return mount(FormNode, {
         props: { node },
         global: {
-          provide: { components: TEXT_COMPONENTS, mode, selectedNode: ref(), formId: ref('form-123'), data: ref({}), validityMap: ref({}), propsValidity: ref(propsValidity) },
+          provide: {
+            components: TEXT_COMPONENTS,
+            mode,
+            selectedNode: ref(),
+            formId: ref('form-123'),
+            data: ref({}),
+            validityMap: ref({}),
+            propsValidity: ref(propsValidity),
+          },
         },
       });
     }
@@ -566,7 +716,10 @@ describe('component FormNode', () => {
     });
 
     it.each([
-      ['valid props', { 'node-1': true }],
+      [
+        'valid props',
+        { 'node-1': true },
+      ],
       ['props not validated yet', {}],
     ])('shows no message for %s', (_, propsValidity) => {
       const wrapper = mountInBuildMode(propsValidity);
@@ -574,7 +727,12 @@ describe('component FormNode', () => {
       expect(wrapper.find('[data-props-error]').exists()).toBe(false);
     });
     it('does not apply build-only classes outside build mode', () => {
-      const node: InternalSchemaNode = { _id: 'node-1', type: 'text', name: '', props: { custom: 'x' } };
+      const node: InternalSchemaNode = {
+        _id: 'node-1',
+        type: 'text',
+        name: '',
+        props: { custom: 'x' },
+      };
       const data = ref<Record<string, unknown>>({});
       const validityMap = ref<Record<string, boolean | undefined>>({});
       const mode = ref<'build' | 'read' | 'edit'>('read');
@@ -592,7 +750,9 @@ describe('component FormNode', () => {
             validityMap,
           },
         },
-        slots: { default: () => h(SlotProbe) },
+        slots: {
+          default: () => h(SlotProbe),
+        },
       });
       const classes = wrapper.find('[data-node="node-1"]').classes();
       expect(classes).not.toContain('former-draggable');
@@ -604,7 +764,12 @@ describe('component FormNode', () => {
 
   describe('click behavior', () => {
     it('sets selectedNode to current node on root click', async () => {
-      const node: InternalSchemaNode = { _id: 'clicked-id', type: 'text', name: 'field', props: { custom: 'x' } };
+      const node: InternalSchemaNode = {
+        _id: 'clicked-id',
+        type: 'text',
+        name: 'field',
+        props: { custom: 'x' },
+      };
       const data = ref<Record<string, unknown>>({ field: 'v' });
       const validityMap = ref<Record<string, boolean | undefined>>({});
       const mode = ref<'build' | 'read' | 'edit'>('build');
@@ -622,14 +787,21 @@ describe('component FormNode', () => {
             validityMap,
           },
         },
-        slots: { default: () => h(SlotProbe) },
+        slots: {
+          default: () => h(SlotProbe),
+        },
       });
       await wrapper.find('[data-node="clicked-id"]').trigger('click');
       expect(selectedNode.value?._id).toBe('clicked-id');
     });
 
     it('stops click propagation on root click', async () => {
-      const node: InternalSchemaNode = { _id: 'node-1', type: 'text', name: 'field', props: { custom: 'x' } };
+      const node: InternalSchemaNode = {
+        _id: 'node-1',
+        type: 'text',
+        name: 'field',
+        props: { custom: 'x' },
+      };
       const data = ref<Record<string, unknown>>({ field: 'v' });
       const validityMap = ref<Record<string, boolean | undefined>>({});
       const mode = ref<'build' | 'read' | 'edit'>('build');
@@ -652,7 +824,9 @@ describe('component FormNode', () => {
             validityMap,
           },
         },
-        slots: { default: () => h(SlotProbe) },
+        slots: {
+          default: () => h(SlotProbe),
+        },
       });
       await wrapper.find('[data-node="node-1"]').trigger('click');
       expect(parentClickSpy).not.toHaveBeenCalled();
@@ -663,7 +837,12 @@ describe('component FormNode', () => {
 
   describe('drag behavior', () => {
     it('calls setDragEventData on dragstart with formId, discriminator node_id and node._id', async () => {
-      const node: InternalSchemaNode = { _id: 'drag-id', type: 'text', name: 'field', props: { custom: 'x' } };
+      const node: InternalSchemaNode = {
+        _id: 'drag-id',
+        type: 'text',
+        name: 'field',
+        props: { custom: 'x' },
+      };
       const data = ref<Record<string, unknown>>({ field: 'v' });
       const validityMap = ref<Record<string, boolean | undefined>>({});
       const mode = ref<'build' | 'read' | 'edit'>('build');
@@ -681,7 +860,9 @@ describe('component FormNode', () => {
             validityMap,
           },
         },
-        slots: { default: () => h(SlotProbe) },
+        slots: {
+          default: () => h(SlotProbe),
+        },
       });
       await wrapper.find('[data-node="drag-id"]').trigger('dragstart');
       expect(setDragEventDataSpy).toHaveBeenCalledWith(
@@ -693,7 +874,12 @@ describe('component FormNode', () => {
     });
 
     it('stops dragstart propagation on root dragstart', async () => {
-      const node: InternalSchemaNode = { _id: 'node-1', type: 'text', name: 'field', props: { custom: 'x' } };
+      const node: InternalSchemaNode = {
+        _id: 'node-1',
+        type: 'text',
+        name: 'field',
+        props: { custom: 'x' },
+      };
       const data = ref<Record<string, unknown>>({ field: 'v' });
       const validityMap = ref<Record<string, boolean | undefined>>({});
       const mode = ref<'build' | 'read' | 'edit'>('build');
@@ -716,7 +902,9 @@ describe('component FormNode', () => {
             validityMap,
           },
         },
-        slots: { default: () => h(SlotProbe) },
+        slots: {
+          default: () => h(SlotProbe),
+        },
       });
       await wrapper.find('[data-node="node-1"]').trigger('dragstart');
       expect(parentDragSpy).not.toHaveBeenCalled();
@@ -725,7 +913,12 @@ describe('component FormNode', () => {
     });
 
     it('does not call setDragEventData when dragstart is not triggered', () => {
-      const node: InternalSchemaNode = { _id: 'node-1', type: 'text', name: 'field', props: { custom: 'x' } };
+      const node: InternalSchemaNode = {
+        _id: 'node-1',
+        type: 'text',
+        name: 'field',
+        props: { custom: 'x' },
+      };
       const data = ref<Record<string, unknown>>({ field: 'v' });
       const validityMap = ref<Record<string, boolean | undefined>>({});
       const mode = ref<'build' | 'read' | 'edit'>('build');
@@ -743,7 +936,9 @@ describe('component FormNode', () => {
             validityMap,
           },
         },
-        slots: { default: () => h(SlotProbe) },
+        slots: {
+          default: () => h(SlotProbe),
+        },
       });
       expect(setDragEventDataSpy).not.toHaveBeenCalled();
     });
@@ -751,7 +946,12 @@ describe('component FormNode', () => {
 
   describe('injection and provide contract', () => {
     it('provides node ref for descendants via provide("node", nodeRef)', () => {
-      const node: InternalSchemaNode = { _id: 'provided-id', type: 'text', name: 'field', props: { custom: 'x' } };
+      const node: InternalSchemaNode = {
+        _id: 'provided-id',
+        type: 'text',
+        name: 'field',
+        props: { custom: 'x' },
+      };
       const data = ref<Record<string, unknown>>({ field: 'v' });
       const validityMap = ref<Record<string, boolean | undefined>>({});
       const mode = ref<'build' | 'read' | 'edit'>('build');
@@ -769,13 +969,20 @@ describe('component FormNode', () => {
             validityMap,
           },
         },
-        slots: { default: () => h(SlotProbe) },
+        slots: {
+          default: () => h(SlotProbe),
+        },
       });
       expect(wrapper.find('[data-slot-node-id]').attributes('data-slot-node-id')).toBe('provided-id');
     });
 
     it('uses injected mode ref to drive build/read behavior reactively', async () => {
-      const node: InternalSchemaNode = { _id: 'node-1', type: 'text', name: 'field', props: { custom: 'x' } };
+      const node: InternalSchemaNode = {
+        _id: 'node-1',
+        type: 'text',
+        name: 'field',
+        props: { custom: 'x' },
+      };
       const data = ref<Record<string, unknown>>({ field: 'v' });
       const validityMap = ref<Record<string, boolean | undefined>>({});
       const mode = ref<'build' | 'read' | 'edit'>('build');
@@ -793,7 +1000,9 @@ describe('component FormNode', () => {
             validityMap,
           },
         },
-        slots: { default: () => h(SlotProbe) },
+        slots: {
+          default: () => h(SlotProbe),
+        },
       });
       expect(wrapper.find('.drag-handle').exists()).toBe(true);
       mode.value = 'read';
@@ -802,7 +1011,12 @@ describe('component FormNode', () => {
     });
 
     it('uses injected selectedNode ref reactively for class updates', async () => {
-      const node: InternalSchemaNode = { _id: 'sel-id', type: 'text', name: 'field', props: { custom: 'x' } };
+      const node: InternalSchemaNode = {
+        _id: 'sel-id',
+        type: 'text',
+        name: 'field',
+        props: { custom: 'x' },
+      };
       const data = ref<Record<string, unknown>>({ field: 'v' });
       const validityMap = ref<Record<string, boolean | undefined>>({});
       const mode = ref<'build' | 'read' | 'edit'>('build');
@@ -820,7 +1034,9 @@ describe('component FormNode', () => {
             validityMap,
           },
         },
-        slots: { default: () => h(SlotProbe) },
+        slots: {
+          default: () => h(SlotProbe),
+        },
       });
       expect(wrapper.find('[data-node="sel-id"]').classes()).not.toContain('!border-blue-600');
       selectedNode.value = node;
@@ -831,7 +1047,12 @@ describe('component FormNode', () => {
 
   describe('error paths (required injections)', () => {
     it('throws when components injection is missing', () => {
-      const node: InternalSchemaNode = { _id: 'node-1', type: 'text', name: 'field', props: {} };
+      const node: InternalSchemaNode = {
+        _id: 'node-1',
+        type: 'text',
+        name: 'field',
+        props: {},
+      };
       const data = ref<Record<string, unknown>>({ field: 'v' });
       const validityMap = ref<Record<string, boolean | undefined>>({});
       const mode = ref<'build' | 'read' | 'edit'>('build');
@@ -854,7 +1075,12 @@ describe('component FormNode', () => {
     });
 
     it('throws when mode injection is missing', () => {
-      const node: InternalSchemaNode = { _id: 'node-1', type: 'text', name: 'field', props: {} };
+      const node: InternalSchemaNode = {
+        _id: 'node-1',
+        type: 'text',
+        name: 'field',
+        props: {},
+      };
       const data = ref<Record<string, unknown>>({ field: 'v' });
       const validityMap = ref<Record<string, boolean | undefined>>({});
       const selectedNode = ref<InternalSchemaNode | undefined>(undefined);
@@ -876,7 +1102,12 @@ describe('component FormNode', () => {
     });
 
     it('throws when selectedNode injection is missing', () => {
-      const node: InternalSchemaNode = { _id: 'node-1', type: 'text', name: 'field', props: {} };
+      const node: InternalSchemaNode = {
+        _id: 'node-1',
+        type: 'text',
+        name: 'field',
+        props: {},
+      };
       const data = ref<Record<string, unknown>>({ field: 'v' });
       const validityMap = ref<Record<string, boolean | undefined>>({});
       const mode = ref<'build' | 'read' | 'edit'>('build');
@@ -898,7 +1129,12 @@ describe('component FormNode', () => {
     });
 
     it('throws when formId injection is missing', () => {
-      const node: InternalSchemaNode = { _id: 'node-1', type: 'text', name: 'field', props: {} };
+      const node: InternalSchemaNode = {
+        _id: 'node-1',
+        type: 'text',
+        name: 'field',
+        props: {},
+      };
       const data = ref<Record<string, unknown>>({ field: 'v' });
       const validityMap = ref<Record<string, boolean | undefined>>({});
       const mode = ref<'build' | 'read' | 'edit'>('build');

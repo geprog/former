@@ -16,7 +16,8 @@
 
 <script setup lang="ts">
 import type { FormerProps, SchemaNode } from '@former-ui/former';
-import { computed, inject, ref, type Ref, toRef } from 'vue';
+import type { Ref } from 'vue';
+import { computed, inject, ref, toRef } from 'vue';
 import { imagePlaceholder } from './imagePlaceholder';
 
 defineOptions({ inheritAttrs: false });

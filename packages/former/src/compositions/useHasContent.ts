@@ -1,5 +1,6 @@
+import type { MaybeRefOrGetter } from 'vue';
 import type { FieldData, FormData, SchemaNode } from '~/types';
-import { computed, type MaybeRefOrGetter, toValue } from 'vue';
+import { computed, toValue } from 'vue';
 import { hasValue, isListNode, nodeChildren } from '~/utils';
 import { inject } from './injectProvide';
 
@@ -17,18 +18,24 @@ export function useHasContent(
     if (shownChildrenOfComponent) {
       return shownChildrenOfComponent(node);
     }
-    return node.children ? nodeChildren(node) : undefined;
+    return node.children
+      ? nodeChildren(node)
+      : undefined;
   }
 
   function hasContent(nodes: SchemaNode[], data: FieldData | FormData): boolean {
-    const fields = data !== null && typeof data === 'object' && !Array.isArray(data) ? data : {};
+    const fields = data !== null && typeof data === 'object' && !Array.isArray(data)
+      ? data
+      : {};
     return nodes.some((node) => {
       if (showIf && !showIf(node)) {
         return false;
       }
       const children = shownChildren(node);
       if (!node.name) {
-        return children ? hasContent(children, fields) : true;
+        return children
+          ? hasContent(children, fields)
+          : true;
       }
       const value = fields[node.name];
       // the children of a list (e.g. a repeater) are only shown for its items, so an empty list shows nothing,

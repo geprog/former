@@ -10,25 +10,52 @@ import { createFormComponents } from './formComponents';
 // icons are loaded from the network, which isn't needed here
 vi.mock('@nuxt/ui/runtime/vue/components/Icon.vue', async () => {
   const { defineComponent, h } = await import('vue');
-  return { default: defineComponent(() => () => h('span')) };
+  return {
+    default: defineComponent(() => () => h('span')),
+  };
 });
 
 const components = createFormComponents(key => key);
 
 const tabsNode: SchemaNode = {
   type: 'tabs',
-  props: { label: 'Tabs', tabs: [{ label: 'Person' }, { label: '' }] },
+  props: {
+    label: 'Tabs',
+    tabs: [
+      { label: 'Person' },
+      { label: '' },
+    ],
+  },
   children: {
-    'tab-0': [{ type: 'text', name: 'name', props: { label: 'Name' } }],
-    'tab-1': [{ type: 'text', name: 'city', props: { label: 'City', required: true, preset: 'Berlin' } }],
+    'tab-0': [
+      {
+        type: 'text',
+        name: 'name',
+        props: { label: 'Name' },
+      },
+    ],
+    'tab-1': [
+      {
+        type: 'text',
+        name: 'city',
+        props: { label: 'City', required: true, preset: 'Berlin' },
+      },
+    ],
   },
 };
 
 // renders the real tabs to check that the fields of all tabs are rendered
 function mountTabs(data: FormData, mode: Mode = 'edit', node = tabsNode) {
   return mount(Former, {
-    props: { schema: [node], data, components, mode },
-    global: { components: { ...nuxtUiStubs, UTabs } },
+    props: {
+      schema: [node],
+      data,
+      components,
+      mode,
+    },
+    global: {
+      components: { ...nuxtUiStubs, UTabs },
+    },
   });
 }
 
@@ -55,8 +82,16 @@ describe('tabs', () => {
   it('keeps the fields of hidden tabs mounted, so their presets are applied', async () => {
     let data: FormData = {};
     mount(Former, {
-      props: { 'schema': [tabsNode], data, components, 'mode': 'edit', 'onUpdate:data': (value: FormData) => (data = value) },
-      global: { components: { ...nuxtUiStubs, UTabs } },
+      props: {
+        'schema': [tabsNode],
+        data,
+        components,
+        'mode': 'edit',
+        'onUpdate:data': (value: FormData) => (data = value),
+      },
+      global: {
+        components: { ...nuxtUiStubs, UTabs },
+      },
     });
     await nextTick();
 
@@ -66,8 +101,16 @@ describe('tabs', () => {
   it('validates the fields of hidden tabs', async () => {
     let valid: boolean | undefined;
     mount(Former, {
-      props: { schema: [tabsNode], data: { city: null }, components, mode: 'edit', onValid: (value: boolean) => (valid = value) },
-      global: { components: { ...nuxtUiStubs, UTabs } },
+      props: {
+        schema: [tabsNode],
+        data: { city: null },
+        components,
+        mode: 'edit',
+        onValid: (value: boolean) => (valid = value),
+      },
+      global: {
+        components: { ...nuxtUiStubs, UTabs },
+      },
     });
     await nextTick();
 
@@ -80,7 +123,15 @@ describe('tabs', () => {
   });
 
   it('ignore children of removed tabs', () => {
-    const withRemovedTab = { ...tabsNode, props: { label: 'Tabs', tabs: [{ label: 'Person' }] } };
+    const withRemovedTab = {
+      ...tabsNode,
+      props: {
+        label: 'Tabs',
+        tabs: [
+          { label: 'Person' },
+        ],
+      },
+    };
 
     expect(mountTabs({ city: 'Berlin' }, 'read', withRemovedTab).find('[data-label="Tabs"]').exists()).toBe(false);
   });
