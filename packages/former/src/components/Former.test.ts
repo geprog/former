@@ -42,7 +42,6 @@ type FormerProbeBundle = {
   validityMap: Ref<Record<string, boolean | undefined>>;
   selectedNode: Ref<InternalSchemaNode | undefined>;
   selectedNodePath: Ref<InternalSchemaNode[]>;
-  formerIsUpdating: Ref<boolean>;
   mode: Ref<Mode>;
   components: Ref<FormComponents>;
   texts: Ref<Texts>;
@@ -60,7 +59,6 @@ const FormerInjectProbe = defineComponent({
       validityMap: formerInject('validityMap'),
       selectedNode: formerInject('selectedNode'),
       selectedNodePath: formerInject('selectedNodePath'),
-      formerIsUpdating: formerInject('formerIsUpdating'),
       mode: formerInject('mode'),
       components: formerInject('components'),
       texts: formerInject('texts'),
@@ -92,7 +90,6 @@ describe('component Former', () => {
           components: COMPONENTS_FIXTURE,
           mode: 'edit',
           texts: {},
-          isUpdating: false,
         },
       });
       const fc = wrapper.findComponent(FormContent);
@@ -110,7 +107,6 @@ describe('component Former', () => {
           components: COMPONENTS_FIXTURE,
           mode: 'edit',
           texts: {},
-          isUpdating: false,
         },
         slots: {
           default: () => h('div', { 'data-custom-slot': '' }),
@@ -137,7 +133,6 @@ describe('component Former', () => {
           components: COMPONENTS_FIXTURE,
           mode: 'edit',
           texts: {},
-          isUpdating: false,
         },
         slots: {
           default: ({ selectedNode }: { selectedNode: InternalSchemaNode | undefined }) =>
@@ -225,7 +220,7 @@ describe('component Former', () => {
   });
 
   describe('injected providers', () => {
-    it('exposes mode, components, formerIsUpdating, and merged texts via provide', async () => {
+    it('exposes mode, components, and merged texts via provide', async () => {
       const wrapper = mount(Former, {
         shallow: true,
         attachTo: document.body,
@@ -240,7 +235,6 @@ describe('component Former', () => {
           components: COMPONENTS_FIXTURE,
           mode: 'build',
           texts: { dragHint: 'Custom hint' },
-          isUpdating: true,
         },
         slots: {
           default: () => h(FormerInjectProbe),
@@ -252,7 +246,6 @@ describe('component Former', () => {
       const probe = activeFormerProbe!;
       expect(probe.mode.value).toBe('build');
       expect(probe.components.value).toEqual(COMPONENTS_FIXTURE);
-      expect(probe.formerIsUpdating.value).toBe(true);
       expect(probe.texts.value.dragHint).toBe('Custom hint');
     });
 
@@ -271,7 +264,6 @@ describe('component Former', () => {
           components: COMPONENTS_FIXTURE,
           mode: 'edit',
           texts: {},
-          isUpdating: false,
         },
         slots: {
           default: () => h(FormerInjectProbe),
@@ -280,34 +272,6 @@ describe('component Former', () => {
       await nextTick();
       expect(activeFormerProbe!.texts.value.dragHint).toBe('Here you can drag elements');
       expect(activeFormerProbe!.texts.value.invalidSchema).toBe('Invalid schema');
-    });
-
-    it('reflects isUpdating prop changes on formerIsUpdating', async () => {
-      const wrapper = mount(Former, {
-        shallow: true,
-        attachTo: document.body,
-        global: {
-          renderStubDefaultSlot: true,
-          components: { FormerInjectProbe },
-          stubs: { FormerInjectProbe: false },
-        },
-        props: {
-          schema: [],
-          data: {},
-          components: COMPONENTS_FIXTURE,
-          mode: 'edit',
-          texts: {},
-          isUpdating: false,
-        },
-        slots: {
-          default: () => h(FormerInjectProbe),
-        },
-      });
-      await nextTick();
-      expect(activeFormerProbe!.formerIsUpdating.value).toBe(false);
-      await wrapper.setProps({ isUpdating: true });
-      await nextTick();
-      expect(activeFormerProbe!.formerIsUpdating.value).toBe(true);
     });
   });
 
@@ -327,7 +291,6 @@ describe('component Former', () => {
           components: COMPONENTS_FIXTURE,
           mode: 'edit',
           texts: {},
-          isUpdating: false,
         },
         slots: {
           default: () => h(FormerInjectProbe),
@@ -366,7 +329,6 @@ describe('component Former', () => {
           components: COMPONENTS_FIXTURE,
           mode: 'edit',
           texts: {},
-          isUpdating: false,
         },
         slots: {
           default: () => h(FormerInjectProbe),
@@ -404,7 +366,6 @@ describe('component Former', () => {
           components: COMPONENTS_FIXTURE,
           mode: 'edit',
           texts: {},
-          isUpdating: false,
         },
         slots: {
           default: () => h(FormerInjectProbe),
@@ -437,7 +398,6 @@ describe('component Former', () => {
           components: COMPONENTS_FIXTURE,
           mode: 'edit',
           texts: {},
-          isUpdating: false,
         },
         slots: {
           default: () => h(FormerInjectProbe),
@@ -474,7 +434,6 @@ describe('component Former', () => {
           components: COMPONENTS_FIXTURE,
           mode: 'edit',
           texts: {},
-          isUpdating: false,
         },
         slots: {
           default: () => h(FormerInjectProbe),
@@ -504,7 +463,6 @@ describe('component Former', () => {
           components: COMPONENTS_FIXTURE,
           mode: 'edit',
           texts: {},
-          isUpdating: false,
           showIf: showIf as ShowIfPredicate,
         },
         slots: {
@@ -533,7 +491,6 @@ describe('component Former', () => {
           components: COMPONENTS_FIXTURE,
           mode: 'edit',
           texts: {},
-          isUpdating: false,
           onSchemaValid,
         },
       });
@@ -571,7 +528,6 @@ describe('component Former', () => {
           components,
           mode: 'edit',
           texts: {},
-          isUpdating: false,
           onSchemaValid,
         },
       });
@@ -597,7 +553,6 @@ describe('component Former', () => {
           components: COMPONENTS_FIXTURE,
           mode: 'edit',
           texts: {},
-          isUpdating: false,
           onValid,
         },
         slots: {
@@ -625,7 +580,6 @@ describe('component Former', () => {
           components: COMPONENTS_FIXTURE,
           mode: 'edit',
           texts: {},
-          isUpdating: false,
           onValid,
         },
         slots: {
