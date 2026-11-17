@@ -2,6 +2,7 @@
   <UFormField
     :label
     :required
+    :description="help"
     :error
     class="flex w-full flex-col gap-2 [&>*]:w-full"
   >
@@ -17,7 +18,7 @@
     />
     <div class="flex flex-col gap-4">
       <UButton
-        v-if="mode !== 'read'"
+        v-if="mode !== 'read' && !isFull"
         :label="addButtonLabel"
         icon="i-heroicons-plus"
         variant="outline"
@@ -41,7 +42,10 @@ const props = defineProps<
   {
     label?: string;
     required?: boolean;
+    help?: string;
     itemLabel?: string;
+    minItems?: number | null;
+    maxItems?: number | null;
   } & FormerProps
 >();
 
@@ -52,6 +56,9 @@ const addButtonLabel = computed(() => t('add_item', { item: props.itemLabel ?? t
 const modelValue = defineModel<FormData[] | null>({
   default: () => [],
 });
+
+// no more items can be added once the maximum is reached, the minimum is checked by the validation
+const isFull = computed(() => typeof props.maxItems === 'number' && (modelValue.value?.length ?? 0) >= props.maxItems);
 
 // items are keyed by their object, so the components of the remaining items are kept
 // when an item is deleted (keying by index would show other items in them)

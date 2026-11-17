@@ -128,4 +128,21 @@ describe('repeater', () => {
     expect(wrapper.text()).toContain('Room 1');
     expect(wrapper.find('button[data-label="Add Room"]').exists()).toBe(true);
   });
+
+  it.each([
+    [[{ value: 'a' }], true],
+    [[{ value: 'a' }, { value: 'b' }], false],
+  ])('with a maximum of 2 items and the items %o shows the add button: %o', (items, shown) => {
+    const wrapper = mount(Former, {
+      props: {
+        schema: [{ ...schema[0]!, props: { maxItems: 2 } }],
+        data: { items },
+        components,
+        mode: 'edit',
+      },
+      global: { components: nuxtUiStubs },
+    });
+
+    expect(wrapper.find('button[data-label="Add Item"]').exists()).toBe(shown);
+  });
 });

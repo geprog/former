@@ -36,16 +36,36 @@ describe('form components', () => {
 
   it.each([
     ['text', { placeholder: 'Enter text' }, 'UInput', 'placeholder="Enter text"'],
+    ['text', { inputType: 'email' }, 'UInput', 'type="email"'],
+    ['text', { maxLength: 5 }, 'UInput', 'maxlength="5"'],
     ['number', { placeholder: 'Enter number' }, 'UInputNumber', 'placeholder="Enter number"'],
-    ['select', { placeholder: 'Choose' }, 'USelect', 'placeholder="Choose"'],
+    ['number', {}, 'UInputNumber', 'step-snapping="false" allow-invalid=""'],
+    ['number', { stepSnapping: true }, 'UInputNumber', 'step-snapping="true"'],
+    ['select', { placeholder: 'Choose' }, 'USelectMenu', 'placeholder="Choose"'],
+    ['select', {}, 'USelectMenu', 'multiple="false" search-input="false" clear="true"'],
+    ['select', { multiple: true, search: true, required: true }, 'USelectMenu', 'multiple="true" search-input="true" clear="false"'],
     ['combo_box', { placeholder: 'Choose' }, 'UInputMenu', 'placeholder="Choose"'],
+    ['tags', { placeholder: 'Add tag' }, 'UInputTags', 'placeholder="Add tag"'],
+    ['tags', { maxItems: 3 }, 'UInputTags', 'max="3"'],
     ['textarea', { placeholder: 'Enter text' }, 'UTextarea', 'placeholder="Enter text"'],
+    ['color', { placeholder: '#000000' }, 'UInput', 'placeholder="#000000"'],
+    ['separator', { label: 'Contact', type: 'dashed' }, 'USeparator', 'label="Contact" type="dashed"'],
+    ['alert', { label: 'Note', text: 'Fill in all fields' }, 'UAlert', 'title="Note" description="Fill in all fields" color="info"'],
+    ['alert', { color: 'warning' }, 'UAlert', 'color="warning" icon="i-heroicons-exclamation-triangle"'],
     ['textarea', { rows: 5 }, 'UTextarea', 'rows="5"'],
+    ['textarea', { autoresize: true }, 'UTextarea', 'autoresize="true"'],
+    ['textarea', { maxLength: 5 }, 'UTextarea', 'maxlength="5"'],
     ['checkbox', { label: 'Accept' }, 'UCheckbox', 'label="Accept"'],
     ['checkbox', { required: true }, 'UCheckbox', 'required="true"'],
     ['switch', { label: 'Enable' }, 'USwitch', 'label="Enable"'],
     ['switch', { required: true }, 'USwitch', 'required="true"'],
     ['radio_group', { required: true }, 'URadioGroup', 'required="true"'],
+    ['slider', { min: 10, max: 20, stepSize: 5 }, 'USlider', 'min="10" max="20" step="5"'],
+    ['slider', { min: 10 }, 'USlider', 'model-value="10"'],
+    ['rating', {}, 'UInputRating', 'length="5" step="1" clearable="true"'],
+    ['rating', { stars: 10, halfStars: true, required: true }, 'UInputRating', 'length="10" step="0.5" clearable="false"'],
+    ['radio_group', { orientation: 'horizontal' }, 'URadioGroup', 'orientation="horizontal"'],
+    ['radio_group', { variant: 'card' }, 'URadioGroup', 'variant="card"'],
   ] as const)('%s passes %o to %s', (type, props, stub, attribute) => {
     const schema: SchemaNode[] = [{ type, name: 'field', props }];
     const wrapper = mount(Former, {
@@ -214,6 +234,38 @@ describe('form components', () => {
     expect(data).toStrictEqual({ field: true });
 
     wrapper.findComponent({ name: stub }).vm.$emit('update:modelValue', false);
+    await nextTick();
+    expect(data).toStrictEqual({ field: null });
+  });
+
+  it('tags store the entered tags and clear the value when all are removed', async () => {
+    let data: FormData = {};
+    const wrapper = mount(Former, {
+      props: { 'schema': [{ type: 'tags', name: 'field' }], data, components, 'mode': 'edit', 'onUpdate:data': (value: FormData) => (data = value) },
+      global: { components: nuxtUiStubs },
+    });
+
+    wrapper.findComponent({ name: 'UInputTags' }).vm.$emit('update:modelValue', ['a', 'b']);
+    await nextTick();
+    expect(data).toStrictEqual({ field: ['a', 'b'] });
+
+    wrapper.findComponent({ name: 'UInputTags' }).vm.$emit('update:modelValue', []);
+    await nextTick();
+    expect(data).toStrictEqual({ field: null });
+  });
+
+  it('rating stores the chosen rating and clears the value when it is cleared', async () => {
+    let data: FormData = {};
+    const wrapper = mount(Former, {
+      props: { 'schema': [{ type: 'rating', name: 'field' }], data, components, 'mode': 'edit', 'onUpdate:data': (value: FormData) => (data = value) },
+      global: { components: nuxtUiStubs },
+    });
+
+    wrapper.findComponent({ name: 'UInputRating' }).vm.$emit('update:modelValue', 3.5);
+    await nextTick();
+    expect(data).toStrictEqual({ field: 3.5 });
+
+    wrapper.findComponent({ name: 'UInputRating' }).vm.$emit('update:modelValue', 0);
     await nextTick();
     expect(data).toStrictEqual({ field: null });
   });

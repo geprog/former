@@ -27,6 +27,13 @@ describe('validation', () => {
     ['date', null],
     ['file_upload', null],
     ['repeater', [] as FormData[]],
+    ['checkbox_group', null],
+    ['tags', null],
+    ['time', null],
+    ['slider', null],
+    ['rating', null],
+    ['date_range', null],
+    ['color', null],
   ] as const)('%s requires a value with `required`', (type, empty) => {
     expect(errorOf(type, { required: true }, empty)).toBe('error_required');
     expect(errorOf(type, {}, empty)).toBeUndefined();
@@ -53,9 +60,91 @@ describe('validation', () => {
     expect(errorOf('date', props, '2026-06-15')).toBeUndefined();
   });
 
+  it('checks a date range', () => {
+    const props = { min: '2026-01-01', max: '2026-12-31' };
+    expect(errorOf('date_range', props, { start: '2026-03-01', end: '2026-03-05' })).toBeUndefined();
+    expect(errorOf('date_range', props, { start: '2026-03-05', end: '2026-03-01' })).toBe('error_range_order');
+    expect(errorOf('date_range', props, { start: '2025-12-31', end: '2026-03-01' })).toBe('error_min_date {"min":"2026-01-01"}');
+    expect(errorOf('date_range', props, { start: '2026-03-01', end: '2027-01-01' })).toBe('error_max_date {"max":"2026-12-31"}');
+  });
+
+  it('requires both dates of a range', () => {
+    expect(errorOf('date_range', {}, { start: '2026-03-01', end: null })).toBe('error_incomplete_range');
+    expect(errorOf('date_range', { required: true }, { start: null, end: '2026-03-01' })).toBe('error_required');
+  });
+
+  it('checks the range of a time', () => {
+    const props = { min: '08:00', max: '17:30' };
+    expect(errorOf('time', props, '07:59')).toBe('error_min_time {"min":"08:00"}');
+    expect(errorOf('time', props, '17:31')).toBe('error_max_time {"max":"17:30"}');
+    expect(errorOf('time', props, '12:00')).toBeUndefined();
+  });
+
   it('ignores cleared limits', () => {
     expect(errorOf('number', { min: null, max: null }, 5)).toBeUndefined();
     expect(errorOf('date', { min: null, max: '' }, '2026-06-15')).toBeUndefined();
+  });
+
+  it('checks the length of a text', () => {
+    expect(errorOf('text', { minLength: 3 }, 'ab')).toBe('error_min_length {"min":3}');
+    expect(errorOf('text', { maxLength: 3 }, 'abcd')).toBe('error_max_length {"max":3}');
+    expect(errorOf('text', { minLength: 2, maxLength: 3 }, 'abc')).toBeUndefined();
+  });
+
+  it('checks the length of a free text', () => {
+    expect(errorOf('textarea', { minLength: 3 }, 'ab')).toBe('error_min_length {"min":3}');
+    expect(errorOf('textarea', { maxLength: 3 }, 'abc')).toBeUndefined();
+  });
+
+  it('checks the number of items of a repeater', () => {
+    expect(errorOf('repeater', { minItems: 2 }, [{}])).toBe('error_min_items {"min":2}');
+    expect(errorOf('repeater', { maxItems: 1 }, [{}, {}])).toBe('error_max_items {"max":1}');
+    expect(errorOf('repeater', { minItems: 1, maxItems: 2 }, [{}, {}])).toBeUndefined();
+    expect(errorOf('repeater', { minItems: 2 }, [])).toBeUndefined();
+    expect(errorOf('repeater', { minItems: 2 }, null)).toBeUndefined();
+  });
+
+  it('checks the size of a file', () => {
+    // a data URL with about the given number of bytes, base64 encodes 3 bytes in 4 characters
+    const file = (bytes: number) => `data:text/plain;name=a.txt;base64,${'A'.repeat(Math.ceil(bytes / 3) * 4)}`;
+    expect(errorOf('file_upload', { maxSize: 1 }, file(1024 * 1024 + 3))).toBe('error_max_size {"max":1}');
+    expect(errorOf('file_upload', { maxSize: 1 }, file(1024 * 1024 - 2))).toBeUndefined();
+    expect(errorOf('file_upload', { maxSize: 1 }, null)).toBeUndefined();
+  });
+
+  it('checks a list of values of a select with multiple choice', () => {
+    expect(errorOf('select', { multiple: true, required: true }, [] as unknown as FormData[])).toBe('error_required');
+    expect(errorOf('select', { multiple: true, required: true }, ['a'] as unknown as FormData[])).toBeUndefined();
+  });
+
+  it.each([
+    [{ multiple: true, required: true }, 'a'],
+    [{ required: true }, ['a'] as unknown as FormData[]],
+  ])('accepts a value stored before `multiple` was toggled with %o', (props, value) => {
+    expect(errorOf('select', props, value)).toBeUndefined();
+  });
+
+  it.each([
+    ['#00c16a', undefined],
+    ['#ABC', undefined],
+    ['#00C16A80', undefined],
+    ['', undefined],
+    ['00C16A', 'error_color'],
+    ['#00C16', 'error_color'],
+    ['green', 'error_color'],
+  ])('checks the color %o', (value, error) => {
+    expect(errorOf('color', {}, value)).toBe(error);
+  });
+
+  it('checks the format of an email or URL', () => {
+    expect(errorOf('text', { inputType: 'email' }, 'no-email')).toBe('error_email');
+    expect(errorOf('text', { inputType: 'email' }, 'mail@example.com')).toBeUndefined();
+    expect(errorOf('text', { inputType: 'url' }, 'no url')).toBe('error_url');
+    expect(errorOf('text', { inputType: 'url' }, 'https://example.com')).toBeUndefined();
+  });
+
+  it.each([null, ''])('does not check the length or format of the empty text %o', (empty) => {
+    expect(errorOf('text', { minLength: 3, inputType: 'email' }, empty)).toBeUndefined();
   });
 
   it('does not check the range of an empty value', () => {
@@ -81,6 +170,13 @@ describe('validation', () => {
     translated.number.validation({ max: 2 }).safeParse(3);
     translated.date.validation({ min: '2026-01-02' }).safeParse('2026-01-01');
     translated.date.validation({ max: '2026-01-01' }).safeParse('2026-01-02');
+    translated.text.validation({ minLength: 1, maxLength: 1, inputType: 'email' });
+    translated.text.validation({ inputType: 'url' });
+    translated.repeater.validation({ minItems: 1, maxItems: 1 });
+    translated.file_upload.validation({ maxSize: 1 });
+    translated.time.validation({ min: '08:00', max: '17:00' });
+    translated.color.validation({});
+    translated.date_range.validation({ min: '2026-01-01', max: '2026-12-31' });
 
     expect(Object.keys(en)).toEqual(expect.arrayContaining([...keys]));
   });
