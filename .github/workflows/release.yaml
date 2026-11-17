@@ -56,7 +56,7 @@ jobs:
 
       - name: Release @former-ui/former
         working-directory: packages/former/
-        run: pnpm publish --no-git-check --access public
+        run: pnpm publish --no-git-checks --access public
         if: 'github.ref_type == ''tag'''
 
       - name: Set version @former-ui/preset-nuxt-ui
@@ -66,5 +66,5 @@ jobs:
 
       - name: Release @former-ui/preset-nuxt-ui
         working-directory: packages/preset-nuxt-ui/
-        run: pnpm publish --no-git-check --access public
+        run: pnpm publish --no-git-checks --access public
         if: 'github.ref_type == ''tag'''
