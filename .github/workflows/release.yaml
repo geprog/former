@@ -51,7 +51,7 @@ jobs:
 
       - name: Set version @former-ui/former
         working-directory: packages/former/
-        run: pnpm version ${GITHUB_REF#refs/*/} --no-commit-hooks --no-git-tag-version
+        run: pnpm version ${GITHUB_REF#refs/*/} --no-commit-hooks --no-git-tag-version --no-git-checks
         if: 'github.ref_type == ''tag'''
 
       - name: Release @former-ui/former
@@ -61,7 +61,7 @@ jobs:
 
       - name: Set version @former-ui/preset-nuxt-ui
         working-directory: packages/preset-nuxt-ui/
-        run: pnpm version ${GITHUB_REF#refs/*/} --no-commit-hooks --no-git-tag-version
+        run: pnpm version ${GITHUB_REF#refs/*/} --no-commit-hooks --no-git-tag-version --no-git-checks
         if: 'github.ref_type == ''tag'''
 
       - name: Release @former-ui/preset-nuxt-ui
