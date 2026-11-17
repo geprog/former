@@ -35,7 +35,7 @@ export const nuxtUiStubs = {
   UCard,
   UButton,
   ...Object.fromEntries(
-    ['UInput', 'UInputNumber', 'USelect', 'UInputMenu', 'UTextarea', 'UCheckbox', 'USwitch', 'URadioGroup', 'UCheckboxGroup', 'UInputDate', 'UFileUpload', 'UModal']
+    ['UInput', 'UInputNumber', 'USelect', 'USelectMenu', 'UInputMenu', 'UTextarea', 'UCheckbox', 'USwitch', 'URadioGroup', 'UCheckboxGroup', 'UInputDate', 'UFileUpload', 'UModal']
       .map(name => [name, attributesStub(name)]),
   ),
 };

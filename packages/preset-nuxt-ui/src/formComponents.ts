@@ -6,6 +6,7 @@ import CheckboxGroup from './CheckboxGroup.vue';
 import { shownColumnChildren } from './columns';
 import Columns from './Columns.vue';
 import ComboBox from './ComboBox.vue';
+import { toChosen } from './composables/useOptions';
 import DateField from './Date.vue';
 import FileUpload from './FileUpload.vue';
 import Group from './Group.vue';
@@ -196,6 +197,12 @@ export function createFormComponents(t: Translate) {
     return required ? schema : schema.nullish();
   };
 
+  // a select stores a list of values if several can be chosen
+  const selectValidation = (props: ValidationProps, context?: ValidationContext) => {
+    const schema = props.multiple ? listValidation(props, context) : stringValidation(props, context);
+    return schema && z.preprocess(value => toChosen(value, props.multiple), schema);
+  };
+
   return {
     text: {
       label: t('text_field'),
@@ -250,10 +257,12 @@ export function createFormComponents(t: Translate) {
     select: {
       label: t('select_field'),
       component: markRaw(Select),
-      validation: stringValidation,
+      validation: selectValidation,
       propsSchema: [
         ...commonSchema({ t }),
         optionsSchema({ t }),
+        { type: 'checkbox', name: 'multiple', props: { label: t('multiple'), help: t('multiple_help') } },
+        { type: 'checkbox', name: 'search', props: { label: t('search') } },
       ],
     },
     group: {

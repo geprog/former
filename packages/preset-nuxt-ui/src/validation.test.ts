@@ -86,6 +86,18 @@ describe('validation', () => {
     expect(errorOf('file_upload', { maxSize: 1 }, null)).toBeUndefined();
   });
 
+  it('checks a list of values of a select with multiple choice', () => {
+    expect(errorOf('select', { multiple: true, required: true }, [] as unknown as FormData[])).toBe('error_required');
+    expect(errorOf('select', { multiple: true, required: true }, ['a'] as unknown as FormData[])).toBeUndefined();
+  });
+
+  it.each([
+    [{ multiple: true, required: true }, 'a'],
+    [{ required: true }, ['a'] as unknown as FormData[]],
+  ])('accepts a value stored before `multiple` was toggled with %o', (props, value) => {
+    expect(errorOf('select', props, value)).toBeUndefined();
+  });
+
   it('checks the format of an email or URL', () => {
     expect(errorOf('text', { inputType: 'email' }, 'no-email')).toBe('error_email');
     expect(errorOf('text', { inputType: 'email' }, 'mail@example.com')).toBeUndefined();
