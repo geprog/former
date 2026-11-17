@@ -7,6 +7,7 @@
       "#build/ui": ["./node_modules/.nuxt-ui/ui"],
       "#build/ui/*": ["./node_modules/.nuxt-ui/ui/*"]
     },
+    "types": ["vite/client"],
     "noEmit": true
   },
   "include": [
