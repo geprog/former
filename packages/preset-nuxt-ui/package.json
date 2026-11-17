@@ -47,7 +47,7 @@
     "@former-ui/former": "workspace:*",
     "@internationalized/date": "3.12.4",
     "@nuxt/ui": "4.12.0",
-    "@tsconfig/node24": "24.0.6",
+    "@tsconfig/node26": "26.0.2",
     "@types/node": "26.6.6",
     "@vitejs/plugin-vue": "6.0.11",
     "@vue/test-utils": "2.5.1",

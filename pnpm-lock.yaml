@@ -197,9 +197,9 @@ importers:
       '@tailwindcss/vite':
         specifier: 4.3.5
         version: 4.3.5(vite@6.4.4(@types/node@26.6.6)(jiti@2.7.0)(lightningcss@1.33.0)(yaml@2.9.1))
-      '@tsconfig/node24':
-        specifier: 24.0.6
-        version: 24.0.6
+      '@tsconfig/node26':
+        specifier: 26.0.2
+        version: 26.0.2
       '@types/lodash':
         specifier: 4.17.27
         version: 4.17.27
@@ -276,9 +276,9 @@ importers:
         specifier: 4.6.7
         version: 4.6.7
     devDependencies:
-      '@tsconfig/node24':
-        specifier: 24.0.6
-        version: 24.0.6
+      '@tsconfig/node26':
+        specifier: 26.0.2
+        version: 26.0.2
       '@types/node':
         specifier: 26.6.6
         version: 26.6.6
@@ -318,9 +318,9 @@ importers:
       '@nuxt/ui':
         specifier: 4.12.0
         version: 4.12.0(9fca5cf129f5eb9129d7286705540e6d)
-      '@tsconfig/node24':
-        specifier: 24.0.6
-        version: 24.0.6
+      '@tsconfig/node26':
+        specifier: 26.0.2
+        version: 26.0.2
       '@types/node':
         specifier: 26.6.6
         version: 26.6.6
@@ -1748,8 +1748,8 @@ packages:
       y-protocols: ^1.0.1
       yjs: ^13.6.13
 
-  '@tsconfig/node24@24.0.6':
-    resolution: {integrity: sha512-/SK4JuydRQLGSCq7+hbiQ8fdAVR4Suv5EcBvkIAG3zo3GbXQvGoSclz4olL12Ar4OpH8gwGYJ67P4wwQqBRxKw==}
+  '@tsconfig/node26@26.0.2':
+    resolution: {integrity: sha512-RIBSoNGQxUQ8r4hSrEzS6TrUneoKaCuX6BjL4zF3wqttGq2w06zCea4d8P1gRvM/HZyDT1FQJ8trZSyy/63oMg==}
 
   '@types/chai@5.2.3':
     resolution: {integrity: sha512-Mw558oeA9fFbv65/y4mHtXDs9bPnFMZAL/jxdPFUpOHHIXX91mcgEHbS5Lahr+pwZFR8A7GQleRWeI6cGFC2UA==}
@@ -5915,7 +5915,7 @@ snapshots:
       y-protocols: 1.0.7(yjs@13.6.33)
       yjs: 13.6.33
 
-  '@tsconfig/node24@24.0.6': {}
+  '@tsconfig/node26@26.0.2': {}
 
   '@types/chai@5.2.3':
     dependencies:
