@@ -18,20 +18,15 @@ const props = withDefaults(defineProps<{
   showIf?: ShowIfPredicate;
   mode?: Mode;
   texts?: Partial<Texts>;
-  isUpdating?: boolean;
 }>(), {
   mode: 'edit',
   texts: () => ({}),
-  isUpdating: false,
 });
 
 const emit = defineEmits<{
   (e: 'valid', valid: boolean): void;
   (e: 'schemaValid', valid: boolean): void;
 }>();
-
-const isUpdating = toRef(props, 'isUpdating');
-provide('formerIsUpdating', isUpdating);
 
 const schema = defineModel<SchemaNode[]>('schema', { required: true });
 const internalSchema = ref<InternalSchemaNode[]>([]);
