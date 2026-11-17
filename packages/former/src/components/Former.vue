@@ -1,5 +1,5 @@
 <template>
-  <slot :selected-node="selectedNode">
+  <slot :selected-node="selectedNode" :selected-node-path="selectedNodePath">
     <FormContent />
   </slot>
 </template>
@@ -10,7 +10,7 @@ import { cloneDeep, isEqual } from 'lodash';
 import { computed, ref, toRef, watch } from 'vue';
 import { provide } from '~/compositions/injectProvide';
 import useSchema from '~/compositions/useSchema';
-import { generateFormId, toInternalSchema, toSchema } from '~/utils';
+import { generateFormId, getNodePath, toInternalSchema, toSchema } from '~/utils';
 import FormContent from './FormContent.vue';
 
 const props = withDefaults(defineProps<{
@@ -113,6 +113,12 @@ watch(
 
 const selectedNode = ref<InternalSchemaNode | undefined>(undefined);
 provide('selectedNode', selectedNode);
+
+// derived from the schema, so it follows when the selected node is moved
+const selectedNodePath = computed(() => (selectedNode.value
+  ? getNodePath(internalSchema.value, selectedNode.value._id) ?? []
+  : []));
+provide('selectedNodePath', selectedNodePath);
 
 const texts = toRef(props, 'texts');
 provide('texts', computed<Texts>(() => ({ dragHint: 'Here you can drag elements', invalidSchema: 'Invalid schema', ...texts.value })));

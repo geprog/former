@@ -644,5 +644,46 @@ describe('component FormNodeProps', () => {
       expect(deleteNodeSpy).toHaveBeenCalledWith(schema.value, expect.any(String));
       expect(selectedNode.value).toBeUndefined();
     });
+
+    it('passes the path of the selected node (as SchemaNodes) to the node-actions slot', async () => {
+      const field: InternalSchemaNode = { _id: 'field', type: 'text', name: 'field' };
+      const selectedNode = ref<InternalSchemaNode | undefined>(field);
+      const schema = ref<InternalSchemaNode[]>([
+        {
+          _id: 'group',
+          type: 'text',
+          name: 'group',
+          children: {
+            default: [field],
+          },
+        },
+        { _id: 'other', type: 'text', name: 'other' },
+      ]);
+      const wrapper = mount(FormNodeProps, {
+        shallow: true,
+        attachTo: document.body,
+        global: {
+          renderStubDefaultSlot: true,
+          provide: {
+            components: MINIMAL_COMPONENTS,
+            schema,
+            selectedNode,
+          },
+        },
+        slots: {
+          'node-actions': (props: { path: { _id?: string; name?: string }[] }) =>
+            h('span', {
+              'data-path': props.path.map(n => n.name).join('/'),
+              'data-path-has-ids': String(props.path.some(n => n._id)),
+            }),
+        },
+      });
+      expect(wrapper.get('[data-path]').attributes('data-path')).toBe('group');
+      expect(wrapper.get('[data-path]').attributes('data-path-has-ids')).toBe('false');
+
+      selectedNode.value = schema.value[1];
+      await nextTick();
+      expect(wrapper.get('[data-path]').attributes('data-path')).toBe('');
+    });
   });
 });

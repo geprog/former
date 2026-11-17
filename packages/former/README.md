@@ -252,6 +252,13 @@ const modelValue = defineModel<string>();
 
 For more detailed usage example check out the [Playground](https://github.com/geprog/former/blob/main/packages/playground/src/Playground.vue) implementation.
 
+### Path of the selected node
+
+Next to the selected node, Former provides its path: the parents of the node from the top of the form down to it, e.g. the groups or repeaters it is in (empty for nodes at the top). The path updates when the selection changes or the selected node is moved.
+
+- the default slot of `Former` passes it as `selectedNodePath`: `<Former v-slot="{ selectedNode, selectedNodePath }" ...>`
+- the `node-actions` slot of `FormNodeProps` passes it as `path` next to `node`
+
 ## Form data and validation
 
 Each component validates its data with a schema built from the props of its node, e.g. `required`, `min` or `max`. Add a `validation` to its definition in the `components`, which is applied to every node of the component, including the props of the nodes in build mode. The first issue of the schema is passed as `error` to the component, while a form with an error emits `valid` as `false`.

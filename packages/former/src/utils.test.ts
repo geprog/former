@@ -11,6 +11,7 @@ import {
   generateFormId,
   getFormIdFromEvent,
   getNode,
+  getNodePath,
   hasValue,
   isListNode,
   isNodeLayoutComponent,
@@ -402,6 +403,42 @@ describe('getNode', () => {
 
   it('returns null when id is absent', () => {
     expect(getNode(cloneDeep(tree()), 'nope')).toBeNull();
+  });
+});
+
+describe('getNodePath', () => {
+  const tree = (): InternalSchemaNode[] => [
+    node('root', {
+      children: [
+        node('mid', {
+          children: {
+            col: [
+              node('deep'),
+            ],
+          },
+        }),
+      ],
+    }),
+    node('sibling'),
+  ];
+
+  it('returns the parents from the top down to a node in nested array or category children', () => {
+    const schema = tree();
+    expect(getNodePath(schema, 'deep')?.map(n => n._id)).toStrictEqual(['root', 'mid']);
+    expect(getNodePath(schema, 'mid')?.map(n => n._id)).toStrictEqual(['root']);
+  });
+
+  it('returns the nodes of the schema, not copies', () => {
+    const schema = tree();
+    expect(getNodePath(schema, 'mid')?.[0]).toBe(schema[0]);
+  });
+
+  it('returns an empty path for nodes at the top', () => {
+    expect(getNodePath(tree(), 'sibling')).toStrictEqual([]);
+  });
+
+  it('returns null when id is absent', () => {
+    expect(getNodePath(tree(), 'nope')).toBeNull();
   });
 });
 

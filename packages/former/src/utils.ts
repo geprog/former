@@ -265,6 +265,21 @@ export function getNode(schema: InternalSchemaNode[], nodeId: string): InternalS
   return null;
 }
 
+// the parents of a node from the top of the schema down to it (e.g. the groups or repeaters it is in),
+// empty for nodes at the top and `null` if the node isn't in the schema
+export function getNodePath(schema: InternalSchemaNode[], nodeId: string): InternalSchemaNode[] | null {
+  for (const node of schema) {
+    if (node._id === nodeId) {
+      return [];
+    }
+    const path = getNodePath(nodeChildren(node), nodeId);
+    if (path) {
+      return [node, ...path];
+    }
+  }
+  return null;
+}
+
 // cleared props are stored as `null` so their preset isn't applied again, but components and validations should see them as not set
 export function propsOf(node: SchemaNode): { [key: string]: any } {
   return Object.fromEntries(Object.entries(node.props ?? {}).filter(([, value]) => value !== null));

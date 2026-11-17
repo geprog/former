@@ -10,6 +10,8 @@ export type InjectKeys = {
   data: Ref<FormData | FieldData>;
   components: Ref<FormComponents>;
   selectedNode: Ref<InternalSchemaNode | undefined>;
+  // the parents of the selected node from the top of the form down to it (see `getNodePath`)
+  selectedNodePath: Ref<InternalSchemaNode[]>;
   validityMap: Ref<Record<string, boolean | undefined>>;
   // whether the props of each node are valid by its id, or the message of a failing validation (see `useSchema`)
   propsValidity: Ref<Record<string, boolean | string>>;
