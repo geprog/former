@@ -2,6 +2,7 @@ import type { FormComponents, SchemaNode, ValidationContext } from '@former-ui/f
 import { markRaw } from 'vue';
 import { z } from 'zod';
 import Alert from './Alert.vue';
+import Card from './Card.vue';
 import Checkbox from './Checkbox.vue';
 import CheckboxGroup from './CheckboxGroup.vue';
 import Collapsible from './Collapsible.vue';
@@ -327,6 +328,11 @@ export function createFormComponents(t: Translate) {
         },
         { type: 'checkbox', name: 'border', props: { label: t('show_border') } },
       ],
+    },
+    card: {
+      label: t('card'),
+      component: markRaw(Card),
+      propsSchema: commonSchema({ name: false, required: false, placeholder: false, t }),
     },
     collapsible: {
       label: t('collapsible'),
