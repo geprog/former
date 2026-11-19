@@ -78,10 +78,14 @@ export default function useNode(node: Ref<InternalSchemaNode>) {
 
   // set in the props form of the builder, so that validations know whose props they validate
   const editedNode = inject('editedNode', false);
+  const schema = inject('schema', false);
   const validationContext = computed<ValidationContext>(() => ({
     node: node.value,
     path: dataPath.value,
     scopes: dataScopes.value,
+    ...(schema
+      ? { schema: schema.value }
+      : {}),
     ...(editedNode?.value
       ? { editedNode: editedNode.value }
       : {}),

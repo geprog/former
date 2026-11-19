@@ -107,6 +107,8 @@ describe('useFormNode', () => {
       path: ['rows', 1],
     });
     expect(titles[1]!.edited).toBeUndefined();
+    // the schema of the form the node is in
+    expect(titles[1]!.node?.schema).toMatchObject(schema);
   });
 
   it('doesn\'t let components change the data or the schema', async () => {

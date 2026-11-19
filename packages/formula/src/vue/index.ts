@@ -14,7 +14,7 @@ import type { FormulaEngine } from '../engine';
 import type { Translate } from '../messages';
 import type { Diagnostic, EvaluationResult, ExpectedType, FormulaContext, FormulaSource, FormulaVariable } from '../types';
 import { useEditedNode, useFormNode } from '@former-ui/former';
-import { computed, defineComponent, h, inject, markRaw, provide, toValue } from 'vue';
+import { computed, defineComponent, h, inject, markRaw, provide, toRaw, toValue } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { diagnosticMessage, reservedNameMessage, translateToEnglish } from '../messages';
 import { listsAround, variableNameOfNode } from '../variables';
@@ -25,6 +25,28 @@ export { FormulaSwitch };
 const ENGINE_KEY: InjectionKey<FormulaEngine> = Symbol('formulaEngine');
 const SOURCES_KEY: InjectionKey<ComputedRef<FormulaSource[]>> = Symbol('formulaSources');
 const COMPONENTS_KEY: InjectionKey<ComputedRef<FormComponents>> = Symbol('formulaComponents');
+
+// the variables of the schemas of forms by their components, which are derived once per schema
+const variablesOfSchemas = new WeakMap<object, WeakMap<object, FormulaVariable[]>>();
+
+/**
+ * The variables of the fields of a form, so that e.g. its lists without data evaluate to `[]`,
+ * `undefined` without schema or components.
+ */
+export function formVariables(engine: FormulaEngine, schema: ReadonlyArray<unknown> | undefined, components: FormComponents | undefined): FormulaVariable[] | undefined {
+  if (!schema || !components) {
+    return undefined;
+  }
+  const rawSchema = toRaw(schema) as SchemaNode[];
+  const bySchema = variablesOfSchemas.get(components) ?? new WeakMap<object, FormulaVariable[]>();
+  variablesOfSchemas.set(components, bySchema);
+  let variables = bySchema.get(rawSchema);
+  if (!variables) {
+    variables = engine.schemaVariables(rawSchema, components);
+    bySchema.set(rawSchema, variables);
+  }
+  return variables;
+}
 
 /** Provides the engine to the formulas of the components below, e.g. of a form. */
 export function provideFormulaEngine(engine: FormulaEngine): void {
@@ -90,6 +112,7 @@ export type UseFormulaOptions = FormulaSetupOptions & {
 export function useFormula(formula: MaybeRefOrGetter<string | null | undefined>, options: UseFormulaOptions = {}) {
   const { engine, sources } = useSetup(options);
   const nodeContext = useFormNode();
+  const components = inject(COMPONENTS_KEY, undefined);
   const result = computed<EvaluationResult | undefined>(() => {
     const text = toValue(formula);
     if (typeof text !== 'string' || !text.trim()) {
@@ -98,7 +121,7 @@ export function useFormula(formula: MaybeRefOrGetter<string | null | undefined>,
     return engine.evaluateDetailed(text, {
       scopes: nodeContext.value?.scopes,
       sources: sources.value,
-      variables: toValue(options.variables),
+      variables: toValue(options.variables) ?? formVariables(engine, nodeContext.value?.schema, components?.value),
       expect: options.expect,
     });
   });
@@ -128,19 +151,13 @@ export type UseFormulaShowIfOptions = FormulaSetupOptions & {
 export function useFormulaShowIf(options: UseFormulaShowIfOptions = {}): ShowIfPredicate {
   const { engine, sources } = useSetup(options);
   const prop = options.prop ?? 'showIf';
-  const variablesOfSchema = new WeakMap<object, FormulaVariable[]>();
 
   return (node, data, schema, context) => {
     const formula = node.props?.[prop];
     if (typeof formula !== 'string' || !formula.trim()) {
       return true;
     }
-    const components = toValue(options.components);
-    let variables: FormulaVariable[] | undefined;
-    if (components) {
-      variables = variablesOfSchema.get(schema) ?? engine.schemaVariables(schema, components);
-      variablesOfSchema.set(schema, variables);
-    }
+    const variables = formVariables(engine, schema, toValue(options.components));
     const result = engine.evaluateDetailed(formula, {
       scopes: context?.scopes ?? [
         { data, path: [] },
@@ -273,6 +290,7 @@ function wrapComponent(component: Component, propTypes: Record<string, FormulaPr
       const engine = useFormulaEngine();
       const sources = useFormulaSources();
       const nodeContext = useFormNode();
+      const components = inject(COMPONENTS_KEY, undefined);
       // evaluated while rendering, so that the component is rendered again when a referenced value changes
       return () => {
         const props: Record<string, unknown> = { ...attrs };
@@ -284,6 +302,7 @@ function wrapComponent(component: Component, propTypes: Record<string, FormulaPr
             props[prop] = engine.evaluate(formula, {
               scopes: nodeContext.value?.scopes,
               sources: sources.value,
+              variables: formVariables(engine, nodeContext.value?.schema, components?.value),
               expect: expectedTypes[type],
               missing: 'fail',
             });
@@ -389,6 +408,7 @@ export function withFormulaProps(components: FormComponents, formulaProps: Formu
                   resolved[prop] = engine.evaluate(formula, {
                     scopes: context.scopes,
                     sources: sources(),
+                    variables: formVariables(engine, context.schema, result),
                     expect: expectedTypes[propType],
                     missing: 'fail',
                   });

@@ -61,7 +61,7 @@ export function every<T>(results: MaybePromise<T>[], predicate: (result: T) => b
 
 // validates the nodes with their data like they are rendered (see `useNode` and `FormDataProvider`),
 // returning whether all of them are valid
-function areNodesValid(nodes: SchemaNode[], data: FieldData | FormData, scopes: DataScope[], components: FormComponents, editedNode?: EditedNode): MaybePromise<boolean> {
+function areNodesValid(nodes: SchemaNode[], data: FieldData | FormData, scopes: DataScope[], components: FormComponents, schema: SchemaNode[], editedNode?: EditedNode): MaybePromise<boolean> {
   return every(nodes.map((node) => {
     const nodeData = dataOfNode(node, data, components);
     const results: MaybePromise<string | boolean | undefined>[] = [
@@ -69,6 +69,7 @@ function areNodesValid(nodes: SchemaNode[], data: FieldData | FormData, scopes: 
         node,
         path: dataPathOfNode(node, scopes, components),
         scopes,
+        schema,
         ...(editedNode
           ? { editedNode }
           : {}),
@@ -81,10 +82,10 @@ function areNodesValid(nodes: SchemaNode[], data: FieldData | FormData, scopes: 
         ? nodeData
         : [];
       results.push(...items.map((item, index) =>
-        areNodesValid(children, item, dataScopesOfListItem(node, item, index, scopes), components, editedNode)));
+        areNodesValid(children, item, dataScopesOfListItem(node, item, index, scopes), components, schema, editedNode)));
     }
     else if (children.length) {
-      results.push(areNodesValid(children, nodeData, dataScopesOfChildren(node, data, scopes, components), components, editedNode));
+      results.push(areNodesValid(children, nodeData, dataScopesOfChildren(node, data, scopes, components), components, schema, editedNode));
     }
     return every(results, result => result === undefined || result === true);
   }), Boolean);
@@ -103,7 +104,7 @@ export function isNodeValid(node: InternalSchemaNode, components: FormComponents
   const editedNode: EditedNode = { node, path: getNodePath(schema, node._id) ?? [], schema };
   return areNodesValid(component.propsSchema, propsData, [
     { data: propsData, path: [] },
-  ], components, editedNode);
+  ], components, component.propsSchema, editedNode);
 }
 
 // the message of an error thrown by a validation, e.g. of an async schema failing to reach a server

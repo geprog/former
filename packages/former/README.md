@@ -312,6 +312,7 @@ The second parameter of the validation is the context of the node, so the valida
 - `scopes`: all scopes containing the node from the closest one to the form data, e.g. `[repeater item, group, form]` for a field in a repeater item inside of a group. Each scope has its `data`, its `path` and the `node` providing it (the group or repeater, unset for the form)
 - `path`: the path of the data of the node in the form data, e.g. `['periods', 1, 'end']`
 - `node`: the node itself
+- `schema`: the schema of the form the node is in (while validating props, the props schema of its component)
 - `editedNode`: only while validating props (in the props form or the validation of the schema in build mode), the node whose props they are, with its parents (`path`) and the whole `schema`
 
 ```ts

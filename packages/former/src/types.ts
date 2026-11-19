@@ -55,6 +55,8 @@ export type ValidationContext = {
   // all scopes containing the node from the closest to the form data,
   // e.g. `[repeater item, group, form]` for a field in a repeater item inside of a group
   scopes: DataScope[];
+  // the schema of the form the node is in (the props schema of its component while validating props)
+  schema?: SchemaNode[];
   // set while validating props, the node whose props they are (e.g. to check a name against the rest of the schema)
   editedNode?: EditedNode;
 };

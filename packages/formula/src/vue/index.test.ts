@@ -373,6 +373,37 @@ describe('formulas in a form', () => {
     expect(wrapper.findAll('[data-label="Extra"]')).toHaveLength(0);
   });
 
+  it('evaluates lists without data to an empty list in formula props, components and show if conditions', async () => {
+    const { wrapper } = mountForm([
+      {
+        type: 'repeater',
+        name: 'list',
+        children: [
+          { type: 'number', name: 'field' },
+        ],
+      },
+      {
+        type: 'number',
+        name: 'value',
+        props: { label: 'Value', maxFormula: 'count($list) + 1' },
+      },
+      {
+        type: 'calculation',
+        props: { formula: 'sum(map($list, f(x) = 1)) * 10' },
+      },
+      {
+        type: 'number',
+        name: 'shown',
+        props: { label: 'Shown', showIf: 'sum(map($list, f(x) = 1)) == 0' },
+      },
+    ], { value: 7 });
+    await flushPromises();
+    expect(wrapper.find('[data-label="Value"]').attributes('data-max')).toBe('1');
+    expect(wrapper.find('[data-label="Value"]').attributes('data-error')).toBe('max 1');
+    expect(wrapper.find('output').text()).toBe('0');
+    expect(wrapper.find('[data-label="Shown"]').exists()).toBe(true);
+  });
+
   it('evaluates formulas of components in the data of their node', async () => {
     const { wrapper, data } = mountForm([
       {
