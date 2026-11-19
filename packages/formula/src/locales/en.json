@@ -1,7 +1,9 @@
 {
   "formula_editor": "Formula",
-  "formula_prop": "{label} (formula)",
   "formula_show_if": "Show if",
+  "formula_switch": "Fixed value or formula",
+  "formula_use_formula": "Use formula",
+  "formula_use_value": "Use fixed value",
   "formula_reserved_name": "The name \"{name}\" is already used by the variable {variable}",
   "formula_syntax": "Syntax error: {message}",
   "formula_statements": "A formula has to be a single expression, e.g. without semicolons",

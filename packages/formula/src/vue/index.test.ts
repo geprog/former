@@ -9,7 +9,7 @@ import { createI18n } from 'vue-i18n';
 import { createFormulaEngine } from '../engine';
 import en from '../locales/en.json' with { type: 'json' };
 import { valueSource } from '../sources';
-import { useFormula, useFormulaProps, useFormulaShowIf, withFormulaProps } from './index';
+import { FormulaSwitch, provideFormulaEngine, useFormula, useFormulaProps, useFormulaShowIf, withFormulaProps } from './index';
 
 const engine = createFormulaEngine({
   math: create(all),
@@ -167,18 +167,33 @@ function mountForm(schema: SchemaNode[], data: FormData, mode: 'edit' | 'build' 
 }
 
 describe('withFormulaProps', () => {
-  it('adds the formulas of the props after them and a show if formula', () => {
+  it('puts the field of a prop and the one of its formula into a switch and adds a show if formula', () => {
     const result = withFormulaProps(components, formulaProps, {
       engine,
       editor: { component: FormulaInput },
     });
     expect(result.number!.propsSchema).toEqual([
       { type: 'text:formula_name', name: '$name' },
-      { type: 'number', name: 'max' },
       {
-        type: 'formula',
-        name: 'maxFormula',
-        props: { label: 'max (formula)', expect: 'number' },
+        type: 'formula_switch',
+        props: {
+          prop: 'max',
+          formulaProp: 'maxFormula',
+          useFormula: 'Use formula',
+          useValue: 'Use fixed value',
+        },
+        children: {
+          value: [
+            { type: 'number', name: 'max' },
+          ],
+          formula: [
+            {
+              type: 'formula',
+              name: 'maxFormula',
+              props: { label: 'max', expect: 'number' },
+            },
+          ],
+        },
       },
       { type: 'text', name: 'label' },
       {
@@ -188,15 +203,15 @@ describe('withFormulaProps', () => {
       },
     ]);
     expect(result.formula).toMatchObject({ internal: true, component: FormulaInput });
+    expect(result.formula_switch).toMatchObject({ internal: true, component: FormulaSwitch, propsSchema: [] });
     expect(result['text:formula_name']).toMatchObject({ internal: true, component: NumberField });
   });
 
-  it('names the formula of a prop after the label of the prop and translates the texts', () => {
+  it('labels the formula like the prop and translates the texts', () => {
     const labeled: FormComponents = {
       number: {
         ...components.number!,
         propsSchema: [
-          { type: 'text', name: '$name' },
           {
             type: 'number',
             name: 'max',
@@ -205,29 +220,28 @@ describe('withFormulaProps', () => {
         ],
       },
     };
+    const formulaOf = (result: FormComponents) => (result.number!.propsSchema[0]!.children as Record<string, SchemaNode[]>).formula![0]!;
     const english = withFormulaProps(labeled, formulaProps, {
       engine,
       editor: { component: FormulaInput },
     });
-    expect(english.number!.propsSchema.map(node => node.props?.label)).toEqual([
-      undefined,
-      'Maximum',
-      'Maximum (formula)',
-      'Show if',
-    ]);
+    expect(formulaOf(english).props?.label).toBe('Maximum');
+    expect(english.number!.propsSchema[0]!.props).toMatchObject({ useFormula: 'Use formula', useValue: 'Use fixed value' });
     expect(english.formula!.label).toBe('Formula');
 
+    const texts: Record<string, string> = {
+      formula_use_formula: 'Formel verwenden',
+      formula_use_value: 'Festen Wert verwenden',
+      formula_show_if: 'Anzeigen wenn',
+      formula_editor: 'Formel',
+    };
     const german = withFormulaProps(labeled, formulaProps, {
       engine,
       editor: { component: FormulaInput },
-      translate: (key, named) => ({ formula_prop: `${String(named?.label)} (Formel)`, formula_show_if: 'Anzeigen wenn', formula_editor: 'Formel' })[key] ?? key,
+      translate: key => texts[key] ?? key,
     });
-    expect(german.number!.propsSchema.map(node => node.props?.label)).toEqual([
-      undefined,
-      'Maximum',
-      'Maximum (Formel)',
-      'Anzeigen wenn',
-    ]);
+    expect(german.number!.propsSchema[0]!.props).toMatchObject({ useFormula: 'Formel verwenden', useValue: 'Festen Wert verwenden' });
+    expect(german.number!.propsSchema[1]!.props?.label).toBe('Anzeigen wenn');
     expect(german.formula!.label).toBe('Formel');
   });
 
@@ -434,7 +448,12 @@ describe('useFormulaProps', () => {
       locale: 'en',
       messages: {
         en,
-        de: { formula_prop: '{label} (Formel)', formula_show_if: 'Anzeigen wenn', formula_editor: 'Formel' },
+        de: {
+          formula_use_formula: 'Formel verwenden',
+          formula_use_value: 'Festen Wert verwenden',
+          formula_show_if: 'Anzeigen wenn',
+          formula_editor: 'Formel',
+        },
       },
     });
     let result: ReturnType<typeof useFormulaProps> | undefined;
@@ -451,12 +470,70 @@ describe('useFormulaProps', () => {
         plugins: [i18n],
       },
     });
-    const labels = () => result!.value.number!.propsSchema.map(node => node.props?.label).filter(Boolean);
-    expect(labels()).toEqual(['max (formula)', 'Show if']);
+    const texts = () => result!.value.number!.propsSchema.flatMap(node => [node.props?.useFormula, node.props?.label]).filter(Boolean);
+    expect(texts()).toEqual(['Use formula', 'Show if']);
 
     i18n.global.locale.value = 'de';
     await nextTick();
-    expect(labels()).toEqual(['max (Formel)', 'Anzeigen wenn']);
+    expect(texts()).toEqual(['Formel verwenden', 'Anzeigen wenn']);
     expect(result!.value.formula!.label).toBe('Formel');
+  });
+});
+
+describe('formulaSwitch', () => {
+  function mountProps(data: FormData) {
+    const formComponents = withFormulaProps(components, formulaProps, {
+      engine,
+      editor: { component: FormulaInput },
+    });
+    const dataRef = ref(data);
+    const Host = defineComponent({
+      setup() {
+        provideFormulaEngine(engine);
+        return () => h(Former, {
+          'schema': formComponents.number!.propsSchema,
+          'data': dataRef.value,
+          'onUpdate:data': (value: FormData) => dataRef.value = value,
+          'components': formComponents,
+          'mode': 'edit',
+        });
+      },
+    });
+    return {
+      wrapper: mount(Host),
+      data: dataRef,
+    };
+  }
+
+  it('shows the field of the fixed value or of the formula, whichever is set', async () => {
+    const { wrapper: withValue } = mountProps({ max: 5 });
+    await flushPromises();
+    expect(withValue.find('[data-formula-switch]').attributes('data-formula-switch')).toBe('value');
+    expect(withValue.find('[data-formula-switch] input').exists()).toBe(true);
+    expect(withValue.find('[data-formula-switch] textarea').exists()).toBe(false);
+
+    const { wrapper: withFormula } = mountProps({ maxFormula: '$a * 2' });
+    await flushPromises();
+    expect(withFormula.find('[data-formula-switch]').attributes('data-formula-switch')).toBe('formula');
+    expect((withFormula.find('[data-formula-switch] textarea').element as HTMLTextAreaElement).value).toBe('$a * 2');
+  });
+
+  it('switches between the fixed value and the formula and clears the other one', async () => {
+    const { wrapper, data } = mountProps({ $name: 'value', max: 5 });
+    await flushPromises();
+    await wrapper.find('[data-formula-switch-toggle]').trigger('click');
+    await flushPromises();
+    expect(data.value).toEqual({ $name: 'value' });
+    expect(wrapper.find('[data-formula-switch]').attributes('data-formula-switch')).toBe('formula');
+    const toggle = wrapper.find('[data-formula-switch-toggle]');
+    expect(toggle.attributes()).toMatchObject({ 'title': 'Use fixed value', 'aria-label': 'Use fixed value', 'aria-pressed': 'true' });
+    expect(toggle.text()).toBe('123');
+
+    data.value = { $name: 'value', maxFormula: '$a' };
+    await flushPromises();
+    await wrapper.find('[data-formula-switch-toggle]').trigger('click');
+    await flushPromises();
+    expect(data.value).toEqual({ $name: 'value' });
+    expect(wrapper.find('[data-formula-switch]').attributes('data-formula-switch')).toBe('value');
   });
 });

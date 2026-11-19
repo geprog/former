@@ -163,7 +163,7 @@ type FormulaContext = {
 // <Former :show-if="showIf">
 const showIf: ShowIfPredicate = createShowIf(engine);
 
-// Adds `<prop>Formula` props to a components map (props form, validation, rendering), see §4.7
+// Lets props be fixed values or `<prop>Formula` formulas (props form, validation, rendering), see §4.7
 withFormulaProps(components, formulaProps);
 
 // For components: evaluate a formula reactively in the node's data scope and the provided sources (§4.6)
@@ -239,9 +239,9 @@ The form being edited or filled is **the implicit `form` source**. It is always 
 
 Formula props are stored under their own key next to the static prop: `min` and `minFormula`. Rules:
 
-- If a formula prop is set, it **wins** over the static prop.
+- The props form shows **one field per prop** with a switch between "fixed value" and "formula" (**decided**). Switching clears the other key, so only one of them is set. The fixed value keeps the preset's own input (e.g. the date picker), and a schema stays valid without the formula package.
+- If a formula prop is set, it **wins** over the static prop (only relevant for schemas edited by hand).
 - If the formula evaluates to `undefined` (syntax error, missing data, wrong type), the constraint is **not applied**. It does not fall back to the static value, because that would mix two different meanings without showing it.
-- `analyze` warns in build mode when both are set (`shadowed-static-prop`).
 
 The presets must not depend on mathjs. So the combination works in three layers:
 
@@ -280,7 +280,7 @@ The presets must not depend on mathjs. So the combination works in three layers:
    ```
 
    For each component and each listed prop, `withFormulaProps`:
-   - **adds a `<prop>Formula` field to `propsSchema`**, directly after the static prop, rendered with the formula editor and configured with `expect: <type>`;
+   - **replaces the static prop in `propsSchema` with a switch** (an internal layout component) whose children are the static prop (category `value`) and the `<prop>Formula` field (category `formula`), rendered with the formula editor and configured with `expect: <type>`;
    - **wraps `validation`**: it evaluates the formula props in the node's scope, puts the results in place of the static props, and calls the original validation. The preset's `numberValidation` stays unchanged;
    - **wraps `component`** in a small wrapper component that evaluates the formula props with `useFormula` and passes the results as the static props. `Number.vue` then gets a computed `max` for its `UInputNumber` without knowing about formulas. Because of this, Former does not need a `resolveProps` hook;
    - adds a `showIf` formula prop to every component, because the preset has none today.
@@ -415,7 +415,7 @@ A `resolveProps` hook on `<Former>` is **not** needed, because `withFormulaProps
 
 Decided:
 
-- **Formula props** are stored as separate props (`minFormula`). The preset declares them as metadata, and `withFormulaProps` applies them (§4.7).
+- **Formula props** are stored as separate props (`minFormula`), edited with one switchable field per prop. The preset declares them as metadata, and `withFormulaProps` applies them (§4.7).
 - **The `$` prefix is mandatory** for every variable. Only the character is configurable.
 - **Named formulas** (talomat's price parameters) are a kind of external source (`formulaSource`, §4.6), not a separate feature.
 - **mathjs**: the full bundle (`create(all)`), injected by the app.

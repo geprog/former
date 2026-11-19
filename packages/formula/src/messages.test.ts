@@ -125,7 +125,7 @@ describe('reservedNameMessage', () => {
 
 describe('translateToEnglish', () => {
   it('fills in the named values and falls back to the key', () => {
-    expect(translateToEnglish('formula_prop', { label: 'Maximum' })).toBe('Maximum (formula)');
+    expect(translateToEnglish('formula_unknown_variable', { variable: '"$a"' })).toBe('Unknown variable "$a"');
     expect(translateToEnglish('formula_unknown_key')).toBe('formula_unknown_key');
   });
 });

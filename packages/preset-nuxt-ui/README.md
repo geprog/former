@@ -140,7 +140,7 @@ const engine = createFormulaEngine({
   math: create(all)
 });
 const presetComponents = useFormComponents();
-// e.g. adds `maxFormula` after the `max` setting of number fields and a `showIf` formula to all components
+// e.g. `max` of number fields can be switched to a formula (stored as `maxFormula`), and all components get a `showIf` formula
 const components = useFormulaProps(presetComponents, formulaProps, {
   engine,
   editor: { component: presetComponents.value.textarea.component },

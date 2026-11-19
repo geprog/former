@@ -17,6 +17,9 @@ import { computed, defineComponent, h, inject, markRaw, provide, toValue } from 
 import { useI18n } from 'vue-i18n';
 import { diagnosticMessage, reservedNameMessage, translateToEnglish } from '../messages';
 import { listsAround, variableNameOfNode } from '../variables';
+import { FormulaSwitch } from './FormulaSwitch';
+
+export { FormulaSwitch };
 
 const ENGINE_KEY: InjectionKey<FormulaEngine> = Symbol('formulaEngine');
 const SOURCES_KEY: InjectionKey<ComputedRef<FormulaSource[]>> = Symbol('formulaSources');
@@ -156,6 +159,8 @@ export type WithFormulaPropsOptions = {
   showIf?: boolean;
   /** The component editing formulas in the props form, it is added as internal component of the type `type`. */
   editor?: { type?: string; component?: Component };
+  /** The layout component switching between the field of a prop and the one of its formula (see `FormulaSwitch`). */
+  switch?: { type?: string; component?: Component };
   /**
    * Translates the texts (labels and messages), e.g. `(key, named) => t(key, named ?? {})` of vue-i18n with the
    * texts of `@former-ui/formula/en.json`, by default they are english.
@@ -259,29 +264,20 @@ function wrapComponent(component: Component, propTypes: Record<string, FormulaPr
   return wrapper;
 }
 
-function insertAfter(propsSchema: SchemaNode[], prop: string, node: SchemaNode): SchemaNode[] {
-  const index = propsSchema.findIndex(propNode => propNode.name === prop);
-  return index === -1
-    ? [...propsSchema, node]
-    : [
-        ...propsSchema.slice(0, index + 1),
-        node,
-        ...propsSchema.slice(index + 1),
-      ];
-}
-
 const NAME_TYPE_SUFFIX = ':formula_name';
 
 /**
- * Adds formulas to the props of components (e.g. from a preset): for each prop in `formulaProps` the props form
- * gets a `<prop>Formula` field after it, and the component and its validation get the value of the formula
- * instead of the static prop, as long as the formula is set. A formula which can't be evaluated leaves the prop unset.
+ * Adds formulas to the props of components (e.g. from a preset): in the props form, each prop in `formulaProps`
+ * can be switched between its fixed value and a formula stored as `<prop>Formula`, only one of them is set.
+ * The component and its validation get the value of the formula instead of the fixed value.
+ * A formula which can't be evaluated leaves the prop unset.
  *
  * The components are rendered with the engine and sources provided by a parent component (see `useFormulaProps`).
  */
 export function withFormulaProps(components: FormComponents, formulaProps: FormulaPropsMap, options: WithFormulaPropsOptions): FormComponents {
   const { engine } = options;
   const editorType = options.editor?.type ?? 'formula';
+  const switchType = options.switch?.type ?? 'formula_switch';
   const addShowIf = options.showIf !== false;
   const translate = options.translate ?? translateToEnglish;
   const checkReservedNames = options.checkReservedNames !== false;
@@ -309,14 +305,31 @@ export function withFormulaProps(components: FormComponents, formulaProps: Formu
       return { ...node, type: `${node.type}${NAME_TYPE_SUFFIX}` };
     });
     Object.entries(propTypes).forEach(([prop, propType]) => {
-      // named after the label of the static prop, e.g. "Maximum (formula)"
-      const propLabel = fieldType.propsSchema.find(node => node.name === prop)?.props?.label;
-      const label = translate('formula_prop', {
-        label: typeof propLabel === 'string' && propLabel
-          ? propLabel
-          : prop,
-      });
-      propsSchema = insertAfter(propsSchema, prop, formulaNode(formulaPropName(prop), label, expectedTypes[propType]));
+      const staticNode = propsSchema.find(node => node.name === prop);
+      const staticLabel = staticNode?.props?.label;
+      const formula = formulaNode(formulaPropName(prop), typeof staticLabel === 'string' && staticLabel
+        ? staticLabel
+        : prop, expectedTypes[propType]);
+      if (!staticNode) {
+        propsSchema = [...propsSchema, formula];
+        return;
+      }
+      // the field of the prop and the one of its formula take turns at the place of the prop
+      propsSchema = propsSchema.map(node => (node === staticNode
+        ? {
+            type: switchType,
+            props: {
+              prop,
+              formulaProp: formulaPropName(prop),
+              useFormula: translate('formula_use_formula'),
+              useValue: translate('formula_use_value'),
+            },
+            children: {
+              value: [staticNode],
+              formula: [formula],
+            },
+          }
+        : node));
     });
     if (addShowIf) {
       propsSchema = [
@@ -383,6 +396,13 @@ export function withFormulaProps(components: FormComponents, formulaProps: Formu
   if (options.editor?.component) {
     result[editorType] = formulaFieldType(options.editor.component, translate('formula_editor'));
   }
+  // a layout component (without `$name`), so it gets the props of the node as its data
+  result[switchType] = {
+    label: translate('formula_switch'),
+    component: markRaw(options.switch?.component ?? FormulaSwitch),
+    propsSchema: [],
+    internal: true,
+  };
   return result;
 
   // the context of a formula in the props form of a node, e.g. the variables of the schema and the lists around the node
