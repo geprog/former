@@ -325,3 +325,40 @@ describe('formulaEditor go to definition', () => {
     wrapper.unmount();
   });
 });
+
+describe('formulaEditor accessibility', () => {
+  it('tells screen readers about the completion and the option selected with the keys', async () => {
+    const { wrapper, editor } = mountEditor('', { number: 1, choice: 'red' }, { id: 'max' });
+    await flushPromises();
+    const input = () => wrapper.find('[data-formula-input]');
+    expect(input().attributes()).toMatchObject({ 'role': 'textbox', 'aria-autocomplete': 'list' });
+    expect(input().attributes('aria-activedescendant')).toBeUndefined();
+
+    editor().commands.focus();
+    editor().commands.insertContent('$');
+    await nextTick();
+    expect(body().find('[data-formula-completion]').attributes('id')).toBe('max-completion');
+    expect(input().attributes()).toMatchObject({ 'aria-controls': 'max-completion', 'aria-activedescendant': 'max-option-0' });
+
+    editor().view.dom.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }));
+    await nextTick();
+    expect(input().attributes('aria-activedescendant')).toBe('max-option-1');
+    expect(body().find('#max-option-1').attributes('aria-selected')).toBe('true');
+    expect(body().find('#max-option-1').attributes('tabindex')).toBe('-1');
+
+    editor().view.dom.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+    await nextTick();
+    expect(input().attributes('aria-activedescendant')).toBeUndefined();
+    wrapper.unmount();
+  });
+
+  it('describes the input with the signature of the function it is in', async () => {
+    const { wrapper, editor } = mountEditor('max(1, ', {}, { id: 'max' });
+    await flushPromises();
+    editor().commands.focus('end');
+    await nextTick();
+    expect(body().find('[data-formula-signature]').attributes('id')).toBe('max-signature');
+    expect(wrapper.find('[data-formula-input]').attributes('aria-describedby')).toBe('max-signature');
+    wrapper.unmount();
+  });
+});

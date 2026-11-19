@@ -37,6 +37,7 @@
       <Teleport to="body">
         <div
           v-if="completion && popupAnchor"
+          :id="`${baseId}-completion`"
           ref="completionPopup"
           class="fixed z-50 flex max-h-72 w-80 max-w-[calc(100vw-1rem)] flex-col overflow-hidden rounded-md border border-zinc-200 bg-white text-sm shadow-lg dark:border-zinc-700 dark:bg-zinc-900"
           :style="completionStyle"
@@ -46,9 +47,11 @@
           <div class="overflow-y-auto">
             <button
               v-for="(item, index) in completion.items"
+              :id="`${baseId}-option-${index}`"
               :key="`${item.kind}:${item.label}`"
               type="button"
               role="option"
+              tabindex="-1"
               :aria-selected="index === selected"
               class="flex w-full items-baseline gap-2 px-2 py-1 text-left"
               :class="index === selected ? 'bg-zinc-100 dark:bg-zinc-800' : ''"
@@ -56,7 +59,7 @@
               @mousedown.prevent="accept(editor, index)"
               @mouseenter="selected = index"
             >
-              <span class="w-4 shrink-0 text-center font-mono text-xs text-zinc-400">{{ KIND_SYMBOLS[item.kind] }}</span>
+              <span class="w-4 shrink-0 text-center font-mono text-xs text-zinc-400" aria-hidden="true">{{ KIND_SYMBOLS[item.kind] }}</span>
               <span class="font-mono" :class="TOKEN_CLASSES[item.kind === 'variable' ? 'variable' : 'identifier']">{{ item.label }}</span>
               <span v-if="item.detail" class="ml-auto truncate text-xs text-zinc-500">{{ item.detail }}</span>
             </button>
@@ -68,6 +71,7 @@
 
         <div
           v-else-if="signature && popupAnchor"
+          :id="`${baseId}-signature`"
           ref="signaturePopup"
           class="fixed z-40 max-w-[min(32rem,calc(100vw-1rem))] rounded-md border border-zinc-200 bg-white px-2 py-1 text-xs shadow dark:border-zinc-700 dark:bg-zinc-900"
           :style="signatureStyle"
@@ -147,7 +151,7 @@ import { Placeholder, UndoRedo } from '@tiptap/extensions';
 import { Fragment, Slice } from '@tiptap/pm/model';
 import { TextSelection } from '@tiptap/pm/state';
 import { EditorContent, useEditor } from '@tiptap/vue-3';
-import { computed, ref, shallowRef, useTemplateRef, watch } from 'vue';
+import { computed, ref, shallowRef, useId, useTemplateRef, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { FormulaDecorations, formulaDecorationsKey, REFRESH_DECORATIONS, TOKEN_CLASSES } from './decorations';
 import { anchor, useFloating } from './floating';
@@ -189,7 +193,9 @@ const KIND_SYMBOLS: Record<CompletionKind, string> = {
 const { t } = useI18n();
 const { engine, sources, context, editedNode } = useFormulaEditorContext(() => props.expect);
 
-const labelId = computed(() => `${props.id ?? 'formula'}-label`);
+// the ids of the parts of the editor, which the input refers to
+const baseId = props.id ?? `formula-${useId()}`;
+const labelId = computed(() => `${props.id ?? baseId}-label`);
 const text = ref(props.modelValue ?? '');
 const analysis = computed(() => engine.analyze(text.value, context.value, { sources: sources.value }));
 
@@ -405,6 +411,14 @@ const editor = useEditor({
       'spellcheck': 'false',
       'role': 'textbox',
       'aria-multiline': 'true',
+      'aria-autocomplete': 'list',
+      // the open completion and its selected option, which screen readers announce while it is navigated with the keys
+      ...(completion.value
+        ? { 'aria-controls': `${baseId}-completion`, 'aria-activedescendant': `${baseId}-option-${selected.value}` }
+        : {}),
+      ...(signature.value
+        ? { 'aria-describedby': `${baseId}-signature` }
+        : {}),
       ...(props.label
         ? { 'aria-labelledby': labelId.value }
         : {}),
@@ -479,8 +493,19 @@ watch(() => props.modelValue, (value) => {
   }
 });
 
+// the option selected with the keys stays visible in a long completion
+watch(selected, (index) => {
+  document.getElementById(`${baseId}-option-${index}`)?.scrollIntoView?.({ block: 'nearest' });
+}, { flush: 'post' });
+
 // the attributes of the input (e.g. `aria-invalid`) are only read when the view is updated
-watch(() => [props.error, props.label], () => {
+watch(() => [
+  props.error,
+  props.label,
+  completion.value,
+  selected.value,
+  signature.value,
+], () => {
   editor.value?.view.setProps({});
 });
 
