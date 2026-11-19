@@ -3,7 +3,7 @@ import formulaEn from '@former-ui/formula/en.json';
 import { provideFormulaEngine, provideFormulaSources } from '@former-ui/formula/vue';
 import { flushPromises, mount } from '@vue/test-utils';
 import { all, create } from 'mathjs';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { defineComponent, h, nextTick, ref } from 'vue';
 import { createI18n } from 'vue-i18n';
 import FormulaEditor from './FormulaEditor.vue';
@@ -245,6 +245,80 @@ describe('formulaEditor formatting', () => {
     editor().commands.insertContentAt(editor().state.doc.content.size - 1, ' 1');
     await nextTick();
     expect(wrapper.find('[data-formula-format-refused]').exists()).toBe(false);
+    wrapper.unmount();
+  });
+});
+
+describe('formulaEditor go to definition', () => {
+  // happy-dom has no layout, so the position under the mouse is given
+  function stubPosition(editor: ReturnType<ReturnType<typeof mountEditor>['editor']>, pos: number) {
+    editor.view.posAtCoords = () => ({ pos, inside: -1 });
+  }
+
+  it('opens the variable under the mouse on Ctrl+click', async () => {
+    const opened: unknown[] = [];
+    const { wrapper, editor } = mountEditor('1 + $number', { number: 1 }, {
+      onOpenVariable: (variable: unknown) => opened.push(variable),
+    });
+    await flushPromises();
+    stubPosition(editor(), 7);
+    const root = wrapper.find('[data-formula-editor] > div.relative');
+    await root.trigger('mousedown', { ctrlKey: true });
+    expect(opened).toMatchObject([
+      { name: 'number' },
+    ]);
+
+    // without Ctrl, a click places the cursor as usual
+    await root.trigger('mousedown');
+    expect(opened).toHaveLength(1);
+
+    // the hint is shown when hovering it
+    await root.trigger('mousemove', { ctrlKey: true });
+    expect(wrapper.find('[data-formula-go-to-definition]').text()).toMatch(/^(Ctrl|Cmd)\+click to go to its definition$/);
+    expect(root.classes()).toContain('cursor-pointer');
+    wrapper.unmount();
+  });
+
+  it('opens the href of a variable in a new tab without handler', async () => {
+    const open = vi.spyOn(window, 'open').mockImplementation(() => null);
+    const value = ref<string | undefined>('$docs');
+    const editorRef = ref<InstanceType<typeof FormulaEditor>>();
+    const Host = defineComponent({
+      setup() {
+        provideFormulaEngine(engine);
+        provideFormulaSources([
+          valueSource({
+            id: 'docs',
+            values: { docs: 1 },
+            variables: [
+              { name: 'docs', type: 'number', href: 'https://example.com/docs' },
+            ],
+          }),
+        ]);
+        return () => h(FormulaEditor, {
+          'ref': editorRef,
+          'modelValue': value.value,
+          'onUpdate:modelValue': (newValue: string | undefined) => value.value = newValue,
+        });
+      },
+    });
+    const wrapper = mount(Host, {
+      global: {
+        plugins: [
+          createI18n({
+            legacy: false,
+            locale: 'en',
+            messages: { en: formulaEn },
+          }),
+        ],
+      },
+      attachTo: document.body,
+    });
+    await flushPromises();
+    editorRef.value!.editor!.view.posAtCoords = () => ({ pos: 2, inside: -1 });
+    await wrapper.find('[data-formula-editor] > div.relative').trigger('mousedown', { metaKey: true });
+    expect(open).toHaveBeenCalledWith('https://example.com/docs', '_blank', 'noopener');
+    open.mockRestore();
     wrapper.unmount();
   });
 });

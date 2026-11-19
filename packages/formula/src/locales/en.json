@@ -32,5 +32,6 @@
   "formula_calculation_name": "Technical name",
   "formula_calculation_label": "Label",
   "formula_calculation_formula": "Formula",
-  "formula_calculation_loop": "The calculation depends on itself, e.g. through another calculation"
+  "formula_calculation_loop": "The calculation depends on itself, e.g. through another calculation",
+  "formula_go_to_definition": "{key}+click to go to its definition"
 }

@@ -179,6 +179,11 @@ describe('useEditedNode', () => {
     ]);
     expect(labelProp.edited?.schema).toMatchObject(schema);
     expect(labelProp.node?.editedNode).toBe(labelProp.edited);
+
+    // selects another node, e.g. the field a formula refers to
+    labelProp.edited!.select!(labelProp.edited!.path[0]! as SchemaNode);
+    await flushPromises();
+    expect(seen.filter(entry => entry.label === 'Label prop').at(-1)!.edited?.node).toMatchObject({ type: 'repeater', name: 'rows' });
   });
 });
 

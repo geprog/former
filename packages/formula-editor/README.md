@@ -8,6 +8,7 @@ An editor for the formulas of [`@former-ui/formula`](../formula/README.md), base
 - the syntax of the function the cursor is in, with the current argument highlighted
 - the description of variables and the documentation of functions when hovering them
 - formatting with Alt+Shift+F or the button in the input, as one change that can be undone at once
+- Ctrl+click (Cmd+click on macOS) on a variable goes to its definition: in the builder it selects the field, the `href` of other variables (e.g. of sources) is opened in a new tab, `onOpenVariable` replaces both
 
 The formula is stored as plain text, a line of the text per paragraph.
 

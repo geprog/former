@@ -3,7 +3,7 @@ export { createFormulaEngine, UNSAFE_FUNCTIONS } from './engine';
 export type { CompileResult, FormulaEngine, FormulaEngineOptions } from './engine';
 export { canFormatFormula, formatFormula } from './format';
 export { ANY_LIST, isListInScope, scanItemScopes } from './itemScope';
-export { complete, functionDoc, hover, signatureHelp } from './languageService';
+export { complete, functionDoc, hover, signatureHelp, variableAt } from './languageService';
 export type { Completion, CompletionItem, CompletionKind, FunctionDoc, HoverInfo, LanguageServiceOptions, SignatureHelp } from './languageService';
 export { normalizeFormula, stringValue, tokenize } from './lexer';
 export { describeDiagnostic, diagnosticMessage, reservedNameMessage, translateToEnglish } from './messages';

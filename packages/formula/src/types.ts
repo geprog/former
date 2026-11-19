@@ -24,6 +24,8 @@ export type FormulaVariable = {
   sourceId?: string;
   /** Where the variable is defined, e.g. a link to the settings of an external value. */
   href?: string;
+  /** The node of the schema the variable is the data of, e.g. to select it in the builder. */
+  node?: SchemaNodeLike;
 };
 
 /** A function formulas can call in addition to the functions of mathjs. */

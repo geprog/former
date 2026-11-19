@@ -426,3 +426,23 @@ export function signatureHelp(
     ? { from: call.name.from, doc, argument: call.argument }
     : undefined;
 }
+
+/**
+ * The variable at a position of a formula, e.g. to go to its definition: the variable of the path at the position,
+ * or the closest variable it is a part of (e.g. `$group` for `$group.unknown`).
+ */
+export function variableAt(engine: FormulaEngine, text: string, offset: number, context: FormulaContext = {}): FormulaVariable | undefined {
+  const token = tokenize(text).find(candidate => candidate.type === 'variable' && candidate.from <= offset && offset < candidate.to);
+  if (!token) {
+    return undefined;
+  }
+  const segments = token.text.slice(engine.prefix.length).split('.');
+  for (let length = segments.length; length > 0; length--) {
+    const name = segments.slice(0, length).join('.');
+    const variable = context.variables?.find(candidate => candidate.name === name);
+    if (variable) {
+      return variable;
+    }
+  }
+  return undefined;
+}

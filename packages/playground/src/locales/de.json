@@ -78,5 +78,6 @@
   "formula_calculation_name": "Technischer Name",
   "formula_calculation_label": "Beschriftung",
   "formula_calculation_formula": "Formel",
-  "formula_calculation_loop": "Die Berechnung hängt von sich selbst ab, z. B. über eine andere Berechnung"
+  "formula_calculation_loop": "Die Berechnung hängt von sich selbst ab, z. B. über eine andere Berechnung",
+  "formula_go_to_definition": "{key}+Klick, um zur Definition zu springen"
 }

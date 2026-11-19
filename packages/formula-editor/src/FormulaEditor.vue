@@ -9,8 +9,10 @@
     <div
       ref="root"
       class="relative w-full"
+      :class="{ 'cursor-pointer [&_[data-token=variable]:hover]:underline': linkable }"
       @mousemove="showTooltip"
-      @mouseleave="tooltip = undefined"
+      @mouseleave="tooltip = undefined; linkable = false"
+      @mousedown.capture="openVariableAt"
     >
       <EditorContent
         :editor
@@ -102,6 +104,9 @@
           <div v-if="tooltip.info.variable.options?.length" class="text-zinc-500">
             {{ tooltip.info.variable.options.map(option => option.value).join(', ') }}
           </div>
+          <div v-if="canOpen(tooltip.info.variable)" class="mt-1 text-zinc-400" data-formula-go-to-definition>
+            {{ t('formula_go_to_definition', { key: isMac ? 'Cmd' : 'Ctrl' }) }}
+          </div>
         </template>
         <template v-else-if="tooltip.info">
           <div v-for="syntax in tooltip.info.doc.syntax" :key="syntax" class="font-mono">
@@ -123,9 +128,10 @@
 </template>
 
 <script setup lang="ts">
-import type { Completion, CompletionKind, ExpectedType, HoverInfo, SignatureHelp } from '@former-ui/formula';
+import type { SchemaNode } from '@former-ui/former';
+import type { Completion, CompletionKind, ExpectedType, FormulaVariable, HoverInfo, SignatureHelp } from '@former-ui/formula';
 import type { Editor } from '@tiptap/core';
-import { canFormatFormula, complete, diagnosticMessage, formatFormula, hover, signatureHelp } from '@former-ui/formula';
+import { canFormatFormula, complete, diagnosticMessage, formatFormula, hover, signatureHelp, variableAt } from '@former-ui/formula';
 import { useFormulaEditorContext } from '@former-ui/formula/vue';
 import { Extension } from '@tiptap/core';
 import Document from '@tiptap/extension-document';
@@ -154,6 +160,11 @@ const props = defineProps<{
   required?: boolean;
   /** The message of an invalid formula, e.g. of its validation in the form. */
   error?: string;
+  /**
+   * Opens the definition of a variable on Ctrl+click (Cmd+click on macOS), by default the field of a variable is
+   * selected in the builder and the `href` of other variables is opened in a new tab.
+   */
+  onOpenVariable?: (variable: FormulaVariable) => void;
 }>();
 
 const emit = defineEmits<{
@@ -169,7 +180,7 @@ const KIND_SYMBOLS: Record<CompletionKind, string> = {
 };
 
 const { t } = useI18n();
-const { engine, sources, context } = useFormulaEditorContext(() => props.expect);
+const { engine, sources, context, editedNode } = useFormulaEditorContext(() => props.expect);
 
 const root = useTemplateRef('root');
 const labelId = computed(() => `${props.id ?? 'formula'}-label`);
@@ -463,7 +474,53 @@ watch(() => props.mode, (mode) => {
   editor.value?.setEditable(mode !== 'read');
 });
 
+const isMac = typeof navigator !== 'undefined' && /mac/i.test(navigator.platform);
+// whether the variable under the mouse can be opened with the pressed Ctrl (or Cmd) key
+const linkable = ref(false);
+
+function canOpen(variable: FormulaVariable): boolean {
+  return !!props.onOpenVariable || !!(variable.node && editedNode.value?.select) || !!variable.href;
+}
+
+function openVariable(variable: FormulaVariable) {
+  if (props.onOpenVariable) {
+    props.onOpenVariable(variable);
+  }
+  else if (variable.node && editedNode.value?.select) {
+    editedNode.value.select(variable.node as SchemaNode);
+  }
+  else if (variable.href) {
+    window.open(variable.href, '_blank', 'noopener');
+  }
+}
+
+/** The variable under the mouse, which can be opened. */
+function openableVariableAt(event: MouseEvent): FormulaVariable | undefined {
+  const instance = editor.value;
+  const pos = instance?.view.posAtCoords({ left: event.clientX, top: event.clientY });
+  if (!instance || !pos) {
+    return undefined;
+  }
+  const variable = variableAt(engine, text.value, posToOffset(instance.state.doc, pos.pos), context.value);
+  return variable && canOpen(variable)
+    ? variable
+    : undefined;
+}
+
+function openVariableAt(event: MouseEvent) {
+  if (!event.ctrlKey && !event.metaKey) {
+    return;
+  }
+  const variable = openableVariableAt(event);
+  if (variable) {
+    event.preventDefault();
+    event.stopPropagation();
+    openVariable(variable);
+  }
+}
+
 function showTooltip(event: MouseEvent) {
+  linkable.value = (event.ctrlKey || event.metaKey) && !!openableVariableAt(event);
   const instance = editor.value;
   const rect = root.value?.getBoundingClientRect();
   const pos = instance?.view.posAtCoords({ left: event.clientX, top: event.clientY });

@@ -2,7 +2,7 @@ import type { FormulaContext, FormulaVariable } from './types';
 import { all, create } from 'mathjs';
 import { describe, expect, it } from 'vitest';
 import { createFormulaEngine } from './engine';
-import { complete, functionDoc, hover, signatureHelp } from './languageService';
+import { complete, functionDoc, hover, signatureHelp, variableAt } from './languageService';
 import { valueSource } from './sources';
 
 const engine = createFormulaEngine({
@@ -202,5 +202,14 @@ describe('functionDoc', () => {
     });
     expect(functionDoc(engine, 'evaluate')).toBeUndefined();
     expect(functionDoc(engine, 'nope')).toBeUndefined();
+  });
+});
+
+describe('variableAt', () => {
+  it('tells the variable at a position, or the closest one it is a part of', () => {
+    expect(variableAt(engine, ...at('1 + $gr|oup.field'), context)).toBe(variables[4]);
+    expect(variableAt(engine, ...at('$group.unk|nown'), context)).toBe(variables[3]);
+    expect(variableAt(engine, ...at('$nope| + 1'), context)).toBeUndefined();
+    expect(variableAt(engine, ...at('sum|(1)'), context)).toBeUndefined();
   });
 });

@@ -5,7 +5,7 @@ import { describeValues, listsAround, schemaVariables, variableNameOfNode } from
 
 describe('schemaVariables', () => {
   it('names the variables by the path of their data, with the items of lists as own variables', () => {
-    expect(schemaVariables(schema, components)).toEqual([
+    expect(schemaVariables(schema, components).map(({ node: _node, ...variable }) => variable)).toEqual([
       { name: 'name', type: 'string', label: 'Name' },
       {
         name: 'choice',
@@ -25,6 +25,15 @@ describe('schemaVariables', () => {
       },
       { name: 'list_item.field', type: 'number', itemOf: 'list' },
     ]);
+  });
+
+  it('refers to the node of each variable, the item variable of a list to the list', () => {
+    const variables = schemaVariables(schema, components);
+    const nodeOf = (name: string) => variables.find(variable => variable.name === name)?.node;
+    expect(nodeOf('name')).toBe(schema[0]);
+    expect(nodeOf('group.list')).toBe(repeater);
+    expect(nodeOf('list_item')).toBe(repeater);
+    expect(nodeOf('list_item.field')).toBe((repeater.children as SchemaNodeLike[])[0]);
   });
 
   it('tells the variable of a node and the lists around it', () => {

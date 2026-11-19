@@ -114,6 +114,7 @@ export function schemaVariables(schema: ReadonlyArray<SchemaNodeLike>, component
       const variable: FormulaVariable = {
         name: path.join('.'),
         type,
+        node,
         ...(label
           ? { label }
           : {}),
@@ -137,6 +138,7 @@ export function schemaVariables(schema: ReadonlyArray<SchemaNodeLike>, component
         {
           name: item,
           type: 'object',
+          node,
           ...(label
             ? { label }
             : {}),

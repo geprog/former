@@ -46,6 +46,8 @@ export type EditedNode = {
   path: SchemaNode[];
   // the whole schema the node is part of
   schema: SchemaNode[];
+  // selects another node of the schema in the builder, e.g. the field a formula refers to
+  select?: (node: SchemaNode) => void;
 };
 
 export type ValidationContext = {

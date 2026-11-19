@@ -42,7 +42,7 @@
 
 <script setup lang="ts">
 import type { EditedNode, InternalSchemaNode, SchemaNode } from '~/types';
-import { computed, ref, watch } from 'vue';
+import { computed, ref, toRaw, watch } from 'vue';
 import { inject, provide } from '~/compositions/injectProvide';
 import { deleteNode, getNodePath, addNode as insertNodeAt, nodePosition, replaceNode, toInternalSchema, toInternalSchemaNode, toSchemaNode } from '~/utils';
 import Former from './Former.vue';
@@ -61,7 +61,15 @@ const selectedNodePath = computed(() => (selectedNode.value
 
 // the props form sees which node it edits, e.g. for validations or fields referring to the rest of the schema
 provide('editedNode', computed<EditedNode | undefined>(() => (selectedNode.value
-  ? { node: selectedNode.value, path: selectedNodePath.value, schema: schema.value }
+  ? {
+      node: selectedNode.value,
+      path: selectedNodePath.value,
+      schema: schema.value,
+      // the node may come from a read-only view of the schema (see `useEditedNode`)
+      select: (node: SchemaNode) => {
+        selectedNode.value = toRaw(node) as InternalSchemaNode;
+      },
+    }
   : undefined)));
 
 const selectedNodeType = computed(() => (selectedNode.value ? components.value[selectedNode.value.type] : undefined));
