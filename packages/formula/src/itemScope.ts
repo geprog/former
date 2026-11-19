@@ -10,7 +10,7 @@ type Frame = { iterates: boolean; argIndex: number; firstArg: Token[] };
 
 export type ScopedToken = { token: Token; lists: string[] };
 
-/** The list a variable path iterates is named by its last segment: `$roof.rows` and `$parts_item.rows` both iterate `rows`. */
+/** The list a variable path iterates is named by its last segment: `$group.list` and `$other_item.list` both iterate `list`. */
 function iteratedList(firstArg: Token[], prefix: string): string {
   const meaningful = firstArg.filter(token => token.type !== 'whitespace' && token.type !== 'comment');
   const variable = meaningful[0];

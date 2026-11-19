@@ -15,10 +15,10 @@ export const components: ComponentsLike = {
 
 export const repeater: SchemaNodeLike = {
   type: 'repeater',
-  name: 'rows',
-  props: { label: 'Rows' },
+  name: 'list',
+  props: { label: 'List' },
   children: [
-    { type: 'number', name: 'length' },
+    { type: 'number', name: 'field' },
   ],
 };
 export const schema: SchemaNodeLike[] = [
@@ -33,7 +33,7 @@ export const schema: SchemaNodeLike[] = [
       left: [
         {
           type: 'select',
-          name: 'color',
+          name: 'choice',
           props: {
             options: [
               { value: 'red', label: 'Red' },
@@ -46,9 +46,9 @@ export const schema: SchemaNodeLike[] = [
   },
   {
     type: 'group',
-    name: 'roof',
+    name: 'group',
     children: [
-      { type: 'number', name: 'height' },
+      { type: 'number', name: 'field' },
       repeater,
     ],
   },

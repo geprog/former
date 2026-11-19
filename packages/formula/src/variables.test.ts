@@ -8,45 +8,45 @@ describe('schemaVariables', () => {
     expect(schemaVariables(schema, components)).toEqual([
       { name: 'name', type: 'string', label: 'Name' },
       {
-        name: 'color',
+        name: 'choice',
         type: 'string',
         options: [
           { value: 'red', label: 'Red' },
         ],
       },
-      { name: 'roof', type: 'object' },
-      { name: 'roof.height', type: 'number' },
-      { name: 'roof.rows', type: 'list', label: 'Rows' },
+      { name: 'group', type: 'object' },
+      { name: 'group.field', type: 'number' },
+      { name: 'group.list', type: 'list', label: 'List' },
       {
-        name: 'rows_item',
+        name: 'list_item',
         type: 'object',
-        label: 'Rows',
-        itemOf: 'rows',
+        label: 'List',
+        itemOf: 'list',
       },
-      { name: 'rows_item.length', type: 'number', itemOf: 'rows' },
+      { name: 'list_item.field', type: 'number', itemOf: 'list' },
     ]);
   });
 
   it('tells the variable of a node and the lists around it', () => {
-    const length = (repeater.children as SchemaNodeLike[])[0]!;
-    expect(variableNameOfNode(length, [schema[2]!, repeater], components)).toBe('rows_item.length');
-    expect(variableNameOfNode(repeater, [schema[2]!], components)).toBe('roof.rows');
+    const field = (repeater.children as SchemaNodeLike[])[0]!;
+    expect(variableNameOfNode(field, [schema[2]!, repeater], components)).toBe('list_item.field');
+    expect(variableNameOfNode(repeater, [schema[2]!], components)).toBe('group.list');
     expect(variableNameOfNode(schema[1]!, [], components)).toBeUndefined();
-    expect(listsAround([schema[2]!, repeater], components)).toEqual(['rows']);
+    expect(listsAround([schema[2]!, repeater], components)).toEqual(['list']);
   });
 });
 
 describe('describeValues', () => {
   it('describes plain data', () => {
     expect(describeValues({
-      vat: 0.19,
-      price: { total: 1 },
+      a: 0.19,
+      group: { field: 1 },
       tags: ['a'],
       on: true,
     })).toEqual([
-      { name: 'vat', type: 'number' },
-      { name: 'price', type: 'object' },
-      { name: 'price.total', type: 'number' },
+      { name: 'a', type: 'number' },
+      { name: 'group', type: 'object' },
+      { name: 'group.field', type: 'number' },
       { name: 'tags', type: 'list' },
       { name: 'on', type: 'boolean' },
     ]);

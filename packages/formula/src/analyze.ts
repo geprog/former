@@ -109,7 +109,7 @@ export function analyzeFormula(engine: FormulaEngine, formula: string, context: 
     }
     const segments = variable.name.split('.');
     segments.slice(0, -1).forEach((_, index) => withChildren.add(segments.slice(0, index + 1).join('.')));
-    // the item variables of lists (e.g. `rows_item`) are only in scope of their list, so they don't collide with other sources
+    // the item variables of lists (e.g. `list_item`) are only in scope of their list, so they don't collide with other sources
     if (segments.length === 1 && variable.sourceId && !variable.itemOf) {
       sourcesOfRoot.set(variable.name, new Set([
         ...(sourcesOfRoot.get(variable.name) ?? []),
@@ -265,7 +265,7 @@ export function analyzeFormula(engine: FormulaEngine, formula: string, context: 
   const variableTokens = (variable: FormulaVariable) => rangesOf('variable', token => token.text === `${prefix}${variable.name}`);
   const stringTokens = (literal: string) => rangesOf('string', token => stringValue(token) === literal);
 
-  // checks an argument of a text comparison, which may have a fallback (`$color ?? 'red'`), against the other argument
+  // checks an argument of a text comparison, which may have a fallback (`$field ?? 'text'`), against the other argument
   const checkTextComparison = (argument: MathNode, other: MathNode) => {
     const unwrapped = math.isParenthesisNode(argument)
       ? argument.content

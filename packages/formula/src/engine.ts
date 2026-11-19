@@ -46,7 +46,7 @@ export type FormulaEngineOptions = {
   math: MathJsInstance;
   /** The character(s) every variable starts with. */
   prefix?: string;
-  /** The suffix of the item variable of a list, e.g. `rows_item` for the current item of `rows`. */
+  /** The suffix of the item variable of a list, e.g. `list_item` for the current item of `list`. */
   itemSuffix?: string;
   /** What a variable without value evaluates to, `''` counts as `0` in calculations and is no match in comparisons. */
   missingValue?: unknown;
@@ -87,7 +87,7 @@ export type FormulaEngine = FormulaEngineInfo & {
   isDisabledFunction: (name: string) => boolean;
 };
 
-// the accessors of variable paths (e.g. `$roof.width`) are compiled to calls of this function, so that a missing
+// the accessors of variable paths (e.g. `$group.field`) are compiled to calls of this function, so that a missing
 // value anywhere in the path evaluates to the missing value instead of failing, it can't be typed in a formula
 const GET = '⁣get';
 
@@ -135,7 +135,7 @@ export function createFormulaEngine(options: FormulaEngineOptions): FormulaEngin
   // filled at the end, sources get to see the engine when they describe their variables
   const engine = {} as FormulaEngine;
 
-  // the dot notation path of an accessor of a variable, e.g. `$roof.width`
+  // the dot notation path of an accessor of a variable, e.g. `$group.field`
   function pathOf(node: MathNode): string | undefined {
     if (math.isSymbolNode(node)) {
       return node.name;

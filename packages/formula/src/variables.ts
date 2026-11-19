@@ -22,7 +22,7 @@ export const DEFAULT_VALUE_TYPES: Record<string, FormulaValueType> = {
 };
 
 export type SchemaVariablesOptions = {
-  /** The suffix of the item variable of a list, e.g. `rows_item` for the current item of `rows`. */
+  /** The suffix of the item variable of a list, e.g. `list_item` for the current item of `list`. */
   itemSuffix?: string;
   /** The type of the value of each component type, merged into `DEFAULT_VALUE_TYPES`. */
   valueTypes?: Record<string, FormulaValueType>;
@@ -79,9 +79,9 @@ function defaultLabel(node: SchemaNodeLike): string | undefined {
 }
 
 /**
- * The variables of the fields of a schema, named by the path of their data, e.g. `roof.width` for the field `width`
- * of the group `roof`. A list (e.g. a repeater `rows`) is a variable of type `list` and its current item is
- * the variable `rows_item`, so the fields of the items are `rows_item.width`, regardless of where the list is.
+ * The variables of the fields of a schema, named by the path of their data, e.g. `group.field` for the field `field`
+ * of the group `group`. A list (e.g. a repeater `list`) is a variable of type `list` and its current item is
+ * the variable `list_item`, so the fields of the items are `list_item.field`, regardless of where the list is.
  */
 export function schemaVariables(schema: ReadonlyArray<SchemaNodeLike>, components: ComponentsLike, options: SchemaVariablesOptions = {}): FormulaVariable[] {
   const itemSuffix = options.itemSuffix ?? DEFAULT_ITEM_SUFFIX;
@@ -159,8 +159,8 @@ export function listsAround(path: ReadonlyArray<SchemaNodeLike>, components: Com
 }
 
 /**
- * The variable of a node, given its parents from the top of the schema (e.g. `rows_item.width` for the field `width`
- * of the repeater `rows`), or `undefined` for nodes without data.
+ * The variable of a node, given its parents from the top of the schema (e.g. `list_item.field` for the field `field`
+ * of the repeater `list`), or `undefined` for nodes without data.
  */
 export function variableNameOfNode(node: SchemaNodeLike, path: ReadonlyArray<SchemaNodeLike>, components: ComponentsLike, itemSuffix = DEFAULT_ITEM_SUFFIX): string | undefined {
   if (!node.name || isLayoutNode(node, components)) {
@@ -198,7 +198,7 @@ function typeOfValue(value: unknown): FormulaValueType {
   return 'unknown';
 }
 
-/** Describes the variables of plain data, e.g. `{ price: { total: 1 } }` as `price` (object) and `price.total` (number). */
+/** Describes the variables of plain data, e.g. `{ group: { field: 1 } }` as `group` (object) and `group.field` (number). */
 export function describeValues(values: Record<string, unknown>, parentPath: string[] = [], depth = 5): FormulaVariable[] {
   return Object.entries(values).flatMap(([key, value]) => {
     const path = [...parentPath, key];

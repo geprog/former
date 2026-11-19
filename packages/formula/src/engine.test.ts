@@ -33,7 +33,7 @@ describe('createFormulaEngine', () => {
 
     it('fails on variables without value if asked to, except for lists', () => {
       const variables = [
-        { name: 'rows', type: 'list' as const },
+        { name: 'list', type: 'list' as const },
       ];
       expect(engine.evaluateDetailed('$a * 2', { data: {}, missing: 'fail' })).toMatchObject({
         ok: false,
@@ -50,19 +50,19 @@ describe('createFormulaEngine', () => {
         data: { a: 0 },
         missing: 'fail',
       })).toBe(0);
-      expect(engine.evaluate('size($rows)', { data: {}, variables, missing: 'fail' })).toEqual([0]);
+      expect(engine.evaluate('size($list)', { data: {}, variables, missing: 'fail' })).toEqual([0]);
     });
 
     it('evaluates lists without data to an empty list', () => {
       const variables = [
-        { name: 'rows', type: 'list' as const },
+        { name: 'list', type: 'list' as const },
       ];
-      expect(engine.evaluate('sum(map($rows, f($rows_item) = $rows_item.width))', { data: {}, variables })).toBe(0);
-      expect(engine.evaluate('sum(map($rows, f($rows_item) = $rows_item.width))', {
+      expect(engine.evaluate('sum(map($list, f($list_item) = $list_item.x))', { data: {}, variables })).toBe(0);
+      expect(engine.evaluate('sum(map($list, f($list_item) = $list_item.x))', {
         data: {
-          rows: [
-            { width: 2 },
-            { width: 3 },
+          list: [
+            { x: 2 },
+            { x: 3 },
           ],
         },
         variables,
@@ -71,27 +71,27 @@ describe('createFormulaEngine', () => {
 
     it('resolves the item variables of the lists around the formula from its scopes', () => {
       const data = {
-        rows: [
-          { width: 2 },
-          { width: 3 },
+        list: [
+          { x: 2 },
+          { x: 3 },
         ],
       };
       const scopes = [
         {
-          node: { name: 'rows' },
-          data: data.rows[1],
-          path: ['rows', 1],
+          node: { name: 'list' },
+          data: data.list[1],
+          path: ['list', 1],
         },
         { data, path: [] },
       ];
-      expect(engine.evaluate('$rows_item.width * 10', { scopes })).toBe(30);
+      expect(engine.evaluate('$list_item.x * 10', { scopes })).toBe(30);
     });
 
     it('prefers the closest item of nested lists with the same name', () => {
       const outer = {
-        rows: [
+        list: [
           {
-            rows: [
+            list: [
               { x: 'inner' },
             ],
           },
@@ -100,18 +100,18 @@ describe('createFormulaEngine', () => {
       };
       const scopes = [
         {
-          node: { name: 'rows' },
-          data: outer.rows[0]!.rows[0],
-          path: ['rows', 0, 'rows', 0],
+          node: { name: 'list' },
+          data: outer.list[0]!.list[0],
+          path: ['list', 0, 'list', 0],
         },
         {
-          node: { name: 'rows' },
-          data: outer.rows[0],
-          path: ['rows', 0],
+          node: { name: 'list' },
+          data: outer.list[0],
+          path: ['list', 0],
         },
         { data: outer, path: [] },
       ];
-      expect(engine.evaluate('$rows_item.x', { scopes })).toBe('inner');
+      expect(engine.evaluate('$list_item.x', { scopes })).toBe('inner');
     });
 
     it('checks the type of the result', () => {
@@ -166,37 +166,37 @@ describe('createFormulaEngine', () => {
 
     it('doesn\'t change the data with functions changing their arguments or assignments', () => {
       const data = {
-        tags: [3, 1, 2],
-        roof: { width: 1 },
-        rows: [
-          { width: 2 },
+        numbers: [3, 1, 2],
+        group: { x: 1 },
+        list: [
+          { x: 2 },
         ],
       };
-      expect(engine.evaluate('sort($tags)', { data })).toEqual([1, 2, 3]);
-      expect(engine.evaluate('sort($tags, "desc")', { data })).toEqual([3, 2, 1]);
-      expect(engine.evaluate('sort($tags)[1] + $tags[1]', { data })).toBe(4);
-      expect(engine.evaluate('$roof.width = 5', { data })).toBe(5);
-      expect(engine.evaluate('map($rows, f(row) = row.width = 7)', { data })).toEqual([7]);
+      expect(engine.evaluate('sort($numbers)', { data })).toEqual([1, 2, 3]);
+      expect(engine.evaluate('sort($numbers, "desc")', { data })).toEqual([3, 2, 1]);
+      expect(engine.evaluate('sort($numbers)[1] + $numbers[1]', { data })).toBe(4);
+      expect(engine.evaluate('$group.x = 5', { data })).toBe(5);
+      expect(engine.evaluate('map($list, f(item) = item.x = 7)', { data })).toEqual([7]);
       expect(data).toEqual({
-        tags: [3, 1, 2],
-        roof: { width: 1 },
-        rows: [
-          { width: 2 },
+        numbers: [3, 1, 2],
+        group: { x: 1 },
+        list: [
+          { x: 2 },
         ],
       });
     });
 
     it('works on read-only data, e.g. of a form node', () => {
       const data = readonly(reactive({
-        tags: [3, 1, 2],
-        rows: [
-          { width: 2 },
-          { width: 1 },
+        numbers: [3, 1, 2],
+        list: [
+          { x: 2 },
+          { x: 1 },
         ],
       }));
       const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
-      expect(engine.evaluate('sort($tags)', { data })).toEqual([1, 2, 3]);
-      expect(engine.evaluate('sort(map($rows, f($rows_item) = $rows_item.width))', { data })).toEqual([1, 2]);
+      expect(engine.evaluate('sort($numbers)', { data })).toEqual([1, 2, 3]);
+      expect(engine.evaluate('sort(map($list, f($list_item) = $list_item.x))', { data })).toEqual([1, 2]);
       expect(warn).not.toHaveBeenCalled();
       warn.mockRestore();
     });
@@ -239,11 +239,11 @@ describe('createFormulaEngine', () => {
         sources: [
           valueSource({
             id: 'settings',
-            values: { vat: 0.19, a: 'source' },
+            values: { b: 0.19, a: 'source' },
           }),
         ],
       });
-      expect(engine.evaluate('$vat * 100', { data: {} })).toBe(19);
+      expect(engine.evaluate('$b * 100', { data: {} })).toBe(19);
       expect(engine.evaluate('$a', {
         data: { a: 'form' },
       })).toBe('form');
@@ -273,8 +273,8 @@ describe('createFormulaEngine', () => {
     it('evaluates named formulas once per evaluation', () => {
       let calls = 0;
       const source = formulaSource({
-        id: 'calculations',
-        formulas: { area: '$width * $height', double: 'count() * $area * 2' },
+        id: 'formulas',
+        formulas: { product: '$x * $y', double: 'count() * $product * 2' },
         functions: {
           count: {
             fn: () => ++calls && 1,
@@ -285,8 +285,8 @@ describe('createFormulaEngine', () => {
         math,
         sources: [source],
       });
-      expect(engine.evaluate('$double + $area', {
-        data: { width: 2, height: 3 },
+      expect(engine.evaluate('$double + $product', {
+        data: { x: 2, y: 3 },
       })).toBe(18);
       expect(calls).toBe(1);
     });
@@ -341,21 +341,21 @@ describe('createFormulaEngine', () => {
         sources: [
           valueSource({
             id: 'settings',
-            values: { vat: 0.19 },
+            values: { b: 0.19 },
           }),
           valueSource({
-            id: 'house',
-            namespace: 'house',
-            values: { today: '2026-11-19' },
+            id: 'ns',
+            namespace: 'ns',
+            values: { date: '2026-11-19' },
           }),
         ],
       });
       expect(engine.reservedNames([
         formulaSource({
           id: 'calc',
-          formulas: { area: '1' },
+          formulas: { product: '1' },
         }),
-      ])).toEqual(['area', 'vat', 'house']);
+      ])).toEqual(['product', 'b', 'ns']);
     });
   });
 });

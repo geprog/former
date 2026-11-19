@@ -25,13 +25,13 @@ describe('diagnosticMessage', () => {
     ['statements', {}, 'A formula has to be a single expression, e.g. without semicolons'],
     [
       'unknown-variable',
-      { name: 'roof.nope' },
-      'Unknown variable "$roof.nope"',
+      { name: 'group.nope' },
+      'Unknown variable "$group.nope"',
     ],
     [
       'unknown-variable',
-      { name: 'width', prefix: '$' },
-      'Unknown name "width", variables start with "$"',
+      { name: 'field', prefix: '$' },
+      'Unknown name "field", variables start with "$"',
     ],
     [
       'unknown-function',
@@ -45,13 +45,13 @@ describe('diagnosticMessage', () => {
     ],
     [
       'out-of-scope',
-      { name: 'rows_item.width', list: 'rows' },
-      '"$rows_item.width" is only available inside of the list "rows", e.g. in map($rows, f($rows_item) = …)',
+      { name: 'list_item.field', list: 'list' },
+      '"$list_item.field" is only available inside of the list "list", e.g. in map($list, f($list_item) = …)',
     ],
     [
       'not-text-comparable',
-      { name: 'width', type: 'number' },
-      '"$width" is a number and can\'t be compared as text',
+      { name: 'field', type: 'number' },
+      '"$field" is a number and can\'t be compared as text',
     ],
     [
       'unknown-option',
@@ -74,16 +74,16 @@ describe('diagnosticMessage', () => {
     ],
     [
       'self-reference',
-      { name: 'width' },
-      'The formula refers to its own field "$width"',
+      { name: 'field' },
+      'The formula refers to its own field "$field"',
     ],
     [
       'ambiguous-variable',
       {
-        name: 'vat',
+        name: 'name',
         sources: ['form', 'settings'],
       },
-      '"$vat" is provided by several sources (form, settings)',
+      '"$name" is provided by several sources (form, settings)',
     ],
   ])('describes %s in english', (code, params, message) => {
     expect(diagnosticMessage(diagnostic(code, params), engine)).toBe(message);
@@ -119,7 +119,7 @@ describe('diagnosticMessage', () => {
 
 describe('reservedNameMessage', () => {
   it('describes a name taken by a variable', () => {
-    expect(reservedNameMessage('vat', engine)).toBe('The name "vat" is already used by the variable "$vat"');
+    expect(reservedNameMessage('name', engine)).toBe('The name "name" is already used by the variable "$name"');
   });
 });
 

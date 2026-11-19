@@ -31,7 +31,7 @@ type CommonSourceOptions = {
   id: string;
   /** Shown as group of its variables, e.g. in the completion. */
   label?: string;
-  /** The first segment of all its variables, e.g. `house` for `$house.today`, otherwise its variables are top-level. */
+  /** The first segment of all its variables, e.g. `namespace` for `$namespace.name`, otherwise its variables are top-level. */
   namespace?: string;
   functions?: Record<string, FormulaFunction>;
   /** While `true` (e.g. its data is still loading), its values are missing. */
@@ -60,7 +60,7 @@ export type ValueSourceOptions = CommonSourceOptions & {
   variables?: MaybeGetter<FormulaVariable[]>;
 };
 
-/** Provides plain values, e.g. `{ vat: 0.19, price: { total: 1000 } }` as `$vat` and `$price.total`. */
+/** Provides plain values, e.g. `{ name: 1, group: { field: 2 } }` as `$name` and `$group.field`. */
 export function valueSource(options: ValueSourceOptions): FormulaSource {
   const variables = () => (options.variables
     ? get(options.variables)
@@ -91,8 +91,8 @@ export type SchemaSourceOptions = CommonSourceOptions & Omit<SchemaVariablesOpti
 };
 
 /**
- * Provides the data of another form by its schema, e.g. `$roof.width` of a module the form doesn't contain.
- * The items of its lists are used like the ones of the form, e.g. `map($house.rows, f($rows_item) = $rows_item.width)`.
+ * Provides the data of another form by its schema, e.g. `$namespace.group.field` of a form the formula isn't part of.
+ * The items of its lists are used like the ones of the form, e.g. `map($namespace.list, f($list_item) = $list_item.field)`.
  */
 export function schemaSource(options: SchemaSourceOptions): FormulaSource {
   const data = (): Record<string, unknown> => {
@@ -136,7 +136,7 @@ export type NamedFormula = string | {
 };
 
 export type FormulaSourceOptions = CommonSourceOptions & {
-  /** The formulas by name, e.g. `{ wallArea: '$roof.width * $roof.height' }` for `$wallArea`. */
+  /** The formulas by name, e.g. `{ name: '$a * $b' }` for `$name`. */
   formulas: MaybeGetter<Record<string, NamedFormula>>;
 };
 
@@ -147,7 +147,7 @@ function formulaOf(named: NamedFormula): string {
 }
 
 /**
- * Provides named formulas, which other formulas reference like variables, e.g. `$wallArea`.
+ * Provides named formulas, which other formulas reference like variables, e.g. `$name`.
  * They are evaluated when they are used, once per evaluation, in the same data as the formula using them.
  * A formula referencing itself (also through others) fails to evaluate.
  */

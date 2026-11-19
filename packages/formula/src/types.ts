@@ -9,16 +9,16 @@ export type ExpectedType = 'number' | 'boolean' | 'string' | 'date' | 'any';
 
 export type FormulaVariableOption = { value: string; label?: string };
 
-/** A variable that formulas can reference with the prefix, e.g. `roof.width` as `$roof.width`. */
+/** A variable that formulas can reference with the prefix, e.g. `group.field` as `$group.field`. */
 export type FormulaVariable = {
-  /** The path of the variable without prefix, e.g. `roof.width` or `rows_item.width`. */
+  /** The path of the variable without prefix, e.g. `group.field` or `list_item.field`. */
   name: string;
   label?: string;
   description?: string;
   type?: FormulaValueType;
   /** The values the variable can take, e.g. the options of a select. */
   options?: FormulaVariableOption[];
-  /** For the item variable of a list (e.g. `rows_item`) and the variables inside of it, the name of the list. */
+  /** For the item variable of a list (e.g. `list_item`) and the variables inside of it, the name of the list. */
   itemOf?: string;
   /** The id of the source providing the variable, `form` for the fields of the form. */
   sourceId?: string;
@@ -49,7 +49,7 @@ export type FormulaSource = {
   id: string;
   /** Shown as group of its variables, e.g. in the completion. */
   label?: string;
-  /** The first segments of the variable names the source provides, e.g. `['vat', 'price']` or its namespace. */
+  /** The first segments of the variable names the source provides, e.g. `['name', 'group']` or its namespace. */
   roots: () => string[];
   /** The value of one of its `roots`, `undefined` and `null` count as missing. */
   resolve: (root: string, context: SourceResolveContext) => unknown;
@@ -165,7 +165,7 @@ export type Token = {
 
 /** A variable referenced by a formula. */
 export type Reference = {
-  /** The path without prefix, e.g. `roof.width`. */
+  /** The path without prefix, e.g. `group.field`. */
   name: string;
   from: number;
   to: number;

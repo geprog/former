@@ -128,7 +128,7 @@ function mountForm(schema: SchemaNode[], data: FormData, mode: 'edit' | 'build' 
       const sources = [
         valueSource({
           id: 'settings',
-          values: { vat: 0.19 },
+          values: { rate: 0.19 },
         }),
       ];
       const formComponents = useFormulaProps(components, formulaProps, {
@@ -238,7 +238,7 @@ describe('withFormulaProps', () => {
       sources: () => [
         valueSource({
           id: 'settings',
-          values: { vat: 0.19 },
+          values: { rate: 0.19 },
         }),
       ],
       translate: (key, named) => `${key} ${String(named?.variable ?? named?.name ?? '')}`,
@@ -266,12 +266,12 @@ describe('withFormulaProps', () => {
       ],
     });
     const nameSchema = translated['text:formula_name']!.validation!({}, { node, path: [], scopes: [] })!;
-    expect(await nameSchema['~standard'].validate('vat')).toEqual({
+    expect(await nameSchema['~standard'].validate('rate')).toEqual({
       issues: [
-        { message: 'formula_reserved_name "$vat"' },
+        { message: 'formula_reserved_name "$rate"' },
       ],
     });
-    expect(await nameSchema['~standard'].validate('width')).toEqual({ value: 'width' });
+    expect(await nameSchema['~standard'].validate('field')).toEqual({ value: 'field' });
   });
 
   it('keeps the identity of the wrapped components', () => {
@@ -328,21 +328,21 @@ describe('formulas in a form', () => {
       { type: 'number', name: 'count' },
       {
         type: 'repeater',
-        name: 'rows',
+        name: 'list',
         children: [
-          { type: 'number', name: 'width' },
+          { type: 'number', name: 'field' },
           {
             type: 'number',
             name: 'extra',
-            props: { label: 'Extra', showIf: '$rows_item.width > 2 and $count > 0' },
+            props: { label: 'Extra', showIf: '$list_item.field > 2 and $count > 0' },
           },
         ],
       },
     ], {
       count: 1,
-      rows: [
-        { width: 1 },
-        { width: 3 },
+      list: [
+        { field: 1 },
+        { field: 3 },
       ],
     });
     await flushPromises();
@@ -350,9 +350,9 @@ describe('formulas in a form', () => {
 
     data.value = {
       count: 0,
-      rows: [
-        { width: 1 },
-        { width: 3 },
+      list: [
+        { field: 1 },
+        { field: 3 },
       ],
     };
     await flushPromises();
@@ -363,26 +363,26 @@ describe('formulas in a form', () => {
     const { wrapper, data } = mountForm([
       {
         type: 'repeater',
-        name: 'rows',
+        name: 'list',
         children: [
           {
             type: 'calculation',
-            props: { formula: 'round($rows_item.width * $vat * 100)' },
+            props: { formula: 'round($list_item.field * $rate * 100)' },
           },
         ],
       },
     ], {
-      rows: [
-        { width: 1 },
-        { width: 2 },
+      list: [
+        { field: 1 },
+        { field: 2 },
       ],
     });
     await flushPromises();
     expect(wrapper.findAll('output').map(output => output.text())).toEqual(['19', '38']);
 
     data.value = {
-      rows: [
-        { width: 3 },
+      list: [
+        { field: 3 },
       ],
     };
     await nextTick();
@@ -397,9 +397,9 @@ describe('formulas in a form', () => {
         inRepeater
           ? {
               type: 'repeater',
-              name: 'rows',
+              name: 'list',
               children: [
-                { type: 'number', name: 'width' },
+                { type: 'number', name: 'field' },
                 node,
               ],
             }
@@ -411,16 +411,16 @@ describe('formulas in a form', () => {
       await flushPromises();
       return isSchemaValid.value;
     };
-    expect(await validity(schemaWith({ maxFormula: '$limit * 2 * $vat' }))).toBe(true);
+    expect(await validity(schemaWith({ maxFormula: '$limit * 2 * $rate' }))).toBe(true);
     expect(await validity(schemaWith({ maxFormula: '$nope * 2' }))).toBe(false);
     expect(await validity(schemaWith({ maxFormula: '$limit +' }))).toBe(false);
-    expect(await validity(schemaWith({ showIf: '$rows_item.width > 1' }))).toBe(false);
-    expect(await validity(schemaWith({ showIf: '$rows_item.width > 1' }, true))).toBe(true);
+    expect(await validity(schemaWith({ showIf: '$list_item.field > 1' }))).toBe(false);
+    expect(await validity(schemaWith({ showIf: '$list_item.field > 1' }, true))).toBe(true);
   });
 
   it('doesn\'t allow names taken by the variables of sources', async () => {
     const { isSchemaValid } = mountForm([
-      { type: 'number', name: 'vat' },
+      { type: 'number', name: 'rate' },
     ], {}, 'build');
     await flushPromises();
     expect(isSchemaValid.value).toBe(false);

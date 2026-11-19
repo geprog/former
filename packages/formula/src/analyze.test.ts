@@ -9,9 +9,9 @@ const engine = createFormulaEngine({
 });
 
 const variables: FormulaVariable[] = [
-  { name: 'width', type: 'number', sourceId: 'form' },
+  { name: 'number', type: 'number', sourceId: 'form' },
   {
-    name: 'color',
+    name: 'choice',
     type: 'string',
     sourceId: 'form',
     options: [
@@ -19,20 +19,20 @@ const variables: FormulaVariable[] = [
       { value: 'blue' },
     ],
   },
-  { name: 'note', type: 'string', sourceId: 'form' },
-  { name: 'roof', type: 'object', sourceId: 'form' },
-  { name: 'roof.height', type: 'number', sourceId: 'form' },
-  { name: 'rows', type: 'list', sourceId: 'form' },
+  { name: 'text', type: 'string', sourceId: 'form' },
+  { name: 'group', type: 'object', sourceId: 'form' },
+  { name: 'group.field', type: 'number', sourceId: 'form' },
+  { name: 'list', type: 'list', sourceId: 'form' },
   {
-    name: 'rows_item',
+    name: 'list_item',
     type: 'object',
-    itemOf: 'rows',
+    itemOf: 'list',
     sourceId: 'form',
   },
   {
-    name: 'rows_item.length',
+    name: 'list_item.field',
     type: 'number',
-    itemOf: 'rows',
+    itemOf: 'list',
     sourceId: 'form',
   },
   { name: 'settings', type: 'object', sourceId: 'settings' },
@@ -51,20 +51,20 @@ function codes(formula: string, context: FormulaContext = {}) {
 
 describe('analyze', () => {
   it('accepts valid formulas', () => {
-    expect(analyze('$width * 2 + $roof.height').ok).toBe(true);
-    expect(analyze('equalText($color, "red") ? pi : 0').ok).toBe(true);
+    expect(analyze('$number * 2 + $group.field').ok).toBe(true);
+    expect(analyze('equalText($choice, "red") ? pi : 0').ok).toBe(true);
     expect(analyze('').ok).toBe(true);
   });
 
   it('lists the referenced variables with their position', () => {
-    expect(analyze('$width + $missing # $comment').references).toEqual([
+    expect(analyze('$number + $missing # $comment').references).toEqual([
       {
-        name: 'width',
+        name: 'number',
         from: 0,
-        to: 6,
+        to: 7,
         variable: variables[0],
       },
-      { name: 'missing', from: 9, to: 17 },
+      { name: 'missing', from: 10, to: 18 },
     ]);
   });
 
@@ -82,21 +82,21 @@ describe('analyze', () => {
   });
 
   it('reports unknown variables and functions', () => {
-    expect(codes('$nope + $roof.nope + nope + nope2(1)')).toEqual([
+    expect(codes('$nope + $group.nope + nope + nope2(1)')).toEqual([
       ['unknown-variable', '$nope'],
-      ['unknown-variable', '$roof.nope'],
+      ['unknown-variable', '$group.nope'],
       ['unknown-variable', 'nope'],
       ['unknown-function', 'nope2'],
     ]);
   });
 
   it('accepts paths below variables without described children', () => {
-    expect(analyze('$settings.vat.rate').ok).toBe(true);
+    expect(analyze('$settings.any.path').ok).toBe(true);
   });
 
   it('accepts parameters and functions defined in the formula', () => {
-    expect(analyze('map($rows, f(x) = x.length * 2)').ok).toBe(true);
-    expect(analyze('map($rows, f($row) = $row.length)').ok).toBe(true);
+    expect(analyze('map($list, f(x) = x.field * 2)').ok).toBe(true);
+    expect(analyze('map($list, f($item) = $item.field)').ok).toBe(true);
   });
 
   it('reports disabled functions', () => {
@@ -120,51 +120,51 @@ describe('analyze', () => {
   });
 
   it('reports item variables outside of their list', () => {
-    expect(codes('$rows_item.length')).toEqual([
-      ['out-of-scope', '$rows_item.length'],
+    expect(codes('$list_item.field')).toEqual([
+      ['out-of-scope', '$list_item.field'],
     ]);
-    expect(analyze('$rows_item.length', {
-      loopScopes: ['rows'],
+    expect(analyze('$list_item.field', {
+      loopScopes: ['list'],
     }).ok).toBe(true);
-    expect(analyze('sum(map($rows, f($rows_item) = $rows_item.length))').ok).toBe(true);
-    expect(analyze('sum(map(filter($rows, f($rows_item) = true), f($rows_item) = $rows_item.length))').ok).toBe(true);
+    expect(analyze('sum(map($list, f($list_item) = $list_item.field))').ok).toBe(true);
+    expect(analyze('sum(map(filter($list, f($list_item) = true), f($list_item) = $list_item.field))').ok).toBe(true);
   });
 
   it('checks text comparisons', () => {
-    expect(codes('equalText($width, "1")')).toEqual([
-      ['not-text-comparable', '$width'],
+    expect(codes('equalText($number, "1")')).toEqual([
+      ['not-text-comparable', '$number'],
     ]);
-    expect(codes('equalText($color, "green")')).toEqual([
+    expect(codes('equalText($choice, "green")')).toEqual([
       ['unknown-option', '"green"'],
     ]);
-    expect(codes('equalText($color ?? "green", "red")')).toEqual([
+    expect(codes('equalText($choice ?? "green", "red")')).toEqual([
       ['unknown-option', '"green"'],
     ]);
-    expect(analyze('equalText($note, "anything")').ok).toBe(true);
+    expect(analyze('equalText($text, "anything")').ok).toBe(true);
   });
 
   it('reports comparing text with == and !=', () => {
-    expect(codes('$color == "red"')).toEqual([
+    expect(codes('$choice == "red"')).toEqual([
       ['compare-text-with-equal-text', '"red"'],
     ]);
-    expect(analyze('$width == "1"').ok).toBe(true);
+    expect(analyze('$number == "1"').ok).toBe(true);
   });
 
   it('warns about formulas not evaluating to the expected type', () => {
-    expect(analyze('$width + 1', { expect: 'boolean' }).diagnostics).toMatchObject([
+    expect(analyze('$number + 1', { expect: 'boolean' }).diagnostics).toMatchObject([
       {
         code: 'type-mismatch',
         severity: 'warning',
         params: { expected: 'boolean', actual: 'number' },
       },
     ]);
-    expect(analyze('$width > 1 and $width < 10', { expect: 'boolean' }).diagnostics).toEqual([]);
-    expect(analyze('$width > 1 ? $width : "none"').inferredType).toBe('unknown');
-    expect(analyze('$width > 1 ? $width : 0', { expect: 'number' }).diagnostics).toEqual([]);
+    expect(analyze('$number > 1 and $number < 10', { expect: 'boolean' }).diagnostics).toEqual([]);
+    expect(analyze('$number > 1 ? $number : "none"').inferredType).toBe('unknown');
+    expect(analyze('$number > 1 ? $number : 0', { expect: 'number' }).diagnostics).toEqual([]);
   });
 
   it('warns about formulas referencing their own field', () => {
-    expect(analyze('$width * 2', { self: 'width' }).diagnostics).toMatchObject([
+    expect(analyze('$number * 2', { self: 'number' }).diagnostics).toMatchObject([
       { code: 'self-reference', severity: 'warning' },
     ]);
   });
@@ -172,14 +172,14 @@ describe('analyze', () => {
   it('warns about variables provided by several sources', () => {
     const ambiguous = [
       ...variables,
-      { name: 'width', type: 'number' as const, sourceId: 'settings' },
+      { name: 'number', type: 'number' as const, sourceId: 'settings' },
     ];
-    expect(engine.analyze('$width', { variables: ambiguous }).diagnostics).toMatchObject([
+    expect(engine.analyze('$number', { variables: ambiguous }).diagnostics).toMatchObject([
       {
         code: 'ambiguous-variable',
         severity: 'warning',
         params: {
-          name: 'width',
+          name: 'number',
           sources: ['form', 'settings'],
         },
       },

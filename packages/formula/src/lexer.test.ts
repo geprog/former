@@ -3,8 +3,8 @@ import { normalizeFormula, stringValue, tokenize } from './lexer';
 
 describe('tokenize', () => {
   it('splits formulas into tokens, also when they are half typed', () => {
-    expect(tokenize('$roof.width >= 2.5 and equalText($c, "a\\"b") # done\n$').map(({ type, text }) => [type, text])).toEqual([
-      ['variable', '$roof.width'],
+    expect(tokenize('$group.field >= 2.5 and equalText($c, "a\\"b") # done\n$').map(({ type, text }) => [type, text])).toEqual([
+      ['variable', '$group.field'],
       ['whitespace', ' '],
       ['operator', '>='],
       ['whitespace', ' '],
@@ -24,7 +24,7 @@ describe('tokenize', () => {
       ['whitespace', '\n'],
       ['variable', '$'],
     ]);
-    expect(tokenize('$roof.').map(token => token.text)).toEqual(['$roof.']);
+    expect(tokenize('$group.').map(token => token.text)).toEqual(['$group.']);
     expect(tokenize('"open').map(token => token.type)).toEqual(['string']);
   });
 });

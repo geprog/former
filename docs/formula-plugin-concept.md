@@ -7,7 +7,7 @@ Status: draft · Source of truth for the behaviour: talomat (`~/talishaus/taloma
 Allow schema authors to write mathjs formulas wherever a static value is too limited:
 
 - **`showIf`**: `$hasBasement and $basement.height > 2`
-- **Dynamic constraints**: `min`, `max`, `stepSize` and similar, e.g. `max = $roof.width * 0.8`
+- **Dynamic constraints**: `min`, `max`, `stepSize` and similar, e.g. `max = $dimensions.width * 0.8`
 - **Presets**: `presetFormula = $rows_item.width * $rows_item.height`
 - **Computed fields**: a read-only field that shows the result of a calculation
 - **Named formulas**: reusable calculations that other formulas reference. Talomat calls these price parameters.
@@ -22,7 +22,7 @@ Authors should get IDE-like help per formula: completion, hover docs, signature 
 | Data → scope (`$` prefix on every key)                                                                               | `prepareData` / `getContext`                             | yes – core                                                       |
 | Missing values → `""`, empty repeaters → `[]`                                                                        | `adjustFormula`, `withEmptyRepeaterLists`                | yes – core                                                       |
 | Named formulas + dependency ordering                                                                                 | `preparePriceParameters`, `getOrderedRelevantParameters` | yes – core (reworked)                                            |
-| Variables derived from the schema (`roof.width`, `rows_item.width`, options, types)                                  | `usePriceVariables().getSchemaElements`                  | yes – core, using Former's `nodeChildren` / `isList`             |
+| Variables derived from the schema (`dimensions.width`, `rows_item.width`, options, types)                            | `usePriceVariables().getSchemaElements`                  | yes – core, using Former's `nodeChildren` / `isList`             |
 | `#` comments, NBSP, newlines                                                                                         | `utils/normalizeFormula.ts`                              | yes – core                                                       |
 | Static validation (syntax, unknown vars/functions, block statements, `equalText` option checks, repeater-item scope) | `utils/ValidationUtils.ts › validateFormula`             | yes – core                                                       |
 | Repeater-item scope at caret (lexical scan, `map(…)` frames)                                                         | `utils/repeaterItemScope.ts`                             | yes – core                                                       |
@@ -93,7 +93,7 @@ A generalized `PriceVariable`:
 
 ```ts
 type FormulaVariable = {
-  name: string; // without prefix: 'roof.width', 'rows_item.width', 'total'
+  name: string; // without prefix: 'dimensions.width', 'rows_item.width', 'total'
   label?: string; // shown in completion / chips
   description?: string; // hover
   type?: 'number' | 'string' | 'boolean' | 'date' | 'list' | 'object' | 'unknown';
@@ -128,7 +128,7 @@ Variable providers are composed:
 type Analysis = {
   ast?: MathNode; // undefined on syntax error
   tokens: Token[]; // own lexer (from formatFormula.tokenize), works on half-typed input → highlighting
-  references: Reference[]; // { token: '$roof.width', from, to, variable?: FormulaVariable }
+  references: Reference[]; // { token: '$dimensions.width', from, to, variable?: FormulaVariable }
   diagnostics: Diagnostic[]; // { from, to, severity, code, message params }
   inferredType?: VariableType; // light inference: comparisons/and/or/not/equalText → boolean, arithmetic → number
 };
@@ -192,7 +192,7 @@ All of these are the same thing for the formula package: **something that provid
 ```ts
 type FormulaSource = {
   id: string;
-  // optional path prefix: namespace 'house' → `$house.today`. Without a namespace the variables are top-level (`$vat`)
+  // optional path prefix: namespace 'context' → `$context.today`. Without a namespace the variables are top-level (`$taxRate`)
   namespace?: string;
   // descriptors for completion, hover and the unknown-variable check
   variables: MaybeRefOrGetter<FormulaVariable[]>;
@@ -215,7 +215,7 @@ The core ships helpers for the common kinds:
 
 The form being edited or filled is **the implicit `form` source**. It is always present, has no namespace, and its values are read relative to the node's `DataScope`s (repeater items included).
 
-**Named formulas** is the general name for what talomat calls price parameters: a formula stored under a name, for example `wallArea = $roof.width * $roof.height`, which other formulas then use as `$wallArea`. They are not form fields and have no input; they are only calculated. In the package they are just one kind of source (`formulaSource`). Talomat loads them from its database and passes them in. Former itself does not need to know anything about them.
+**Named formulas** is the general name for what talomat calls price parameters: a formula stored under a name, for example `area = $dimensions.width * $dimensions.height`, which other formulas then use as `$area`. They are not form fields and have no input; they are only calculated. In the package they are just one kind of source (`formulaSource`). Talomat loads them from its database and passes them in. Former itself does not need to know anything about them.
 
 **Providing sources:**
 
@@ -227,13 +227,13 @@ The form being edited or filled is **the implicit `form` source**. It is always 
 
 **Asynchronous data.** mathjs evaluates synchronously, so a source never returns promises. The app loads the data (e.g. `useLazyFetch`) and passes a ref. While the source is `pending`, its values are missing (`missingValue`). `useFormula` exposes `isPending`, so a `showIf` can, for example, keep a field hidden while the data is loading.
 
-**Name collisions.** A field named `vat` would shadow the external `$vat`. Namespacing is optional (**decided**) and is not a way to avoid collisions: it only moves them to the namespace, because a field could just as well be named `house`. Collisions are handled by checking the first path segment of every variable instead:
+**Name collisions.** A field named `taxRate` would shadow the external `$taxRate`. Namespacing is optional (**decided**) and is not a way to avoid collisions: it only moves them to the namespace, because a field could just as well be named `context`. Collisions are handled by checking the first path segment of every variable instead:
 
 - `engine.reservedNames(context)` lists the first segments taken by the external sources. That is the namespace for a namespaced source and every top-level name for the others. The `$name` prop of the components is validated against it, so a colliding field can't be created in the builder. This replaces talomat's hard-coded `isReservedWord`.
 - Two external sources that claim the same first segment are a configuration error. `provideFormulaSources` and `createFormulaEngine` report it in development.
 - A collision can still exist in stored data, e.g. a schema that was built before a source was added. `analyze` then reports an `ambiguous-variable` diagnostic on every reference. Evaluation stays deterministic, in this order: the repeater item, then the form, then the external sources in the order they were provided.
 
-**In the editor**, sources are completion groups ("Fields", "House", "Price parameters"). A variable's `source` makes the hover show where it comes from, and its `href` becomes the link in the referenced-variables panel (talomat's `definitionHref`).
+**In the editor**, sources are completion groups ("Fields", "Context", "Named formulas"). A variable's `source` makes the hover show where it comes from, and its `href` becomes the link in the referenced-variables panel (talomat's `definitionHref`).
 
 ### 4.7 Formula props and the presets (decided: separate props)
 
@@ -314,7 +314,7 @@ Context-dependent completion is computed from the caret using the lexical scanne
 
 | Caret situation                                                                                                            | Offered                                                                                         |
 | -------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
-| after `$` / inside `$roof.`                                                                                                | variables in scope (filtered by `loopScopes` + enclosing `map` frames), path-segment completion |
+| after `$` / inside `$dimensions.`                                                                                          | variables in scope (filtered by `loopScopes` + enclosing `map` frames), path-segment completion |
 | identifier without `$`                                                                                                     | functions (mathjs + custom), constants, keywords `and or not`                                   |
 | inside a string literal that is an argument of `equalText`/`compareText` whose other argument is a variable with `options` | that variable's option values                                                                   |
 | `map($rows, f(`                                                                                                            | suggests `$rows_item` as the parameter                                                          |
@@ -333,7 +333,7 @@ tiptap setup, deliberately minimal:
 - **`FormulaDiagnostics`**: wavy-underline decorations from `analysis.diagnostics`, with a tooltip on hover. This is a port of `FormulaValidationExtension` without the Handlebars parts.
 - **`FormulaCompletion`**: built on `@tiptap/suggestion`. Its `findSuggestionMatch` is replaced by `service.complete(...)`, so one popup serves every trigger (`$`, identifier characters, inside string literals), not only `$`.
 - **`FormulaHover`** and **signature help** tooltips (floating-ui, as tiptap's BubbleMenu uses).
-- **Variable chips (optional)**: an inline atom node that renders the label, e.g. "Roof › Width", instead of `$roof.width`, while the stored text keeps the technical name. Toggle with a prop, because some authors prefer seeing the raw text.
+- **Variable chips (optional)**: an inline atom node that renders the label, e.g. "Dimensions › Width", instead of `$dimensions.width`, while the stored text keeps the technical name. Toggle with a prop, because some authors prefer seeing the raw text.
 - **Format** command (`Alt+Shift+F`) as a single undoable transaction. talomat's caret-preserving logic carries over.
 - **Referenced variables** panel (talomat's `<details>` list with `definitionHref` links), fed by `analysis.references`.
 - Headless styling: data attributes and classes, plus a slot for the completion item, so `preset-nuxt-ui` can style it.

@@ -3,7 +3,7 @@
 Formulas for [Former](https://github.com/geprog/former/blob/main/packages/former/README.md), based on [mathjs](https://mathjs.org): conditions to show nodes, props calculated from the data of the form (e.g. the maximum of a number field) and calculations in components.
 
 ```
-$roof.width * $roof.height
+$dimensions.width * $dimensions.height
 equalText($color, 'red') and $count > 2
 sum(map($rows, f($rows_item) = $rows_item.width * $rows_item.height))
 ```
@@ -38,7 +38,7 @@ const engine = createFormulaEngine({
 const sources = [
   valueSource({
     id: 'settings',
-    values: { vat: 0.19 }
+    values: { taxRate: 0.19 }
   })
 ];
 
@@ -59,7 +59,7 @@ const showIf = useFormulaShowIf({ engine, sources, components });
 
 Every variable starts with `$`, so that it can't be mistaken for a function or constant of mathjs (e.g. `e` or `pi`) or a unit (e.g. `t`).
 
-- The fields of the form are named by the path of their data, e.g. `$roof.width` for the field `width` of the group `roof`.
+- The fields of the form are named by the path of their data, e.g. `$dimensions.width` for the field `width` of the group `dimensions`.
 - A list (e.g. a repeater `rows`) is `$rows`, its current item is `$rows_item`, e.g. `$rows_item.width`. The item is available in the nodes inside of the list and in callbacks of `map`, `filter` and `forEach`: `sum(map($rows, f($rows_item) = $rows_item.width))`.
 - A variable without value is `''`, which is `0` in calculations and doesn't match in comparisons, a list without value is `[]`.
 - Text is compared with `equalText($color, 'red')`, as `==` compares numbers.
@@ -71,28 +71,28 @@ Data that isn't part of the form is provided by sources:
 ```ts
 import { formulaSource, schemaSource, valueSource } from '@former-ui/formula';
 
-// plain values, e.g. `$vat` and `$price.total`, a getter is read on each evaluation (e.g. of a ref)
+// plain values, e.g. `$taxRate` and `$price.total`, a getter is read on each evaluation (e.g. of a ref)
 const settings = valueSource({
   id: 'settings',
   values: () => ({
-    vat: 0.19,
+    taxRate: 0.19,
     price: { total: total.value }
   })
 });
 
-// the data of another form, e.g. `$house.roof.width`
-const house = schemaSource({
-  id: 'house',
-  namespace: 'house',
-  schema: houseSchema,
-  data: () => houseData.value,
+// the data of another form, e.g. `$order.dimensions.width`
+const order = schemaSource({
+  id: 'order',
+  namespace: 'order',
+  schema: orderSchema,
+  data: () => orderData.value,
   components
 });
 
-// named formulas, which other formulas use like variables, e.g. `$wallArea`
+// named formulas, which other formulas use like variables, e.g. `$area`
 const calculations = formulaSource({
   id: 'calculations',
-  formulas: { wallArea: '$roof.width * $roof.height' }
+  formulas: { area: '$dimensions.width * $dimensions.height' }
 });
 ```
 

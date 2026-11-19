@@ -12,37 +12,37 @@ function listsAtEnd(formula: string, loopLists: string[] = []) {
 
 describe('scanItemScopes', () => {
   it('has the item of the iterated list in scope of the callback only', () => {
-    expect(listsOfVariables('$a + sum(map($roof.rows, f($rows_item) = $rows_item.width)) + $b')).toEqual([
+    expect(listsOfVariables('$a + sum(map($group.list, f($list_item) = $list_item.field)) + $b')).toEqual([
       ['$a', []],
-      ['$roof.rows', []],
+      ['$group.list', []],
       [
-        '$rows_item',
-        ['rows'],
+        '$list_item',
+        ['list'],
       ],
       [
-        '$rows_item.width',
-        ['rows'],
+        '$list_item.field',
+        ['list'],
       ],
       ['$b', []],
     ]);
   });
 
   it('nests the lists of nested callbacks and knows `filter` and `forEach`', () => {
-    expect(listsOfVariables('map($rows, f($rows_item) = filter($rows_item.parts, f($parts_item) = $parts_item.ok))').at(-1)).toEqual([
-      '$parts_item.ok',
-      ['rows', 'parts'],
+    expect(listsOfVariables('map($list, f($list_item) = filter($list_item.sub, f($sub_item) = $sub_item.ok))').at(-1)).toEqual([
+      '$sub_item.ok',
+      ['list', 'sub'],
     ]);
-    expect(listsOfVariables('forEach($rows, f($rows_item) = $rows_item)').at(-1)).toEqual([
-      '$rows_item',
-      ['rows'],
+    expect(listsOfVariables('forEach($list, f($list_item) = $list_item)').at(-1)).toEqual([
+      '$list_item',
+      ['list'],
     ]);
   });
 
   it('includes the lists around the formula', () => {
-    expect(listsOfVariables('$rows_item.width', ['rows'])).toEqual([
+    expect(listsOfVariables('$list_item.field', ['list'])).toEqual([
       [
-        '$rows_item.width',
-        ['rows'],
+        '$list_item.field',
+        ['list'],
       ],
     ]);
   });
@@ -52,15 +52,15 @@ describe('scanItemScopes', () => {
       '$x_item',
       [ANY_LIST],
     ]);
-    expect(listsOfVariables('map($rows[1], f(x) = $x_item)').at(-1)).toEqual([
+    expect(listsOfVariables('map($list[1], f(x) = $x_item)').at(-1)).toEqual([
       '$x_item',
       [ANY_LIST],
     ]);
   });
 
   it('ignores other functions and brackets', () => {
-    expect(listsOfVariables('max($rows, (f($rows_item) = 1), [$rows_item])').at(-1)).toEqual(['$rows_item', []]);
-    expect(listsOfVariables('mapping($rows, $rows_item)').at(-1)).toEqual(['$rows_item', []]);
+    expect(listsOfVariables('max($list, (f($list_item) = 1), [$list_item])').at(-1)).toEqual(['$list_item', []]);
+    expect(listsOfVariables('mapping($list, $list_item)').at(-1)).toEqual(['$list_item', []]);
   });
 
   it('ignores variables in strings and comments', () => {
@@ -70,17 +70,17 @@ describe('scanItemScopes', () => {
   });
 
   it('tells the lists in scope at the end of a half typed formula', () => {
-    expect(listsAtEnd('sum(map($rows, f($rows_item) = $')).toEqual(['rows']);
-    expect(listsAtEnd('sum(map($rows, ')).toEqual(['rows']);
-    expect(listsAtEnd('sum(map($rows')).toEqual([]);
-    expect(listsAtEnd('sum(map($rows, f($rows_item) = 1)) + ', ['parts'])).toEqual(['parts']);
+    expect(listsAtEnd('sum(map($list, f($list_item) = $')).toEqual(['list']);
+    expect(listsAtEnd('sum(map($list, ')).toEqual(['list']);
+    expect(listsAtEnd('sum(map($list')).toEqual([]);
+    expect(listsAtEnd('sum(map($list, f($list_item) = 1)) + ', ['sub'])).toEqual(['sub']);
   });
 });
 
 describe('isListInScope', () => {
   it('accepts the lists in scope and any list', () => {
-    expect(isListInScope('rows', ['rows'])).toBe(true);
-    expect(isListInScope('rows', ['parts'])).toBe(false);
-    expect(isListInScope('rows', [ANY_LIST])).toBe(true);
+    expect(isListInScope('list', ['list'])).toBe(true);
+    expect(isListInScope('list', ['sub'])).toBe(false);
+    expect(isListInScope('list', [ANY_LIST])).toBe(true);
   });
 });

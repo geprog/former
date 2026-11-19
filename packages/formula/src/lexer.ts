@@ -1,6 +1,6 @@
 import type { Token, TokenType } from './types';
 
-// a variable may be half typed while editing, e.g. `$` or `$roof.` at the end of the formula
+// a variable may be half typed while editing, e.g. `$` or `$group.` at the end of the formula
 const VARIABLE = /\$[\p{L}\p{N}_]*(?:\.[\p{L}\p{N}_]+)*(?:\.$)?/uy;
 const IDENTIFIER = /[\p{L}_][\p{L}\p{N}_$]*/uy;
 const NUMBER = /(?:\d+(?:\.\d*)?|\.\d+)(?:e[+-]?\d+)?/iy;
