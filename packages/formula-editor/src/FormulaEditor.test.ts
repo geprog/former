@@ -1,7 +1,7 @@
 import { createFormulaEngine, valueSource } from '@former-ui/formula';
 import formulaEn from '@former-ui/formula/en.json';
 import { provideFormulaEngine, provideFormulaSources } from '@former-ui/formula/vue';
-import { flushPromises, mount } from '@vue/test-utils';
+import { DOMWrapper, flushPromises, mount } from '@vue/test-utils';
 import { all, create } from 'mathjs';
 import { describe, expect, it, vi } from 'vitest';
 import { defineComponent, h, nextTick, ref } from 'vue';
@@ -11,6 +11,9 @@ import FormulaEditor from './FormulaEditor.vue';
 const engine = createFormulaEngine({
   math: create(all),
 });
+
+// the popups are rendered in the body
+const body = () => new DOMWrapper(document.body);
 
 function mountEditor(initial: string, variables: Record<string, unknown> = { number: 1, choice: 'red' }, fieldProps: Record<string, unknown> = {}) {
   const value = ref<string | undefined>(initial);
@@ -80,12 +83,12 @@ describe('formulaEditor', () => {
     editor().commands.insertContent('$ch');
     await nextTick();
     // the options show the kind of the item (`$` for variables) before its label
-    expect(wrapper.findAll('[data-formula-completion] [role="option"] .font-mono:nth-child(2)').map(option => option.text())).toEqual(['$choice']);
+    expect(body().findAll('[data-formula-completion] [role="option"] .font-mono:nth-child(2)').map(option => option.text())).toEqual(['$choice']);
 
-    await wrapper.find('[data-formula-completion] [role="option"]').trigger('mousedown');
+    await body().find('[data-formula-completion] [role="option"]').trigger('mousedown');
     await nextTick();
     expect(value.value).toBe('$choice');
-    expect(wrapper.find('[data-formula-completion]').exists()).toBe(false);
+    expect(body().find('[data-formula-completion]').exists()).toBe(false);
     wrapper.unmount();
   });
 
@@ -95,13 +98,13 @@ describe('formulaEditor', () => {
     editor().commands.focus();
     editor().commands.insertContent('sq');
     await nextTick();
-    const sqrt = wrapper.findAll('[data-formula-completion] [role="option"]').find(option => option.text().includes('sqrt('));
+    const sqrt = body().findAll('[data-formula-completion] [role="option"]').find(option => option.text().includes('sqrt('));
     await sqrt!.trigger('mousedown');
     await nextTick();
     expect(value.value).toBe('sqrt()');
     expect(editor().state.selection.from).toBe(6);
     // the signature of the function is shown while the cursor is in its arguments
-    expect(wrapper.find('[data-formula-signature]').text()).toContain('sqrt(x)');
+    expect(body().find('[data-formula-signature]').text()).toContain('sqrt(x)');
     wrapper.unmount();
   });
 });
@@ -274,7 +277,7 @@ describe('formulaEditor go to definition', () => {
 
     // the hint is shown when hovering it
     await root.trigger('mousemove', { ctrlKey: true });
-    expect(wrapper.find('[data-formula-go-to-definition]').text()).toMatch(/^(Ctrl|Cmd)\+click to go to its definition$/);
+    expect(body().find('[data-formula-go-to-definition]').text()).toMatch(/^(Ctrl|Cmd)\+click to go to its definition$/);
     expect(root.classes()).toContain('cursor-pointer');
     wrapper.unmount();
   });

@@ -299,6 +299,9 @@ importers:
 
   packages/formula-editor:
     dependencies:
+      '@floating-ui/dom':
+        specifier: 1.8.0
+        version: 1.8.0
       '@tiptap/core':
         specifier: 3.34.0
         version: 3.34.0(@tiptap/pm@3.34.0)

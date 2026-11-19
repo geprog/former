@@ -7,7 +7,6 @@
       {{ help }}
     </p>
     <div
-      ref="root"
       class="relative w-full"
       :class="{ 'cursor-pointer [&_[data-token=variable]:hover]:underline': linkable }"
       @mousemove="showTooltip"
@@ -34,89 +33,95 @@
         </svg>
       </button>
 
-      <div
-        v-if="completion && popupPosition"
-        class="absolute z-50 mt-1 flex max-h-72 w-80 max-w-full flex-col overflow-hidden rounded-md border border-zinc-200 bg-white text-sm shadow-lg dark:border-zinc-700 dark:bg-zinc-900"
-        :style="{ left: `${popupPosition.left}px`, top: `${popupPosition.top}px` }"
-        role="listbox"
-        data-formula-completion
-      >
-        <div class="overflow-y-auto">
-          <button
-            v-for="(item, index) in completion.items"
-            :key="`${item.kind}:${item.label}`"
-            type="button"
-            role="option"
-            :aria-selected="index === selected"
-            class="flex w-full items-baseline gap-2 px-2 py-1 text-left"
-            :class="index === selected ? 'bg-zinc-100 dark:bg-zinc-800' : ''"
-            :data-selected="index === selected || undefined"
-            @mousedown.prevent="accept(editor, index)"
-            @mouseenter="selected = index"
-          >
-            <span class="w-4 shrink-0 text-center font-mono text-xs text-zinc-400">{{ KIND_SYMBOLS[item.kind] }}</span>
-            <span class="font-mono" :class="TOKEN_CLASSES[item.kind === 'variable' ? 'variable' : 'identifier']">{{ item.label }}</span>
-            <span v-if="item.detail" class="ml-auto truncate text-xs text-zinc-500">{{ item.detail }}</span>
-          </button>
+      <!-- in the body, so that no container of the editor cuts them off -->
+      <Teleport to="body">
+        <div
+          v-if="completion && popupAnchor"
+          ref="completionPopup"
+          class="fixed z-50 flex max-h-72 w-80 max-w-[calc(100vw-1rem)] flex-col overflow-hidden rounded-md border border-zinc-200 bg-white text-sm shadow-lg dark:border-zinc-700 dark:bg-zinc-900"
+          :style="completionStyle"
+          role="listbox"
+          data-formula-completion
+        >
+          <div class="overflow-y-auto">
+            <button
+              v-for="(item, index) in completion.items"
+              :key="`${item.kind}:${item.label}`"
+              type="button"
+              role="option"
+              :aria-selected="index === selected"
+              class="flex w-full items-baseline gap-2 px-2 py-1 text-left"
+              :class="index === selected ? 'bg-zinc-100 dark:bg-zinc-800' : ''"
+              :data-selected="index === selected || undefined"
+              @mousedown.prevent="accept(editor, index)"
+              @mouseenter="selected = index"
+            >
+              <span class="w-4 shrink-0 text-center font-mono text-xs text-zinc-400">{{ KIND_SYMBOLS[item.kind] }}</span>
+              <span class="font-mono" :class="TOKEN_CLASSES[item.kind === 'variable' ? 'variable' : 'identifier']">{{ item.label }}</span>
+              <span v-if="item.detail" class="ml-auto truncate text-xs text-zinc-500">{{ item.detail }}</span>
+            </button>
+          </div>
+          <div v-if="completion.items[selected]?.description" class="border-t border-zinc-200 px-2 py-1 text-xs text-zinc-500 dark:border-zinc-700">
+            {{ completion.items[selected]?.description }}
+          </div>
         </div>
-        <div v-if="completion.items[selected]?.description" class="border-t border-zinc-200 px-2 py-1 text-xs text-zinc-500 dark:border-zinc-700">
-          {{ completion.items[selected]?.description }}
-        </div>
-      </div>
 
-      <div
-        v-else-if="signature && popupPosition"
-        class="absolute z-40 mt-1 max-w-full rounded-md border border-zinc-200 bg-white px-2 py-1 text-xs shadow dark:border-zinc-700 dark:bg-zinc-900"
-        :style="{ left: `${popupPosition.left}px`, top: `${popupPosition.top}px` }"
-        data-formula-signature
-      >
-        <div class="font-mono">
-          <span
-            v-for="(part, index) in syntaxParts(signature.doc.syntax[0] ?? signature.doc.name, signature.argument)"
-            :key="index"
-            :class="{ 'font-bold text-primary': part.active }"
-          >{{ part.text }}</span>
+        <div
+          v-else-if="signature && popupAnchor"
+          ref="signaturePopup"
+          class="fixed z-40 max-w-[min(32rem,calc(100vw-1rem))] rounded-md border border-zinc-200 bg-white px-2 py-1 text-xs shadow dark:border-zinc-700 dark:bg-zinc-900"
+          :style="signatureStyle"
+          data-formula-signature
+        >
+          <div class="font-mono">
+            <span
+              v-for="(part, index) in syntaxParts(signature.doc.syntax[0] ?? signature.doc.name, signature.argument)"
+              :key="index"
+              :class="{ 'font-bold text-primary': part.active }"
+            >{{ part.text }}</span>
+          </div>
+          <div v-if="signature.doc.description" class="mt-1 text-zinc-500">
+            {{ signature.doc.description }}
+          </div>
         </div>
-        <div v-if="signature.doc.description" class="mt-1 text-zinc-500">
-          {{ signature.doc.description }}
-        </div>
-      </div>
 
-      <div
-        v-if="tooltip"
-        class="pointer-events-none absolute z-50 max-w-sm rounded-md border border-zinc-200 bg-white px-2 py-1 text-xs shadow dark:border-zinc-700 dark:bg-zinc-900"
-        :style="{ left: `${tooltip.left}px`, top: `${tooltip.top}px` }"
-        data-formula-tooltip
-      >
-        <div v-for="(message, index) in tooltip.messages" :key="index" :class="message.severity === 'error' ? 'text-red-600 dark:text-red-400' : 'text-amber-600 dark:text-amber-400'">
-          {{ message.text }}
+        <div
+          v-if="tooltip"
+          ref="tooltipPopup"
+          class="pointer-events-none fixed z-50 max-w-sm rounded-md border border-zinc-200 bg-white px-2 py-1 text-xs shadow dark:border-zinc-700 dark:bg-zinc-900"
+          :style="tooltipStyle"
+          data-formula-tooltip
+        >
+          <div v-for="(message, index) in tooltip.messages" :key="index" :class="message.severity === 'error' ? 'text-red-600 dark:text-red-400' : 'text-amber-600 dark:text-amber-400'">
+            {{ message.text }}
+          </div>
+          <template v-if="tooltip.info?.kind === 'variable'">
+            <div class="font-mono" :class="TOKEN_CLASSES.variable">
+              {{ engine.prefix }}{{ tooltip.info.variable.name }}
+            </div>
+            <div v-if="tooltip.info.variable.label">
+              {{ tooltip.info.variable.label }}
+            </div>
+            <div v-if="tooltip.info.variable.description" class="text-zinc-500">
+              {{ tooltip.info.variable.description }}
+            </div>
+            <div v-if="tooltip.info.variable.options?.length" class="text-zinc-500">
+              {{ tooltip.info.variable.options.map(option => option.value).join(', ') }}
+            </div>
+            <div v-if="canOpen(tooltip.info.variable)" class="mt-1 text-zinc-400" data-formula-go-to-definition>
+              {{ t('formula_go_to_definition', { key: isMac ? 'Cmd' : 'Ctrl' }) }}
+            </div>
+          </template>
+          <template v-else-if="tooltip.info">
+            <div v-for="syntax in tooltip.info.doc.syntax" :key="syntax" class="font-mono">
+              {{ syntax }}
+            </div>
+            <div v-if="tooltip.info.doc.description" class="mt-1 text-zinc-500">
+              {{ tooltip.info.doc.description }}
+            </div>
+          </template>
         </div>
-        <template v-if="tooltip.info?.kind === 'variable'">
-          <div class="font-mono" :class="TOKEN_CLASSES.variable">
-            {{ engine.prefix }}{{ tooltip.info.variable.name }}
-          </div>
-          <div v-if="tooltip.info.variable.label">
-            {{ tooltip.info.variable.label }}
-          </div>
-          <div v-if="tooltip.info.variable.description" class="text-zinc-500">
-            {{ tooltip.info.variable.description }}
-          </div>
-          <div v-if="tooltip.info.variable.options?.length" class="text-zinc-500">
-            {{ tooltip.info.variable.options.map(option => option.value).join(', ') }}
-          </div>
-          <div v-if="canOpen(tooltip.info.variable)" class="mt-1 text-zinc-400" data-formula-go-to-definition>
-            {{ t('formula_go_to_definition', { key: isMac ? 'Cmd' : 'Ctrl' }) }}
-          </div>
-        </template>
-        <template v-else-if="tooltip.info">
-          <div v-for="syntax in tooltip.info.doc.syntax" :key="syntax" class="font-mono">
-            {{ syntax }}
-          </div>
-          <div v-if="tooltip.info.doc.description" class="mt-1 text-zinc-500">
-            {{ tooltip.info.doc.description }}
-          </div>
-        </template>
-      </div>
+      </Teleport>
     </div>
     <p v-if="formatRefused" class="text-xs text-zinc-500" data-formula-format-refused>
       {{ t('formula_format_refused') }}
@@ -128,6 +133,7 @@
 </template>
 
 <script setup lang="ts">
+import type { VirtualElement } from '@floating-ui/dom';
 import type { SchemaNode } from '@former-ui/former';
 import type { Completion, CompletionKind, ExpectedType, FormulaVariable, HoverInfo, SignatureHelp } from '@former-ui/formula';
 import type { Editor } from '@tiptap/core';
@@ -144,6 +150,7 @@ import { EditorContent, useEditor } from '@tiptap/vue-3';
 import { computed, ref, shallowRef, useTemplateRef, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { FormulaDecorations, formulaDecorationsKey, REFRESH_DECORATIONS, TOKEN_CLASSES } from './decorations';
+import { anchor, useFloating } from './floating';
 import { docToText, offsetToPos, posToOffset, textToContent } from './text';
 
 defineOptions({ inheritAttrs: false });
@@ -182,7 +189,6 @@ const KIND_SYMBOLS: Record<CompletionKind, string> = {
 const { t } = useI18n();
 const { engine, sources, context, editedNode } = useFormulaEditorContext(() => props.expect);
 
-const root = useTemplateRef('root');
 const labelId = computed(() => `${props.id ?? 'formula'}-label`);
 const text = ref(props.modelValue ?? '');
 const analysis = computed(() => engine.analyze(text.value, context.value, { sources: sources.value }));
@@ -190,10 +196,16 @@ const analysis = computed(() => engine.analyze(text.value, context.value, { sour
 const completion = shallowRef<Completion>();
 const selected = ref(0);
 const signature = shallowRef<SignatureHelp>();
-const popupPosition = ref<{ left: number; top: number }>();
+// where the completion or the signature is shown, at the cursor
+const popupAnchor = shallowRef<VirtualElement>();
+const completionStyle = useFloating(popupAnchor, useTemplateRef('completionPopup'));
+const signatureStyle = useFloating(popupAnchor, useTemplateRef('signaturePopup'));
 // whether the formula couldn't be formatted, until it changes
 const formatRefused = ref(false);
-const tooltip = shallowRef<{ left: number; top: number; messages: { severity: string; text: string }[]; info?: HoverInfo }>();
+const tooltip = shallowRef<{ messages: { severity: string; text: string }[]; info?: HoverInfo }>();
+// the tooltip is shown below the mouse
+const tooltipAnchor = shallowRef<VirtualElement>();
+const tooltipStyle = useFloating(tooltipAnchor, useTemplateRef('tooltipPopup'), 16);
 // accepting a completion changes the text, which mustn't open the completion for the inserted text again
 let skipCompletion = false;
 // the texts emitted as model value, which haven't come back as model value yet
@@ -236,20 +248,22 @@ function cursorOffset(editor: Editor): number | undefined {
     : undefined;
 }
 
-// below the position, relative to the editor
-function positionBelow(editor: Editor, pos: number) {
-  const rect = root.value?.getBoundingClientRect();
-  if (!rect) {
-    return undefined;
-  }
-  try {
-    const coords = editor.view.coordsAtPos(pos);
-    return { left: coords.left - rect.left, top: coords.bottom - rect.top };
-  }
-  catch {
-    // e.g. while the editor isn't rendered, below the editor then
-    return { left: 0, top: rect.height };
-  }
+// an anchor at a position of the text, which follows it while the page scrolls
+function anchorAt(editor: Editor, pos: number): VirtualElement {
+  const dom = editor.view.dom;
+  return anchor(() => {
+    try {
+      if (!editor.isDestroyed) {
+        const coords = editor.view.coordsAtPos(pos);
+        return { left: coords.left, top: coords.top, height: coords.bottom - coords.top };
+      }
+    }
+    catch {
+      // e.g. while the editor isn't rendered, below the editor then
+    }
+    const rect = dom.getBoundingClientRect();
+    return { left: rect.left, top: rect.bottom };
+  }, dom);
 }
 
 function updateCompletion(editor: Editor, explicit = false) {
@@ -262,7 +276,7 @@ function updateCompletion(editor: Editor, explicit = false) {
     : undefined;
   selected.value = 0;
   if (completion.value) {
-    popupPosition.value = positionBelow(editor, offsetToPos(editor.state.doc, completion.value.from));
+    popupAnchor.value = anchorAt(editor, offsetToPos(editor.state.doc, completion.value.from));
   }
 }
 
@@ -272,7 +286,7 @@ function updateSignature(editor: Editor) {
     ? undefined
     : signatureHelp(engine, text.value, offset, { sources: sources.value });
   if (signature.value && !completion.value) {
-    popupPosition.value = positionBelow(editor, editor.state.selection.from);
+    popupAnchor.value = anchorAt(editor, editor.state.selection.from);
   }
 }
 
@@ -522,9 +536,8 @@ function openVariableAt(event: MouseEvent) {
 function showTooltip(event: MouseEvent) {
   linkable.value = (event.ctrlKey || event.metaKey) && !!openableVariableAt(event);
   const instance = editor.value;
-  const rect = root.value?.getBoundingClientRect();
   const pos = instance?.view.posAtCoords({ left: event.clientX, top: event.clientY });
-  if (!instance || !rect || !pos) {
+  if (!instance || !pos) {
     tooltip.value = undefined;
     return;
   }
@@ -536,10 +549,10 @@ function showTooltip(event: MouseEvent) {
       text: diagnosticMessage(diagnostic, engine, (key, named) => t(key, named ?? {})),
     }));
   const info = hover(engine, text.value, offset, context.value, { sources: sources.value });
+  const { clientX, clientY } = event;
+  tooltipAnchor.value = anchor(() => ({ left: clientX, top: clientY }));
   tooltip.value = messages.length || info
     ? {
-        left: event.clientX - rect.left,
-        top: event.clientY - rect.top + 16,
         messages,
         ...(info
           ? { info }
