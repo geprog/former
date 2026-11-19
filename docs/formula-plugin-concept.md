@@ -1,6 +1,6 @@
 # Concept: `@former-ui/formula` – mathjs formulas for Former
 
-Status: draft · Source of truth for the behaviour: talomat (`~/talishaus/talomat`)
+Status: draft · Source of truth for the behaviour: talomat
 
 ## 1. Goal
 
