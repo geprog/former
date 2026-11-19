@@ -197,3 +197,54 @@ describe('formulaEditor field', () => {
     wrapper.unmount();
   });
 });
+
+describe('formulaEditor formatting', () => {
+  it('formats the formula, keeps the cursor among the same characters and undoes it at once', async () => {
+    const { wrapper, value, editor } = mountEditor('$number+max( 1,2 )');
+    await flushPromises();
+    // the cursor after `max(`
+    editor().commands.setTextSelection(13);
+    await wrapper.find('[data-formula-format]').trigger('mousedown');
+    await nextTick();
+    expect(value.value).toBe('$number + max(1, 2)');
+    expect(editor().state.selection.from).toBe(15);
+
+    editor().commands.undo();
+    await nextTick();
+    expect(value.value).toBe('$number+max( 1,2 )');
+    wrapper.unmount();
+  });
+
+  it('breaks long formulas into lines', async () => {
+    const long = `${'$'}${'a'.repeat(40)} + ${'$'}${'b'.repeat(40)}`;
+    const { wrapper, value, editor } = mountEditor(long);
+    await flushPromises();
+    editor().commands.focus();
+    editor().view.dom.dispatchEvent(new KeyboardEvent('keydown', {
+      key: 'F',
+      code: 'KeyF',
+      keyCode: 70,
+      altKey: true,
+      shiftKey: true,
+      bubbles: true,
+    }));
+    await nextTick();
+    expect(value.value).toBe(`${'$'}${'a'.repeat(40)}\n+ ${'$'}${'b'.repeat(40)}`);
+    expect(wrapper.findAll('[data-formula-input] p')).toHaveLength(2);
+    wrapper.unmount();
+  });
+
+  it('tells when the formula can\'t be formatted until it changes', async () => {
+    const { wrapper, value, editor } = mountEditor('$number +');
+    await flushPromises();
+    await wrapper.find('[data-formula-format]').trigger('mousedown');
+    await nextTick();
+    expect(value.value).toBe('$number +');
+    expect(wrapper.find('[data-formula-format-refused]').text()).toBe('The formula can\'t be formatted');
+
+    editor().commands.insertContentAt(editor().state.doc.content.size - 1, ' 1');
+    await nextTick();
+    expect(wrapper.find('[data-formula-format-refused]').exists()).toBe(false);
+    wrapper.unmount();
+  });
+});

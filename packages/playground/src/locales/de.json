@@ -71,5 +71,7 @@
   "formula_type_list": "eine Liste",
   "formula_type_object": "ein Objekt",
   "formula_type_unknown": "einen Wert",
-  "formula_type_any": "einen Wert"
+  "formula_type_any": "einen Wert",
+  "formula_format": "Formatieren (Alt+Umschalt+F)",
+  "formula_format_refused": "Die Formel kann nicht formatiert werden"
 }

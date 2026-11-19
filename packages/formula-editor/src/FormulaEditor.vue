@@ -14,9 +14,23 @@
     >
       <EditorContent
         :editor
-        class="w-full rounded-md border bg-white px-3 py-2 font-mono text-sm dark:bg-zinc-900 focus-within:border-primary [&_.ProseMirror]:min-h-[1.25rem] [&_.ProseMirror]:whitespace-pre-wrap [&_.ProseMirror]:outline-none [&_p]:m-0 [&_p.is-editor-empty:first-child]:before:pointer-events-none [&_p.is-editor-empty:first-child]:before:float-left [&_p.is-editor-empty:first-child]:before:h-0 [&_p.is-editor-empty:first-child]:before:text-zinc-400 [&_p.is-editor-empty:first-child]:before:content-[attr(data-placeholder)]"
+        class="w-full rounded-md border bg-white py-2 pl-3 pr-10 font-mono text-sm dark:bg-zinc-900 focus-within:border-primary [&_.ProseMirror]:min-h-[1.25rem] [&_.ProseMirror]:whitespace-pre-wrap [&_.ProseMirror]:outline-none [&_p]:m-0 [&_p.is-editor-empty:first-child]:before:pointer-events-none [&_p.is-editor-empty:first-child]:before:float-left [&_p.is-editor-empty:first-child]:before:h-0 [&_p.is-editor-empty:first-child]:before:text-zinc-400 [&_p.is-editor-empty:first-child]:before:content-[attr(data-placeholder)]"
         :class="[error ? 'border-red-500' : 'border-zinc-300 dark:border-zinc-600', { 'opacity-75': mode === 'read' }]"
       />
+      <button
+        v-if="mode !== 'read' && text.trim()"
+        type="button"
+        class="absolute right-1 top-1 flex size-7 cursor-pointer items-center justify-center rounded-md text-zinc-500 hover:bg-zinc-100 hover:text-primary dark:text-zinc-400 dark:hover:bg-zinc-800"
+        :title="t('formula_format')"
+        :aria-label="t('formula_format')"
+        data-formula-format
+        @mousedown.prevent="editor && format(editor)"
+      >
+        <!-- the sparkles icon of Heroicons (MIT, https://heroicons.com) -->
+        <svg class="size-5" viewBox="0 0 24 24" aria-hidden="true">
+          <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 0 0-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 0 0 3.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 0 0 3.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 0 0-3.09 3.09m8.445-7.188L18 9.75l-.259-1.035a3.38 3.38 0 0 0-2.455-2.456L14.25 6l1.036-.259a3.38 3.38 0 0 0 2.455-2.456L18 2.25l.259 1.035a3.38 3.38 0 0 0 2.456 2.456L21.75 6l-1.035.259a3.38 3.38 0 0 0-2.456 2.456m-1.365 11.852L16.5 21.75l-.394-1.183a2.25 2.25 0 0 0-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 0 0 1.423-1.423l.394-1.183l.394 1.183a2.25 2.25 0 0 0 1.423 1.423l1.183.394l-1.183.394a2.25 2.25 0 0 0-1.423 1.423" />
+        </svg>
+      </button>
 
       <div
         v-if="completion && popupPosition"
@@ -99,6 +113,9 @@
         </template>
       </div>
     </div>
+    <p v-if="formatRefused" class="text-xs text-zinc-500" data-formula-format-refused>
+      {{ t('formula_format_refused') }}
+    </p>
     <p v-if="error" class="text-sm text-red-600 dark:text-red-400" data-formula-error>
       {{ error }}
     </p>
@@ -108,7 +125,7 @@
 <script setup lang="ts">
 import type { Completion, CompletionKind, ExpectedType, HoverInfo, SignatureHelp } from '@former-ui/formula';
 import type { Editor } from '@tiptap/core';
-import { complete, diagnosticMessage, hover, signatureHelp } from '@former-ui/formula';
+import { canFormatFormula, complete, diagnosticMessage, formatFormula, hover, signatureHelp } from '@former-ui/formula';
 import { useFormulaEditorContext } from '@former-ui/formula/vue';
 import { Extension } from '@tiptap/core';
 import Document from '@tiptap/extension-document';
@@ -163,6 +180,8 @@ const completion = shallowRef<Completion>();
 const selected = ref(0);
 const signature = shallowRef<SignatureHelp>();
 const popupPosition = ref<{ left: number; top: number }>();
+// whether the formula couldn't be formatted, until it changes
+const formatRefused = ref(false);
 const tooltip = shallowRef<{ left: number; top: number; messages: { severity: string; text: string }[]; info?: HoverInfo }>();
 // accepting a completion changes the text, which mustn't open the completion for the inserted text again
 let skipCompletion = false;
@@ -246,6 +265,49 @@ function updateSignature(editor: Editor) {
   }
 }
 
+const nonWhitespaceLength = (value: string) => value.replace(/\s/g, '').length;
+
+/** Formatting only moves whitespace, so the cursor keeps its place among the other characters. */
+function caretAfterFormatting(formatted: string, nonWhitespaceBefore: number): number {
+  if (nonWhitespaceBefore === 0) {
+    return 0;
+  }
+  let passed = 0;
+  for (let index = 0; index < formatted.length; index++) {
+    if (!/\s/.test(formatted.charAt(index))) {
+      passed++;
+      if (passed === nonWhitespaceBefore) {
+        return index + 1;
+      }
+    }
+  }
+  return formatted.length;
+}
+
+/** Formats the formula as one change, which can be undone at once, or tells that it can't be formatted. */
+function format(instance: Editor): boolean {
+  const formula = text.value;
+  if (!formula.trim()) {
+    return false;
+  }
+  if (!canFormatFormula(engine, formula)) {
+    formatRefused.value = true;
+    return true;
+  }
+  const formatted = formatFormula(engine, formula);
+  if (formatted !== formula) {
+    const caret = caretAfterFormatting(formatted, nonWhitespaceLength(formula.slice(0, cursorOffset(instance) ?? formula.length)));
+    const { schema, doc } = instance.state;
+    const paragraphs = (textToContent(formatted).content ?? []).map(paragraph => schema.nodeFromJSON(paragraph));
+    const tr = instance.state.tr.replaceWith(0, doc.content.size, paragraphs);
+    tr.setSelection(TextSelection.create(tr.doc, offsetToPos(tr.doc, caret)));
+    skipCompletion = true;
+    instance.view.dispatch(tr);
+  }
+  instance.commands.focus();
+  return true;
+}
+
 function accept(instance: Editor | undefined, index = selected.value) {
   const item = completion.value?.items[index];
   if (!instance || !item || !completion.value) {
@@ -287,6 +349,7 @@ const CompletionKeys = Extension.create({
         completion.value = undefined;
         return true;
       },
+      'Alt-Shift-f': ({ editor: instance }) => format(instance),
       'Ctrl-Space': ({ editor: instance }) => {
         updateCompletion(instance, true);
         return true;
@@ -342,6 +405,7 @@ const editor = useEditor({
   },
   onUpdate: ({ editor: instance }) => {
     text.value = docToText(instance.state.doc);
+    formatRefused.value = false;
     emitted.push(text.value);
     emit('update:modelValue', text.value === ''
       ? undefined

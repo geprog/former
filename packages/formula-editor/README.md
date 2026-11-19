@@ -7,6 +7,7 @@ An editor for the formulas of [`@former-ui/formula`](../formula/README.md), base
 - completion of variables (after `$`), functions, constants and keywords, and of the options of a variable compared with `equalText`, opened while typing or with Ctrl+Space
 - the syntax of the function the cursor is in, with the current argument highlighted
 - the description of variables and the documentation of functions when hovering them
+- formatting with Alt+Shift+F or the button in the input, as one change that can be undone at once
 
 The formula is stored as plain text, a line of the text per paragraph.
 

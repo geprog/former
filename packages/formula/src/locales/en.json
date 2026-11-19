@@ -25,5 +25,7 @@
   "formula_type_list": "a list",
   "formula_type_object": "an object",
   "formula_type_unknown": "a value",
-  "formula_type_any": "a value"
+  "formula_type_any": "a value",
+  "formula_format": "Format (Alt+Shift+F)",
+  "formula_format_refused": "The formula can't be formatted"
 }
