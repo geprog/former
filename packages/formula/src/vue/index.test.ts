@@ -5,7 +5,9 @@ import { flushPromises, mount } from '@vue/test-utils';
 import { all, create } from 'mathjs';
 import { describe, expect, it } from 'vitest';
 import { defineComponent, h, markRaw, nextTick, ref } from 'vue';
+import { createI18n } from 'vue-i18n';
 import { createFormulaEngine } from '../engine';
+import en from '../locales/en.json' with { type: 'json' };
 import { valueSource } from '../sources';
 import { useFormula, useFormulaProps, useFormulaShowIf, withFormulaProps } from './index';
 
@@ -147,8 +149,17 @@ function mountForm(schema: SchemaNode[], data: FormData, mode: 'edit' | 'build' 
       });
     },
   });
+  const i18n = createI18n({
+    legacy: false,
+    locale: 'en',
+    messages: { en },
+  });
   return {
-    wrapper: mount(Host),
+    wrapper: mount(Host, {
+      global: {
+        plugins: [i18n],
+      },
+    }),
     data: dataRef,
     isValid,
     isSchemaValid,
@@ -178,6 +189,89 @@ describe('withFormulaProps', () => {
     ]);
     expect(result.formula).toMatchObject({ internal: true, component: FormulaInput });
     expect(result['text:formula_name']).toMatchObject({ internal: true, component: NumberField });
+  });
+
+  it('names the formula of a prop after the label of the prop and translates the texts', () => {
+    const labeled: FormComponents = {
+      number: {
+        ...components.number!,
+        propsSchema: [
+          { type: 'text', name: '$name' },
+          {
+            type: 'number',
+            name: 'max',
+            props: { label: 'Maximum' },
+          },
+        ],
+      },
+    };
+    const english = withFormulaProps(labeled, formulaProps, {
+      engine,
+      editor: { component: FormulaInput },
+    });
+    expect(english.number!.propsSchema.map(node => node.props?.label)).toEqual([
+      undefined,
+      'Maximum',
+      'Maximum (formula)',
+      'Show if',
+    ]);
+    expect(english.formula!.label).toBe('Formula');
+
+    const german = withFormulaProps(labeled, formulaProps, {
+      engine,
+      editor: { component: FormulaInput },
+      translate: (key, named) => ({ formula_prop: `${String(named?.label)} (Formel)`, formula_show_if: 'Anzeigen wenn', formula_editor: 'Formel' })[key] ?? key,
+    });
+    expect(german.number!.propsSchema.map(node => node.props?.label)).toEqual([
+      undefined,
+      'Maximum',
+      'Maximum (Formel)',
+      'Anzeigen wenn',
+    ]);
+    expect(german.formula!.label).toBe('Formel');
+  });
+
+  it('translates the messages of the formulas in the props form', async () => {
+    const translated = withFormulaProps(components, formulaProps, {
+      engine,
+      editor: { component: FormulaInput },
+      sources: () => [
+        valueSource({
+          id: 'settings',
+          values: { vat: 0.19 },
+        }),
+      ],
+      translate: (key, named) => `${key} ${String(named?.variable ?? named?.name ?? '')}`,
+    });
+    const node = {
+      type: 'number',
+      name: 'value',
+      props: { maxFormula: '$nope' },
+    };
+    const schema = translated.formula!.validation!({ expect: 'number' }, {
+      node: { type: 'formula', name: 'maxFormula' },
+      path: ['maxFormula'],
+      scopes: [
+        { data: node.props, path: [] },
+      ],
+      editedNode: {
+        node,
+        path: [],
+        schema: [node],
+      },
+    })!;
+    expect(await schema['~standard'].validate('$nope')).toEqual({
+      issues: [
+        { message: 'formula_unknown_variable "$nope"' },
+      ],
+    });
+    const nameSchema = translated['text:formula_name']!.validation!({}, { node, path: [], scopes: [] })!;
+    expect(await nameSchema['~standard'].validate('vat')).toEqual({
+      issues: [
+        { message: 'formula_reserved_name "$vat"' },
+      ],
+    });
+    expect(await nameSchema['~standard'].validate('width')).toEqual({ value: 'width' });
   });
 
   it('keeps the identity of the wrapped components', () => {
@@ -330,5 +424,39 @@ describe('formulas in a form', () => {
     ], {}, 'build');
     await flushPromises();
     expect(isSchemaValid.value).toBe(false);
+  });
+});
+
+describe('useFormulaProps', () => {
+  it('translates the texts with the i18n of the app and follows its locale', async () => {
+    const i18n = createI18n({
+      legacy: false,
+      locale: 'en',
+      messages: {
+        en,
+        de: { formula_prop: '{label} (Formel)', formula_show_if: 'Anzeigen wenn', formula_editor: 'Formel' },
+      },
+    });
+    let result: ReturnType<typeof useFormulaProps> | undefined;
+    mount(defineComponent({
+      setup() {
+        result = useFormulaProps(components, formulaProps, {
+          engine,
+          editor: { component: FormulaInput },
+        });
+        return () => null;
+      },
+    }), {
+      global: {
+        plugins: [i18n],
+      },
+    });
+    const labels = () => result!.value.number!.propsSchema.map(node => node.props?.label).filter(Boolean);
+    expect(labels()).toEqual(['max (formula)', 'Show if']);
+
+    i18n.global.locale.value = 'de';
+    await nextTick();
+    expect(labels()).toEqual(['max (Formel)', 'Anzeigen wenn']);
+    expect(result!.value.formula!.label).toBe('Formel');
   });
 });

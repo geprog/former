@@ -11,7 +11,7 @@ sum(map($rows, f($rows_item) = $rows_item.width * $rows_item.height))
 ## Installation
 
 ```bash
-pnpm add @former-ui/formula mathjs
+pnpm add @former-ui/formula mathjs vue-i18n
 ```
 
 The package has two entries:
@@ -102,7 +102,29 @@ Sources are passed to the engine (`createFormulaEngine({ sources })`), to the co
 
 `useFormulaProps(components, formulaProps)` adds a `<prop>Formula` setting after each prop listed in `formulaProps` (e.g. `{ number: { max: 'number' } }`, [`@former-ui/preset-nuxt-ui`](../preset-nuxt-ui/README.md#formulas) declares its props). As long as the formula is set, the component and its validation get its value instead of the static prop. A formula that can't be evaluated or uses a variable without value (except lists) leaves the prop unset, e.g. a maximum isn't applied until the fields it depends on are filled in, and a preset waits for them. Every component gets a `showIf` formula as well.
 
-The formulas are checked in the props form for where the node is: unknown variables or functions, items of lists outside of the list, text compared with `==` and more. The messages are in english, pass `message` to translate them (see `describeDiagnostic`).
+The formulas are checked in the props form for where the node is: unknown variables or functions, items of lists outside of the list, text compared with `==` and more.
+
+## Texts
+
+The package uses [vue-i18n](https://vue-i18n.intlify.dev) for its texts, the labels in the props form and the messages of the formulas. It ships english texts in `@former-ui/formula/en.json`. Add them to the messages of your i18n instance and overwrite or translate the keys you need:
+
+```ts
+import formulaEn from '@former-ui/formula/en.json';
+import { createI18n } from 'vue-i18n';
+
+export const i18n = createI18n({
+  legacy: false,
+  locale: 'en',
+  messages: {
+    en: formulaEn,
+    de: { formula_prop: '{label} (Formel)', formula_unknown_variable: 'Unbekannte Variable {variable}', /* ... */ },
+  },
+});
+```
+
+`useFormulaProps` uses this i18n instance and updates the texts when the locale changes. As it uses `useI18n`, call it in the `setup` of a component. `withFormulaProps` takes a `translate` function instead, by default the texts are english.
+
+The engine itself has no texts. Turn its diagnostics into messages with `diagnosticMessage(diagnostic, engine, translate)`, which is english without `translate`.
 
 ## In components
 

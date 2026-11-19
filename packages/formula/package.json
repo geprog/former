@@ -23,7 +23,8 @@
     "./vue": {
       "types": "./dist/vue/index.d.ts",
       "import": "./dist/vue/index.mjs"
-    }
+    },
+    "./en.json": "./dist/locales/en.json"
   },
   "files": [
     "dist"
@@ -42,7 +43,8 @@
   "peerDependencies": {
     "@former-ui/former": ">=0.1.0 <1.0.0",
     "mathjs": "^15.0.0",
-    "vue": "^3.5.0"
+    "vue": "^3.5.0",
+    "vue-i18n": "^11.0.0"
   },
   "peerDependenciesMeta": {
     "@former-ui/former": {
@@ -65,6 +67,7 @@
     "typescript": "6.0.3",
     "vitest": "5.1.0",
     "vue": "3.5.45",
+    "vue-i18n": "11.4.14",
     "vue-tsc": "3.3.14"
   }
 }

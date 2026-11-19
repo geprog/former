@@ -1,7 +1,15 @@
 import type { Diagnostic, FormulaEngineInfo } from './types';
+import en from './locales/en.json' with { type: 'json' };
 
-/** Turns a diagnostic into a message, e.g. to translate them. */
+/** Translates a text of the package by its key, e.g. `(key, named) => t(key, named ?? {})` of vue-i18n. */
+export type Translate = (key: string, named?: Record<string, unknown>) => string;
+
+/** Turns a diagnostic into a message. */
 export type DiagnosticMessage = (diagnostic: Diagnostic, engine: FormulaEngineInfo) => string;
+
+/** Uses the english texts of the package, used when no translation is given. */
+export const translateToEnglish: Translate = (key, named = {}) =>
+  ((en as Record<string, string>)[key] ?? key).replace(/\{(\w+)\}/g, (_, name: string) => String(named[name] ?? ''));
 
 function list(value: unknown): string {
   return Array.isArray(value)
@@ -9,40 +17,62 @@ function list(value: unknown): string {
     : String(value);
 }
 
-/** The english message of a diagnostic. */
-export const describeDiagnostic: DiagnosticMessage = ({ code, params }, { prefix }) => {
-  const variable = `"${prefix}${String(params.name)}"`;
+/** The message of a diagnostic, in english unless a translation is given. */
+export function diagnosticMessage({ code, params }: Diagnostic, { prefix }: FormulaEngineInfo, translate: Translate = translateToEnglish): string {
+  const name = String(params.name ?? '');
+  const variable = `"${prefix}${name}"`;
+  const type = (value: unknown) => translate(`formula_type_${String(value ?? 'unknown')}`);
   switch (code) {
     case 'syntax':
-      return `Syntax error: ${String(params.message)}`;
+      return translate('formula_syntax', { message: params.message });
     case 'statements':
-      return 'A formula has to be a single expression, e.g. without semicolons';
+      return translate('formula_statements');
     case 'unknown-variable':
       return params.prefix
-        ? `Unknown name "${String(params.name)}", variables start with "${prefix}"`
-        : `Unknown variable ${variable}`;
+        ? translate('formula_missing_prefix', { name, prefix })
+        : translate('formula_unknown_variable', { variable });
     case 'unknown-function':
-      return `Unknown function "${String(params.name)}"`;
+      return translate('formula_unknown_function', { name });
     case 'disabled-function':
-      return `The function "${String(params.name)}" is not available`;
+      return translate('formula_disabled_function', { name });
     case 'out-of-scope':
-      return `${variable} is only available inside of the list "${String(params.list)}", e.g. in map(${prefix}${String(params.list)}, f(${prefix}${String(params.name).split('.')[0]}) = …)`;
+      return translate('formula_out_of_scope', {
+        variable,
+        list: params.list,
+        example: `map(${prefix}${String(params.list)}, f(${prefix}${name.split('.')[0]}) = …)`,
+      });
     case 'not-text-comparable':
-      return `${variable} is a ${String(params.type)} and can't be compared as text`;
+      return translate('formula_not_text_comparable', {
+        variable,
+        type: type(params.type),
+      });
     case 'unknown-option':
-      return `"${String(params.literal)}" is not an option of ${variable} (${list(params.options)})`;
+      return translate('formula_unknown_option', {
+        variable,
+        literal: params.literal,
+        options: list(params.options),
+      });
     case 'compare-text-with-equal-text':
-      return `Text can't be compared with ${String(params.operator)}, use equalText(a, b) instead`;
+      return translate('formula_compare_text_with_equal_text', { operator: params.operator });
     case 'type-mismatch':
-      return `The formula should evaluate to a ${String(params.expected)}, but evaluates to a ${String(params.actual)}`;
+      return translate('formula_type_mismatch', {
+        expected: type(params.expected),
+        actual: type(params.actual),
+      });
     case 'self-reference':
-      return `The formula refers to its own field ${variable}`;
+      return translate('formula_self_reference', { variable });
     case 'ambiguous-variable':
-      return `${variable} is provided by several sources (${list(params.sources)})`;
+      return translate('formula_ambiguous_variable', {
+        variable,
+        sources: list(params.sources),
+      });
   }
-};
+}
 
-/** The english message for a field named like a variable of a source. */
-export function describeReservedName(name: string, { prefix }: FormulaEngineInfo): string {
-  return `The name "${name}" is already used by the variable "${prefix}${name}"`;
+/** The english message of a diagnostic. */
+export const describeDiagnostic: DiagnosticMessage = (diagnostic, engine) => diagnosticMessage(diagnostic, engine);
+
+/** The message for a field named like a variable of a source, in english unless a translation is given. */
+export function reservedNameMessage(name: string, { prefix }: FormulaEngineInfo, translate: Translate = translateToEnglish): string {
+  return translate('formula_reserved_name', { name, variable: `"${prefix}${name}"` });
 }

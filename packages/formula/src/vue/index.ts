@@ -10,11 +10,12 @@ import type {
 } from '@former-ui/former';
 import type { Component, ComputedRef, InjectionKey, MaybeRefOrGetter } from 'vue';
 import type { FormulaEngine } from '../engine';
-import type { DiagnosticMessage } from '../messages';
+import type { Translate } from '../messages';
 import type { Diagnostic, EvaluationResult, ExpectedType, FormulaContext, FormulaSource, FormulaVariable } from '../types';
 import { useFormNode } from '@former-ui/former';
 import { computed, defineComponent, h, inject, markRaw, provide, toValue } from 'vue';
-import { describeDiagnostic, describeReservedName } from '../messages';
+import { useI18n } from 'vue-i18n';
+import { diagnosticMessage, reservedNameMessage, translateToEnglish } from '../messages';
 import { listsAround, variableNameOfNode } from '../variables';
 
 const ENGINE_KEY: InjectionKey<FormulaEngine> = Symbol('formulaEngine');
@@ -154,15 +155,14 @@ export type WithFormulaPropsOptions = {
   /** Whether every component gets a `showIf` formula (see `useFormulaShowIf`), by default it does. */
   showIf?: boolean;
   /** The component editing formulas in the props form, it is added as internal component of the type `type`. */
-  editor?: { type?: string; component?: Component; label?: string };
-  /** The label of the formula of a prop. */
-  label?: (prop: string, componentType: string) => string;
-  /** The label of the show if formula. */
-  showIfLabel?: string;
-  /** The message of an error of a formula, e.g. to translate it. */
-  message?: DiagnosticMessage;
-  /** The message for a name taken by a variable of a source, `false` to allow such names. */
-  reservedNameMessage?: ((name: string) => string) | false;
+  editor?: { type?: string; component?: Component };
+  /**
+   * Translates the texts (labels and messages), e.g. `(key, named) => t(key, named ?? {})` of vue-i18n with the
+   * texts of `@former-ui/formula/en.json`, by default they are english.
+   */
+  translate?: Translate;
+  /** Whether the props forms report names taken by the variables of sources, by default they do. */
+  checkReservedNames?: boolean;
 };
 
 type MaybePromise<T> = T | PromiseLike<T>;
@@ -283,11 +283,8 @@ export function withFormulaProps(components: FormComponents, formulaProps: Formu
   const { engine } = options;
   const editorType = options.editor?.type ?? 'formula';
   const addShowIf = options.showIf !== false;
-  const label = options.label ?? ((prop: string) => `${prop} (formula)`);
-  const message = options.message ?? describeDiagnostic;
-  const reservedNameMessage = options.reservedNameMessage === false
-    ? undefined
-    : options.reservedNameMessage ?? ((name: string) => describeReservedName(name, engine));
+  const translate = options.translate ?? translateToEnglish;
+  const checkReservedNames = options.checkReservedNames !== false;
   const sources = () => options.sources?.() ?? [];
   const result: FormComponents = {};
   const nameTypes = new Set<string>();
@@ -305,19 +302,26 @@ export function withFormulaProps(components: FormComponents, formulaProps: Formu
     }
     const propTypes = formulaProps[type] ?? {};
     let propsSchema = fieldType.propsSchema.map((node) => {
-      if (node.name !== '$name' || !reservedNameMessage) {
+      if (node.name !== '$name' || !checkReservedNames) {
         return node;
       }
       nameTypes.add(node.type);
       return { ...node, type: `${node.type}${NAME_TYPE_SUFFIX}` };
     });
     Object.entries(propTypes).forEach(([prop, propType]) => {
-      propsSchema = insertAfter(propsSchema, prop, formulaNode(formulaPropName(prop), label(prop, type), expectedTypes[propType]));
+      // named after the label of the static prop, e.g. "Maximum (formula)"
+      const propLabel = fieldType.propsSchema.find(node => node.name === prop)?.props?.label;
+      const label = translate('formula_prop', {
+        label: typeof propLabel === 'string' && propLabel
+          ? propLabel
+          : prop,
+      });
+      propsSchema = insertAfter(propsSchema, prop, formulaNode(formulaPropName(prop), label, expectedTypes[propType]));
     });
     if (addShowIf) {
       propsSchema = [
         ...propsSchema,
-        formulaNode('showIf', options.showIfLabel ?? 'Show if', 'boolean'),
+        formulaNode('showIf', translate('formula_show_if'), 'boolean'),
       ];
     }
     const { validation } = fieldType;
@@ -357,7 +361,7 @@ export function withFormulaProps(components: FormComponents, formulaProps: Formu
   // the name fields of the props forms, which mustn't take the names of the variables of sources
   nameTypes.forEach((nameType) => {
     const fieldType = components[nameType];
-    if (!fieldType || !reservedNameMessage) {
+    if (!fieldType) {
       return;
     }
     result[`${nameType}${NAME_TYPE_SUFFIX}`] = {
@@ -367,7 +371,7 @@ export function withFormulaProps(components: FormComponents, formulaProps: Formu
         value => (typeof value === 'string' && engine.reservedNames(sources()).includes(value)
           ? [
               {
-                message: reservedNameMessage(value),
+                message: reservedNameMessage(value, engine, translate),
               },
             ]
           : []),
@@ -377,7 +381,7 @@ export function withFormulaProps(components: FormComponents, formulaProps: Formu
   });
 
   if (options.editor?.component) {
-    result[editorType] = formulaFieldType(options.editor.component, options.editor.label ?? 'Formula');
+    result[editorType] = formulaFieldType(options.editor.component, translate('formula_editor'));
   }
   return result;
 
@@ -424,24 +428,27 @@ export function withFormulaProps(components: FormComponents, formulaProps: Formu
         const isReported = (diagnostic: Diagnostic) => diagnostic.severity === 'error'
           && (context.editedNode || (diagnostic.code !== 'unknown-variable' && diagnostic.code !== 'out-of-scope'));
         return analysis.diagnostics.filter(isReported).map(diagnostic => ({
-          message: message(diagnostic, engine),
+          message: diagnosticMessage(diagnostic, engine, translate),
         }));
       }),
     };
   }
 }
 
-export type UseFormulaPropsOptions = Omit<WithFormulaPropsOptions, 'engine' | 'sources'> & FormulaSetupOptions;
+export type UseFormulaPropsOptions = Omit<WithFormulaPropsOptions, 'engine' | 'sources' | 'translate'> & FormulaSetupOptions;
 
 /**
  * Adds formulas to the props of the components (see `withFormulaProps`) and provides the engine and sources
- * to the form rendering them. Must be called in the `setup` of the component rendering the form.
+ * to the form rendering them. The texts are translated with the i18n instance of the app and follow its locale,
+ * the english texts are in `@former-ui/formula/en.json`.
+ * Must be called in the `setup` of the component rendering the form.
  */
 export function useFormulaProps(
   components: MaybeRefOrGetter<FormComponents>,
   formulaProps: MaybeRefOrGetter<FormulaPropsMap>,
   options: UseFormulaPropsOptions = {},
 ): ComputedRef<FormComponents> {
+  const { t } = useI18n();
   const { engine, sources } = useSetup(options);
   provideFormulaEngine(engine);
   provide(SOURCES_KEY, sources);
@@ -449,5 +456,6 @@ export function useFormulaProps(
     ...options,
     engine,
     sources: () => sources.value,
+    translate: (key, named) => t(key, named ?? {}),
   }));
 }
