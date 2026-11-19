@@ -9,7 +9,7 @@ import { createI18n } from 'vue-i18n';
 import { createFormulaEngine } from '../engine';
 import en from '../locales/en.json' with { type: 'json' };
 import { valueSource } from '../sources';
-import { FormulaSwitch, provideFormulaEngine, useFormula, useFormulaProps, useFormulaShowIf, withFormulaProps } from './index';
+import { FormulaCalculation, FormulaSwitch, provideFormulaEngine, useFormula, useFormulaProps, useFormulaShowIf, withFormulaProps } from './index';
 
 const engine = createFormulaEngine({
   math: create(all),
@@ -566,5 +566,130 @@ describe('formulaSwitch', () => {
     await flushPromises();
     expect(data.value).toEqual({ $name: 'value' });
     expect(wrapper.find('[data-formula-switch]').attributes('data-formula-switch')).toBe('value');
+  });
+});
+
+describe('calculation', () => {
+  function mountCalculations(schema: SchemaNode[], data: FormData, mode: 'edit' | 'read' = 'edit') {
+    const dataRef = ref(data);
+    const Host = defineComponent({
+      setup() {
+        const formComponents = useFormulaProps(components, formulaProps, {
+          engine,
+          editor: { component: FormulaInput },
+          calculation: true,
+        });
+        return () => h(Former, {
+          'schema': schema,
+          'data': dataRef.value,
+          'onUpdate:data': (value: FormData) => dataRef.value = value,
+          'components': formComponents.value,
+          mode,
+        });
+      },
+    });
+    const i18n = createI18n({
+      legacy: false,
+      locale: 'en',
+      messages: { en },
+    });
+    return {
+      wrapper: mount(Host, {
+        global: {
+          plugins: [i18n],
+        },
+      }),
+      data: dataRef,
+    };
+  }
+
+  it('adds a calculation field with a name, a label and a formula', () => {
+    const result = withFormulaProps(components, formulaProps, {
+      engine,
+      editor: { component: FormulaInput },
+      calculation: true,
+    });
+    expect(result.calculation).toMatchObject({ label: 'Calculation', component: FormulaCalculation });
+    expect(result.calculation!.propsSchema).toEqual([
+      {
+        type: 'text:formula_name',
+        name: '$name',
+        props: { label: 'Technical name' },
+      },
+      {
+        type: 'text',
+        name: 'label',
+        props: { label: 'Label' },
+      },
+      {
+        type: 'formula',
+        name: 'formula',
+        props: { label: 'Formula', expect: 'any' },
+      },
+      {
+        type: 'formula',
+        name: 'showIf',
+        props: { label: 'Show if', expect: 'boolean' },
+      },
+    ]);
+    // without the option, the components keep their own calculation component
+    expect(withFormulaProps(components, formulaProps, { engine }).calculation!.propsSchema).toContainEqual({ type: 'text', name: 'formula' });
+  });
+
+  it('shows the result and stores it as its data, so that other formulas can use it', async () => {
+    const { wrapper, data } = mountCalculations([
+      { type: 'number', name: 'a' },
+      {
+        type: 'calculation',
+        name: 'total',
+        props: { label: 'Total', formula: '$a * 2' },
+      },
+      {
+        type: 'number',
+        name: 'value',
+        props: { label: 'Value', maxFormula: '$total + 1' },
+      },
+    ], { a: 2 });
+    await flushPromises();
+    expect(wrapper.find('[data-formula-calculation]').text()).toBe('Total4');
+    expect(data.value.total).toBe(4);
+    expect(wrapper.find('[data-label="Value"]').attributes('data-max')).toBe('5');
+
+    data.value = { ...data.value, a: 3 };
+    await flushPromises();
+    expect(data.value.total).toBe(6);
+    expect(wrapper.find('[data-label="Value"]').attributes('data-max')).toBe('7');
+  });
+
+  it('shows the stored result in read mode', async () => {
+    const { wrapper, data } = mountCalculations([
+      {
+        type: 'calculation',
+        name: 'total',
+        props: { formula: '$a * 2' },
+      },
+    ], { a: 2, total: 10 }, 'read');
+    await flushPromises();
+    expect(wrapper.find('output').text()).toBe('10');
+    expect(data.value.total).toBe(10);
+  });
+
+  it('stops calculations depending on each other in a loop', async () => {
+    const { wrapper } = mountCalculations([
+      {
+        type: 'calculation',
+        name: 'a',
+        props: { formula: '$b + 1' },
+      },
+      {
+        type: 'calculation',
+        name: 'b',
+        props: { formula: '$a + 1' },
+      },
+    ], {});
+    await flushPromises();
+    await new Promise(resolve => setTimeout(resolve, 10));
+    expect(wrapper.find('[role="alert"]').text()).toBe('The calculation depends on itself, e.g. through another calculation');
+    wrapper.unmount();
   });
 });

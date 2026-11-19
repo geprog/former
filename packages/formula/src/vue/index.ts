@@ -18,9 +18,10 @@ import { computed, defineComponent, h, inject, markRaw, provide, toRaw, toValue 
 import { useI18n } from 'vue-i18n';
 import { diagnosticMessage, reservedNameMessage, translateToEnglish } from '../messages';
 import { listsAround, variableNameOfNode } from '../variables';
+import { FormulaCalculation } from './FormulaCalculation';
 import { FormulaSwitch } from './FormulaSwitch';
 
-export { FormulaSwitch };
+export { FormulaCalculation, FormulaSwitch };
 
 const ENGINE_KEY: InjectionKey<FormulaEngine> = Symbol('formulaEngine');
 const SOURCES_KEY: InjectionKey<ComputedRef<FormulaSource[]>> = Symbol('formulaSources');
@@ -187,6 +188,12 @@ export type WithFormulaPropsOptions = {
   translate?: Translate;
   /** Whether the props forms report names taken by the variables of sources, by default they do. */
   checkReservedNames?: boolean;
+  /**
+   * Adds a field showing the result of a formula (see `FormulaCalculation`), as component of the type `type`
+   * (by default `calculation`). Its name and label are edited with `textType`, by default the component the
+   * names of the other components are edited with.
+   */
+  calculation?: boolean | { type?: string; textType?: string };
 };
 
 type MaybePromise<T> = T | PromiseLike<T>;
@@ -421,6 +428,46 @@ export function withFormulaProps(components: FormComponents, formulaProps: Formu
             },
           }
         : {}),
+    };
+  }
+
+  if (options.calculation) {
+    const calculation = typeof options.calculation === 'object'
+      ? options.calculation
+      : {};
+    const textType = calculation.textType
+      ?? Object.values(components).flatMap(fieldType => fieldType.propsSchema).find(node => node.name === '$name')?.type
+      ?? 'text';
+    if (checkReservedNames) {
+      nameTypes.add(textType);
+    }
+    result[calculation.type ?? 'calculation'] = {
+      label: translate('formula_calculation'),
+      component: markRaw(FormulaCalculation),
+      propsSchema: [
+        {
+          type: checkReservedNames
+            ? `${textType}${NAME_TYPE_SUFFIX}`
+            : textType,
+          name: '$name',
+          props: {
+            label: translate('formula_calculation_name'),
+          },
+        },
+        {
+          type: textType,
+          name: 'label',
+          props: {
+            label: translate('formula_calculation_label'),
+          },
+        },
+        formulaNode('formula', translate('formula_calculation_formula'), 'any'),
+        ...(addShowIf
+          ? [
+              formulaNode('showIf', translate('formula_show_if'), 'boolean'),
+            ]
+          : []),
+      ],
     };
   }
 

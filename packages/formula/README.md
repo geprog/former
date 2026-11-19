@@ -137,6 +137,10 @@ export const i18n = createI18n({
 
 The engine itself has no texts. Turn its diagnostics into messages with `diagnosticMessage(diagnostic, engine, translate)`, which is english without `translate`.
 
+## Calculations
+
+With `calculation: true`, `useFormulaProps` adds a field showing the result of a formula (`FormulaCalculation`, the component type `calculation`). With a name, it stores the result as its data, so that other formulas can use it (e.g. `$total`) and it is submitted with the form. In read mode it shows the stored result. Calculations depending on each other in a loop stop with a message.
+
 ## In components
 
 `useFormula` evaluates a formula in the data of the node the component is rendered for, e.g. its repeater item:

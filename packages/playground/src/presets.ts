@@ -24,10 +24,12 @@ export function usePresets() {
   const sampleComponents = useFormulaProps(sampleFormComponents, {}, {
     ...formulaOptions,
     editor: { component: FormulaEditor },
+    calculation: true,
   });
   const nuxtUiComponents = useFormulaProps(nuxtUiFormComponents, formulaProps, {
     ...formulaOptions,
     editor: { component: FormulaEditor },
+    calculation: true,
   });
 
   return computed<[PlaygroundPreset, ...PlaygroundPreset[]]>(() => [

@@ -27,5 +27,10 @@
   "formula_type_unknown": "a value",
   "formula_type_any": "a value",
   "formula_format": "Format (Alt+Shift+F)",
-  "formula_format_refused": "The formula can't be formatted"
+  "formula_format_refused": "The formula can't be formatted",
+  "formula_calculation": "Calculation",
+  "formula_calculation_name": "Technical name",
+  "formula_calculation_label": "Label",
+  "formula_calculation_formula": "Formula",
+  "formula_calculation_loop": "The calculation depends on itself, e.g. through another calculation"
 }

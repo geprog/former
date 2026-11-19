@@ -73,5 +73,10 @@
   "formula_type_unknown": "einen Wert",
   "formula_type_any": "einen Wert",
   "formula_format": "Formatieren (Alt+Umschalt+F)",
-  "formula_format_refused": "Die Formel kann nicht formatiert werden"
+  "formula_format_refused": "Die Formel kann nicht formatiert werden",
+  "formula_calculation": "Berechnung",
+  "formula_calculation_name": "Technischer Name",
+  "formula_calculation_label": "Beschriftung",
+  "formula_calculation_formula": "Formel",
+  "formula_calculation_loop": "Die Berechnung hängt von sich selbst ab, z. B. über eine andere Berechnung"
 }
