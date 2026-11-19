@@ -14,6 +14,7 @@
   "dependencies": {
     "@former-ui/former": "workspace:*",
     "@former-ui/formula": "workspace:*",
+    "@former-ui/formula-editor": "workspace:*",
     "@former-ui/preset-nuxt-ui": "workspace:*",
     "@nuxt/ui": "4.12.0",
     "@vueuse/core": "15.0.0",

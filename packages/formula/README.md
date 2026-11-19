@@ -146,6 +146,10 @@ const props = defineProps<{ formula?: string }>();
 const { value, pending } = useFormula(() => props.formula, { expect: 'number' });
 ```
 
+## Editor
+
+[`@former-ui/formula-editor`](../formula-editor/README.md) is an editor for the formulas with highlighting, completion and the documentation of functions. Other editors can use the language service of this package: `complete`, `hover`, `signatureHelp` and `engine.analyze` work on the text of a formula and a position in it, and `useFormulaEditorContext()` (of `@former-ui/formula/vue`) tells what an editor in the props form needs: the engine, the sources and the context of the formula (the variables of the form, the lists around the node and the expected type).
+
 ## Engine
 
 ```ts

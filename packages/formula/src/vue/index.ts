@@ -1,4 +1,5 @@
 import type {
+  EditedNode,
   FormComponents,
   FormFieldType,
   FormulaPropsMap,
@@ -8,11 +9,11 @@ import type {
   StandardSchemaV1,
   ValidationContext,
 } from '@former-ui/former';
-import type { Component, ComputedRef, InjectionKey, MaybeRefOrGetter } from 'vue';
+import type { Component, ComputedRef, DeepReadonly, InjectionKey, MaybeRefOrGetter } from 'vue';
 import type { FormulaEngine } from '../engine';
 import type { Translate } from '../messages';
 import type { Diagnostic, EvaluationResult, ExpectedType, FormulaContext, FormulaSource, FormulaVariable } from '../types';
-import { useFormNode } from '@former-ui/former';
+import { useEditedNode, useFormNode } from '@former-ui/former';
 import { computed, defineComponent, h, inject, markRaw, provide, toValue } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { diagnosticMessage, reservedNameMessage, translateToEnglish } from '../messages';
@@ -23,6 +24,7 @@ export { FormulaSwitch };
 
 const ENGINE_KEY: InjectionKey<FormulaEngine> = Symbol('formulaEngine');
 const SOURCES_KEY: InjectionKey<ComputedRef<FormulaSource[]>> = Symbol('formulaSources');
+const COMPONENTS_KEY: InjectionKey<ComputedRef<FormComponents>> = Symbol('formulaComponents');
 
 /** Provides the engine to the formulas of the components below, e.g. of a form. */
 export function provideFormulaEngine(engine: FormulaEngine): void {
@@ -213,6 +215,37 @@ const expectedTypes: Record<FormulaPropType, ExpectedType> = {
   string: 'string',
   date: 'date',
 };
+
+/**
+ * The context of a formula in the props form of a node (`editedNode`), e.g. the variables of the schema and the
+ * sources, and the lists around the node, without the node only the variables of the sources.
+ */
+export function formulaContextOf(
+  engine: FormulaEngine,
+  components: FormComponents,
+  sources: ReadonlyArray<FormulaSource>,
+  editedNode: DeepReadonly<EditedNode> | EditedNode | undefined,
+  expect?: ExpectedType,
+): FormulaContext {
+  const edited = editedNode as EditedNode | undefined;
+  return {
+    variables: [
+      ...(edited
+        ? engine.schemaVariables(edited.schema, components)
+        : []),
+      ...engine.sourceVariables(sources),
+    ],
+    ...(expect
+      ? { expect }
+      : {}),
+    ...(edited
+      ? {
+          loopScopes: listsAround(edited.path, components),
+          self: variableNameOfNode(edited.node, edited.path, components, engine.itemSuffix),
+        }
+      : {}),
+  };
+}
 
 export function formulaPropName(prop: string): string {
   return `${prop}Formula`;
@@ -405,29 +438,6 @@ export function withFormulaProps(components: FormComponents, formulaProps: Formu
   };
   return result;
 
-  // the context of a formula in the props form of a node, e.g. the variables of the schema and the lists around the node
-  function contextOf(context: ValidationContext, expect: ExpectedType | undefined): FormulaContext {
-    const edited = context.editedNode;
-    const variables = [
-      ...(edited
-        ? engine.schemaVariables(edited.schema, result)
-        : []),
-      ...engine.sourceVariables(sources()),
-    ];
-    return {
-      variables,
-      ...(expect
-        ? { expect }
-        : {}),
-      ...(edited
-        ? {
-            loopScopes: listsAround(edited.path, result),
-            self: variableNameOfNode(edited.node, edited.path, result, engine.itemSuffix),
-          }
-        : {}),
-    };
-  }
-
   function formulaFieldType(component: Component, editorLabel: string): FormFieldType {
     return {
       label: editorLabel,
@@ -441,7 +451,7 @@ export function withFormulaProps(components: FormComponents, formulaProps: Formu
         if (typeof value !== 'string' || !value.trim()) {
           return [];
         }
-        const analysis = engine.analyze(value, contextOf(context, props.expect), {
+        const analysis = engine.analyze(value, formulaContextOf(engine, result, sources(), context.editedNode, props.expect), {
           sources: sources(),
         });
         // without the node whose props are edited, the variables of the form are unknown
@@ -472,10 +482,27 @@ export function useFormulaProps(
   const { engine, sources } = useSetup(options);
   provideFormulaEngine(engine);
   provide(SOURCES_KEY, sources);
-  return computed(() => withFormulaProps(toValue(components), toValue(formulaProps), {
+  const result = computed(() => withFormulaProps(toValue(components), toValue(formulaProps), {
     ...options,
     engine,
     sources: () => sources.value,
     translate: (key, named) => t(key, named ?? {}),
   }));
+  // for the editors of the formulas, which need to know the fields of the form (see `useFormulaEditorContext`)
+  provide(COMPONENTS_KEY, result);
+  return result;
+}
+
+/**
+ * What an editor of a formula needs to know, e.g. for completion: the engine, the sources and the context of the
+ * formula in the props form of the edited node (see `formulaContextOf`). Must be called in the `setup` of a component
+ * rendered below `useFormulaProps`.
+ */
+export function useFormulaEditorContext(expect?: MaybeRefOrGetter<ExpectedType | undefined>) {
+  const engine = useFormulaEngine();
+  const sources = useFormulaSources();
+  const components = inject(COMPONENTS_KEY, undefined);
+  const editedNode = useEditedNode();
+  const context = computed(() => formulaContextOf(engine, components?.value ?? {}, sources.value, editedNode.value, toValue(expect)));
+  return { engine, sources, context, editedNode };
 }

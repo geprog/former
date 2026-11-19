@@ -1,0 +1,73 @@
+{
+  "name": "@former-ui/formula-editor",
+  "type": "module",
+  "version": "0.0.0",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/geprog/former.git"
+  },
+  "keywords": [
+    "vue",
+    "vue3",
+    "former",
+    "formula",
+    "tiptap",
+    "editor"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "engines": {
+    "pnpm": ">=9.0.0",
+    "node": ">=22.0.0"
+  },
+  "scripts": {
+    "dev": "chokidar \"src/**/*\" --initial -c \"pnpm build\"",
+    "build": "mkdist --src src --dist dist --declaration --pattern='**' --pattern='!**/*.test.ts'",
+    "test": "vitest --pass-with-no-tests",
+    "prepack": "pnpm build",
+    "typecheck": "vue-tsc --build --force"
+  },
+  "peerDependencies": {
+    "@former-ui/former": ">=0.1.0 <1.0.0",
+    "@former-ui/formula": ">=0.1.0 <1.0.0",
+    "mathjs": "^15.0.0",
+    "vue": "^3.5.0",
+    "vue-i18n": "^11.0.0"
+  },
+  "dependencies": {
+    "@tiptap/core": "3.34.0",
+    "@tiptap/extension-document": "3.34.0",
+    "@tiptap/extension-paragraph": "3.34.0",
+    "@tiptap/extension-text": "3.34.0",
+    "@tiptap/extensions": "3.34.0",
+    "@tiptap/pm": "3.34.0",
+    "@tiptap/vue-3": "3.34.0"
+  },
+  "devDependencies": {
+    "@former-ui/former": "workspace:^",
+    "@former-ui/formula": "workspace:^",
+    "@tsconfig/node26": "26.0.2",
+    "@types/node": "26.6.6",
+    "@vitejs/plugin-vue": "6.0.11",
+    "@vue/test-utils": "2.5.1",
+    "@vue/tsconfig": "0.9.1",
+    "chokidar-cli": "3.0.0",
+    "happy-dom": "21.0.4",
+    "mathjs": "15.2.0",
+    "mkdist": "2.4.1",
+    "typescript": "6.0.3",
+    "vitest": "5.1.0",
+    "vue": "3.5.45",
+    "vue-i18n": "11.4.14",
+    "vue-sfc-transformer": "0.1.17",
+    "vue-tsc": "3.3.14"
+  }
+}

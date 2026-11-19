@@ -2,6 +2,8 @@ export { analyzeFormula } from './analyze';
 export { createFormulaEngine, UNSAFE_FUNCTIONS } from './engine';
 export type { CompileResult, FormulaEngine, FormulaEngineOptions } from './engine';
 export { ANY_LIST, isListInScope, scanItemScopes } from './itemScope';
+export { complete, functionDoc, hover, signatureHelp } from './languageService';
+export type { Completion, CompletionItem, CompletionKind, FunctionDoc, HoverInfo, LanguageServiceOptions, SignatureHelp } from './languageService';
 export { normalizeFormula, stringValue, tokenize } from './lexer';
 export { describeDiagnostic, diagnosticMessage, reservedNameMessage, translateToEnglish } from './messages';
 export type { DiagnosticMessage, Translate } from './messages';

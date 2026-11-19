@@ -1,4 +1,5 @@
 import type { FormComponents } from '@former-ui/former';
+import { FormulaEditor } from '@former-ui/formula-editor';
 import { useFormulaProps } from '@former-ui/formula/vue';
 import { formulaProps, useFormComponents as useNuxtUiFormComponents } from '@former-ui/preset-nuxt-ui';
 import { computed } from 'vue';
@@ -22,11 +23,11 @@ export function usePresets() {
 
   const sampleComponents = useFormulaProps(sampleFormComponents, {}, {
     ...formulaOptions,
-    editor: { component: sampleFormComponents.text!.component },
+    editor: { component: FormulaEditor },
   });
   const nuxtUiComponents = useFormulaProps(nuxtUiFormComponents, formulaProps, {
     ...formulaOptions,
-    editor: { component: nuxtUiFormComponents.value.textarea!.component },
+    editor: { component: FormulaEditor },
   });
 
   return computed<[PlaygroundPreset, ...PlaygroundPreset[]]>(() => [

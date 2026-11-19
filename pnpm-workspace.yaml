@@ -5,8 +5,10 @@ trustPolicyIgnoreAfter: 43830
 
 peerDependencyRules:
   allowedVersions:
-    '@former-ui/formula>@former-ui/former': 0.0.0
+    '@former-ui/formula-editor>@former-ui/former': 0.0.0
+    '@former-ui/formula-editor>@former-ui/formula': 0.0.0
 
+    '@former-ui/formula>@former-ui/former': 0.0.0
     # the workspace packages are versioned 0.0.0, the real version is only set on release
     '@former-ui/preset-nuxt-ui>@former-ui/former': 0.0.0
 
