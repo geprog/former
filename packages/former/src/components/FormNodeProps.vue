@@ -41,9 +41,9 @@
 </template>
 
 <script setup lang="ts">
-import type { InternalSchemaNode, SchemaNode } from '~/types';
+import type { EditedNode, InternalSchemaNode, SchemaNode } from '~/types';
 import { computed, ref, watch } from 'vue';
-import { inject } from '~/compositions/injectProvide';
+import { inject, provide } from '~/compositions/injectProvide';
 import { deleteNode, getNodePath, addNode as insertNodeAt, nodePosition, replaceNode, toInternalSchema, toInternalSchemaNode, toSchemaNode } from '~/utils';
 import Former from './Former.vue';
 
@@ -58,6 +58,11 @@ const selectedNode = inject('selectedNode');
 const selectedNodePath = computed(() => (selectedNode.value
   ? getNodePath(schema.value, selectedNode.value._id) ?? []
   : []));
+
+// the props form sees which node it edits, e.g. for validations or fields referring to the rest of the schema
+provide('editedNode', computed<EditedNode | undefined>(() => (selectedNode.value
+  ? { node: selectedNode.value, path: selectedNodePath.value, schema: schema.value }
+  : undefined)));
 
 const selectedNodeType = computed(() => (selectedNode.value ? components.value[selectedNode.value.type] : undefined));
 

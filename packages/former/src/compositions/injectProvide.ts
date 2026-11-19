@@ -1,5 +1,5 @@
 import type { InjectionKey, Ref } from 'vue';
-import type { DataScope, FieldData, FormComponents, FormData, InternalSchemaNode, InternalShowIfPredicate, Mode, Texts } from '~/types';
+import type { DataScope, EditedNode, FieldData, FormComponents, FormData, InternalSchemaNode, InternalShowIfPredicate, Mode, Texts, ValidationContext } from '~/types';
 import { getCurrentInstance, inject as vueInject, provide as vueProvide } from 'vue';
 
 export type InjectKeys = {
@@ -21,6 +21,10 @@ export type InjectKeys = {
   texts: Ref<Texts>;
   node: Ref<InternalSchemaNode>;
   hasDataKey?: Ref<boolean>;
+  // the node a component is rendered for, with where its data is (see `useFormNode`)
+  nodeContext?: Ref<ValidationContext>;
+  // the node whose props are edited, provided to the props form of the builder (see `useEditedNode`)
+  editedNode?: Ref<EditedNode | undefined>;
   isShown?: Ref<boolean>;
 };
 

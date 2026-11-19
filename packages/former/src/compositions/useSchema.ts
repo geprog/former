@@ -14,7 +14,7 @@ export default function useSchema(schema: Ref<InternalSchemaNode[]>, components:
     const nodes = [
       ...schemaIterator(schema.value),
     ];
-    const results = nodes.map(node => propsValidityOfNode(node, toValue(components)));
+    const results = nodes.map(node => propsValidityOfNode(node, toValue(components), schema.value));
     const byId = (resolved: (boolean | string)[]) => Object.fromEntries(nodes.map((node, index) => [node._id, resolved[index]]));
     return results.some(isPromiseLike)
       ? Promise.all(results).then(byId)

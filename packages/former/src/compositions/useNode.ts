@@ -76,18 +76,24 @@ export default function useNode(node: Ref<InternalSchemaNode>) {
   // the items of lists (e.g. repeaters) provide their scopes themselves (see `FormDataProvider`)
   provide('dataScopes', computed(() => dataScopesOfChildren(node.value, data.value, dataScopes.value, components.value)));
 
+  // set in the props form of the builder, so that validations know whose props they validate
+  const editedNode = inject('editedNode', false);
   const validationContext = computed<ValidationContext>(() => ({
     node: node.value,
     path: dataPath.value,
     scopes: dataScopes.value,
+    ...(editedNode?.value
+      ? { editedNode: editedNode.value }
+      : {}),
   }));
+  provide('nodeContext', validationContext);
 
   const showIf = inject('showIf', false);
   const isShown = computed(() => {
     if (showIf) {
       // only evaluate showIf when we are not building up the form
       // but in edit mode we still want to show the component but highlighted
-      return showIf(node.value);
+      return showIf(node.value, dataScopes.value);
     }
     return true;
   });
@@ -106,7 +112,7 @@ export default function useNode(node: Ref<InternalSchemaNode>) {
   provide('isShown', computed(() => isShown.value && (parentIsShown?.value ?? true)));
 
   // whether the node shows something in read mode, e.g. not a field without value or a group with only such fields
-  const hasContent = useHasContent(() => [node.value], data);
+  const hasContent = useHasContent(() => [node.value], data, dataScopes);
 
   const childrenValidityMap = ref<Record<string, boolean | undefined>>({});
   provide('validityMap', childrenValidityMap);

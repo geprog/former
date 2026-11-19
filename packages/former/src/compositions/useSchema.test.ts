@@ -132,7 +132,7 @@ describe('useSchema', () => {
       expect(validate).toHaveBeenCalledWith(undefined);
     });
 
-    it('passes the props of the props node and the props as only scope to the validation', () => {
+    it('passes the props of the props node, the props as only scope and the edited node to the validation', () => {
       const validation = vi.fn(() => undefined);
       const node = {
         _id: 'n1',
@@ -172,6 +172,11 @@ describe('useSchema', () => {
             path: [],
           },
         ],
+        editedNode: {
+          node,
+          path: [],
+          schema: [node],
+        },
       });
     });
 

@@ -16,9 +16,17 @@ export type InternalSchemaNode<Props = { [key: string]: any }> = Omit<SchemaNode
   children?: NodeChildren<InternalSchemaNode<Props>>;
 };
 
-export type ShowIfPredicate = (node: SchemaNode, data: FormData, schema: SchemaNode[]) => boolean;
+// where the node of a show if condition is in the data, e.g. to resolve the current repeater item
+export type ShowIfContext = {
+  // the path of the data of the node in the form data
+  path: DataPath;
+  // all scopes containing the node from the closest to the form data (see `ValidationContext`)
+  scopes: DataScope[];
+};
 
-export type InternalShowIfPredicate = (node: SchemaNode) => boolean;
+export type ShowIfPredicate = (node: SchemaNode, data: FormData, schema: SchemaNode[], context: ShowIfContext) => boolean;
+
+export type InternalShowIfPredicate = (node: SchemaNode, scopes: DataScope[]) => boolean;
 
 // the path of data in the form data, e.g. `['items', 1, 'title']`
 export type DataPath = ReadonlyArray<string | number>;
@@ -31,6 +39,15 @@ export type DataScope = {
   path: DataPath;
 };
 
+// the node of the schema whose props are edited in the props form of the builder
+export type EditedNode = {
+  node: SchemaNode;
+  // the parents of the node from the top of the schema down to it (see `getNodePath`)
+  path: SchemaNode[];
+  // the whole schema the node is part of
+  schema: SchemaNode[];
+};
+
 export type ValidationContext = {
   node: SchemaNode;
   // the path of the data of the node in the form data
@@ -38,6 +55,8 @@ export type ValidationContext = {
   // all scopes containing the node from the closest to the form data,
   // e.g. `[repeater item, group, form]` for a field in a repeater item inside of a group
   scopes: DataScope[];
+  // set while validating props, the node whose props they are (e.g. to check a name against the rest of the schema)
+  editedNode?: EditedNode;
 };
 
 export type Mode = 'edit' | 'read' | 'build';
@@ -65,6 +84,13 @@ export type FormFieldType = {
 };
 
 export type FormComponents = { [key: string]: FormFieldType };
+
+// the type a prop has when it is calculated by a formula, `date` props hold ISO dates (YYYY-MM-DD)
+export type FormulaPropType = 'number' | 'boolean' | 'string' | 'date';
+
+// the props of each component that may be calculated by a formula, declared by presets so that
+// e.g. `@former-ui/formula` can add a `<prop>Formula` prop for them without the preset depending on it
+export type FormulaPropsMap = { [componentType: string]: { [prop: string]: FormulaPropType } };
 
 export type Texts = {
   dragHint: string;

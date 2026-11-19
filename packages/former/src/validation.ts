@@ -1,9 +1,9 @@
 import type { StandardSchemaV1 } from '@standard-schema/spec';
 import type { Ref } from 'vue';
-import type { DataScope, FieldData, FormComponents, FormData, InternalSchemaNode, SchemaNode, ValidationContext } from '~/types';
+import type { DataScope, EditedNode, FieldData, FormComponents, FormData, InternalSchemaNode, SchemaNode, ValidationContext } from '~/types';
 import { cloneDeepWith, isDate, isObject, isPlainObject } from 'lodash';
 import { shallowRef, toRaw, watch } from 'vue';
-import { dataOfNode, dataPathOfNode, dataScopesOfChildren, dataScopesOfListItem, isListNode, nodeChildren, propsOf } from '~/utils';
+import { dataOfNode, dataPathOfNode, dataScopesOfChildren, dataScopesOfListItem, getNodePath, isListNode, nodeChildren, propsOf } from '~/utils';
 
 // the Standard Schema (https://standardschema.dev) implemented by e.g. Zod, Valibot, ArkType and Yup
 export type { StandardSchemaV1 };
@@ -61,7 +61,7 @@ export function every<T>(results: MaybePromise<T>[], predicate: (result: T) => b
 
 // validates the nodes with their data like they are rendered (see `useNode` and `FormDataProvider`),
 // returning whether all of them are valid
-function areNodesValid(nodes: SchemaNode[], data: FieldData | FormData, scopes: DataScope[], components: FormComponents): MaybePromise<boolean> {
+function areNodesValid(nodes: SchemaNode[], data: FieldData | FormData, scopes: DataScope[], components: FormComponents, editedNode?: EditedNode): MaybePromise<boolean> {
   return every(nodes.map((node) => {
     const nodeData = dataOfNode(node, data, components);
     const results: MaybePromise<string | boolean | undefined>[] = [
@@ -69,6 +69,9 @@ function areNodesValid(nodes: SchemaNode[], data: FieldData | FormData, scopes: 
         node,
         path: dataPathOfNode(node, scopes, components),
         scopes,
+        ...(editedNode
+          ? { editedNode }
+          : {}),
       }),
     ];
     // only the shown children are rendered, e.g. not the ones of removed columns
@@ -78,17 +81,18 @@ function areNodesValid(nodes: SchemaNode[], data: FieldData | FormData, scopes: 
         ? nodeData
         : [];
       results.push(...items.map((item, index) =>
-        areNodesValid(children, item, dataScopesOfListItem(node, item, index, scopes), components)));
+        areNodesValid(children, item, dataScopesOfListItem(node, item, index, scopes), components, editedNode)));
     }
     else if (children.length) {
-      results.push(areNodesValid(children, nodeData, dataScopesOfChildren(node, data, scopes, components), components));
+      results.push(areNodesValid(children, nodeData, dataScopesOfChildren(node, data, scopes, components), components, editedNode));
     }
     return every(results, result => result === undefined || result === true);
   }), Boolean);
 }
 
-// whether the props of the node are valid (used to validate the schema in build mode)
-export function isNodeValid(node: InternalSchemaNode, components: FormComponents): MaybePromise<boolean> {
+// whether the props of the node are valid (used to validate the schema in build mode),
+// `schema` is the schema the node is part of, which the validations of the props get to see (see `EditedNode`)
+export function isNodeValid(node: InternalSchemaNode, components: FormComponents, schema: InternalSchemaNode[] = [node]): MaybePromise<boolean> {
   const component = components[node.type];
   // nodes of unknown components (e.g. after switching the components) can't be rendered or validated
   if (!component) {
@@ -96,9 +100,10 @@ export function isNodeValid(node: InternalSchemaNode, components: FormComponents
   }
   // the props are edited in a form of their own (see `FormNodeProps`), so they are the only scope of their validation
   const propsData: FormData = { $name: node.name, ...node.props };
+  const editedNode: EditedNode = { node, path: getNodePath(schema, node._id) ?? [], schema };
   return areNodesValid(component.propsSchema, propsData, [
     { data: propsData, path: [] },
-  ], components);
+  ], components, editedNode);
 }
 
 // the message of an error thrown by a validation, e.g. of an async schema failing to reach a server
@@ -109,9 +114,9 @@ export function errorMessage(error: unknown): string {
 }
 
 // whether the props of the node are valid, or the message of the error thrown by their validation
-export function propsValidityOfNode(node: InternalSchemaNode, components: FormComponents): MaybePromise<boolean | string> {
+export function propsValidityOfNode(node: InternalSchemaNode, components: FormComponents, schema?: InternalSchemaNode[]): MaybePromise<boolean | string> {
   try {
-    const result = isNodeValid(node, components);
+    const result = isNodeValid(node, components, schema);
     return isPromiseLike(result)
       ? Promise.resolve(result).then(valid => valid, errorMessage)
       : result;

@@ -1,8 +1,9 @@
-import type { FormComponents, SchemaNode } from '@former-ui/former';
-import { useFormComponents as useNuxtUiFormComponents } from '@former-ui/preset-nuxt-ui';
-import { computed, markRaw } from 'vue';
+import type { FormComponents } from '@former-ui/former';
+import { useFormulaProps } from '@former-ui/formula/vue';
+import { formulaProps, useFormComponents as useNuxtUiFormComponents } from '@former-ui/preset-nuxt-ui';
+import { computed } from 'vue';
+import { engine, playgroundSource } from './formula';
 import { sampleFormComponents } from './sample';
-import ShowIfSelect from './ShowIfSelect.vue';
 
 export type PlaygroundPreset = {
   id: string;
@@ -10,55 +11,34 @@ export type PlaygroundPreset = {
   components: FormComponents;
 };
 
-const showIfProp: SchemaNode = {
-  type: 'showIf',
-  name: 'showIf',
-  props: { label: 'Show if the field has a value' },
-};
-
-// selects the field the visibility of an element depends on, only used in the props form
-const showIfComponent: FormComponents[string] = {
-  label: 'Show if',
-  component: markRaw(ShowIfSelect),
-  propsSchema: [
-    { type: 'text', name: '$name' },
-  ],
-  internal: true,
-};
-
-// adds the playground's show if setting to the components of a preset
-function withShowIf(components: FormComponents): FormComponents {
-  return {
-    ...Object.fromEntries(
-      Object.entries(components).map(([type, component]) => [
-        type,
-        {
-          ...component,
-          propsSchema: [
-            ...(component.propsSchema ?? []),
-            showIfProp,
-          ],
-        },
-      ]),
-    ),
-    showIf: showIfComponent,
-  };
-}
-
-// presets the user can choose from in the playground; add new presets here
+// presets the user can choose from in the playground; add new presets here.
+// Their components get a show if formula, and the props listed by the preset (e.g. `max`) a formula of their own
 export function usePresets() {
   const nuxtUiFormComponents = useNuxtUiFormComponents();
+  const formulaOptions = {
+    engine,
+    sources: [playgroundSource],
+  };
+
+  const sampleComponents = useFormulaProps(sampleFormComponents, {}, {
+    ...formulaOptions,
+    editor: { component: sampleFormComponents.text!.component },
+  });
+  const nuxtUiComponents = useFormulaProps(nuxtUiFormComponents, formulaProps, {
+    ...formulaOptions,
+    editor: { component: nuxtUiFormComponents.value.textarea!.component },
+  });
 
   return computed<[PlaygroundPreset, ...PlaygroundPreset[]]>(() => [
     {
       id: 'sample',
       label: 'Sample components',
-      components: withShowIf(sampleFormComponents),
+      components: sampleComponents.value,
     },
     {
       id: 'nuxt-ui',
       label: 'Nuxt UI preset',
-      components: withShowIf(nuxtUiFormComponents.value),
+      components: nuxtUiComponents.value,
     },
   ]);
 }

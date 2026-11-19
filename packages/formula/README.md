@@ -1,0 +1,136 @@
+# 🧮 Former Formula
+
+Formulas for [Former](https://github.com/geprog/former/blob/main/packages/former/README.md), based on [mathjs](https://mathjs.org): conditions to show nodes, props calculated from the data of the form (e.g. the maximum of a number field) and calculations in components.
+
+```
+$roof.width * $roof.height
+equalText($color, 'red') and $count > 2
+sum(map($rows, f($rows_item) = $rows_item.width * $rows_item.height))
+```
+
+## Installation
+
+```bash
+pnpm add @former-ui/formula mathjs
+```
+
+The package has two entries:
+
+- `@former-ui/formula`: the engine, which doesn't depend on Vue, so it can evaluate formulas on a server too
+- `@former-ui/formula/vue`: the integration into Former
+
+## Usage
+
+```vue
+<template>
+  <Former v-model:schema="schema" v-model:data="data" :components :show-if />
+</template>
+
+<script setup lang="ts">
+import { createFormulaEngine, valueSource } from '@former-ui/formula';
+import { useFormulaProps, useFormulaShowIf } from '@former-ui/formula/vue';
+import { formulaProps, useFormComponents } from '@former-ui/preset-nuxt-ui';
+import { all, create } from 'mathjs';
+
+const engine = createFormulaEngine({
+  math: create(all)
+});
+const sources = [
+  valueSource({
+    id: 'settings',
+    values: { vat: 0.19 }
+  })
+];
+
+const presetComponents = useFormComponents();
+const components = useFormulaProps(presetComponents, formulaProps, {
+  engine,
+  sources,
+  // the component editing formulas in the props form
+  editor: { component: presetComponents.value.textarea.component },
+});
+const showIf = useFormulaShowIf({ engine, sources, components });
+</script>
+```
+
+`useFormulaProps` adds formulas to the props of the components (see [Formula props](#formula-props)) and provides the engine and sources to the form. `useFormulaShowIf` returns a `showIf` predicate for `Former`, which shows a node if the formula in its `showIf` prop evaluates to `true`. Both have to be called in the `setup` of the component rendering the form.
+
+## Variables
+
+Every variable starts with `$`, so that it can't be mistaken for a function or constant of mathjs (e.g. `e` or `pi`) or a unit (e.g. `t`).
+
+- The fields of the form are named by the path of their data, e.g. `$roof.width` for the field `width` of the group `roof`.
+- A list (e.g. a repeater `rows`) is `$rows`, its current item is `$rows_item`, e.g. `$rows_item.width`. The item is available in the nodes inside of the list and in callbacks of `map`, `filter` and `forEach`: `sum(map($rows, f($rows_item) = $rows_item.width))`.
+- A variable without value is `''`, which is `0` in calculations and doesn't match in comparisons, a list without value is `[]`.
+- Text is compared with `equalText($color, 'red')`, as `==` compares numbers.
+
+## External data
+
+Data that isn't part of the form is provided by sources:
+
+```ts
+import { formulaSource, schemaSource, valueSource } from '@former-ui/formula';
+
+// plain values, e.g. `$vat` and `$price.total`, a getter is read on each evaluation (e.g. of a ref)
+const settings = valueSource({
+  id: 'settings',
+  values: () => ({
+    vat: 0.19,
+    price: { total: total.value }
+  })
+});
+
+// the data of another form, e.g. `$house.roof.width`
+const house = schemaSource({
+  id: 'house',
+  namespace: 'house',
+  schema: houseSchema,
+  data: () => houseData.value,
+  components
+});
+
+// named formulas, which other formulas use like variables, e.g. `$wallArea`
+const calculations = formulaSource({
+  id: 'calculations',
+  formulas: { wallArea: '$roof.width * $roof.height' }
+});
+```
+
+Sources are passed to the engine (`createFormulaEngine({ sources })`), to the composables (`sources`) or provided to the components below with `provideFormulaSources`. The variables are top-level unless a source has a `namespace`. Fields of the form can't be named like the top-level variables of sources (see `engine.reservedNames()`), the props form reports such names. While a source is `pending` (e.g. its data is loading), its values are missing.
+
+## Formula props
+
+`useFormulaProps(components, formulaProps)` adds a `<prop>Formula` setting after each prop listed in `formulaProps` (e.g. `{ number: { max: 'number' } }`, [`@former-ui/preset-nuxt-ui`](../preset-nuxt-ui/README.md#formulas) declares its props). As long as the formula is set, the component and its validation get its value instead of the static prop. A formula that can't be evaluated or uses a variable without value (except lists) leaves the prop unset, e.g. a maximum isn't applied until the fields it depends on are filled in, and a preset waits for them. Every component gets a `showIf` formula as well.
+
+The formulas are checked in the props form for where the node is: unknown variables or functions, items of lists outside of the list, text compared with `==` and more. The messages are in english, pass `message` to translate them (see `describeDiagnostic`).
+
+## In components
+
+`useFormula` evaluates a formula in the data of the node the component is rendered for, e.g. its repeater item:
+
+```ts
+const props = defineProps<{ formula?: string }>();
+const { value, pending } = useFormula(() => props.formula, { expect: 'number' });
+```
+
+## Engine
+
+```ts
+const engine = createFormulaEngine({
+  math: create(all)
+});
+
+engine.evaluate('$a * 2', {
+  data: { a: 2 }
+}); // 4
+engine.evaluate('$a > 2', {
+  data: { a: 2 },
+  expect: 'boolean'
+}); // false
+engine.evaluateDetailed('$a +'); // { ok: false, error: FormulaError { code: 'syntax' } }
+engine.analyze('$nope + 1', {
+  variables: engine.schemaVariables(schema, components)
+}).diagnostics;
+```
+
+Functions that would allow to break out of a formula (e.g. `import` or `evaluate`, see `UNSAFE_FUNCTIONS`) are not available. The mathjs instance isn't changed.

@@ -354,12 +354,12 @@ describe('useNode', () => {
       expect(isShown.value).toBe(true);
     });
 
-    it('uses showIf(node) when a predicate is provided', () => {
+    it('uses showIf(node, scopes) when a predicate is provided', () => {
       const node = ref<InternalSchemaNode>({ _id: 'n1', type: FIELD_TYPE, name: 'a' });
       const showIf = vi.fn(() => false);
       const { isShown } = mountUseNode({ node, showIf });
       expect(isShown.value).toBe(false);
-      expect(showIf).toHaveBeenCalledWith(node.value);
+      expect(showIf).toHaveBeenCalledWith(node.value, expect.any(Array));
     });
   });
 
