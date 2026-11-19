@@ -14,6 +14,15 @@ sum(map($rows, f($rows_item) = $rows_item.width * $rows_item.height))
 pnpm add @former-ui/formula mathjs vue-i18n
 ```
 
+Its components are styled with [Tailwind CSS](https://tailwindcss.com). Tailwind does not scan `node_modules`, so add the package as a source to your CSS file:
+
+```css
+/* main.css */
+@import 'tailwindcss';
+
+@source '../node_modules/@former-ui/formula/dist';
+```
+
 The package has two entries:
 
 - `@former-ui/formula`: the engine, which doesn't depend on Vue, so it can evaluate formulas on a server too
@@ -102,7 +111,7 @@ Sources are passed to the engine (`createFormulaEngine({ sources })`), to the co
 
 `useFormulaProps(components, formulaProps)` lets each prop listed in `formulaProps` (e.g. `{ number: { max: 'number' } }`, [`@former-ui/preset-nuxt-ui`](../preset-nuxt-ui/README.md#formulas) declares its props) be either a fixed value or a formula. In the props form, an icon button in the label row of the field (`fx` and `123`) switches between the field of the prop and a formula editor, and clears the other one, so only one of them is set. The formula is stored as `<prop>Formula` (e.g. `maxFormula`), so the fixed values keep their type and a schema works without the formula package too. As long as the formula is set, the component and its validation get its value instead of the fixed one. A formula that can't be evaluated or uses a variable without value (except lists) leaves the prop unset, e.g. a maximum isn't applied until the fields it depends on are filled in, and a preset waits for them. Every component gets a `showIf` formula as well.
 
-The switch is `FormulaSwitch` (marked with `data-formula-switch` and `data-formula-switch-toggle`), pass `switch: { component }` to use your own. The border of its button has the primary color of [Nuxt UI](https://ui.nuxt.com) (`--ui-primary`), set `--former-formula-switch-color` to use another color. As a layout component, it gets the props of the node as its model value and renders the field of the prop or of the formula with `<FormRenderer category="value" />` or `<FormRenderer category="formula" />`.
+The switch is `FormulaSwitch` (marked with `data-formula-switch` and `data-formula-switch-toggle`), pass `switch: { component }` to use your own. The border of its button has the `primary` color of your Tailwind theme (`border-primary`), which [Nuxt UI](https://ui.nuxt.com) defines. As a layout component, it gets the props of the node as its model value and renders the field of the prop or of the formula with `<FormRenderer category="value" />` or `<FormRenderer category="formula" />`.
 
 The formulas are checked in the props form for where the node is: unknown variables or functions, items of lists outside of the list, text compared with `==` and more.
 

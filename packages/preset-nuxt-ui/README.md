@@ -148,6 +148,8 @@ const components = useFormulaProps(presetComponents, formulaProps, {
 const showIf = useFormulaShowIf({ engine, components });
 ```
 
+Add the formula package as a Tailwind source as well (`@source '../node_modules/@former-ui/formula/dist';`, see [its README](../formula/README.md#installation)).
+
 ## Storing form data
 
 Fields can have a preset value. A preset is applied as long as the field's key does not exist in the form data. This way a field that is newly added to a form, or that becomes visible again, gets its preset, while a field the user cleared on purpose stays empty.

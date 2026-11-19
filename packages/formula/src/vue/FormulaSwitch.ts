@@ -55,8 +55,7 @@ export const FormulaSwitch = defineComponent({
     const icon = (text: string) => h('svg', {
       'viewBox': '0 0 24 24',
       'aria-hidden': 'true',
-      // set as style, as the CSS resets of apps often scale svgs
-      'style': { width: '18px', height: '18px' },
+      'class': 'size-[18px]',
     }, [
       h('text', {
         'x': 12,
@@ -86,24 +85,9 @@ export const FormulaSwitch = defineComponent({
         'aria-pressed': isFormula.value,
         'data-formula-switch-toggle': '',
         'onClick': toggle,
-        // in the label row of the field, at its right end, so that the label and the input stay aligned with other fields
-        'style': {
-          position: 'absolute',
-          top: 0,
-          right: 0,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          width: '1.75rem',
-          height: '1.25rem',
-          padding: 0,
-          // the primary color of the app, e.g. of nuxt ui, which apps can set with `--former-formula-switch-color`
-          border: '1px solid var(--former-formula-switch-color, var(--ui-primary, currentColor))',
-          borderRadius: '0.25rem',
-          background: 'transparent',
-          color: 'inherit',
-          cursor: 'pointer',
-        },
+        // in the label row of the field, at its right end, so that the label and the input stay aligned with other fields,
+        // bordered with the `primary` color of the Tailwind theme of the app (e.g. the one of nuxt ui)
+        'class': 'absolute top-0 right-0 flex h-5 w-7 cursor-pointer items-center justify-center rounded border border-primary bg-transparent p-0 text-inherit',
       }, [
         icon(isFormula.value
           ? '123'
@@ -112,7 +96,7 @@ export const FormulaSwitch = defineComponent({
     };
 
     return () => h('div', {
-      'style': { position: 'relative', width: '100%' },
+      'class': 'relative w-full',
       'data-formula-switch': isFormula.value
         ? 'formula'
         : 'value',
