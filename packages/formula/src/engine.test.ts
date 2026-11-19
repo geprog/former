@@ -1,7 +1,7 @@
 import type { FormulaSource } from './types';
 import { all, create } from 'mathjs';
 import { describe, expect, it, vi } from 'vitest';
-import { reactive, readonly } from 'vue';
+import { computed, reactive, readonly } from 'vue';
 import { createFormulaEngine } from './engine';
 import { formulaSource, valueSource } from './sources';
 
@@ -357,5 +357,30 @@ describe('createFormulaEngine', () => {
         }),
       ])).toEqual(['product', 'b', 'ns']);
     });
+  });
+});
+
+describe('reactivity', () => {
+  const engine = createFormulaEngine({
+    math: create(all),
+  });
+
+  it('evaluates again when a property the formula uses is added to reactive data', () => {
+    const data = reactive<Record<string, unknown>>({ group: {} });
+    const root = computed(() => engine.evaluate('$a + 1', { data }));
+    const nested = computed(() => engine.evaluate('$group.b + 1', { data }));
+    expect(root.value).toBe(1);
+    expect(nested.value).toBe(1);
+    data.a = 2;
+    (data.group as Record<string, unknown>).b = 3;
+    expect(root.value).toBe(3);
+    expect(nested.value).toBe(4);
+  });
+
+  it('doesn\'t read inherited properties', () => {
+    expect(engine.evaluate('$toString', { data: {} })).toBe('');
+    expect(engine.evaluate('$group.constructor', {
+      data: { group: {} },
+    })).toBe('');
   });
 });

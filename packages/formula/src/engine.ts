@@ -102,6 +102,14 @@ function isPlainObject(value: unknown): value is Record<string, unknown> {
 const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
 
 /**
+ * Whether an object has a property of its own. Checked with `in` first, which reactive data (e.g. of Vue) tracks,
+ * so that a formula is evaluated again when a property it uses is added, unlike `Object.hasOwn` alone.
+ */
+function hasOwnProperty(object: Record<string, unknown>, key: string): boolean {
+  return key in object && Object.hasOwn(object, key);
+}
+
+/**
  * A copy of the lists and plain objects of a value, as some functions of mathjs change their arguments (e.g. `sort`
  * sorts a list in place) and assignments write into objects, which mustn't change the data of the form.
  * Objects computing their properties when read (e.g. the namespaces of named formulas) are kept.
@@ -329,7 +337,7 @@ export function createFormulaEngine(options: FormulaEngineOptions): FormulaEngin
       disabledFunctions.forEach(name => this.builtins.set(name, () => {
         throw new FormulaError('disabled-function', `The function ${name} is not available`);
       }));
-      this.builtins.set(GET, (object: unknown, key: string, path: string) => (isPlainObject(object) && Object.hasOwn(object, key)
+      this.builtins.set(GET, (object: unknown, key: string, path: string) => (isPlainObject(object) && hasOwnProperty(object, key)
         ? this.valueOrMissing(object[key], path)
         : this.missing(path)));
     }
@@ -394,7 +402,7 @@ export function createFormulaEngine(options: FormulaEngineOptions): FormulaEngin
       if (this.items.has(root)) {
         return this.valueOrMissing(this.items.get(root), root);
       }
-      if (isPlainObject(this.rootData) && Object.hasOwn(this.rootData, root)) {
+      if (isPlainObject(this.rootData) && hasOwnProperty(this.rootData, root)) {
         return this.valueOrMissing(this.rootData[root], root);
       }
       if (!this.sourceByRoot) {
