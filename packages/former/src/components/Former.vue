@@ -5,12 +5,12 @@
 </template>
 
 <script setup lang="ts">
-import type { FormComponents, FormData, InternalSchemaNode, Mode, SchemaNode, ShowIfPredicate, Texts } from '~/types';
+import type { DataScope, FormComponents, FormData, InternalSchemaNode, Mode, SchemaNode, ShowIfPredicate, Texts } from '~/types';
 import { cloneDeep, isEqual } from 'lodash';
 import { computed, ref, toRef, watch } from 'vue';
 import { provide } from '~/compositions/injectProvide';
 import useSchema from '~/compositions/useSchema';
-import { generateFormId, getNodePath, toInternalSchema, toSchema } from '~/utils';
+import { dataPathOfNode, generateFormId, getNodePath, toInternalSchema, toSchema } from '~/utils';
 import FormContent from './FormContent.vue';
 
 const props = withDefaults(defineProps<{
@@ -71,11 +71,14 @@ provide('data', wrappedData);
 provide('mode', toRef(props, 'mode'));
 provide('components', toRef(props, 'components'));
 
-provide('showIf', (node: SchemaNode) => {
+provide('showIf', (node: SchemaNode, scopes: DataScope[]) => {
   if (!props.showIf) {
     return true;
   }
-  return props.showIf(node, wrappedData.value, schema.value);
+  return props.showIf(node, wrappedData.value, schema.value, {
+    path: dataPathOfNode(node, scopes, props.components),
+    scopes,
+  });
 });
 
 // reset the scopes for nested forms (e.g. the props form of the selected node)

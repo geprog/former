@@ -11,3 +11,5 @@ export function useFormComponents() {
   const { t } = useI18n();
   return computed(() => createFormComponents((key, named) => t(key, named ?? {})));
 }
+
+export { formulaProps } from './formulaProps';

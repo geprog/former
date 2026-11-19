@@ -6,6 +6,7 @@ It includes further headless features like:
 
 - conditional showing elements
 - validation
+- formulas, e.g. to show elements conditionally or to calculate values (see [`@former-ui/formula`](./packages/formula/README.md))
 
 ## Playground
 
@@ -19,3 +20,5 @@ For detailed documentation including installation, usage, Tailwind CSS configura
 
 - [`@former-ui/former`](./packages/former/README.md): the headless form builder
 - [`@former-ui/preset-nuxt-ui`](./packages/preset-nuxt-ui/README.md): ready-to-use form components built with [Nuxt UI](https://ui.nuxt.com)
+- [`@former-ui/formula`](./packages/formula/README.md): formulas based on [mathjs](https://mathjs.org) for show if conditions, props calculated from the data (e.g. a maximum) and calculated fields
+- [`@former-ui/formula-editor`](./packages/formula-editor/README.md): an editor for the formulas with highlighting, completion and documentation, based on [tiptap](https://tiptap.dev)

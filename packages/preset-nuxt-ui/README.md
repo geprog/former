@@ -126,6 +126,30 @@ const components = computed<FormComponents>(() => {
 });
 ```
 
+## Formulas
+
+The preset declares which props of its components may be calculated by a formula as `formulaProps`, e.g. `min` and `max` of number fields or the minimum and maximum number of items of repeaters. It doesn't depend on a formula library, [`@former-ui/formula`](../formula/README.md) adds the formulas:
+
+```ts
+import { createFormulaEngine } from '@former-ui/formula';
+import { useFormulaProps, useFormulaShowIf } from '@former-ui/formula/vue';
+import { formulaProps, useFormComponents } from '@former-ui/preset-nuxt-ui';
+import { all, create } from 'mathjs';
+
+const engine = createFormulaEngine({
+  math: create(all)
+});
+const presetComponents = useFormComponents();
+// e.g. `max` of number fields can be switched to a formula (stored as `maxFormula`), and all components get a `showIf` formula
+const components = useFormulaProps(presetComponents, formulaProps, {
+  engine,
+  editor: { component: presetComponents.value.textarea.component },
+});
+const showIf = useFormulaShowIf({ engine, components });
+```
+
+Add the formula package as a Tailwind source as well (`@source '../node_modules/@former-ui/formula/dist';`, see [its README](../formula/README.md#installation)).
+
 ## Storing form data
 
 Fields can have a preset value. A preset is applied as long as the field's key does not exist in the form data. This way a field that is newly added to a form, or that becomes visible again, gets its preset, while a field the user cleared on purpose stays empty.

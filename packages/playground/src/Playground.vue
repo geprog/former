@@ -116,6 +116,7 @@ import type {
   FormData,
   Mode,
   SchemaNode,
+  ShowIfPredicate,
 } from '@former-ui/former';
 import {
   FormAdd,
@@ -123,13 +124,14 @@ import {
   Former,
   FormNodeProps,
 } from '@former-ui/former';
+import { useFormulaShowIf } from '@former-ui/formula/vue';
 import { useStorage } from '@vueuse/core';
-import { computed, provide, ref } from 'vue';
+import { computed, ref } from 'vue';
 import Button from '@/sample/Button.vue';
 import Checkbox from '@/sample/Checkbox.vue';
 import Select from '@/sample/Select.vue';
+import { engine, playgroundSource } from './formula';
 import { usePresets } from './presets';
-import { hasValueAt, playgroundSchemaKey } from './showIf';
 
 const mode = useStorage<Mode>('former:mode', 'build');
 const presets = usePresets();
@@ -233,7 +235,7 @@ const schema = useStorage<SchemaNode[]>('former:schema', [
     type: 'select',
     name: 'select',
     props: {
-      showIf: 'name',
+      showIf: 'not equalText($name, "")',
       label: 'Select',
       options: [
         { label: 'Option 1', value: 'option1' },
@@ -268,8 +270,6 @@ const schema = useStorage<SchemaNode[]>('former:schema', [
   },
 ]);
 
-provide(playgroundSchemaKey, schema);
-
 const debouncedSchema = (() => {
   let timeout: ReturnType<typeof setTimeout> | null = null;
 
@@ -302,21 +302,18 @@ const activeComponents = computed(() => {
   return preset.components;
 });
 
-// shows the node only if the field selected in its show if prop has a value
 // the name of a node, or the label of its component for nodes without a name (e.g. layout components)
 function nodeLabel(node: SchemaNode): string {
   return node.name || activeComponents.value[node.type]?.label || node.type;
 }
 
-function showIf(node: SchemaNode, data: FormData): boolean {
-  if (!activateShowIf.value) {
-    return true;
-  }
-  const path = node.props?.showIf;
-  if (!path)
-    return true;
-  return hasValueAt(data, path);
-}
+// shows the node only if the formula in its show if prop evaluates to true
+const formulaShowIf = useFormulaShowIf({
+  engine,
+  sources: [playgroundSource],
+  components: activeComponents,
+});
+const showIf: ShowIfPredicate = (...args) => !activateShowIf.value || formulaShowIf(...args);
 
 function submit() {
   // eslint-disable-next-line no-console

@@ -1,0 +1,73 @@
+{
+  "name": "@former-ui/formula",
+  "type": "module",
+  "version": "0.0.0",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/geprog/former.git"
+  },
+  "keywords": [
+    "vue",
+    "vue3",
+    "former",
+    "mathjs",
+    "formula",
+    "form-builder"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs"
+    },
+    "./vue": {
+      "types": "./dist/vue/index.d.ts",
+      "import": "./dist/vue/index.mjs"
+    },
+    "./en.json": "./dist/locales/en.json"
+  },
+  "files": [
+    "dist"
+  ],
+  "engines": {
+    "pnpm": ">=9.0.0",
+    "node": ">=22.0.0"
+  },
+  "scripts": {
+    "dev": "chokidar \"src/**/*\" --initial -c \"pnpm build\"",
+    "build": "mkdist --src src --dist dist --declaration --pattern='**' --pattern='!**/*.test.ts'",
+    "test": "vitest --pass-with-no-tests",
+    "prepack": "pnpm build",
+    "typecheck": "vue-tsc --build --force"
+  },
+  "peerDependencies": {
+    "@former-ui/former": ">=0.1.0 <1.0.0",
+    "mathjs": "^15.0.0",
+    "vue": "^3.5.0",
+    "vue-i18n": "^11.0.0"
+  },
+  "peerDependenciesMeta": {
+    "@former-ui/former": {
+      "optional": true
+    },
+    "vue": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "@former-ui/former": "workspace:^",
+    "@tsconfig/node26": "26.0.2",
+    "@types/node": "26.6.6",
+    "@vue/test-utils": "2.5.1",
+    "@vue/tsconfig": "0.9.1",
+    "chokidar-cli": "3.0.0",
+    "happy-dom": "21.0.4",
+    "mathjs": "15.2.0",
+    "mkdist": "2.4.1",
+    "typescript": "6.0.3",
+    "vitest": "5.1.0",
+    "vue": "3.5.45",
+    "vue-i18n": "11.4.14",
+    "vue-tsc": "3.3.14"
+  }
+}

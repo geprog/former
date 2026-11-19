@@ -1,14 +1,21 @@
 import type { MaybeRefOrGetter } from 'vue';
-import type { FieldData, FormData, SchemaNode } from '~/types';
+import type { DataScope, FieldData, FormData, SchemaNode } from '~/types';
 import { computed, toValue } from 'vue';
-import { hasValue, isListNode, nodeChildren } from '~/utils';
+import { dataScopesOfChildren, hasValue, isListNode, nodeChildren } from '~/utils';
 import { inject } from './injectProvide';
 
 // whether any of the nodes shows something in read mode for the given data,
-// nodes hidden by their show if condition show nothing, while other nodes without name and children (e.g. images) always do
+// nodes hidden by their show if condition show nothing, while other nodes without name and children (e.g. images) always do,
+// `scopes` are the scopes of the data the nodes are in, passed to their show if conditions
 export function useHasContent(
   nodes: MaybeRefOrGetter<SchemaNode[]>,
   data: MaybeRefOrGetter<FieldData | FormData>,
+  scopes: MaybeRefOrGetter<DataScope[]> = () => [
+    {
+      data: toValue(data),
+      path: [],
+    },
+  ],
 ) {
   const showIf = inject('showIf', false);
   const components = inject('components', false);
@@ -23,18 +30,19 @@ export function useHasContent(
       : undefined;
   }
 
-  function hasContent(nodes: SchemaNode[], data: FieldData | FormData): boolean {
+  function hasContent(nodes: SchemaNode[], data: FieldData | FormData, scopes: DataScope[]): boolean {
     const fields = data !== null && typeof data === 'object' && !Array.isArray(data)
       ? data
       : {};
     return nodes.some((node) => {
-      if (showIf && !showIf(node)) {
+      if (showIf && !showIf(node, scopes)) {
         return false;
       }
       const children = shownChildren(node);
+      const childrenScopes = dataScopesOfChildren(node, data, scopes, components?.value ?? {});
       if (!node.name) {
         return children
-          ? hasContent(children, fields)
+          ? hasContent(children, fields, childrenScopes)
           : true;
       }
       const value = fields[node.name];
@@ -44,9 +52,9 @@ export function useHasContent(
         return Array.isArray(value) && value.length > 0;
       }
       // e.g. a group can show images without data
-      return hasValue(value) || hasContent(children ?? [], value);
+      return hasValue(value) || hasContent(children ?? [], value, childrenScopes);
     });
   }
 
-  return computed(() => hasContent(toValue(nodes), toValue(data)));
+  return computed(() => hasContent(toValue(nodes), toValue(data), toValue(scopes)));
 }

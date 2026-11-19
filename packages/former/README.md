@@ -259,6 +259,24 @@ Next to the selected node, Former provides its path: the parents of the node fro
 - the default slot of `Former` passes it as `selectedNodePath`: `<Former v-slot="{ selectedNode, selectedNodePath }" ...>`
 - the `node-actions` slot of `FormNodeProps` passes it as `path` next to `node`
 
+### Showing nodes conditionally
+
+Pass a `showIf` predicate to `Former` to hide nodes, e.g. depending on the data. Hidden nodes are shown highlighted in build mode, their data is removed and they are not validated. Next to the node, the form data and the schema, it gets where the node is in the data: its `path` and the `scopes` of data containing it (see the context of the validation below), e.g. to resolve the repeater item of the node:
+
+```ts
+const showIf: ShowIfPredicate = (node, data, schema, { path, scopes }) => {
+  // shown if the field `visible` of the same repeater item (or of the form) is checked
+  const closest = (scopes[0].data ?? {}) as FormData;
+  return !node.props?.onlyIfVisible || closest.visible === true;
+};
+```
+
+For conditions written as formulas, see [`@former-ui/formula`](https://github.com/geprog/former/blob/main/packages/formula/README.md).
+
+### The node of a component
+
+Components rendered by Former can get the node they are rendered for with `useFormNode()`: the `node`, the `path` of its data and the `scopes` of data containing it, like the context of the validation below. Components in the props form of the builder get the node whose props are edited with `useEditedNode()`: the `node`, its parents (`path`) and the whole `schema`, e.g. to offer the fields of the form as choices.
+
 ## Form data and validation
 
 Each component validates its data with a schema built from the props of its node, e.g. `required`, `min` or `max`. Add a `validation` to its definition in the `components`, which is applied to every node of the component, including the props of the nodes in build mode. The first issue of the schema is passed as `error` to the component, while a form with an error emits `valid` as `false`.
@@ -294,6 +312,8 @@ The second parameter of the validation is the context of the node, so the valida
 - `scopes`: all scopes containing the node from the closest one to the form data, e.g. `[repeater item, group, form]` for a field in a repeater item inside of a group. Each scope has its `data`, its `path` and the `node` providing it (the group or repeater, unset for the form)
 - `path`: the path of the data of the node in the form data, e.g. `['periods', 1, 'end']`
 - `node`: the node itself
+- `schema`: the schema of the form the node is in (while validating props, the props schema of its component)
+- `editedNode`: only while validating props (in the props form or the validation of the schema in build mode), the node whose props they are, with its parents (`path`) and the whole `schema`
 
 ```ts
 // the end of a period must not be before the start of the same repeater item
@@ -309,7 +329,7 @@ const validation: FormFieldType['validation'] = (props, { scopes }) => {
 
 Data from outside of the form (e.g. options loaded from a server) can be used by creating the `components` in a function receiving it.
 
-Hidden nodes (see `showIf`) are not validated.
+Hidden nodes (see [`showIf`](#showing-nodes-conditionally)) are not validated.
 
 While an async schema is pending, the form emits `valid` as `false`. If the validation throws or its promise rejects (e.g. a server isn't reachable), the message of the error is passed as `error` to the component.
 

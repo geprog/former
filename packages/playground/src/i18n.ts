@@ -1,3 +1,4 @@
+import formulaEn from '@former-ui/formula/en.json';
 import en from '@former-ui/preset-nuxt-ui/en.json';
 import { de as nuxtUiDe, en as nuxtUiEn } from '@nuxt/ui/locale';
 import { createI18n } from 'vue-i18n';
@@ -10,5 +11,11 @@ export const i18n = createI18n({
   legacy: false,
   locale: 'en',
   fallbackLocale: 'en',
-  messages: { en, de },
+  messages: {
+    en: {
+      ...en,
+      ...formulaEn,
+    },
+    de,
+  },
 });

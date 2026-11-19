@@ -442,10 +442,10 @@ describe('component Former', () => {
       await nextTick();
       const fn = activeFormerProbe!.showIf!;
       expect(fn).toBeTypeOf('function');
-      expect(fn({ type: 'text', name: 'n' })).toBe(true);
+      expect(fn({ type: 'text', name: 'n' }, [])).toBe(true);
     });
 
-    it('delegates to the showIf prop with node, data, and schema', async () => {
+    it('delegates to the showIf prop with node, data, schema and where the node is in the data', async () => {
       const showIf = vi.fn().mockReturnValue(false);
       mount(Former, {
         shallow: true,
@@ -471,10 +471,24 @@ describe('component Former', () => {
       });
       await nextTick();
       const node: SchemaNode = { type: 'text', name: 'n' };
-      expect(activeFormerProbe!.showIf?.(node)).toBe(false);
+      const scopes = [
+        {
+          node: { type: 'group', name: 'g' },
+          data: {},
+          path: ['g'],
+        },
+        {
+          data: { foo: 'bar' },
+          path: [],
+        },
+      ];
+      expect(activeFormerProbe!.showIf?.(node, scopes)).toBe(false);
       expect(showIf).toHaveBeenCalledWith(node, { foo: 'bar' }, [
         { type: 'text', name: 's1' },
-      ]);
+      ], {
+        path: ['g', 'n'],
+        scopes,
+      });
     });
   });
 

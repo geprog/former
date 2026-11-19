@@ -9,6 +9,9 @@ import { defineConfig } from 'vite';
 const packageEntries = [
   fileURLToPath(new URL('../former/dist/index.js', import.meta.url)),
   fileURLToPath(new URL('../preset-nuxt-ui/dist/index.mjs', import.meta.url)),
+  fileURLToPath(new URL('../formula/dist/index.mjs', import.meta.url)),
+  fileURLToPath(new URL('../formula/dist/vue/index.mjs', import.meta.url)),
+  fileURLToPath(new URL('../formula-editor/dist/index.mjs', import.meta.url)),
 ];
 
 // A request during a package build fails with "Failed to resolve entry for package", because its
@@ -71,6 +74,11 @@ export default defineConfig({
     allowedHosts: ['.gitpod.io'],
   },
   optimizeDeps: {
-    exclude: ['@former-ui/former', '@former-ui/preset-nuxt-ui'],
+    exclude: [
+      '@former-ui/former',
+      '@former-ui/preset-nuxt-ui',
+      '@former-ui/formula',
+      '@former-ui/formula-editor',
+    ],
   },
 });

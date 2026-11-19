@@ -68,3 +68,23 @@ jobs:
         working-directory: packages/preset-nuxt-ui/
         run: pnpm publish --no-git-checks --access public
         if: 'github.ref_type == ''tag'''
+
+      - name: Set version @former-ui/formula
+        working-directory: packages/formula/
+        run: pnpm version ${GITHUB_REF#refs/*/} --no-commit-hooks --no-git-tag-version --no-git-checks
+        if: 'github.ref_type == ''tag'''
+
+      - name: Release @former-ui/formula
+        working-directory: packages/formula/
+        run: pnpm publish --no-git-checks --access public
+        if: 'github.ref_type == ''tag'''
+
+      - name: Set version @former-ui/formula-editor
+        working-directory: packages/formula-editor/
+        run: pnpm version ${GITHUB_REF#refs/*/} --no-commit-hooks --no-git-tag-version --no-git-checks
+        if: 'github.ref_type == ''tag'''
+
+      - name: Release @former-ui/formula-editor
+        working-directory: packages/formula-editor/
+        run: pnpm publish --no-git-checks --access public
+        if: 'github.ref_type == ''tag'''

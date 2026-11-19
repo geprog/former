@@ -6,18 +6,23 @@ export { default as FormDataProvider } from './components/FormDataProvider.vue';
 export { default as Former } from './components/Former.vue';
 export { default as FormNodeProps } from './components/FormNodeProps.vue';
 export { default as FormRenderer } from './components/FormRenderer.vue';
+export { useEditedNode, useFormNode } from './compositions/useFormNode';
 export { usePresetValue } from './compositions/usePresetValue';
 
 export type {
   DataPath,
   DataScope,
+  EditedNode,
   FieldData,
   FormComponents,
   FormData,
   FormerProps,
   FormFieldType,
+  FormulaPropsMap,
+  FormulaPropType,
   Mode,
   SchemaNode,
+  ShowIfContext,
   ShowIfPredicate,
   ValidationContext,
 } from './types';
